@@ -11,7 +11,7 @@ import (
 const mapPath = "./larger_map.tmx"
 
 var (
-	Map = &GameMap{}
+	Map          = &GameMap{}
 	camPos       = pixel.ZV
 	camSpeed     = 1000.0
 	camZoom      = 2.0
@@ -54,6 +54,7 @@ func setup() {
 	tilemap, err := tmx.ReadFile(mapPath)
 	panicIfErr(err)
 	Map.Create(tilemap)
+	Map.GotoTile(5, 50)
 }
 
 //=============================================================
@@ -72,20 +73,21 @@ func gameLoop() {
 
 		global.gWin.Clear(global.gClearColor)
 
+		camPos = pixel.V(Map.mCamX, Map.mCamY)
 		// Camera movement
 		cam := pixel.IM.Scaled(camPos, camZoom).Moved(global.gWin.Bounds().Center().Sub(camPos))
 		global.gWin.SetMatrix(cam)
 		if global.gWin.Pressed(pixelgl.KeyLeft) {
-			camPos.X -= camSpeed * dt
+			Map.mCamX -= camSpeed * dt
 		}
 		if global.gWin.Pressed(pixelgl.KeyRight) {
-			camPos.X += camSpeed * dt
+			Map.mCamX += camSpeed * dt
 		}
 		if global.gWin.Pressed(pixelgl.KeyDown) {
-			camPos.Y -= camSpeed * dt
+			Map.mCamY -= camSpeed * dt
 		}
 		if global.gWin.Pressed(pixelgl.KeyUp) {
-			camPos.Y += camSpeed * dt
+			Map.mCamY += camSpeed * dt
 		}
 
 		camZoom *= math.Pow(camZoomSpeed, global.gWin.MouseScroll().Y)

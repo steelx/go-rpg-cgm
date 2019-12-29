@@ -9,21 +9,20 @@ type GameMap struct {
 	mX, mY int
 
 	// To track the camera position
-	mCamX, mCamY int
+	mCamX, mCamY float64
 
 	mTilemap *tmx.Map
 	mSprites map[string]*pixel.Sprite
 
-	mTileSprite pixel.Sprite
+	mTileSprite     pixel.Sprite
 	mWidth, mHeight int
 
-	mTiles []*pixel.Batch
+	mTiles        []*pixel.Batch
 	mTilesIndices map[string]int
 	mTilesCounter int
 
 	mTileWidth, mTileHeight int
 }
-
 
 func (m *GameMap) Create(tilemap *tmx.Map) {
 	// assuming exported tiled map
@@ -65,6 +64,18 @@ func (m *GameMap) SetTiles() {
 	m.mSprites = sprites
 }
 
+func (m *GameMap) GotoTile(x, y int) {
+	m.Goto(
+		(x*m.mTileWidth)+m.mTileWidth/2,
+		(y*m.mTileHeight)+m.mTileHeight/2,
+	)
+}
+
+func (m *GameMap) Goto(x, y int) {
+	m.mCamX = float64(x + global.gWindowWidth/2)
+	m.mCamY = float64(y + global.gWindowHeight/2)
+}
+
 func getTileLocation(tID int, numColumns int, numRows int) (x, y int) {
 	x = tID % numColumns
 	y = numRows - (tID / numColumns) - 1
@@ -75,8 +86,8 @@ func (m GameMap) getTilePos(idx int) pixel.Vec {
 	width := m.mTilemap.Width
 	height := m.mTilemap.Height
 	gamePos := pixel.V(
-		float64(idx % width) - 1,
-		float64(height)-float64(idx / width),
+		float64(idx%width)-1,
+		float64(height)-float64(idx/width),
 	)
 	return gamePos
 }
