@@ -138,10 +138,3 @@ func (m GameMap) Render() {
 		batch.Draw(global.gWin)
 	}
 }
-
-//hero movement
-func TeleportCharacter(tileX, tileY int, gMap GameMap, sprite *pixel.Sprite, spriteFrame pixel.Rect) {
-	vec := gMap.GetTilePositionAtFeet(tileX, tileY, spriteFrame.W(), spriteFrame.H())
-	//set position for sprite
-	sprite.Draw(global.gWin, pixel.IM.Moved(vec))
-}

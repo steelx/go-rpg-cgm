@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/salviati/go-tmx/tmx"
@@ -11,7 +10,7 @@ import (
 var (
 	Map         = &GameMap{}
 	CastleRoom1 = &GameMap{}
-	hero        pixel.Picture
+	hero        = &Entity{}
 	heroFrames  []pixel.Rect
 	camPos      = pixel.ZV
 	camSpeed    = 1000.0
@@ -64,19 +63,21 @@ func setup() {
 	CastleRoom1.Create(castleRoom1Tmx)
 	CastleRoom1.CamToTile(5, 6) //pan camera
 
-	hero, err = LoadPicture("./resources/walk_cycle.png")
-	panicIfErr(err)
-
-	heroFrames = LoadAsFrames(hero, 16, 24)
+	heroDef := CharacterDefinition{
+		texture:    "./resources/walk_cycle.png",
+		width:      16,
+		height:     24,
+		startFrame: 8,
+		tileX:      9,
+		tileY:      2,
+	}
+	hero.Create(heroDef)
 }
 
 //=============================================================
 // Game loop
 //=============================================================
 func gameLoop() {
-	heroFrame := heroFrames[9]
-	var heroX, heroY = 9, 2
-	sprite := pixel.NewSprite(hero, heroFrame)
 
 	// Camera
 	camPos = pixel.V(CastleRoom1.mCamX, CastleRoom1.mCamY)
@@ -95,22 +96,20 @@ func gameLoop() {
 		select {
 		case <-tick:
 			if global.gWin.JustPressed(pixelgl.KeyLeft) {
-				heroX -= 1
+				hero.mTileX -= 1
 			}
 			if global.gWin.JustPressed(pixelgl.KeyRight) {
-				heroX += 1
+				hero.mTileX += 1
 			}
 			if global.gWin.JustPressed(pixelgl.KeyDown) {
-				heroY += 1
+				hero.mTileY += 1
 			}
 			if global.gWin.JustPressed(pixelgl.KeyUp) {
-				heroY -= 1
+				hero.mTileY -= 1
 			}
-			if global.gWin.JustPressed(pixelgl.KeyLeftControl) {
-				fmt.Printf("x %v y %v \n", global.gWin.MousePosition().X, global.gWin.MousePosition().Y)
-			}
+
 			CastleRoom1.Render()
-			TeleportCharacter(heroX, heroY, *CastleRoom1, sprite, heroFrame)
+			hero.TeleportAndDraw(*CastleRoom1)
 		}
 
 		global.gWin.Update()

@@ -11,4 +11,5 @@ require (
 	github.com/go-gl/mathgl v0.0.0-20190713194549-592312d8590a // indirect
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/salviati/go-tmx v0.0.0-20180901011116-8dae25beffeb
+	golang.org/x/image v0.0.0-20190321063152-3fc05d484e9f
 )
