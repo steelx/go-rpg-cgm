@@ -17,6 +17,7 @@ var (
 	camSpeed    = 1000.0
 	camZoom     = 2.0
 	//camZoomSpeed = 1.2
+	frameRate = 33 * time.Millisecond
 )
 
 func run() {
@@ -73,13 +74,17 @@ func setup() {
 // Game loop
 //=============================================================
 func gameLoop() {
-	last := time.Now()
 	heroFrame := heroFrames[9]
+	var heroX, heroY = 9, 2
 	sprite := pixel.NewSprite(hero, heroFrame)
 
+	// Camera
+	camPos = pixel.V(CastleRoom1.mCamX, CastleRoom1.mCamY)
+	cam := pixel.IM.Scaled(camPos, camZoom).Moved(global.gWin.Bounds().Center().Sub(camPos))
+	global.gWin.SetMatrix(cam)
+
+	tick := time.Tick(frameRate)
 	for !global.gWin.Closed() {
-		dt := time.Since(last).Seconds()
-		last = time.Now()
 
 		if global.gWin.Pressed(pixelgl.KeyQ) {
 			break
@@ -87,30 +92,26 @@ func gameLoop() {
 
 		global.gWin.Clear(global.gClearColor)
 
-		camPos = pixel.V(CastleRoom1.mCamX, CastleRoom1.mCamY)
-		// Camera movement
-		cam := pixel.IM.Scaled(camPos, camZoom).Moved(global.gWin.Bounds().Center().Sub(camPos))
-		global.gWin.SetMatrix(cam)
-		if global.gWin.Pressed(pixelgl.KeyLeft) {
-			CastleRoom1.mCamX -= camSpeed * dt
+		select {
+		case <-tick:
+			if global.gWin.JustPressed(pixelgl.KeyLeft) {
+				heroX -= 1
+			}
+			if global.gWin.JustPressed(pixelgl.KeyRight) {
+				heroX += 1
+			}
+			if global.gWin.JustPressed(pixelgl.KeyDown) {
+				heroY += 1
+			}
+			if global.gWin.JustPressed(pixelgl.KeyUp) {
+				heroY -= 1
+			}
+			if global.gWin.JustPressed(pixelgl.KeyLeftControl) {
+				fmt.Printf("x %v y %v \n", global.gWin.MousePosition().X, global.gWin.MousePosition().Y)
+			}
+			CastleRoom1.Render()
+			TeleportCharacter(heroX, heroY, *CastleRoom1, sprite, heroFrame)
 		}
-		if global.gWin.Pressed(pixelgl.KeyRight) {
-			CastleRoom1.mCamX += camSpeed * dt
-		}
-		if global.gWin.Pressed(pixelgl.KeyDown) {
-			CastleRoom1.mCamY -= camSpeed * dt
-		}
-		if global.gWin.Pressed(pixelgl.KeyUp) {
-			CastleRoom1.mCamY += camSpeed * dt
-		}
-		if global.gWin.Pressed(pixelgl.KeyLeftControl) {
-			fmt.Printf("x %v y %v \n", global.gWin.MousePosition().X, global.gWin.MousePosition().Y)
-		}
-
-		//camZoom *= math.Pow(camZoomSpeed, global.gWin.MouseScroll().Y)
-		CastleRoom1.Render()
-		tilePos := CastleRoom1.GetTilePositionAtFeet(9, 2, heroFrame.W(), heroFrame.H())
-		sprite.Draw(global.gWin, pixel.IM.Moved(tilePos))
 
 		global.gWin.Update()
 	}
