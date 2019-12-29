@@ -29,15 +29,15 @@ func (m *GameMap) Create(tilemap *tmx.Map) {
 	//lua definition has 1 layer
 	m.mTilemap = tilemap
 
-	//Top left corner of the map
-	m.mX = -global.gWindowWidth / 2
-	m.mY = global.gWindowHeight / 2
-
 	m.mHeight = tilemap.Height
 	m.mWidth = tilemap.Width
 
 	m.mTileWidth = tilemap.TileWidth
 	m.mTileHeight = tilemap.TileHeight
+
+	//Bottom left corner of the map, since pixel starts at 0, 0
+	m.mX = m.mTileWidth
+	m.mY = m.mTileHeight
 
 	m.SetTiles()
 }
@@ -64,7 +64,7 @@ func (m *GameMap) SetTiles() {
 	m.mSprites = sprites
 }
 
-func (m *GameMap) GotoTile(x, y int) {
+func (m *GameMap) CamToTile(x, y int) {
 	m.Goto(
 		(x*m.mTileWidth)+m.mTileWidth/2,
 		(y*m.mTileHeight)+m.mTileHeight/2,
@@ -72,11 +72,20 @@ func (m *GameMap) GotoTile(x, y int) {
 }
 
 func (m *GameMap) Goto(x, y int) {
-	m.mCamX = float64(x + global.gWindowWidth/2)
-	m.mCamY = float64(y + global.gWindowHeight/2)
+	m.mCamX = float64(x)
+	m.mCamY = float64(y)
 }
 
-func getTileLocation(tID int, numColumns int, numRows int) (x, y int) {
+func (m *GameMap) GetTilePositionAtFeet(x, y int, charW, charH float64) pixel.Vec {
+	y = m.mHeight - y
+	x = x - 1
+	return pixel.V(
+		float64(m.mX+(x*m.mTileWidth))-charW,    //x * m.mTileWidth/2
+		float64(m.mY+(y*m.mTileHeight))-charH/2, //y * m.mTileHeight/2
+	)
+}
+
+func getTileLocation(tID, numColumns, numRows int) (x, y int) {
 	x = tID % numColumns
 	y = numRows - (tID / numColumns) - 1
 	return
@@ -103,8 +112,8 @@ func (m GameMap) Render() {
 			ts := layer.Tileset
 			tID := int(tile.ID)
 
-			if tID == 0 {
-				// Tile ID 0 means blank, skip it.
+			if tID == -1 {
+				// Tile ID 0 means blank, skip it. temp -1
 				continue
 			}
 

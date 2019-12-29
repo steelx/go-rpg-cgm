@@ -47,11 +47,11 @@ func LoadPicture(path string) (pixel.Picture, error) {
 	return pixel.PictureDataFromImage(img), nil
 }
 
-func LoadAsFrames(imgSprite pixel.Picture, pixelSize float64) []pixel.Rect {
+func LoadAsFrames(imgSprite pixel.Picture, w, h float64) []pixel.Rect {
 	var spriteFrames []pixel.Rect
-	for x := imgSprite.Bounds().Min.X; x < imgSprite.Bounds().Max.X; x += pixelSize {
-		for y := imgSprite.Bounds().Min.Y; y < imgSprite.Bounds().Max.Y; y += pixelSize {
-			spriteFrames = append(spriteFrames, pixel.R(x, y, x+pixelSize, y+pixelSize))
+	for x := imgSprite.Bounds().Min.X; x < imgSprite.Bounds().Max.X; x += w {
+		for y := imgSprite.Bounds().Min.Y; y < imgSprite.Bounds().Max.Y; y += h {
+			spriteFrames = append(spriteFrames, pixel.R(x, y, x+w, y+h))
 		}
 	}
 	//e.g. pixel.NewSprite(imgSprite, spriteFrames[frameIndex])
@@ -99,7 +99,6 @@ func LoadAnimationsFromCSV(descPath string, spriteFrames []pixel.Rect) map[strin
 	}
 	return animations
 }
-
 
 func GenerateUVs(tileWidth, tileHeight float64, texture pixel.Picture) []UV {
 	// This is the table we'll fill with uvs and return.

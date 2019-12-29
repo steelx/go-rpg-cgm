@@ -1,21 +1,22 @@
 package main
 
 import (
+	"fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/salviati/go-tmx/tmx"
-	"math"
 	"time"
 )
 
-const mapPath = "./larger_map.tmx"
-
 var (
-	Map          = &GameMap{}
-	camPos       = pixel.ZV
-	camSpeed     = 1000.0
-	camZoom      = 2.0
-	camZoomSpeed = 1.2
+	Map         = &GameMap{}
+	CastleRoom1 = &GameMap{}
+	hero        pixel.Picture
+	heroFrames  []pixel.Rect
+	camPos      = pixel.ZV
+	camSpeed    = 1000.0
+	camZoom     = 2.0
+	//camZoomSpeed = 1.2
 )
 
 func run() {
@@ -51,10 +52,21 @@ func setup() {
 
 	// Init map
 	// Initialize art assets (i.e. the tilemap)
-	tilemap, err := tmx.ReadFile(mapPath)
+	//tilemap, err := tmx.ReadFile("./larger_map.tmx")
+	//panicIfErr(err)
+	//Map.Create(tilemap)
+	//Map.CamToTile(5, 50)
+
+	castleRoom1Tmx, err := tmx.ReadFile("./castle-room-1.tmx")
 	panicIfErr(err)
-	Map.Create(tilemap)
-	Map.GotoTile(5, 50)
+
+	CastleRoom1.Create(castleRoom1Tmx)
+	CastleRoom1.CamToTile(5, 6) //pan camera
+
+	hero, err = LoadPicture("./resources/walk_cycle.png")
+	panicIfErr(err)
+
+	heroFrames = LoadAsFrames(hero, 16, 24)
 }
 
 //=============================================================
@@ -62,6 +74,8 @@ func setup() {
 //=============================================================
 func gameLoop() {
 	last := time.Now()
+	heroFrame := heroFrames[9]
+	sprite := pixel.NewSprite(hero, heroFrame)
 
 	for !global.gWin.Closed() {
 		dt := time.Since(last).Seconds()
@@ -73,26 +87,31 @@ func gameLoop() {
 
 		global.gWin.Clear(global.gClearColor)
 
-		camPos = pixel.V(Map.mCamX, Map.mCamY)
+		camPos = pixel.V(CastleRoom1.mCamX, CastleRoom1.mCamY)
 		// Camera movement
 		cam := pixel.IM.Scaled(camPos, camZoom).Moved(global.gWin.Bounds().Center().Sub(camPos))
 		global.gWin.SetMatrix(cam)
 		if global.gWin.Pressed(pixelgl.KeyLeft) {
-			Map.mCamX -= camSpeed * dt
+			CastleRoom1.mCamX -= camSpeed * dt
 		}
 		if global.gWin.Pressed(pixelgl.KeyRight) {
-			Map.mCamX += camSpeed * dt
+			CastleRoom1.mCamX += camSpeed * dt
 		}
 		if global.gWin.Pressed(pixelgl.KeyDown) {
-			Map.mCamY -= camSpeed * dt
+			CastleRoom1.mCamY -= camSpeed * dt
 		}
 		if global.gWin.Pressed(pixelgl.KeyUp) {
-			Map.mCamY += camSpeed * dt
+			CastleRoom1.mCamY += camSpeed * dt
+		}
+		if global.gWin.Pressed(pixelgl.KeyLeftControl) {
+			fmt.Printf("x %v y %v \n", global.gWin.MousePosition().X, global.gWin.MousePosition().Y)
 		}
 
-		camZoom *= math.Pow(camZoomSpeed, global.gWin.MouseScroll().Y)
+		//camZoom *= math.Pow(camZoomSpeed, global.gWin.MouseScroll().Y)
+		CastleRoom1.Render()
+		tilePos := CastleRoom1.GetTilePositionAtFeet(9, 2, heroFrame.W(), heroFrame.H())
+		sprite.Draw(global.gWin, pixel.IM.Moved(tilePos))
 
-		Map.Render()
 		global.gWin.Update()
 	}
 }
