@@ -1,9 +1,11 @@
 package main
 
-import "github.com/faiface/pixel"
+import (
+	"github.com/faiface/pixel"
+)
 
 type CharacterDefinition struct {
-	texture       string //"./resources/walk_cycle.png"
+	texture       pixel.Picture
 	width, height int
 	startFrame    int
 	tileX, tileY  int
@@ -20,26 +22,26 @@ type Entity struct {
 	mFrames            []pixel.Rect
 }
 
-func (e *Entity) Create(def CharacterDefinition) {
-	pic, err := LoadPicture(def.texture)
-	panicIfErr(err)
-	e.mFrames = LoadAsFrames(pic, float64(def.width), float64(def.height))
-	e.mSprite = pixel.NewSprite(pic, e.mFrames[def.startFrame])
+func CreateEntity(def CharacterDefinition) *Entity {
+	e := &Entity{}
+
+	e.mFrames = LoadAsFrames(def.texture, float64(def.width), float64(def.height))
+	e.mSprite = pixel.NewSprite(def.texture, e.mFrames[def.startFrame])
 	e.mWidth = def.width
 	e.mHeight = def.height
 	e.mTileX = def.tileX
 	e.mTileY = def.tileY
 	e.startFrame = def.startFrame
-	e.mFrame = def.startFrame
+	return e
 }
 
 func (e *Entity) SetFrame(frame int) {
-	e.mFrame = frame
+	e.startFrame = frame
 }
 
 //TeleportAndDraw hero movement & set position for sprite
 func (e *Entity) TeleportAndDraw(gMap GameMap) {
-	spriteFrame := e.mFrames[e.mFrame]
+	spriteFrame := e.mFrames[e.startFrame]
 	vec := gMap.GetTilePositionAtFeet(e.mTileX, e.mTileY, spriteFrame.W(), spriteFrame.H())
 	e.mSprite.Draw(global.gWin, pixel.IM.Moved(vec))
 }

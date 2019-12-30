@@ -22,6 +22,6 @@ var global = &Global{
 	gWindowWidth:  256,
 	gVsync:        true,
 	gUndecorated:  false,
-	gClearColor:   pixel.RGBA{0.4, 0.4, 0.4, 1.0},
+	gClearColor:   pixel.RGBA{0.2, 0.2, 0.2, 1.0},
 	gWin:          &pixelgl.Window{},
 }
