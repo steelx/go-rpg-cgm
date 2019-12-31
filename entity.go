@@ -15,7 +15,7 @@ type CharacterDefinition struct {
 // treasure chest to an NPC
 type Entity struct {
 	mSprite         *pixel.Sprite
-	mTexture        pixel.Batch
+	mTexture        pixel.Picture
 	mHeight, mWidth float64
 	mTileX, mTileY  float64
 	startFrame      int
@@ -25,6 +25,7 @@ type Entity struct {
 func CreateEntity(def CharacterDefinition) *Entity {
 	e := &Entity{}
 
+	e.mTexture = def.texture
 	e.mFrames = LoadAsFrames(def.texture, def.width, def.height)
 	e.mSprite = pixel.NewSprite(def.texture, e.mFrames[def.startFrame])
 	e.mWidth = def.width
@@ -41,7 +42,8 @@ func (e *Entity) SetFrame(frame int) {
 
 //TeleportAndDraw hero movement & set position for sprite
 func (e *Entity) TeleportAndDraw(gMap GameMap) {
-	//spriteFrame := e.mFrames[e.startFrame]
-	vec := gMap.GetTilePositionAtFeet(e.mTileX, e.mTileY, e.mWidth, e.mHeight)
+	spriteFrame := e.mFrames[e.startFrame]
+	vec := gMap.GetTilePositionAtFeet(e.mTileX, e.mTileY, spriteFrame.W(), spriteFrame.H())
+	e.mSprite = pixel.NewSprite(e.mTexture, spriteFrame)
 	e.mSprite.Draw(global.gWin, pixel.IM.Moved(vec))
 }

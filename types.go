@@ -11,7 +11,11 @@ type State interface {
 	Update(dt float64)
 }
 
-type FSMObject struct {
+type Character struct {
+	mAnimUp     []int
+	mAnimRight  []int
+	mAnimDown   []int
+	mAnimLeft   []int
 	mEntity     *Entity
 	mController *StateMachine //[name] -> [function that returns state]
 }

@@ -1,29 +1,37 @@
 package main
 
-import "github.com/faiface/pixel/pixelgl"
+import (
+	"github.com/faiface/pixel/pixelgl"
+)
 
 type WaitState struct {
-	mCharacter  FSMObject
+	mCharacter  Character
 	mMap        GameMap
 	mEntity     *Entity
 	mController *StateMachine
+
+	mFrameResetSpeed, mFrameCount float64
 }
 
-func WaitStateCreate(character FSMObject, gMap GameMap) State {
+func WaitStateCreate(character Character, gMap GameMap) State {
 	s := &WaitState{}
 	s.mCharacter = character
 	s.mMap = gMap
 	s.mEntity = character.mEntity
 	s.mController = character.mController
+
+	s.mFrameResetSpeed = 0.015
+	s.mFrameCount = 0
 	return s
 }
 
-//The StateMachine class requires each state to have
+//The StateMachine requires each state to have
 // four functions: Enter, Exit, Render and Update
 
 func (s *WaitState) Enter(data Direction) {
 	// Reset to default frame
-	s.mEntity.SetFrame(s.mEntity.startFrame)
+	s.mFrameCount = 0
+	//s.mEntity.SetFrame(s.mEntity.startFrame)
 }
 
 func (s *WaitState) Render() {
@@ -33,6 +41,16 @@ func (s *WaitState) Render() {
 func (s *WaitState) Exit() {}
 
 func (s *WaitState) Update(dt float64) {
+	// If we're in the wait state for a few frames, reset the frame to
+	// the starting frame.
+	if s.mFrameCount == 0 {
+		s.mFrameCount = s.mFrameCount + dt
+		if s.mFrameCount >= s.mFrameResetSpeed {
+			s.mFrameCount = 0
+			s.mEntity.SetFrame(s.mEntity.startFrame)
+		}
+	}
+
 	if global.gWin.Pressed(pixelgl.KeyLeft) {
 		s.mController.Change("move", Direction{-1, 0})
 	}
