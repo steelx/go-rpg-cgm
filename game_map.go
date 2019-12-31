@@ -6,7 +6,7 @@ import (
 )
 
 type GameMap struct {
-	mX, mY int
+	mX, mY float64
 
 	// To track the camera position
 	mCamX, mCamY float64
@@ -15,13 +15,13 @@ type GameMap struct {
 	mSprites map[string]*pixel.Sprite
 
 	mTileSprite     pixel.Sprite
-	mWidth, mHeight int
+	mWidth, mHeight float64
 
 	mTiles        []*pixel.Batch
 	mTilesIndices map[string]int
 	mTilesCounter int
 
-	mTileWidth, mTileHeight int
+	mTileWidth, mTileHeight float64
 }
 
 func (m *GameMap) Create(tilemap *tmx.Map) {
@@ -29,11 +29,11 @@ func (m *GameMap) Create(tilemap *tmx.Map) {
 	//lua definition has 1 layer
 	m.mTilemap = tilemap
 
-	m.mHeight = tilemap.Height
-	m.mWidth = tilemap.Width
+	m.mHeight = float64(tilemap.Height)
+	m.mWidth = float64(tilemap.Width)
 
-	m.mTileWidth = tilemap.TileWidth
-	m.mTileHeight = tilemap.TileHeight
+	m.mTileWidth = float64(tilemap.TileWidth)
+	m.mTileHeight = float64(tilemap.TileHeight)
 
 	//Bottom left corner of the map, since pixel starts at 0, 0
 	m.mX = m.mTileWidth
@@ -64,25 +64,27 @@ func (m *GameMap) SetTiles() {
 	m.mSprites = sprites
 }
 
-func (m *GameMap) CamToTile(x, y int) {
-	m.Goto(
-		(x*m.mTileWidth)+m.mTileWidth/2,
-		(y*m.mTileHeight)+m.mTileHeight/2,
-	)
-}
-
-func (m *GameMap) Goto(x, y int) {
-	m.mCamX = float64(x)
-	m.mCamY = float64(y)
-}
-
-func (m *GameMap) GetTilePositionAtFeet(x, y int, charW, charH float64) pixel.Vec {
+func (m *GameMap) CamToTile(x, y float64) {
 	y = m.mHeight - y
 	x = x - 1
-	return pixel.V(
-		float64(m.mX+(x*m.mTileWidth))-charW,    //x * m.mTileWidth/2
-		float64(m.mY+(y*m.mTileHeight))-charH/2, //y * m.mTileHeight/2
-	)
+
+	x = m.mX + (x * m.mTileWidth) - m.mTileWidth/2
+	y = m.mY + (y * m.mTileHeight) - m.mTileHeight/2
+	m.Goto(x, y)
+}
+
+func (m *GameMap) Goto(x, y float64) {
+	m.mCamX = x
+	m.mCamY = y
+}
+
+func (m *GameMap) GetTilePositionAtFeet(x, y, charW, charH float64) pixel.Vec {
+	y = m.mHeight - y //make count y from top (Tiled app starts from top)
+	x = x - 1
+	x = m.mX + (x * m.mTileWidth) - charW
+	y = m.mY + (y * m.mTileHeight) - charH/2
+
+	return pixel.V(x, y)
 }
 
 func getTileLocation(tID, numColumns, numRows int) (x, y int) {

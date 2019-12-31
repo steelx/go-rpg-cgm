@@ -16,5 +16,5 @@ type Character struct {
 	mController *StateMachine
 }
 type Direction struct {
-	x, y int
+	x, y float64
 }

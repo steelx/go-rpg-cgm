@@ -8,10 +8,9 @@ import (
 )
 
 var (
-	Map         = &GameMap{}
-	CastleRoom1 = &GameMap{}
-	gHero       Character
-	camPos      = pixel.ZV
+	CastleRoomMap = &GameMap{}
+	gHero         Character
+	camPos        = pixel.ZV
 	//camSpeed    = 1000.0
 	camZoom = 2.0
 	//camZoomSpeed = 1.2
@@ -53,8 +52,8 @@ func setup() {
 	castleRoom1Tmx, err := tmx.ReadFile("./castle-room-1.tmx")
 	panicIfErr(err)
 
-	CastleRoom1.Create(castleRoom1Tmx)
-	CastleRoom1.CamToTile(5, 6) //pan camera
+	CastleRoomMap.Create(castleRoom1Tmx)
+	CastleRoomMap.CamToTile(5, 6) //pan camera
 
 	pic, err := LoadPicture("./resources/walk_cycle.png")
 	panicIfErr(err)
@@ -69,10 +68,10 @@ func setup() {
 		mController: StateMachineCreate(
 			map[string]func() State{
 				"wait": func() State {
-					return WaitStateCreate(gHero, *CastleRoom1)
+					return WaitStateCreate(gHero, *CastleRoomMap)
 				},
 				"move": func() State {
-					return MoveStateCreate(gHero, *CastleRoom1)
+					return MoveStateCreate(gHero, *CastleRoomMap)
 				},
 			},
 		),
@@ -87,7 +86,7 @@ func setup() {
 func gameLoop() {
 	last := time.Now()
 	// Camera
-	camPos = pixel.V(CastleRoom1.mCamX, CastleRoom1.mCamY)
+	camPos = pixel.V(CastleRoomMap.mCamX, CastleRoomMap.mCamY)
 	cam := pixel.IM.Scaled(camPos, camZoom).Moved(global.gWin.Bounds().Center().Sub(camPos))
 	global.gWin.SetMatrix(cam)
 
@@ -104,8 +103,8 @@ func gameLoop() {
 
 		select {
 		case <-tick:
-			CastleRoom1.Render()
-			gHero.mEntity.TeleportAndDraw(*CastleRoom1)
+			CastleRoomMap.Render()
+			gHero.mEntity.TeleportAndDraw(*CastleRoomMap)
 			gHero.mController.Update(dt)
 		}
 

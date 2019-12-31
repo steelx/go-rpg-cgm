@@ -6,9 +6,9 @@ type MoveState struct {
 	mEntity     *Entity
 	mController *StateMachine
 	// ^above common with WaitState
-	mTileWidth       int
-	mMoveX, mMoveY   int
-	mPixelX, mPixelY int
+	mTileWidth       float64
+	mMoveX, mMoveY   float64
+	mPixelX, mPixelY float64
 	mMoveSpeed       float64
 }
 
@@ -30,16 +30,20 @@ func MoveStateCreate(character Character, gMap GameMap) State {
 // four functions: Enter, Exit, Render and Update
 
 func (s *MoveState) Enter(data Direction) {
+	//save Move X,Y value to used inside Update call
 	s.mMoveX = data.x
 	s.mMoveY = data.y
 	s.mPixelX = s.mEntity.mTileX
 	s.mPixelY = s.mEntity.mTileY
 	//s.mTween = Tween:Create(0, self.mTileWidth, self.mMoveSpeed)
+
+	//we update Hero Tile position before,
+	// but execute only during exit phase
+	s.mEntity.mTileX += data.x
+	s.mEntity.mTileY += data.y
 }
 
 func (s *MoveState) Exit() {
-	s.mEntity.mTileX = s.mEntity.mTileX + s.mMoveX
-	s.mEntity.mTileY = s.mEntity.mTileY + s.mMoveY
 	//Teleport(s.mEntity, s.mMap)
 	s.mEntity.TeleportAndDraw(s.mMap)
 }
