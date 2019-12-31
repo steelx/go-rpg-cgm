@@ -3,13 +3,13 @@ package main
 import "github.com/faiface/pixel/pixelgl"
 
 type WaitState struct {
-	mCharacter  Character
+	mCharacter  FSMObject
 	mMap        GameMap
 	mEntity     *Entity
 	mController *StateMachine
 }
 
-func WaitStateCreate(character Character, gMap GameMap) State {
+func WaitStateCreate(character FSMObject, gMap GameMap) State {
 	s := &WaitState{}
 	s.mCharacter = character
 	s.mMap = gMap
@@ -27,7 +27,7 @@ func (s *WaitState) Enter(data Direction) {
 }
 
 func (s *WaitState) Render() {
-	//pending
+	//pixelgl renderer
 }
 
 func (s *WaitState) Exit() {}

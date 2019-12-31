@@ -1,7 +1,7 @@
 package main
 
 type MoveState struct {
-	mCharacter  Character
+	mCharacter  FSMObject
 	mMap        GameMap
 	mEntity     *Entity
 	mController *StateMachine
@@ -12,7 +12,7 @@ type MoveState struct {
 	mMoveSpeed       float64
 }
 
-func MoveStateCreate(character Character, gMap GameMap) State {
+func MoveStateCreate(character FSMObject, gMap GameMap) State {
 	s := &MoveState{}
 	s.mCharacter = character
 	s.mMap = gMap

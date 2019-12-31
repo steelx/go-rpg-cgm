@@ -11,10 +11,11 @@ type State interface {
 	Update(dt float64)
 }
 
-type Character struct {
+type FSMObject struct {
 	mEntity     *Entity
-	mController *StateMachine
+	mController *StateMachine //[name] -> [function that returns state]
 }
+
 type Direction struct {
 	x, y float64
 }

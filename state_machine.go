@@ -1,10 +1,5 @@
 package main
 
-type FSMObject struct {
-	mEntity     Entity
-	mController StateMachine //[name] -> [function that returns state]
-}
-
 /*
 mController :
 	StateMachineCreate({

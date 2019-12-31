@@ -9,7 +9,7 @@ import (
 
 var (
 	CastleRoomMap = &GameMap{}
-	gHero         Character
+	gHero         FSMObject
 	camPos        = pixel.ZV
 	//camSpeed    = 1000.0
 	camZoom = 2.0
@@ -58,7 +58,7 @@ func setup() {
 	pic, err := LoadPicture("./resources/walk_cycle.png")
 	panicIfErr(err)
 
-	gHero = Character{
+	gHero = FSMObject{
 		mEntity: CreateEntity(CharacterDefinition{
 			texture: pic, width: 16, height: 24,
 			startFrame: 1,
