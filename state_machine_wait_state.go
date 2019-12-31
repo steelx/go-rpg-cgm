@@ -33,16 +33,16 @@ func (s *WaitState) Render() {
 func (s *WaitState) Exit() {}
 
 func (s *WaitState) Update(dt float64) {
-	if global.gWin.JustPressed(pixelgl.KeyLeft) {
+	if global.gWin.Pressed(pixelgl.KeyLeft) {
 		s.mController.Change("move", Direction{-1, 0})
 	}
-	if global.gWin.JustPressed(pixelgl.KeyRight) {
+	if global.gWin.Pressed(pixelgl.KeyRight) {
 		s.mController.Change("move", Direction{1, 0})
 	}
-	if global.gWin.JustPressed(pixelgl.KeyDown) {
+	if global.gWin.Pressed(pixelgl.KeyDown) {
 		s.mController.Change("move", Direction{0, 1})
 	}
-	if global.gWin.JustPressed(pixelgl.KeyUp) {
+	if global.gWin.Pressed(pixelgl.KeyUp) {
 		s.mController.Change("move", Direction{0, -1})
 	}
 }
