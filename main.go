@@ -12,9 +12,9 @@ var (
 	gHero         FSMObject
 	camPos        = pixel.ZV
 	//camSpeed    = 1000.0
-	camZoom = 2.0
+	camZoom = 1.0
 	//camZoomSpeed = 1.2
-	frameRate = 10 * time.Millisecond
+	//frameRate = 10 * time.Millisecond
 )
 
 func run() {
@@ -55,6 +55,11 @@ func setup() {
 	CastleRoomMap.Create(castleRoom1Tmx)
 	CastleRoomMap.CamToTile(5, 6) //pan camera
 
+	// Camera
+	camPos = pixel.V(CastleRoomMap.mCamX, CastleRoomMap.mCamY)
+	cam := pixel.IM.Scaled(camPos, camZoom).Moved(global.gWin.Bounds().Center().Sub(camPos))
+	global.gWin.SetMatrix(cam)
+
 	pic, err := LoadPicture("./resources/walk_cycle.png")
 	panicIfErr(err)
 
@@ -85,12 +90,8 @@ func setup() {
 //=============================================================
 func gameLoop() {
 	last := time.Now()
-	// Camera
-	camPos = pixel.V(CastleRoomMap.mCamX, CastleRoomMap.mCamY)
-	cam := pixel.IM.Scaled(camPos, camZoom).Moved(global.gWin.Bounds().Center().Sub(camPos))
-	global.gWin.SetMatrix(cam)
 
-	tick := time.Tick(frameRate)
+	//tick := time.Tick(frameRate)
 	for !global.gWin.Closed() {
 		dt := time.Since(last).Seconds()
 		last = time.Now()
@@ -101,12 +102,9 @@ func gameLoop() {
 
 		global.gWin.Clear(global.gClearColor)
 
-		select {
-		case <-tick:
-			CastleRoomMap.Render()
-			gHero.mEntity.TeleportAndDraw(*CastleRoomMap)
-			gHero.mController.Update(dt)
-		}
+		CastleRoomMap.Render()
+		gHero.mEntity.TeleportAndDraw(*CastleRoomMap)
+		gHero.mController.Update(dt)
 
 		global.gWin.Update()
 	}
