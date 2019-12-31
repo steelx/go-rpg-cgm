@@ -1,8 +1,9 @@
 package main
 
 import (
+	"github.com/bcvery1/tilepix"
 	"github.com/faiface/pixel"
-	"github.com/salviati/go-tmx/tmx"
+	"image/color"
 )
 
 type GameMap struct {
@@ -11,7 +12,7 @@ type GameMap struct {
 	// To track the camera position
 	mCamX, mCamY float64
 
-	mTilemap *tmx.Map
+	mTilemap *tilepix.Map
 	mSprites map[string]*pixel.Sprite
 
 	mTileSprite     pixel.Sprite
@@ -24,7 +25,7 @@ type GameMap struct {
 	mTileWidth, mTileHeight float64
 }
 
-func (m *GameMap) Create(tilemap *tmx.Map) {
+func (m *GameMap) Create(tilemap *tilepix.Map) {
 	// assuming exported tiled map
 	//lua definition has 1 layer
 	m.mTilemap = tilemap
@@ -80,8 +81,8 @@ func (m *GameMap) Goto(x, y float64) {
 
 func (m *GameMap) GetTilePositionAtFeet(x, y, charW, charH float64) pixel.Vec {
 	y = m.mHeight - y //make count y from top (Tiled app starts from top)
-	x = x - 1
-	x = m.mX + (x * m.mTileWidth) - charW
+	//x = x - 1
+	x = m.mX + (x * m.mTileWidth) - charW/2
 	y = m.mY + (y * m.mTileHeight) - charH/2
 
 	return pixel.V(x, y)
@@ -105,38 +106,5 @@ func (m GameMap) getTilePos(idx int) pixel.Vec {
 
 func (m GameMap) Render() {
 	// Draw tiles
-	for _, batch := range m.mTiles {
-		batch.Clear()
-	}
-
-	for _, layer := range m.mTilemap.Layers {
-		for tileIndex, tile := range layer.DecodedTiles {
-			ts := layer.Tileset
-			tID := int(tile.ID)
-
-			if tID == -1 {
-				// Tile ID 0 means blank, skip it. temp -1
-				continue
-			}
-
-			// Calculate the framing for the tile within its tileset's source image
-			numRows := ts.Tilecount / ts.Columns
-			x, y := getTileLocation(tID, ts.Columns, numRows)
-			gamePos := m.getTilePos(tileIndex)
-
-			iX := float64(x) * float64(ts.TileWidth)
-			fX := iX + float64(ts.TileWidth)
-			iY := float64(y) * float64(ts.TileHeight)
-			fY := iY + float64(ts.TileHeight)
-
-			sprite := m.mSprites[ts.Image.Source]
-			sprite.Set(sprite.Picture(), pixel.R(iX, iY, fX, fY))
-			pos := gamePos.ScaledXY(pixel.V(float64(ts.TileWidth), float64(ts.TileHeight)))
-			sprite.Draw(m.mTiles[m.mTilesIndices[ts.Image.Source]], pixel.IM.Moved(pos))
-		}
-	}
-
-	for _, batch := range m.mTiles {
-		batch.Draw(global.gWin)
-	}
+	m.mTilemap.DrawAll(global.gWin, color.Transparent, pixel.IM)
 }

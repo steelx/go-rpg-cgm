@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/bcvery1/tilepix"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	"github.com/salviati/go-tmx/tmx"
 	"time"
 )
 
@@ -49,10 +49,11 @@ func setup() {
 	// Camera setup
 
 	// Init map
-	castleRoom1Tmx, err := tmx.ReadFile("./castle-room-1.tmx")
+	//castleRoom1Tmx, err := tmx.ReadFile("small_room_map_01.tmx")
+	m, err := tilepix.ReadFile("small_room.tmx")
 	panicIfErr(err)
 
-	CastleRoomMap.Create(castleRoom1Tmx)
+	CastleRoomMap.Create(m)
 	CastleRoomMap.CamToTile(5, 6) //pan camera
 
 	// Camera
