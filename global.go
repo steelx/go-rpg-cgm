@@ -18,8 +18,8 @@ type Global struct {
 }
 
 var global = &Global{
-	gWindowHeight: 224,
-	gWindowWidth:  256,
+	gWindowHeight: 480,
+	gWindowWidth:  800,
 	gVsync:        true,
 	gUndecorated:  false,
 	gClearColor:   pixel.RGBA{0.2, 0.2, 0.2, 1.0},

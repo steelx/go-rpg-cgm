@@ -12,7 +12,7 @@ var (
 	gHero         Character
 	camPos        = pixel.ZV
 	//camSpeed    = 1000.0
-	camZoom = 1.4
+	camZoom = 1.8
 	//camZoomSpeed = 1.2
 	frameRate = 15 * time.Millisecond
 )
@@ -20,7 +20,7 @@ var (
 func run() {
 	cfg := pixelgl.WindowConfig{
 		Title:       "GP RPG",
-		Bounds:      pixel.R(0, 0, float64(global.gWindowWidth*2), float64(global.gWindowHeight*2)),
+		Bounds:      pixel.R(0, 0, float64(global.gWindowWidth), float64(global.gWindowHeight)),
 		VSync:       global.gVsync,
 		Undecorated: global.gUndecorated,
 	}
