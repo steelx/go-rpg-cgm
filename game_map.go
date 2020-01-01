@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/bcvery1/tilepix"
 	"github.com/faiface/pixel"
+	"github.com/faiface/pixel/pixelgl"
+	log "github.com/sirupsen/logrus"
 	"image/color"
 )
 
@@ -23,6 +25,9 @@ type GameMap struct {
 	mTilesCounter int
 
 	mTileWidth, mTileHeight float64
+	blockingTileGID         tilepix.GID
+	canvas                  *pixelgl.Canvas
+	renderLayer             int
 }
 
 func (m *GameMap) Create(tilemap *tilepix.Map) {
@@ -40,10 +45,27 @@ func (m *GameMap) Create(tilemap *tilepix.Map) {
 	m.mX = m.mTileWidth
 	m.mY = m.mTileHeight
 
-	m.SetTiles()
+	m.setTiles()
+	m.setBlockingTileInfo()
 }
 
-func (m *GameMap) SetTiles() {
+func (m *GameMap) setBlockingTileInfo() {
+	for _, tile := range m.mTilemap.Tilesets {
+		if tile.Name == "collision_px" {
+			m.blockingTileGID = tile.FirstGID
+			break
+		}
+	}
+}
+
+//IsBlockingTile check's x, y cords on collision map layer
+// if ID is not 0, tile exists on x, y we return true
+func (m GameMap) IsBlockingTile(x, y, layer int) bool {
+	tile := m.mTilemap.TileLayers[layer].DecodedTiles[x+y*int(m.mWidth)]
+	return !tile.IsNil() || tile.ID != 0
+}
+
+func (m *GameMap) setTiles() {
 	batches := make([]*pixel.Batch, 0)
 	batchIndices := make(map[string]int)
 	batchCounter := 0
@@ -88,23 +110,47 @@ func (m *GameMap) GetTilePositionAtFeet(x, y, charW, charH float64) pixel.Vec {
 	return pixel.V(x, y)
 }
 
-func getTileLocation(tID, numColumns, numRows int) (x, y int) {
-	x = tID % numColumns
-	y = numRows - (tID / numColumns) - 1
-	return
+func (m GameMap) DrawAll(target pixel.Target, clearColour color.Color, mat pixel.Matrix) {
+	//m.mTilemap.DrawAll(global.gWin, color.Transparent, pixel.IM)
+	m.mTilemap.DrawAll(target, clearColour, mat)
 }
 
-func (m GameMap) getTilePos(idx int) pixel.Vec {
-	width := m.mTilemap.Width
-	height := m.mTilemap.Height
-	gamePos := pixel.V(
-		float64(idx%width)-1,
-		float64(height)-float64(idx/width),
-	)
-	return gamePos
-}
-
-func (m GameMap) Render() {
+func (m GameMap) DrawAfter(layer int, callback func(canvas *pixelgl.Canvas)) error {
 	// Draw tiles
-	m.mTilemap.DrawAll(global.gWin, color.Transparent, pixel.IM)
+	target, mat := global.gWin, pixel.IM
+
+	if m.canvas == nil {
+		m.canvas = pixelgl.NewCanvas(m.mTilemap.Bounds())
+	}
+	m.canvas.Clear(color.Transparent)
+
+	for index, l := range m.mTilemap.TileLayers {
+		//we do NOT render the collision layer
+		if l.Name == "collision" {
+			continue
+		}
+		if index == layer {
+			callback(m.canvas)
+		}
+		if err := l.Draw(m.canvas); err != nil {
+			log.WithError(err).Error("Map.DrawAll: could not draw layer")
+			return err
+		}
+	}
+
+	for _, il := range m.mTilemap.ImageLayers {
+		// The matrix shift is because images are drawn from the top-left in Tiled.
+		if err := il.Draw(m.canvas, pixel.IM.Moved(pixel.V(0, m.pixelHeight()))); err != nil {
+			log.WithError(err).Error("Map.DrawAll: could not draw image layer")
+			return err
+		}
+	}
+
+	m.canvas.Draw(target, mat.Moved(m.mTilemap.Bounds().Center()))
+
+	return nil
+}
+
+func (m GameMap) pixelHeight() float64 {
+	return float64(m.mTilemap.Height * m.mTilemap.TileHeight)
 }

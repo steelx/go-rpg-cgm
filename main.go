@@ -55,6 +55,7 @@ func setup() {
 
 	CastleRoomMap.Create(m)
 	CastleRoomMap.CamToTile(5, 6) //pan camera
+	//CastleRoomMap.IsBlockingTile(2, 3, 1)
 
 	// Camera
 	camPos = pixel.V(CastleRoomMap.mCamX, CastleRoomMap.mCamY)
@@ -72,7 +73,7 @@ func setup() {
 		mEntity: CreateEntity(CharacterDefinition{
 			texture: pic, width: 16, height: 24,
 			startFrame: 0,
-			tileX:      9,
+			tileX:      7,
 			tileY:      2,
 		}),
 		mController: StateMachineCreate(
@@ -107,8 +108,10 @@ func gameLoop() {
 
 		global.gWin.Clear(global.gClearColor)
 
-		CastleRoomMap.Render()
-		gHero.mEntity.TeleportAndDraw(*CastleRoomMap)
+		//CastleRoomMap.DrawAll(global.gWin, color.Transparent, pixel.IM)
+		CastleRoomMap.DrawAfter(1, func(canvas *pixelgl.Canvas) {
+			gHero.mEntity.TeleportAndDraw(*CastleRoomMap, canvas)
+		})
 		gHero.mController.Update(dt)
 
 		global.gWin.Update()

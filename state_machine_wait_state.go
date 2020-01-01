@@ -31,11 +31,12 @@ func WaitStateCreate(character Character, gMap GameMap) State {
 func (s *WaitState) Enter(data Direction) {
 	// Reset to default frame
 	s.mFrameCount = 0
-	//s.mEntity.SetFrame(s.mEntity.startFrame)
+	s.mEntity.SetFrame(s.mEntity.startFrame)
 }
 
 func (s *WaitState) Render() {
 	//pixelgl renderer
+	//s.mEntity.TeleportAndDraw(s.mMap)
 }
 
 func (s *WaitState) Exit() {}

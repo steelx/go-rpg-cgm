@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/faiface/pixel"
+	"github.com/faiface/pixel/pixelgl"
 )
 
 type CharacterDefinition struct {
@@ -41,9 +42,9 @@ func (e *Entity) SetFrame(frame int) {
 }
 
 //TeleportAndDraw hero movement & set position for sprite
-func (e *Entity) TeleportAndDraw(gMap GameMap) {
+func (e *Entity) TeleportAndDraw(gMap GameMap, canvas *pixelgl.Canvas) {
 	spriteFrame := e.mFrames[e.startFrame]
 	vec := gMap.GetTilePositionAtFeet(e.mTileX, e.mTileY, spriteFrame.W(), spriteFrame.H())
 	e.mSprite = pixel.NewSprite(e.mTexture, spriteFrame)
-	e.mSprite.Draw(global.gWin, pixel.IM.Moved(vec))
+	e.mSprite.Draw(canvas, pixel.IM.Moved(vec))
 }
