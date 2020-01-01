@@ -49,13 +49,11 @@ func setup() {
 	// Camera setup
 
 	// Init map
-	//castleRoom1Tmx, err := tmx.ReadFile("small_room_map_01.tmx")
 	m, err := tilepix.ReadFile("small_room.tmx")
 	panicIfErr(err)
 
 	CastleRoomMap.Create(m)
-	CastleRoomMap.CamToTile(5, 6) //pan camera
-	//CastleRoomMap.IsBlockingTile(2, 3, 1)
+	CastleRoomMap.CamToTile(5, 6)
 
 	// Camera
 	camPos = pixel.V(CastleRoomMap.mCamX, CastleRoomMap.mCamY)
@@ -108,7 +106,6 @@ func gameLoop() {
 
 		global.gWin.Clear(global.gClearColor)
 
-		//CastleRoomMap.DrawAll(global.gWin, color.Transparent, pixel.IM)
 		CastleRoomMap.DrawAfter(1, func(canvas *pixelgl.Canvas) {
 			gHero.mEntity.TeleportAndDraw(*CastleRoomMap, canvas)
 		})

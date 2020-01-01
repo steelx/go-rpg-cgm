@@ -87,6 +87,7 @@ func (m *GameMap) setTiles() {
 	m.mSprites = sprites
 }
 
+//CamToTile pan camera to given coordinates
 func (m *GameMap) CamToTile(x, y float64) {
 	y = m.mHeight - y
 	x = x - 1
@@ -115,6 +116,8 @@ func (m GameMap) DrawAll(target pixel.Target, clearColour color.Color, mat pixel
 	m.mTilemap.DrawAll(target, clearColour, mat)
 }
 
+//DrawAfter will render the callback function after given layer index
+// uses pixelgl Canvas instead of gWin to render
 func (m GameMap) DrawAfter(layer int, callback func(canvas *pixelgl.Canvas)) error {
 	// Draw tiles
 	target, mat := global.gWin, pixel.IM
