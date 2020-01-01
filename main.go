@@ -14,7 +14,7 @@ var (
 	//camSpeed    = 1000.0
 	camZoom = 1.4
 	//camZoomSpeed = 1.2
-	//frameRate = 10 * time.Millisecond
+	frameRate = 15 * time.Millisecond
 )
 
 func run() {
@@ -64,13 +64,13 @@ func setup() {
 	panicIfErr(err)
 
 	gHero = Character{
-		mAnimUp:    []int{0, 9, 18, 27},
-		mAnimRight: []int{36, 45, 54, 63},
-		mAnimDown:  []int{72, 81, 90, 99},
-		mAnimLeft:  []int{108, 117, 126, 135},
+		mAnimUp:    []int{16, 17, 18, 19},
+		mAnimRight: []int{20, 21, 22, 23},
+		mAnimDown:  []int{24, 25, 26, 27},
+		mAnimLeft:  []int{28, 29, 30, 31},
 		mEntity: CreateEntity(CharacterDefinition{
 			texture: pic, width: 16, height: 24,
-			startFrame: 0,
+			startFrame: 27,
 			tileX:      7,
 			tileY:      2,
 		}),
@@ -95,10 +95,8 @@ func setup() {
 func gameLoop() {
 	last := time.Now()
 
-	//tick := time.Tick(frameRate)
+	tick := time.Tick(frameRate)
 	for !global.gWin.Closed() {
-		dt := time.Since(last).Seconds()
-		last = time.Now()
 
 		if global.gWin.Pressed(pixelgl.KeyQ) {
 			break
@@ -106,10 +104,15 @@ func gameLoop() {
 
 		global.gWin.Clear(global.gClearColor)
 
-		CastleRoomMap.DrawAfter(1, func(canvas *pixelgl.Canvas) {
-			gHero.mEntity.TeleportAndDraw(*CastleRoomMap, canvas)
-		})
-		gHero.mController.Update(dt)
+		select {
+		case <-tick:
+			dt := time.Since(last).Seconds()
+			last = time.Now()
+			CastleRoomMap.DrawAfter(1, func(canvas *pixelgl.Canvas) {
+				gHero.mEntity.TeleportAndDraw(*CastleRoomMap, canvas)
+			})
+			gHero.mController.Update(dt)
+		}
 
 		global.gWin.Update()
 	}

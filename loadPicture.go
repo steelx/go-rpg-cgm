@@ -49,8 +49,9 @@ func LoadPicture(path string) (pixel.Picture, error) {
 
 func LoadAsFrames(imgSprite pixel.Picture, w, h float64) []pixel.Rect {
 	var spriteFrames []pixel.Rect
-	for x := imgSprite.Bounds().Min.X; x < imgSprite.Bounds().Max.X; x += w {
-		for y := imgSprite.Bounds().Min.Y; y < imgSprite.Bounds().Max.Y; y += h {
+
+	for y := imgSprite.Bounds().Min.Y; y < imgSprite.Bounds().Max.Y; y += h {
+		for x := imgSprite.Bounds().Min.X; x < imgSprite.Bounds().Max.X; x += w {
 			spriteFrames = append(spriteFrames, pixel.R(x, y, x+w, y+h))
 		}
 	}

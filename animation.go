@@ -24,10 +24,10 @@ func (a *Animation) Update(dt float64) {
 	a.mTime = a.mTime + dt
 
 	if a.mTime >= a.mSPF {
-		a.mIndex++
+		a.mIndex += 1
 		a.mTime = 0
 
-		if a.mIndex >= len(a.mFrames) {
+		if a.IsLastFrame() {
 			if a.mLoop {
 				a.mIndex = 0
 			} else {
@@ -46,6 +46,14 @@ func (a Animation) Frame() int {
 	return a.mFrames[a.mIndex]
 }
 
+func (a Animation) GetFirstFrame() int {
+	return a.mFrames[0]
+}
+
+func (a Animation) IsLastFrame() bool {
+	return a.mIndex >= len(a.mFrames)
+}
+
 func (a Animation) IsFinished() bool {
-	return a.mLoop == false && a.mIndex == len(a.mFrames)
+	return a.mLoop == false || a.IsLastFrame()
 }

@@ -23,9 +23,9 @@ func MoveStateCreate(character Character, gMap GameMap) State {
 	s.mController = character.mController
 	s.mMoveX = 0
 	s.mMoveY = 0
-	s.mTween = TweenCreate(0, 0, 0.5)
-	s.mMoveSpeed = 0.4
-	s.mAnim = AnimationCreate([]int{s.mEntity.startFrame}, true, 0.15)
+	s.mTween = TweenCreate(0, 0, 1)
+	s.mMoveSpeed = 0.42
+	s.mAnim = AnimationCreate([]int{s.mEntity.startFrame}, true, 0.11)
 	return s
 }
 
@@ -52,19 +52,18 @@ func (s *MoveState) Enter(data Direction) {
 	s.mPixelY = s.mEntity.mTileY
 	s.mTween = TweenCreate(0, 1, s.mMoveSpeed)
 
+	//stop moving if blocking tile
 	targetX, targetY := s.mEntity.mTileX+data.x, s.mEntity.mTileY+data.y
 	if s.mMap.IsBlockingTile(int(targetX), int(targetY), 2) {
 		s.mMoveX = 0
 		s.mMoveY = 0
-		s.mEntity.SetFrame(s.mAnim.Frame())
+		s.mEntity.SetFrame(s.mAnim.GetFirstFrame())
 		s.mController.Change("wait", Direction{0, 0})
 	}
 }
 
 func (s *MoveState) Exit() {
-	if s.mMap.renderLayer == 2 {
-		s.mEntity.TeleportAndDraw(s.mMap, s.mMap.canvas)
-	}
+	s.mEntity.TeleportAndDraw(s.mMap, s.mMap.canvas)
 }
 
 func (s *MoveState) Render() {

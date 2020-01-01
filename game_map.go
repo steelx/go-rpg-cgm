@@ -45,6 +45,7 @@ func (m *GameMap) Create(tilemap *tilepix.Map) {
 	m.mX = m.mTileWidth
 	m.mY = m.mTileHeight
 
+	m.canvas = pixelgl.NewCanvas(m.mTilemap.Bounds())
 	m.setTiles()
 	m.setBlockingTileInfo()
 }
