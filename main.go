@@ -80,16 +80,12 @@ func setup() {
 			//fmt.Fprintln(endTxt, "THE END.")
 			//endTxt.Draw(CastleRoomMap.canvas, pixel.IM.Scaled(endTxt.Bounds().Center(), 2))
 		},
-		func() {
-			fmt.Println("onUse called")
-		},
+		nil,
 	)
 	gTriggerFlowerPot := TriggerCreate(
 		nil,
 		nil,
-		func() {
-			fmt.Println("onUse called at FlowerPot")
-		},
+		gDownDoorTeleport,
 	)
 
 	tileX, tileY := CastleRoomMap.GetTileIndex(7, 2)
@@ -144,7 +140,7 @@ func gameLoop() {
 			tileX, tileY := CastleRoomMap.GetTileIndex(gHero.GetFacedTileCoords())
 			trigger := CastleRoomMap.GetTrigger(tileX, tileY)
 			if trigger.OnUse != nil {
-				trigger.OnUse()
+				trigger.OnUse(gHero.mEntity)
 			}
 		}
 
