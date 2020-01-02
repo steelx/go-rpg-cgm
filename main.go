@@ -5,13 +5,15 @@ import (
 	"github.com/bcvery1/tilepix"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
+	"github.com/faiface/pixel/text"
+	"golang.org/x/image/font/basicfont"
 	"time"
 )
 
 var (
-	//basicAtlas    = text.NewAtlas(basicfont.Face7x13, text.ASCII)
+	basicAtlas    = text.NewAtlas(basicfont.Face7x13, text.ASCII)
+	endTxt        = &text.Text{}
 	CastleRoomMap = &GameMap{}
-	gHero         *Character
 	camPos        = pixel.ZV
 	//camSpeed    = 1000.0
 	camZoom = 1.8
@@ -55,34 +57,29 @@ func setup() {
 	panicIfErr(err)
 
 	CastleRoomMap.Create(m)
-	CastleRoomMap.CamToTile(5, 6)
+	CastleRoomMap.CamToTile(11, 5)
 
 	// Camera
 	camPos = pixel.V(CastleRoomMap.mCamX, CastleRoomMap.mCamY)
 	cam := pixel.IM.Scaled(camPos, camZoom).Moved(global.gWin.Bounds().Center().Sub(camPos))
 	global.gWin.SetMatrix(cam)
 
-	pic, err := LoadPicture("./resources/walk_cycle.png")
-	panicIfErr(err)
-
+	//Actions & Triggers
 	gUpDoorTeleport := ActionTeleport(*CastleRoomMap, 7, 2)
 	gDownDoorTeleport := ActionTeleport(*CastleRoomMap, 9, 10)
 	gTriggerTop := TriggerCreate(gDownDoorTeleport, nil, nil)
 	gTriggerBottom := TriggerCreate(
 		gUpDoorTeleport,
-		func() {
-			tileX, tileY := CastleRoomMap.GetTileIndex(9, 10)
-			fmt.Println(tileX, tileY)
-			//endTxt := text.New(pixel.V(tileX, tileY), basicAtlas)
-			//fmt.Fprintln(endTxt, "THE END.")
-			//endTxt.Draw(CastleRoomMap.canvas, pixel.IM.Scaled(endTxt.Bounds().Center(), 2))
-		},
+		nil,
 		nil,
 	)
 	gTriggerFlowerPot := TriggerCreate(
 		nil,
 		nil,
-		gDownDoorTeleport,
+		func(entity *Entity) {
+			endTxt = text.New(pixel.V(220, 100), basicAtlas)
+			fmt.Fprintln(endTxt, "Pot is full of snakes!")
+		},
 	)
 
 	tileX, tileY := CastleRoomMap.GetTileIndex(7, 2)
@@ -94,29 +91,6 @@ func setup() {
 	tileX, tileY = CastleRoomMap.GetTileIndex(8, 6)
 	CastleRoomMap.SetTrigger(tileX, tileY, gTriggerFlowerPot)
 
-	gHero = &Character{
-		mAnimUp:    []int{16, 17, 18, 19},
-		mAnimRight: []int{20, 21, 22, 23},
-		mAnimDown:  []int{24, 25, 26, 27},
-		mAnimLeft:  []int{28, 29, 30, 31},
-		mFacing:    CharacterFacingDirection[2],
-		mEntity: CreateEntity(CharacterDefinition{
-			texture: pic, width: 16, height: 24,
-			startFrame: 24,
-			tileX:      4,
-			tileY:      4,
-		}),
-		mController: StateMachineCreate(
-			map[string]func() State{
-				"wait": func() State {
-					return WaitStateCreate(gHero, CastleRoomMap)
-				},
-				"move": func() State {
-					return MoveStateCreate(gHero, CastleRoomMap)
-				},
-			},
-		),
-	}
 	// gHero Init
 	gHero.mController.Change("wait", Direction{0, 0})
 }
@@ -150,6 +124,7 @@ func gameLoop() {
 			CastleRoomMap.DrawAfter(1, func(canvas *pixelgl.Canvas) {
 				gHero.mEntity.TeleportAndDraw(*CastleRoomMap, canvas)
 			})
+			endTxt.Draw(global.gWin, pixel.IM.Scaled(pixel.V(300, 300), 1))
 			gHero.mController.Update(dt)
 		}
 
