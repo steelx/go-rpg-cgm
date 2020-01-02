@@ -90,11 +90,9 @@ func (m *GameMap) setTiles() {
 
 //CamToTile pan camera to given coordinates
 func (m *GameMap) CamToTile(x, y float64) {
-	y = m.mHeight - y
-	x = x - 1
-
-	x = m.mX + (x * m.mTileWidth) - m.mTileWidth/2
-	y = m.mY + (y * m.mTileHeight) - m.mTileHeight/2
+	tileX, tileY := m.GetTileIndex(x, y)
+	x = tileX - m.mTileWidth/2
+	y = tileY - m.mTileHeight/2
 	m.Goto(x, y)
 }
 
@@ -103,12 +101,17 @@ func (m *GameMap) Goto(x, y float64) {
 	m.mCamY = y
 }
 
-func (m *GameMap) GetTilePositionAtFeet(x, y, charW, charH float64) pixel.Vec {
+func (m GameMap) GetTileIndex(x, y float64) (tileX, tileY float64) {
 	y = m.mHeight - y //make count y from top (Tiled app starts from top)
-	//x = x - 1
-	x = m.mX + (x * m.mTileWidth) - charW/2
-	y = m.mY + (y * m.mTileHeight) - charH/2
+	tileX = m.mX + (x * m.mTileWidth)
+	tileY = m.mY + (y * m.mTileHeight)
+	return
+}
 
+func (m GameMap) GetTilePositionAtFeet(x, y, charW, charH float64) pixel.Vec {
+	tileX, tileY := m.GetTileIndex(x, y)
+	x = tileX - charW/2
+	y = tileY - charH/2
 	return pixel.V(x, y)
 }
 

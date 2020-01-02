@@ -95,11 +95,18 @@ func setup() {
 func gameLoop() {
 	last := time.Now()
 
+	//actions
+	quickTeleport := ActionTeleport(*CastleRoomMap, 4, 3)
+
 	tick := time.Tick(frameRate)
 	for !global.gWin.Closed() {
 
 		if global.gWin.Pressed(pixelgl.KeyQ) {
 			break
+		}
+
+		if global.gWin.Pressed(pixelgl.KeySpace) {
+			quickTeleport(gHero.mEntity)
 		}
 
 		global.gWin.Clear(global.gClearColor)
