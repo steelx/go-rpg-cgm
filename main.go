@@ -5,13 +5,11 @@ import (
 	"github.com/bcvery1/tilepix"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	"github.com/faiface/pixel/text"
-	"golang.org/x/image/font/basicfont"
 	"time"
 )
 
 var (
-	basicAtlas    = text.NewAtlas(basicfont.Face7x13, text.ASCII)
+	//basicAtlas    = text.NewAtlas(basicfont.Face7x13, text.ASCII)
 	CastleRoomMap = &GameMap{}
 	gHero         *Character
 	camPos        = pixel.ZV
@@ -67,7 +65,6 @@ func setup() {
 	pic, err := LoadPicture("./resources/walk_cycle.png")
 	panicIfErr(err)
 
-	//quickTeleport := ActionTeleport(*CastleRoomMap, 4, 3)
 	gUpDoorTeleport := ActionTeleport(*CastleRoomMap, 7, 2)
 	gDownDoorTeleport := ActionTeleport(*CastleRoomMap, 9, 10)
 	gTriggerTop := TriggerCreate(gDownDoorTeleport, nil, nil)
