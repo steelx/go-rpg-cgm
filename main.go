@@ -121,6 +121,7 @@ func gameLoop() {
 			CastleRoomMap.DrawAfter(func(canvas *pixelgl.Canvas, layer int) {
 				if layer == 2 {
 					gHero.mEntity.TeleportAndDraw(*CastleRoomMap, canvas)
+					gNPC2.mEntity.TeleportAndDraw(*CastleRoomMap, canvas)
 				}
 				if layer == 3 {
 					gNPC1.mEntity.TeleportAndDraw(*CastleRoomMap, canvas)
@@ -129,6 +130,7 @@ func gameLoop() {
 			endTxt.Draw(global.gWin, pixel.IM.Scaled(pixel.V(300, 300), 1))
 			gHero.mController.Update(dt)
 			gNPC1.mController.Update(dt)
+			gNPC2.mController.Update(dt)
 		}
 
 		global.gWin.Update()

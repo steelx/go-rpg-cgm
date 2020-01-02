@@ -3,6 +3,7 @@ package main
 var (
 	gHero *Character
 	gNPC1 *Character
+	gNPC2 *Character
 )
 
 func init() {
@@ -50,7 +51,32 @@ func init() {
 		),
 	}
 
+	gNPC2 = &Character{
+		mAnimUp:    []int{48, 49, 50, 51},
+		mAnimRight: []int{52, 53, 54, 55},
+		mAnimDown:  []int{56, 57, 58, 59},
+		mAnimLeft:  []int{60, 61, 62, 63},
+		mFacing:    CharacterFacingDirection[2],
+		mEntity: CreateEntity(CharacterDefinition{
+			texture: pic, width: 16, height: 24,
+			startFrame: 56,
+			tileX:      3,
+			tileY:      8,
+		}),
+		mController: StateMachineCreate(
+			map[string]func() State{
+				"wait": func() State {
+					return NPCStrollWaitStateCreate(gNPC2, CastleRoomMap)
+				},
+				"move": func() State {
+					return MoveStateCreate(gNPC2, CastleRoomMap)
+				},
+			},
+		),
+	}
+
 	//Init Characters
 	gHero.mController.Change("wait", Direction{0, 0})
 	gNPC1.mController.Change("wait", Direction{0, 0})
+	gNPC2.mController.Change("wait", Direction{0, 0})
 }

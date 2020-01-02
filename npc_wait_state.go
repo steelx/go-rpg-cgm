@@ -1,10 +1,7 @@
 package main
 
 type NPCWaitState struct {
-	mCharacter  *Character
-	mMap        *GameMap
-	mEntity     *Entity
-	mController *StateMachine
+	CharacterStateBase
 
 	mFrameResetSpeed, mFrameCount float64
 }

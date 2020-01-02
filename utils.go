@@ -8,6 +8,7 @@ import (
 	"image/png"
 	_ "image/png"
 	"io"
+	"math/rand"
 	"os"
 	"strconv"
 )
@@ -150,4 +151,11 @@ func panicIfErr(err error) {
 		fmt.Println(err)
 		os.Exit(2)
 	}
+}
+
+func randInt(min, max int) int {
+	return rand.Intn(max-min) + min
+}
+func randFloat(min, max float64) float64 {
+	return min + rand.Float64()*(max-min)
 }

@@ -11,6 +11,13 @@ type State interface {
 	Update(dt float64)
 }
 
+type CharacterStateBase struct {
+	mCharacter  *Character
+	mMap        *GameMap
+	mEntity     *Entity
+	mController *StateMachine
+}
+
 type Direction struct {
 	x, y float64
 }
