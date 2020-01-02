@@ -125,7 +125,7 @@ func (m GameMap) DrawAll(target pixel.Target, clearColour color.Color, mat pixel
 
 //DrawAfter will render the callback function after given layer index
 // uses pixelgl Canvas instead of gWin to render
-func (m GameMap) DrawAfter(layer int, callback func(canvas *pixelgl.Canvas)) error {
+func (m GameMap) DrawAfter(callback func(canvas *pixelgl.Canvas, layer int)) error {
 	// Draw tiles
 	target, mat := global.gWin, pixel.IM
 
@@ -135,12 +135,10 @@ func (m GameMap) DrawAfter(layer int, callback func(canvas *pixelgl.Canvas)) err
 	m.canvas.Clear(color.Transparent)
 
 	for index, l := range m.mTilemap.TileLayers {
-		//we do NOT render the collision layer
-		if l.Name == "collision" {
+		callback(m.canvas, index)
+		if l.Name == global.collisionLayer {
+			//we do NOT render the collision layer
 			continue
-		}
-		if index == layer {
-			callback(m.canvas)
 		}
 		if err := l.Draw(m.canvas); err != nil {
 			log.WithError(err).Error("Map.DrawAll: could not draw layer")

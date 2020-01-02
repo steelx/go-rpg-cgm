@@ -10,13 +10,14 @@ import (
 	"time"
 )
 
+const camZoom = 1.5
+
 var (
 	basicAtlas    = text.NewAtlas(basicfont.Face7x13, text.ASCII)
 	endTxt        = &text.Text{}
 	CastleRoomMap = &GameMap{}
 	camPos        = pixel.ZV
 	//camSpeed    = 1000.0
-	camZoom = 1.8
 	//camZoomSpeed = 1.2
 	frameRate = 15 * time.Millisecond
 )
@@ -37,9 +38,7 @@ func run() {
 	PrintMemoryUsage()
 	// Setup world etc.
 	setup()
-
 	PrintMemoryUsage()
-
 	gameLoop()
 }
 func main() {
@@ -91,8 +90,6 @@ func setup() {
 	tileX, tileY = CastleRoomMap.GetTileIndex(8, 6)
 	CastleRoomMap.SetTrigger(tileX, tileY, gTriggerFlowerPot)
 
-	// gHero Init
-	gHero.mController.Change("wait", Direction{0, 0})
 }
 
 //=============================================================
@@ -121,11 +118,17 @@ func gameLoop() {
 		case <-tick:
 			dt := time.Since(last).Seconds()
 			last = time.Now()
-			CastleRoomMap.DrawAfter(1, func(canvas *pixelgl.Canvas) {
-				gHero.mEntity.TeleportAndDraw(*CastleRoomMap, canvas)
+			CastleRoomMap.DrawAfter(func(canvas *pixelgl.Canvas, layer int) {
+				if layer == 2 {
+					gHero.mEntity.TeleportAndDraw(*CastleRoomMap, canvas)
+				}
+				if layer == 3 {
+					gNPC1.mEntity.TeleportAndDraw(*CastleRoomMap, canvas)
+				}
 			})
 			endTxt.Draw(global.gWin, pixel.IM.Scaled(pixel.V(300, 300), 1))
 			gHero.mController.Update(dt)
+			gNPC1.mController.Update(dt)
 		}
 
 		global.gWin.Update()
