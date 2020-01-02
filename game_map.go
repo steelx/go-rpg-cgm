@@ -164,3 +164,10 @@ func (m GameMap) DrawAfter(layer int, callback func(canvas *pixelgl.Canvas)) err
 func (m GameMap) pixelHeight() float64 {
 	return float64(m.mTilemap.Height * m.mTilemap.TileHeight)
 }
+
+func (m GameMap) GetTrigger(x, y float64) Trigger {
+	return m.mTriggers[[2]float64{x, y}]
+}
+func (m GameMap) SetTrigger(x, y float64, t Trigger) {
+	m.mTriggers[[2]float64{x, y}] = t
+}

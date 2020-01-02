@@ -5,15 +5,15 @@ import (
 )
 
 type WaitState struct {
-	mCharacter  Character
-	mMap        GameMap
+	mCharacter  *Character
+	mMap        *GameMap
 	mEntity     *Entity
 	mController *StateMachine
 
 	mFrameResetSpeed, mFrameCount float64
 }
 
-func WaitStateCreate(character Character, gMap GameMap) State {
+func WaitStateCreate(character *Character, gMap *GameMap) State {
 	s := &WaitState{}
 	s.mCharacter = character
 	s.mMap = gMap
@@ -32,6 +32,12 @@ func (s *WaitState) Enter(data Direction) {
 	// Reset to default frame
 	s.mFrameCount = 0
 	s.mEntity.SetFrame(s.mEntity.startFrame)
+
+	//check if an EXIT Trigger exists on given tile coords
+	tileX, tileY := s.mMap.GetTileIndex(s.mEntity.mTileX, s.mEntity.mTileY)
+	if trigger := s.mMap.GetTrigger(tileX, tileY); trigger.OnExit != nil {
+		trigger.OnExit()
+	}
 }
 
 func (s *WaitState) Render() {

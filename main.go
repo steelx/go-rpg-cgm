@@ -1,15 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"github.com/bcvery1/tilepix"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
+	"github.com/faiface/pixel/text"
+	"golang.org/x/image/font/basicfont"
 	"time"
 )
 
 var (
+	basicAtlas    = text.NewAtlas(basicfont.Face7x13, text.ASCII)
 	CastleRoomMap = &GameMap{}
-	gHero         Character
+	gHero         *Character
 	camPos        = pixel.ZV
 	//camSpeed    = 1000.0
 	camZoom = 1.8
@@ -67,32 +71,55 @@ func setup() {
 	gUpDoorTeleport := ActionTeleport(*CastleRoomMap, 7, 2)
 	gDownDoorTeleport := ActionTeleport(*CastleRoomMap, 9, 10)
 	gTriggerTop := TriggerCreate(gDownDoorTeleport, nil, nil)
-	gTriggerBottom := TriggerCreate(gUpDoorTeleport, nil, nil)
+	gTriggerBottom := TriggerCreate(
+		gUpDoorTeleport,
+		func() {
+			tileX, tileY := CastleRoomMap.GetTileIndex(9, 10)
+			fmt.Println(tileX, tileY)
+			//endTxt := text.New(pixel.V(tileX, tileY), basicAtlas)
+			//fmt.Fprintln(endTxt, "THE END.")
+			//endTxt.Draw(CastleRoomMap.canvas, pixel.IM.Scaled(endTxt.Bounds().Center(), 2))
+		},
+		func() {
+			fmt.Println("onUse called")
+		},
+	)
+	gTriggerFlowerPot := TriggerCreate(
+		nil,
+		nil,
+		func() {
+			fmt.Println("onUse called at FlowerPot")
+		},
+	)
 
 	tileX, tileY := CastleRoomMap.GetTileIndex(7, 2)
-	CastleRoomMap.mTriggers[[2]float64{tileX, tileY}] = gTriggerTop
+	CastleRoomMap.SetTrigger(tileX, tileY, gTriggerTop)
 
 	tileX, tileY = CastleRoomMap.GetTileIndex(9, 10)
-	CastleRoomMap.mTriggers[[2]float64{tileX, tileY}] = gTriggerBottom
+	CastleRoomMap.SetTrigger(tileX, tileY, gTriggerBottom)
 
-	gHero = Character{
+	tileX, tileY = CastleRoomMap.GetTileIndex(8, 6)
+	CastleRoomMap.SetTrigger(tileX, tileY, gTriggerFlowerPot)
+
+	gHero = &Character{
 		mAnimUp:    []int{16, 17, 18, 19},
 		mAnimRight: []int{20, 21, 22, 23},
 		mAnimDown:  []int{24, 25, 26, 27},
 		mAnimLeft:  []int{28, 29, 30, 31},
+		mFacing:    CharacterFacingDirection[2],
 		mEntity: CreateEntity(CharacterDefinition{
 			texture: pic, width: 16, height: 24,
-			startFrame: 27,
+			startFrame: 24,
 			tileX:      4,
 			tileY:      4,
 		}),
 		mController: StateMachineCreate(
 			map[string]func() State{
 				"wait": func() State {
-					return WaitStateCreate(gHero, *CastleRoomMap)
+					return WaitStateCreate(gHero, CastleRoomMap)
 				},
 				"move": func() State {
-					return MoveStateCreate(gHero, *CastleRoomMap)
+					return MoveStateCreate(gHero, CastleRoomMap)
 				},
 			},
 		),
@@ -112,6 +139,13 @@ func gameLoop() {
 
 		if global.gWin.Pressed(pixelgl.KeyQ) {
 			break
+		}
+		if global.gWin.Pressed(pixelgl.KeySpace) {
+			tileX, tileY := CastleRoomMap.GetTileIndex(gHero.GetFacedTileCoords())
+			trigger := CastleRoomMap.GetTrigger(tileX, tileY)
+			if trigger.OnUse != nil {
+				trigger.OnUse()
+			}
 		}
 
 		global.gWin.Clear(global.gClearColor)

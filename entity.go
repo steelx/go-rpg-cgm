@@ -5,6 +5,8 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 )
 
+var CharacterFacingDirection = [4]string{"up", "right", "down", "left"}
+
 type CharacterDefinition struct {
 	texture       pixel.Picture
 	width, height float64

@@ -1,8 +1,8 @@
 package main
 
 type MoveState struct {
-	mCharacter  Character
-	mMap        GameMap
+	mCharacter  *Character
+	mMap        *GameMap
 	mEntity     *Entity
 	mController *StateMachine
 	// ^above common with WaitState
@@ -14,7 +14,7 @@ type MoveState struct {
 	mAnim            Animation
 }
 
-func MoveStateCreate(character Character, gMap GameMap) State {
+func MoveStateCreate(character *Character, gMap *GameMap) State {
 	s := &MoveState{}
 	s.mCharacter = character
 	s.mMap = gMap
@@ -36,12 +36,16 @@ func (s *MoveState) Enter(data Direction) {
 	var frames []int
 	if data.x == -1 {
 		frames = s.mCharacter.mAnimLeft
+		s.mCharacter.SetFacing(3)
 	} else if data.x == 1 {
 		frames = s.mCharacter.mAnimRight
+		s.mCharacter.SetFacing(1)
 	} else if data.y == -1 {
 		frames = s.mCharacter.mAnimUp
+		s.mCharacter.SetFacing(0)
 	} else if data.y == 1 {
 		frames = s.mCharacter.mAnimDown
+		s.mCharacter.SetFacing(2)
 	}
 	s.mAnim.SetFrames(frames)
 
@@ -63,10 +67,9 @@ func (s *MoveState) Enter(data Direction) {
 }
 
 func (s MoveState) Exit() {
-	//check if an Trigger exists on given tile coords
+	//check if an ENTER Trigger exists on given tile coords
 	tileX, tileY := s.mMap.GetTileIndex(s.mEntity.mTileX, s.mEntity.mTileY)
-	var trigger = s.mMap.mTriggers[[2]float64{tileX, tileY}]
-	if trigger.OnEnter != nil {
+	if trigger := s.mMap.GetTrigger(tileX, tileY); trigger.OnEnter != nil {
 		trigger.OnEnter(s.mEntity)
 	}
 }
