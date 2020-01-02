@@ -63,6 +63,18 @@ func setup() {
 	pic, err := LoadPicture("./resources/walk_cycle.png")
 	panicIfErr(err)
 
+	//quickTeleport := ActionTeleport(*CastleRoomMap, 4, 3)
+	gUpDoorTeleport := ActionTeleport(*CastleRoomMap, 7, 2)
+	gDownDoorTeleport := ActionTeleport(*CastleRoomMap, 9, 10)
+	gTriggerTop := TriggerCreate(gDownDoorTeleport, nil, nil)
+	gTriggerBottom := TriggerCreate(gUpDoorTeleport, nil, nil)
+
+	tileX, tileY := CastleRoomMap.GetTileIndex(7, 2)
+	CastleRoomMap.mTriggers[[2]float64{tileX, tileY}] = gTriggerTop
+
+	tileX, tileY = CastleRoomMap.GetTileIndex(9, 10)
+	CastleRoomMap.mTriggers[[2]float64{tileX, tileY}] = gTriggerBottom
+
 	gHero = Character{
 		mAnimUp:    []int{16, 17, 18, 19},
 		mAnimRight: []int{20, 21, 22, 23},
@@ -71,8 +83,8 @@ func setup() {
 		mEntity: CreateEntity(CharacterDefinition{
 			texture: pic, width: 16, height: 24,
 			startFrame: 27,
-			tileX:      7,
-			tileY:      2,
+			tileX:      4,
+			tileY:      4,
 		}),
 		mController: StateMachineCreate(
 			map[string]func() State{
@@ -95,18 +107,11 @@ func setup() {
 func gameLoop() {
 	last := time.Now()
 
-	//actions
-	quickTeleport := ActionTeleport(*CastleRoomMap, 4, 3)
-
 	tick := time.Tick(frameRate)
 	for !global.gWin.Closed() {
 
 		if global.gWin.Pressed(pixelgl.KeyQ) {
 			break
-		}
-
-		if global.gWin.Pressed(pixelgl.KeySpace) {
-			quickTeleport(gHero.mEntity)
 		}
 
 		global.gWin.Clear(global.gClearColor)

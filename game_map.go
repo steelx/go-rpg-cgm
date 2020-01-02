@@ -28,12 +28,15 @@ type GameMap struct {
 	blockingTileGID         tilepix.GID
 	canvas                  *pixelgl.Canvas
 	renderLayer             int
+
+	mTriggers map[[2]float64]Trigger
 }
 
 func (m *GameMap) Create(tilemap *tilepix.Map) {
 	// assuming exported tiled map
 	//lua definition has 1 layer
 	m.mTilemap = tilemap
+	m.mTriggers = make(map[[2]float64]Trigger)
 
 	m.mHeight = float64(tilemap.Height)
 	m.mWidth = float64(tilemap.Width)

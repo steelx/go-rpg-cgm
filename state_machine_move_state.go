@@ -63,7 +63,7 @@ func (s *MoveState) Enter(data Direction) {
 }
 
 func (s *MoveState) Exit() {
-	s.mEntity.TeleportAndDraw(s.mMap, s.mMap.canvas)
+
 }
 
 func (s *MoveState) Render() {
