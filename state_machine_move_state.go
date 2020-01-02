@@ -62,8 +62,13 @@ func (s *MoveState) Enter(data Direction) {
 	}
 }
 
-func (s *MoveState) Exit() {
-
+func (s MoveState) Exit() {
+	//check if an Trigger exists on given tile coords
+	tileX, tileY := s.mMap.GetTileIndex(s.mEntity.mTileX, s.mEntity.mTileY)
+	var trigger = s.mMap.mTriggers[[2]float64{tileX, tileY}]
+	if trigger.OnEnter != nil {
+		trigger.OnEnter(s.mEntity)
+	}
 }
 
 func (s *MoveState) Render() {
