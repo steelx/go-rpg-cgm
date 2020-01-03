@@ -4,23 +4,25 @@ import (
 	"fmt"
 	"github.com/bcvery1/tilepix"
 	"github.com/faiface/pixel"
+	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
-	"golang.org/x/image/font/basicfont"
+	"golang.org/x/image/font"
 	"sort"
 	"time"
 )
 
-const camZoom = 1.5
+const camZoom = 1.0
 
 var (
-	basicAtlas    = text.NewAtlas(basicfont.Face7x13, text.ASCII)
-	endTxt        = &text.Text{}
+	fontFace      font.Face
+	basicAtlas    *text.Atlas
 	CastleRoomMap = &GameMap{}
 	camPos        = pixel.ZV
 	//camSpeed    = 1000.0
 	//camZoomSpeed = 1.2
 	frameRate = 15 * time.Millisecond
+	panel     = imdraw.New(nil)
 )
 
 func run() {
@@ -41,6 +43,12 @@ func run() {
 	setup()
 	PrintMemoryUsage()
 	gameLoop()
+}
+func init() {
+	var err error
+	fontFace, err = loadTTF("./resources/font/joystix.ttf", 14)
+	panicIfErr(err)
+	basicAtlas = text.NewAtlas(fontFace, text.ASCII)
 }
 func main() {
 	pixelgl.Run(run)
@@ -68,8 +76,7 @@ func setup() {
 		nil,
 		nil,
 		func(entity *Entity) {
-			endTxt = text.New(pixel.V(220, 100), basicAtlas)
-			fmt.Fprintln(endTxt, "Pot is full of snakes!")
+			fmt.Println("Pot is full of snakes!")
 		},
 	)
 
@@ -122,13 +129,14 @@ func gameLoop() {
 				}
 			})
 			panicIfErr(err)
-			endTxt.Draw(global.gWin, pixel.IM.Scaled(pixel.V(300, 300), 1))
 
 			// Camera
 			CastleRoomMap.CamToTile(gHero.mEntity.mTileX, gHero.mEntity.mTileY)
 			camPos = pixel.V(CastleRoomMap.mCamX, CastleRoomMap.mCamY)
 			cam := pixel.IM.Scaled(camPos, camZoom).Moved(global.gWin.Bounds().Center().Sub(camPos))
 			global.gWin.SetMatrix(cam)
+
+			DrawFixedTopPanel(CastleRoomMap)
 		}
 
 		global.gWin.Update()

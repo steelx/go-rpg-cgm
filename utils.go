@@ -4,10 +4,13 @@ import (
 	"encoding/csv"
 	"fmt"
 	"github.com/faiface/pixel"
+	"github.com/golang/freetype/truetype"
+	"golang.org/x/image/font"
 	"image"
 	"image/png"
 	_ "image/png"
 	"io"
+	"io/ioutil"
 	"math/rand"
 	"os"
 	"strconv"
@@ -158,4 +161,27 @@ func randInt(min, max int) int {
 }
 func randFloat(min, max float64) float64 {
 	return min + rand.Float64()*(max-min)
+}
+
+func loadTTF(path string, size float64) (font.Face, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	bytes, err := ioutil.ReadAll(file)
+	if err != nil {
+		return nil, err
+	}
+
+	font, err := truetype.Parse(bytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return truetype.NewFace(font, &truetype.Options{
+		Size:              size,
+		GlyphCacheEntries: 1,
+	}), nil
 }

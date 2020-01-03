@@ -9,8 +9,8 @@ import (
 // Global variables
 //=============================================================
 type Global struct {
-	gWindowHeight     int
-	gWindowWidth      int
+	gWindowHeight     float64
+	gWindowWidth      float64
 	gVsync            bool
 	gUndecorated      bool
 	gClearColor       pixel.RGBA
