@@ -7,6 +7,7 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
 	"golang.org/x/image/font/basicfont"
+	"sort"
 	"time"
 )
 
@@ -118,19 +119,20 @@ func gameLoop() {
 		case <-tick:
 			dt := time.Since(last).Seconds()
 			last = time.Now()
-			CastleRoomMap.DrawAfter(func(canvas *pixelgl.Canvas, layer int) {
+			err := CastleRoomMap.DrawAfter(func(canvas *pixelgl.Canvas, layer int) {
+				gameCharacters := [3]Character{*gHero, *gNPC2, *gNPC1}
+				sort.Slice(gameCharacters[:], func(i, j int) bool {
+					return gameCharacters[i].mEntity.mTileY < gameCharacters[j].mEntity.mTileY
+				})
 				if layer == 2 {
-					gHero.mEntity.TeleportAndDraw(*CastleRoomMap, canvas)
-					gNPC2.mEntity.TeleportAndDraw(*CastleRoomMap, canvas)
-				}
-				if layer == 3 {
-					gNPC1.mEntity.TeleportAndDraw(*CastleRoomMap, canvas)
+					for _, gCharacter := range gameCharacters {
+						gCharacter.mEntity.TeleportAndDraw(*CastleRoomMap, canvas)
+						gCharacter.mController.Update(dt)
+					}
 				}
 			})
+			panicIfErr(err)
 			endTxt.Draw(global.gWin, pixel.IM.Scaled(pixel.V(300, 300), 1))
-			gHero.mController.Update(dt)
-			gNPC1.mController.Update(dt)
-			gNPC2.mController.Update(dt)
 		}
 
 		global.gWin.Update()

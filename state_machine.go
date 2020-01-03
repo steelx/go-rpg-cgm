@@ -48,7 +48,7 @@ func (m *StateMachine) Change(stateName string, enterParams Direction) {
 		m.current.Exit()
 	}
 	m.current = m.states[stateName]()
-	m.current.Enter(enterParams) //thinking.. pass enterParams
+	m.current.Enter(enterParams)
 }
 
 //Update(dt)
