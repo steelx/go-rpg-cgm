@@ -50,23 +50,14 @@ func main() {
 // Setup map, world, player etc.
 //=============================================================
 func setup() {
-	// Camera setup
-
 	// Init map
 	m, err := tilepix.ReadFile("small_room.tmx")
 	panicIfErr(err)
-
 	CastleRoomMap.Create(m)
-	CastleRoomMap.CamToTile(11, 5)
-
-	// Camera
-	camPos = pixel.V(CastleRoomMap.mCamX, CastleRoomMap.mCamY)
-	cam := pixel.IM.Scaled(camPos, camZoom).Moved(global.gWin.Bounds().Center().Sub(camPos))
-	global.gWin.SetMatrix(cam)
 
 	//Actions & Triggers
-	gUpDoorTeleport := ActionTeleport(*CastleRoomMap, 7, 2)
-	gDownDoorTeleport := ActionTeleport(*CastleRoomMap, 9, 10)
+	gUpDoorTeleport := ActionTeleport(*CastleRoomMap, Direction{7, 2})
+	gDownDoorTeleport := ActionTeleport(*CastleRoomMap, Direction{9, 10})
 	gTriggerTop := TriggerCreate(gDownDoorTeleport, nil, nil)
 	gTriggerBottom := TriggerCreate(
 		gUpDoorTeleport,
@@ -82,15 +73,11 @@ func setup() {
 		},
 	)
 
-	tileX, tileY := CastleRoomMap.GetTileIndex(7, 2)
-	CastleRoomMap.SetTrigger(tileX, tileY, gTriggerTop)
+	CastleRoomMap.SetTrigger(7, 2, gTriggerTop)
+	CastleRoomMap.SetTrigger(9, 10, gTriggerBottom)
+	CastleRoomMap.SetTrigger(8, 6, gTriggerFlowerPot)
 
-	tileX, tileY = CastleRoomMap.GetTileIndex(9, 10)
-	CastleRoomMap.SetTrigger(tileX, tileY, gTriggerBottom)
-
-	tileX, tileY = CastleRoomMap.GetTileIndex(8, 6)
-	CastleRoomMap.SetTrigger(tileX, tileY, gTriggerFlowerPot)
-
+	CastleRoomMap.mEntities = []*Entity{gHero.mEntity, gNPC2.mEntity, gNPC1.mEntity}
 }
 
 //=============================================================
@@ -119,11 +106,14 @@ func gameLoop() {
 		case <-tick:
 			dt := time.Since(last).Seconds()
 			last = time.Now()
+
 			err := CastleRoomMap.DrawAfter(func(canvas *pixelgl.Canvas, layer int) {
 				gameCharacters := [3]Character{*gHero, *gNPC2, *gNPC1}
+
 				sort.Slice(gameCharacters[:], func(i, j int) bool {
 					return gameCharacters[i].mEntity.mTileY < gameCharacters[j].mEntity.mTileY
 				})
+
 				if layer == 2 {
 					for _, gCharacter := range gameCharacters {
 						gCharacter.mEntity.TeleportAndDraw(*CastleRoomMap, canvas)
@@ -133,6 +123,12 @@ func gameLoop() {
 			})
 			panicIfErr(err)
 			endTxt.Draw(global.gWin, pixel.IM.Scaled(pixel.V(300, 300), 1))
+
+			// Camera
+			CastleRoomMap.CamToTile(gHero.mEntity.mTileX, gHero.mEntity.mTileY)
+			camPos = pixel.V(CastleRoomMap.mCamX, CastleRoomMap.mCamY)
+			cam := pixel.IM.Scaled(camPos, camZoom).Moved(global.gWin.Bounds().Center().Sub(camPos))
+			global.gWin.SetMatrix(cam)
 		}
 
 		global.gWin.Update()

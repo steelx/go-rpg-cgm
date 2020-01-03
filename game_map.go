@@ -30,6 +30,7 @@ type GameMap struct {
 	renderLayer             int
 
 	mTriggers map[[2]float64]Trigger
+	mEntities []*Entity
 }
 
 func (m *GameMap) Create(tilemap *tilepix.Map) {
@@ -37,6 +38,7 @@ func (m *GameMap) Create(tilemap *tilepix.Map) {
 	//lua definition has 1 layer
 	m.mTilemap = tilemap
 	m.mTriggers = make(map[[2]float64]Trigger)
+	m.mEntities = make([]*Entity, 0)
 
 	m.mHeight = float64(tilemap.Height)
 	m.mWidth = float64(tilemap.Width)
@@ -60,6 +62,18 @@ func (m *GameMap) setBlockingTileInfo() {
 			break
 		}
 	}
+}
+func (m *GameMap) ClearAllEntities() {
+	m.mEntities = make([]*Entity, 0)
+}
+
+func (m GameMap) GetEntityAtPos(x, y float64) *Entity {
+	for _, e := range m.mEntities {
+		if e.mTileX == x && e.mTileY == y {
+			return e
+		}
+	}
+	return nil
 }
 
 //IsBlockingTile check's x, y cords on collision map layer
@@ -167,5 +181,6 @@ func (m GameMap) GetTrigger(x, y float64) Trigger {
 	return m.mTriggers[[2]float64{x, y}]
 }
 func (m GameMap) SetTrigger(x, y float64, t Trigger) {
-	m.mTriggers[[2]float64{x, y}] = t
+	tileX, tileY := m.GetTileIndex(x, y)
+	m.mTriggers[[2]float64{tileX, tileY}] = t
 }

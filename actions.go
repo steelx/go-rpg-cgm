@@ -1,9 +1,9 @@
 package main
 
-func ActionTeleport(gMap GameMap, tileX, tileY float64) func(entity *Entity) {
+func ActionTeleport(gMap GameMap, to Direction) func(entity *Entity) {
 	return func(entity *Entity) {
-		entity.mTileX = tileX
-		entity.mTileY = tileY
+		entity.mTileX = to.x
+		entity.mTileY = to.y
 		entity.TeleportAndDraw(gMap, gMap.canvas)
 	}
 }

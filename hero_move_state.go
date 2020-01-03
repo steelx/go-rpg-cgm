@@ -58,11 +58,14 @@ func (s *MoveState) Enter(data Direction) {
 
 	//stop moving if blocking tile
 	targetX, targetY := s.mEntity.mTileX+data.x, s.mEntity.mTileY+data.y
-	if s.mMap.IsBlockingTile(int(targetX), int(targetY), global.collisionLayerPos) {
+
+	if player := s.mMap.GetEntityAtPos(targetX, targetY); player != nil ||
+		s.mMap.IsBlockingTile(int(targetX), int(targetY), global.collisionLayerPos) {
 		s.mMoveX = 0
 		s.mMoveY = 0
 		s.mEntity.SetFrame(s.mAnim.GetFirstFrame())
 		s.mController.Change("wait", Direction{0, 0})
+		return
 	}
 }
 
