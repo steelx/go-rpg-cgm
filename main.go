@@ -90,7 +90,7 @@ func setup() {
 
 	tileX, tileY = CastleRoomMap.GetTileIndex(8, 6)
 	CastleRoomMap.SetTrigger(tileX, tileY, gTriggerFlowerPot)
-
+	CastleRoomMap.mEntities = []*Entity{gHero.mEntity, gNPC2.mEntity, gNPC1.mEntity}
 }
 
 //=============================================================
@@ -119,11 +119,14 @@ func gameLoop() {
 		case <-tick:
 			dt := time.Since(last).Seconds()
 			last = time.Now()
+
 			err := CastleRoomMap.DrawAfter(func(canvas *pixelgl.Canvas, layer int) {
 				gameCharacters := [3]Character{*gHero, *gNPC2, *gNPC1}
+
 				sort.Slice(gameCharacters[:], func(i, j int) bool {
 					return gameCharacters[i].mEntity.mTileY < gameCharacters[j].mEntity.mTileY
 				})
+
 				if layer == 2 {
 					for _, gCharacter := range gameCharacters {
 						gCharacter.mEntity.TeleportAndDraw(*CastleRoomMap, canvas)
