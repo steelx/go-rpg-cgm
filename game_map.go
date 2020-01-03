@@ -181,5 +181,6 @@ func (m GameMap) GetTrigger(x, y float64) Trigger {
 	return m.mTriggers[[2]float64{x, y}]
 }
 func (m GameMap) SetTrigger(x, y float64, t Trigger) {
-	m.mTriggers[[2]float64{x, y}] = t
+	tileX, tileY := m.GetTileIndex(x, y)
+	m.mTriggers[[2]float64{tileX, tileY}] = t
 }

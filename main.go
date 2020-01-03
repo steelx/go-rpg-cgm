@@ -65,8 +65,8 @@ func setup() {
 	global.gWin.SetMatrix(cam)
 
 	//Actions & Triggers
-	gUpDoorTeleport := ActionTeleport(*CastleRoomMap, 7, 2)
-	gDownDoorTeleport := ActionTeleport(*CastleRoomMap, 9, 10)
+	gUpDoorTeleport := ActionTeleport(*CastleRoomMap, Direction{7, 2})
+	gDownDoorTeleport := ActionTeleport(*CastleRoomMap, Direction{9, 10})
 	gTriggerTop := TriggerCreate(gDownDoorTeleport, nil, nil)
 	gTriggerBottom := TriggerCreate(
 		gUpDoorTeleport,
@@ -82,14 +82,10 @@ func setup() {
 		},
 	)
 
-	tileX, tileY := CastleRoomMap.GetTileIndex(7, 2)
-	CastleRoomMap.SetTrigger(tileX, tileY, gTriggerTop)
+	CastleRoomMap.SetTrigger(7, 2, gTriggerTop)
+	CastleRoomMap.SetTrigger(9, 10, gTriggerBottom)
+	CastleRoomMap.SetTrigger(8, 6, gTriggerFlowerPot)
 
-	tileX, tileY = CastleRoomMap.GetTileIndex(9, 10)
-	CastleRoomMap.SetTrigger(tileX, tileY, gTriggerBottom)
-
-	tileX, tileY = CastleRoomMap.GetTileIndex(8, 6)
-	CastleRoomMap.SetTrigger(tileX, tileY, gTriggerFlowerPot)
 	CastleRoomMap.mEntities = []*Entity{gHero.mEntity, gNPC2.mEntity, gNPC1.mEntity}
 }
 
