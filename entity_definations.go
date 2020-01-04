@@ -21,6 +21,7 @@ func init() {
 			startFrame: 24,
 			tileX:      4,
 			tileY:      4,
+			gMap:       CastleRoomMap,
 		}),
 		mController: StateMachineCreate(
 			map[string]func() State{

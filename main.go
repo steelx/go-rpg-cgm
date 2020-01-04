@@ -1,13 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"github.com/bcvery1/tilepix"
 	"github.com/faiface/pixel"
-	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
-	"golang.org/x/image/font"
 	"sort"
 	"time"
 )
@@ -15,20 +12,19 @@ import (
 const camZoom = 1.0
 
 var (
-	fontFace      font.Face
-	basicAtlas    *text.Atlas
+	basicAtlas14  *text.Atlas
+	basicAtlas12  *text.Atlas
 	CastleRoomMap = &GameMap{}
 	camPos        = pixel.ZV
 	//camSpeed    = 1000.0
 	//camZoomSpeed = 1.2
 	frameRate = 15 * time.Millisecond
-	panel     = imdraw.New(nil)
 )
 
 func run() {
 	cfg := pixelgl.WindowConfig{
 		Title:       "GP RPG",
-		Bounds:      pixel.R(0, 0, float64(global.gWindowWidth), float64(global.gWindowHeight)),
+		Bounds:      pixel.R(0, 0, global.gWindowWidth, global.gWindowHeight),
 		VSync:       global.gVsync,
 		Undecorated: global.gUndecorated,
 	}
@@ -45,10 +41,12 @@ func run() {
 	gameLoop()
 }
 func init() {
-	var err error
-	fontFace, err = loadTTF("./resources/font/joystix.ttf", 14)
+	fontFace14, err := loadTTF("./resources/font/joystix.ttf", 14)
 	panicIfErr(err)
-	basicAtlas = text.NewAtlas(fontFace, text.ASCII)
+	fontFace12, err := loadTTF("./resources/font/joystix.ttf", 12)
+	panicIfErr(err)
+	basicAtlas14 = text.NewAtlas(fontFace14, text.ASCII)
+	basicAtlas12 = text.NewAtlas(fontFace12, text.ASCII)
 }
 func main() {
 	pixelgl.Run(run)
@@ -76,7 +74,10 @@ func setup() {
 		nil,
 		nil,
 		func(entity *Entity) {
-			fmt.Println("Pot is full of snakes!")
+			//story01a.gMap = entity.gMap
+			//story01a.Render()
+			//story01a = story01a.Play("space")
+
 		},
 	)
 
@@ -93,18 +94,15 @@ func setup() {
 func gameLoop() {
 	last := time.Now()
 
+	pic, err := LoadPicture("./resources/simple_panel.png")
+	panicIfErr(err)
+	panel := PanelCreate(pic, 3) //9x9 png
+
 	tick := time.Tick(frameRate)
 	for !global.gWin.Closed() {
 
 		if global.gWin.Pressed(pixelgl.KeyQ) {
 			break
-		}
-		if global.gWin.Pressed(pixelgl.KeySpace) {
-			tileX, tileY := CastleRoomMap.GetTileIndex(gHero.GetFacedTileCoords())
-			trigger := CastleRoomMap.GetTrigger(tileX, tileY)
-			if trigger.OnUse != nil {
-				trigger.OnUse(gHero.mEntity)
-			}
 		}
 
 		global.gWin.Clear(global.gClearColor)
@@ -129,6 +127,7 @@ func gameLoop() {
 				}
 			})
 			panicIfErr(err)
+			panel.DrawAtPosition(pixel.V(0, 0), 100, 50)
 
 			// Camera
 			CastleRoomMap.CamToTile(gHero.mEntity.mTileX, gHero.mEntity.mTileY)
@@ -136,7 +135,16 @@ func gameLoop() {
 			cam := pixel.IM.Scaled(camPos, camZoom).Moved(global.gWin.Bounds().Center().Sub(camPos))
 			global.gWin.SetMatrix(cam)
 
-			DrawFixedTopPanel(CastleRoomMap)
+			//DrawPanelFixedTop(gHero.mEntity.gMap, "la la land", basicAtlas14)
+			//DrawPanelCharacterTop(gHero.mEntity, "Hello buddy", basicAtlas12)
+
+			if global.gWin.JustPressed(pixelgl.KeySpace) {
+				tileX, tileY := gHero.mEntity.gMap.GetTileIndex(gHero.GetFacedTileCoords())
+				trigger := gHero.mEntity.gMap.GetTrigger(tileX, tileY)
+				if trigger.OnUse != nil {
+					trigger.OnUse(gHero.mEntity)
+				}
+			}
 		}
 
 		global.gWin.Update()

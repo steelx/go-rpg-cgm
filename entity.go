@@ -12,6 +12,7 @@ type CharacterDefinition struct {
 	width, height float64
 	startFrame    int
 	tileX, tileY  float64
+	gMap          *GameMap
 }
 
 //Entity represents any kind of map object from a
@@ -23,11 +24,13 @@ type Entity struct {
 	mTileX, mTileY  float64
 	startFrame      int
 	mFrames         []pixel.Rect
+	gMap            *GameMap
 }
 
 func CreateEntity(def CharacterDefinition) *Entity {
 	e := &Entity{}
 
+	e.gMap = def.gMap
 	e.mTexture = def.texture
 	e.mFrames = LoadAsFrames(def.texture, def.width, def.height)
 	e.mSprite = pixel.NewSprite(def.texture, e.mFrames[def.startFrame])
