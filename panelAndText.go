@@ -25,15 +25,12 @@ func DrawPanelFixedTop(gMap *GameMap, textMsg string, textAtlas *text.Atlas) *im
 	panel.Rectangle(0)
 	panel.Draw(global.gWin)
 
-	DrawText(panelTopLeftX, panelTopLeftY, textMsg, textAtlas)
 	return panel
 }
 
-func DrawText(panelTopLeftX, panelTopLeftY float64, textMsg string, textAtlas *text.Atlas) {
+func DrawText(pos pixel.Vec, textMsg string, textAtlas *text.Atlas) {
 	//Text
-	//var textAddToCenter float64 = panelBottomRightX/2+10
-	var paddingX, paddingY float64 = 10, -15
-	textPos := pixel.V(panelTopLeftX+paddingX, panelTopLeftY+paddingY)
+	textPos := pos
 	basicTxt := text.New(textPos, textAtlas)
 	basicTxt.LineHeight = textAtlas.LineHeight() * 1.5
 	fmt.Fprintln(basicTxt, textMsg)
@@ -56,6 +53,6 @@ func DrawPanelCharacterTop(player *Entity, textMsg string, textAtlas *text.Atlas
 	)
 	panel.Rectangle(0)
 	panel.Draw(global.gWin)
-	DrawText(panelTopLeftX, panelTopLeftY, textMsg, textAtlas)
+	DrawText(pixel.V(x, y), textMsg, textAtlas)
 	return panel
 }

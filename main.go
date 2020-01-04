@@ -127,7 +127,8 @@ func gameLoop() {
 				}
 			})
 			panicIfErr(err)
-			panel.DrawAtPosition(pixel.V(0, 0), 100, 50)
+			panel.DrawAtPosition(pixel.V(0, 300), 400, 100)
+			DrawText(pixel.V(-100, 300), "Rock is cookin", basicAtlas12)
 
 			// Camera
 			CastleRoomMap.CamToTile(gHero.mEntity.mTileX, gHero.mEntity.mTileY)
