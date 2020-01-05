@@ -162,6 +162,12 @@ func randInt(min, max int) int {
 func randFloat(min, max float64) float64 {
 	return min + rand.Float64()*(max-min)
 }
+func minInt(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
 
 func loadTTF(path string, size float64) (font.Face, error) {
 	file, err := os.Open(path)

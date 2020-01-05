@@ -6,6 +6,7 @@ import (
 )
 
 type Panel struct {
+	mBounds                 pixel.Rect
 	mTexture                pixel.Picture
 	mTileSize, mCenterScale float64
 	mUVs                    []pixel.Rect
@@ -18,12 +19,16 @@ type Panel struct {
 //     texture = [texture],
 //     size = [size of a single tile in pixels]
 // }
-func PanelCreate(texture pixel.Picture, size float64) Panel {
-
+func PanelCreate(texture pixel.Picture, pos pixel.Vec, width, height float64) Panel {
+	var size float64 = 3
 	p := Panel{
 		mTexture:  texture,
 		mUVs:      LoadAsFrames(texture, size, size),
 		mTileSize: size,
+		mBounds: pixel.Rect{
+			Min: pixel.V(pos.X-width/2, pos.Y-height/2),
+			Max: pixel.V(pos.X+width/2, pos.Y+height/2),
+		},
 	}
 
 	// Fix up center U,Vs by moving them 0.5 texels in.
@@ -41,6 +46,15 @@ func PanelCreate(texture pixel.Picture, size float64) Panel {
 	}
 
 	return p
+}
+
+func (p Panel) GetCorners() (topLeft pixel.Vec, topRight pixel.Vec, bottomLeft pixel.Vec, bottomRight pixel.Vec) {
+	var hSize = p.mTileSize / 2
+	topLeft = pixel.V(p.mBounds.Min.X+hSize, p.mBounds.Max.Y-hSize)
+	topRight = pixel.V(p.mBounds.Max.X-hSize, p.mBounds.Max.Y-hSize)
+	bottomLeft = pixel.V(p.mBounds.Min.X+hSize, p.mBounds.Min.Y+hSize)
+	bottomRight = pixel.V(p.mBounds.Max.X-hSize, p.mBounds.Min.Y+hSize)
+	return
 }
 
 func (p Panel) Position(bounds pixel.Rect) {
@@ -94,23 +108,13 @@ func (p Panel) Position(bounds pixel.Rect) {
 		global.gWin,
 		pixel.IM.Moved(pixel.V(centerX, centerY)).ScaledXY(
 			pixel.V(centerX, centerY),
-			pixel.V(widthScale, heightScale),
+			pixel.V(widthScale+(hSize*p.mCenterScale)+p.mTileSize, heightScale+(hSize*p.mCenterScale)),
 		),
 	)
-
-	// Hide corner tiles when scale is equal to zero
-	//if left-right == 0 || top-bottom == 0 {
-	//	for _, v := range p.mTiles {
-	//		v.Draw(global.gWin, pixel.IM)
-	//	}
-	//}
 }
 
-func (p Panel) DrawAtPosition(v pixel.Vec, width, height float64) {
-	p.Position(pixel.Rect{
-		Min: pixel.V(v.X-width/2, v.Y-height/2),
-		Max: pixel.V(v.X+width/2, v.Y+height/2),
-	})
+func (p Panel) Draw() {
+	p.Position(p.mBounds)
 }
 
 func PixelTexels(pix pixel.Rect, texture pixel.Picture) pixel.Rect {

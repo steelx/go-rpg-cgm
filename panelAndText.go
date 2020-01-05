@@ -7,6 +7,8 @@ import (
 	"github.com/faiface/pixel/text"
 	"golang.org/x/image/colornames"
 	"image/color"
+	"math"
+	"strings"
 )
 
 func DrawPanelFixedTop(gMap *GameMap, textMsg string, textAtlas *text.Atlas) *imdraw.IMDraw {
@@ -33,7 +35,28 @@ func DrawText(pos pixel.Vec, textMsg string, textAtlas *text.Atlas) {
 	textPos := pos
 	basicTxt := text.New(textPos, textAtlas)
 	basicTxt.LineHeight = textAtlas.LineHeight() * 1.5
-	fmt.Fprintln(basicTxt, textMsg)
+
+	boxSize := 200.0
+	blocks := math.Abs(basicTxt.BoundsOf(textMsg).W() / boxSize)
+	eachBlockWidth := math.Abs(basicTxt.BoundsOf(textMsg).W()) / blocks // 295
+	textCharW := 10.0
+	splitTextAt := math.Ceil(eachBlockWidth / textCharW) // 30
+
+	var textBlocks = make([]string, 0)
+	var tempTxtLine = ""
+	ss := strings.Fields(textMsg)
+	for _, t := range ss {
+		tempTxtLine += t + " "
+		if len(tempTxtLine) >= int(splitTextAt) {
+			textBlocks = append(textBlocks, tempTxtLine)
+			tempTxtLine = ""
+		}
+	}
+
+	for _, line := range textBlocks {
+		fmt.Fprintln(basicTxt, line)
+	}
+
 	basicTxt.Draw(global.gWin, pixel.IM)
 }
 

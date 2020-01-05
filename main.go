@@ -93,16 +93,23 @@ func setup() {
 //=============================================================
 func gameLoop() {
 	last := time.Now()
-
+	//DrawText(pixel.V(0, 100), , basicAtlas12)
+	continueCaret, err := LoadPicture("./resources/continue_caret.png")
 	pic, err := LoadPicture("./resources/simple_panel.png")
 	panicIfErr(err)
-	panel := PanelCreate(pic, 3) //9x9 png
+	panel := PanelCreate(pic, pixel.V(0, 100), 350, 100) //9x9 png
+	tBox := TextboxCreate(
+		"A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear. Ajinkya AJINKYA",
+		basicAtlas12, panel, continueCaret)
 
 	tick := time.Tick(frameRate)
 	for !global.gWin.Closed() {
 
-		if global.gWin.Pressed(pixelgl.KeyQ) {
+		if global.gWin.JustPressed(pixelgl.KeyQ) {
 			break
+		}
+		if global.gWin.JustPressed(pixelgl.KeySpace) {
+			tBox.Next()
 		}
 
 		global.gWin.Clear(global.gClearColor)
@@ -127,17 +134,14 @@ func gameLoop() {
 				}
 			})
 			panicIfErr(err)
-			panel.DrawAtPosition(pixel.V(0, 300), 400, 100)
-			DrawText(pixel.V(-100, 300), "Rock is cookin", basicAtlas12)
+
+			tBox.Draw()
 
 			// Camera
 			CastleRoomMap.CamToTile(gHero.mEntity.mTileX, gHero.mEntity.mTileY)
 			camPos = pixel.V(CastleRoomMap.mCamX, CastleRoomMap.mCamY)
 			cam := pixel.IM.Scaled(camPos, camZoom).Moved(global.gWin.Bounds().Center().Sub(camPos))
 			global.gWin.SetMatrix(cam)
-
-			//DrawPanelFixedTop(gHero.mEntity.gMap, "la la land", basicAtlas14)
-			//DrawPanelCharacterTop(gHero.mEntity, "Hello buddy", basicAtlas12)
 
 			if global.gWin.JustPressed(pixelgl.KeySpace) {
 				tileX, tileY := gHero.mEntity.gMap.GetTileIndex(gHero.GetFacedTileCoords())
