@@ -1,21 +1,19 @@
 package main
 
 import (
-	"fmt"
 	"github.com/bcvery1/tilepix"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
-	"golang.org/x/image/font/basicfont"
 	"sort"
 	"time"
 )
 
-const camZoom = 1.5
+const camZoom = 1.0
 
 var (
-	basicAtlas    = text.NewAtlas(basicfont.Face7x13, text.ASCII)
-	endTxt        = &text.Text{}
+	basicAtlas14  *text.Atlas
+	basicAtlas12  *text.Atlas
 	CastleRoomMap = &GameMap{}
 	camPos        = pixel.ZV
 	//camSpeed    = 1000.0
@@ -26,7 +24,7 @@ var (
 func run() {
 	cfg := pixelgl.WindowConfig{
 		Title:       "GP RPG",
-		Bounds:      pixel.R(0, 0, float64(global.gWindowWidth), float64(global.gWindowHeight)),
+		Bounds:      pixel.R(0, 0, global.gWindowWidth, global.gWindowHeight),
 		VSync:       global.gVsync,
 		Undecorated: global.gUndecorated,
 	}
@@ -41,6 +39,14 @@ func run() {
 	setup()
 	PrintMemoryUsage()
 	gameLoop()
+}
+func init() {
+	fontFace14, err := loadTTF("./resources/font/joystix.ttf", 14)
+	panicIfErr(err)
+	fontFace12, err := loadTTF("./resources/font/joystix.ttf", 12)
+	panicIfErr(err)
+	basicAtlas14 = text.NewAtlas(fontFace14, text.ASCII)
+	basicAtlas12 = text.NewAtlas(fontFace12, text.ASCII)
 }
 func main() {
 	pixelgl.Run(run)
@@ -68,8 +74,10 @@ func setup() {
 		nil,
 		nil,
 		func(entity *Entity) {
-			endTxt = text.New(pixel.V(220, 100), basicAtlas)
-			fmt.Fprintln(endTxt, "Pot is full of snakes!")
+			//story01a.gMap = entity.gMap
+			//story01a.Render()
+			//story01a = story01a.Play("space")
+
 		},
 	)
 
@@ -85,19 +93,29 @@ func setup() {
 //=============================================================
 func gameLoop() {
 	last := time.Now()
+	//Textbox and Panel
+	avatarPng, err := LoadPicture("./resources/avatar.png")
+	continueCaretPng, err := LoadPicture("./resources/continue_caret.png")
+	pic, err := LoadPicture("./resources/simple_panel.png")
+	panicIfErr(err)
+
+	tBox := TextboxCreate(
+		"A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear. Jai Hind I Love India <3 ",
+		basicAtlas12,
+		PanelCreate(pic, pixel.V(-150, 200), 300, 100),
+		continueCaretPng,
+		"Ajinkya",
+		avatarPng,
+	)
 
 	tick := time.Tick(frameRate)
 	for !global.gWin.Closed() {
 
-		if global.gWin.Pressed(pixelgl.KeyQ) {
+		if global.gWin.JustPressed(pixelgl.KeyQ) {
 			break
 		}
-		if global.gWin.Pressed(pixelgl.KeySpace) {
-			tileX, tileY := CastleRoomMap.GetTileIndex(gHero.GetFacedTileCoords())
-			trigger := CastleRoomMap.GetTrigger(tileX, tileY)
-			if trigger.OnUse != nil {
-				trigger.OnUse(gHero.mEntity)
-			}
+		if global.gWin.JustPressed(pixelgl.KeySpace) {
+			tBox.Next()
 		}
 
 		global.gWin.Clear(global.gClearColor)
@@ -122,13 +140,22 @@ func gameLoop() {
 				}
 			})
 			panicIfErr(err)
-			endTxt.Draw(global.gWin, pixel.IM.Scaled(pixel.V(300, 300), 1))
+
+			tBox.DrawTextWithPanel()
 
 			// Camera
 			CastleRoomMap.CamToTile(gHero.mEntity.mTileX, gHero.mEntity.mTileY)
 			camPos = pixel.V(CastleRoomMap.mCamX, CastleRoomMap.mCamY)
 			cam := pixel.IM.Scaled(camPos, camZoom).Moved(global.gWin.Bounds().Center().Sub(camPos))
 			global.gWin.SetMatrix(cam)
+
+			if global.gWin.JustPressed(pixelgl.KeyE) {
+				tileX, tileY := gHero.mEntity.gMap.GetTileIndex(gHero.GetFacedTileCoords())
+				trigger := gHero.mEntity.gMap.GetTrigger(tileX, tileY)
+				if trigger.OnUse != nil {
+					trigger.OnUse(gHero.mEntity)
+				}
+			}
 		}
 
 		global.gWin.Update()
