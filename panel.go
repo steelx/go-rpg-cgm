@@ -57,20 +57,18 @@ func (p Panel) GetCorners() (topLeft pixel.Vec, topRight pixel.Vec, bottomLeft p
 	return
 }
 
-func (p Panel) Position(bounds pixel.Rect) {
-	// Reset scales
-	//for _, v := range p.mTiles {
-	//	v.Draw(global.gWin, pixel.IM.Scaled(pixel.V(0,0), 1))
-	//}
+func (p Panel) Draw() {
+	bounds := p.mBounds
 
-	var hSize = p.mTileSize / 2
 	// Align the corner tiles
-	p.mTiles[6].Draw(global.gWin, pixel.IM.Moved(pixel.V(bounds.Min.X+hSize, bounds.Max.Y-hSize))) //topLeft
-	p.mTiles[8].Draw(global.gWin, pixel.IM.Moved(pixel.V(bounds.Max.X-hSize, bounds.Max.Y-hSize))) //topRight
-	p.mTiles[0].Draw(global.gWin, pixel.IM.Moved(pixel.V(bounds.Min.X+hSize, bounds.Min.Y+hSize))) //bottomLeft
-	p.mTiles[2].Draw(global.gWin, pixel.IM.Moved(pixel.V(bounds.Max.X-hSize, bounds.Min.Y+hSize))) //bottomRight
+	topLeft, topRight, bottomLeft, bottomRight := p.GetCorners()
+	p.mTiles[6].Draw(global.gWin, pixel.IM.Moved(topLeft))
+	p.mTiles[8].Draw(global.gWin, pixel.IM.Moved(topRight))
+	p.mTiles[0].Draw(global.gWin, pixel.IM.Moved(bottomLeft))
+	p.mTiles[2].Draw(global.gWin, pixel.IM.Moved(bottomRight))
 
 	// Calculate how much to scale the side tiles
+	var hSize = p.mTileSize / 2
 	var hWidth = bounds.W() / 2
 	var widthScale float64 = math.Abs(hWidth-(2*p.mTileSize)) / (p.mTileSize / 2)
 	var centerX = bounds.Center().X
@@ -111,10 +109,6 @@ func (p Panel) Position(bounds pixel.Rect) {
 			pixel.V(widthScale+(hSize*p.mCenterScale)+p.mTileSize, heightScale+(hSize*p.mCenterScale)),
 		),
 	)
-}
-
-func (p Panel) Draw() {
-	p.Position(p.mBounds)
 }
 
 func PixelTexels(pix pixel.Rect, texture pixel.Picture) pixel.Rect {

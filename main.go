@@ -93,14 +93,20 @@ func setup() {
 //=============================================================
 func gameLoop() {
 	last := time.Now()
-	//DrawText(pixel.V(0, 100), , basicAtlas12)
-	continueCaret, err := LoadPicture("./resources/continue_caret.png")
+	//Textbox and Panel
+	avatarPng, err := LoadPicture("./resources/avatar.png")
+	continueCaretPng, err := LoadPicture("./resources/continue_caret.png")
 	pic, err := LoadPicture("./resources/simple_panel.png")
 	panicIfErr(err)
-	panel := PanelCreate(pic, pixel.V(0, 100), 350, 100) //9x9 png
+
 	tBox := TextboxCreate(
-		"A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear. Ajinkya AJINKYA",
-		basicAtlas12, panel, continueCaret)
+		"A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear. Jai Hind I Love India <3 ",
+		basicAtlas12,
+		PanelCreate(pic, pixel.V(-150, 200), 300, 100),
+		continueCaretPng,
+		"Ajinkya",
+		avatarPng,
+	)
 
 	tick := time.Tick(frameRate)
 	for !global.gWin.Closed() {
@@ -135,7 +141,7 @@ func gameLoop() {
 			})
 			panicIfErr(err)
 
-			tBox.Draw()
+			tBox.DrawTextWithPanel()
 
 			// Camera
 			CastleRoomMap.CamToTile(gHero.mEntity.mTileX, gHero.mEntity.mTileY)
@@ -143,7 +149,7 @@ func gameLoop() {
 			cam := pixel.IM.Scaled(camPos, camZoom).Moved(global.gWin.Bounds().Center().Sub(camPos))
 			global.gWin.SetMatrix(cam)
 
-			if global.gWin.JustPressed(pixelgl.KeySpace) {
+			if global.gWin.JustPressed(pixelgl.KeyE) {
 				tileX, tileY := gHero.mEntity.gMap.GetTileIndex(gHero.GetFacedTileCoords())
 				trigger := gHero.mEntity.gMap.GetTrigger(tileX, tileY)
 				if trigger.OnUse != nil {

@@ -1,6 +1,7 @@
 package main
 
 type Character struct {
+	name        string
 	mAnimUp     []int
 	mAnimRight  []int
 	mAnimDown   []int

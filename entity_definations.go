@@ -11,6 +11,7 @@ func init() {
 	panicIfErr(err)
 
 	gHero = &Character{
+		name:       "Ajinkya",
 		mAnimUp:    []int{16, 17, 18, 19},
 		mAnimRight: []int{20, 21, 22, 23},
 		mAnimDown:  []int{24, 25, 26, 27},
@@ -36,6 +37,7 @@ func init() {
 	}
 
 	gNPC1 = &Character{
+		name:    "Aghori Baba",
 		mFacing: CharacterFacingDirection[2],
 		mEntity: CreateEntity(CharacterDefinition{
 			texture: pic, width: 16, height: 24,
@@ -53,6 +55,7 @@ func init() {
 	}
 
 	gNPC2 = &Character{
+		name:       "Bhadrasaal",
 		mAnimUp:    []int{48, 49, 50, 51},
 		mAnimRight: []int{52, 53, 54, 55},
 		mAnimDown:  []int{56, 57, 58, 59},
