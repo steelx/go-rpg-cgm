@@ -39,7 +39,7 @@ func SelectionMenuCreate(data []string, columns int, position pixel.Vec, onSelec
 		spacingX:     128,
 		showCursor:   true,
 		maxRows:      4, //or len(data)
-		displayStart: 1,
+		displayStart: 0,
 		scale:        1,
 		OnSelection:  onSelection,
 	}
@@ -92,12 +92,11 @@ func (m SelectionMenu) Render() {
 	var x, y = m.x, m.y
 	var mat = pixel.IM.Scaled(pixel.V(x, y), m.scale)
 
-	itemIndex := ((displayStart - 1) * m.columns) + 1
-	fmt.Println("displayStart", displayStart)
+	//itemIndex := ((displayStart - 1) * m.columns) + 1
+	itemIndex := displayStart * m.columns
 	for i := displayStart; i < displayEnd; i++ {
 		for j := 0; j < m.columns; j++ {
 			if i == m.focusY && j == m.focusX && m.showCursor {
-				fmt.Println("show cursor")
 				m.cursor.Draw(m.renderer, mat.Moved(pixel.V(x+cursorHalfWidth, y)))
 			}
 			item := m.dataSource[itemIndex]
