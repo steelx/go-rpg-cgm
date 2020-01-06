@@ -15,16 +15,16 @@ type SelectionMenu struct {
 	columns        int      //The number of columns the menu has. This defaults to 1
 	focusX, focusY int      //Indicates which item in the list is currently selected.
 	//focusX tells us which column is selected and focusY which element in that column
-	spacingY, spacingX   float64 //space btw each items
-	scale                float64 //menu scale in size
-	cursor               *pixel.Sprite
-	cursorWidth          float64
-	showCursor           bool
-	maxRows, displayRows int //rows might be 30 but only 5 maxRows are displayed at once
-	displayStart         int //index at which we start displaying menu, e.g. out of 30 max 5 are visible from index 6
-	renderer             pixel.Target
-	textBase             *text.Text
-	OnSelection          func(int, string) //to be called after selection
+	spacingY, spacingX        float64 //space btw each items
+	scale                     float64 //menu scale in size
+	cursor                    *pixel.Sprite
+	cursorWidth, cursorHeight float64
+	showCursor                bool
+	maxRows, displayRows      int //rows might be 30 but only 5 maxRows are displayed at once
+	displayStart              int //index at which we start displaying menu, e.g. out of 30 max 5 are visible from index 6
+	renderer                  pixel.Target
+	textBase                  *text.Text
+	OnSelection               func(int, string) //to be called after selection
 }
 
 func SelectionMenuCreate(data []string, columns int, position pixel.Vec, onSelection func(int, string)) SelectionMenu {
@@ -48,6 +48,7 @@ func SelectionMenuCreate(data []string, columns int, position pixel.Vec, onSelec
 	m.displayRows = m.maxRows
 	m.cursor = pixel.NewSprite(cursorPng, cursorPng.Bounds())
 	m.cursorWidth = cursorPng.Bounds().W()
+	m.cursorHeight = cursorPng.Bounds().H()
 
 	m.width = m.calcTotalWidth()
 	m.height = m.calcTotalHeight()
@@ -86,6 +87,7 @@ func (m SelectionMenu) Render() {
 
 	cursorWidth := m.cursorWidth * m.scale
 	cursorHalfWidth := cursorWidth / 2
+	cursorHalfHeight := m.cursorHeight / 2
 	spacingX := m.spacingX * m.scale
 	rowHeight := m.spacingY * m.scale
 
@@ -97,7 +99,7 @@ func (m SelectionMenu) Render() {
 	for i := displayStart; i < displayEnd; i++ {
 		for j := 0; j < m.columns; j++ {
 			if i == m.focusY && j == m.focusX && m.showCursor {
-				m.cursor.Draw(m.renderer, mat.Moved(pixel.V(x+cursorHalfWidth, y)))
+				m.cursor.Draw(m.renderer, mat.Moved(pixel.V(x+cursorHalfWidth, y+cursorHalfHeight/2)))
 			}
 			item := m.dataSource[itemIndex]
 			m.renderItem(pixel.V(x+cursorWidth, y), item)

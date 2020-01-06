@@ -19,8 +19,8 @@ var (
 	camPos        = pixel.ZV
 	//camSpeed    = 1000.0
 	//camZoomSpeed = 1.2
-	frameRate                              = 15 * time.Millisecond
-	avatarPng, continueCaretPng, cursorPng pixel.Picture
+	frameRate                                        = 15 * time.Millisecond
+	avatarPng, continueCaretPng, cursorPng, panelPng pixel.Picture
 )
 
 func run() {
@@ -56,6 +56,8 @@ func init() {
 	continueCaretPng, err = LoadPicture("./resources/continue_caret.png")
 	panicIfErr(err)
 	cursorPng, err = LoadPicture("./resources/cursor.png")
+	panicIfErr(err)
+	panelPng, err = LoadPicture("./resources/simple_panel.png")
 	panicIfErr(err)
 }
 func main() {
@@ -104,30 +106,20 @@ func setup() {
 func gameLoop() {
 	last := time.Now()
 
-	pic, err := LoadPicture("./resources/simple_panel.png")
-	panicIfErr(err)
-
-	menu := SelectionMenuCreate([]string{"Menu 1-", "", "Menu 2", "Menu 03", "Menu 007"}, 1, pixel.V(200, 100), func(i int, item string) {
-		fmt.Println(i, item)
-	})
-
-	tBox := TextboxCreate(
+	menu := SelectionMenuPanelCreate(
 		"A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear. Jai Hind I Love India <3 ",
-		basicAtlas12,
-		PanelCreate(pic, pixel.V(-150, 200), 300, 100),
-		continueCaretPng,
-		"Ajinkya",
-		avatarPng,
-	)
+		pixel.V(-100, 250), 400, 200,
+		[]string{"Menu 1-", "", "Menu 2", "Menu 03", "Menu 007"},
+		1,
+		func(i int, item string) {
+			fmt.Println(i, item)
+		})
 
 	tick := time.Tick(frameRate)
 	for !global.gWin.Closed() {
 
 		if global.gWin.JustPressed(pixelgl.KeyQ) {
 			break
-		}
-		if global.gWin.JustPressed(pixelgl.KeySpace) {
-			tBox.Next()
 		}
 
 		global.gWin.Clear(global.gClearColor)
@@ -153,9 +145,7 @@ func gameLoop() {
 			})
 			panicIfErr(err)
 
-			tBox.DrawTextWithPanel()
 			menu.Render()
-			menu.HandleInput()
 
 			// Camera
 			CastleRoomMap.CamToTile(gHero.mEntity.mTileX, gHero.mEntity.mTileY)
