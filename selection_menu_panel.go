@@ -11,22 +11,18 @@ type SelectionMenuPanel struct {
 
 func SelectionMenuPanelCreate(
 	textBoxText string,
-	panelPos pixel.Vec,
-	panelWidth, panelHeight float64,
-	data []string, columns int, onSelection func(int, string)) SelectionMenuPanel {
+	panelPos pixel.Vec, panelWidth, panelHeight float64,
+	choices []string, onSelection func(int, string)) SelectionMenuPanel {
 
 	textbox := TextboxCreate(
 		textBoxText,
-		basicAtlas12,
-		PanelCreate(panelPng, panelPos, panelWidth, panelHeight),
-		continueCaretPng,
+		panelPos, panelWidth, panelHeight,
 		"",
 		nil,
 		true,
 	)
 
-	//i think pos should be panel MinX and MinY
-	menu := SelectionMenuCreate(data, columns, textbox.Position.Add(pixel.V(5, -textbox.Height-10)), onSelection)
+	menu := SelectionMenuCreate(choices, textbox.Position.Add(pixel.V(5, -textbox.Height-10)), onSelection)
 
 	return SelectionMenuPanel{
 		textbox: &textbox,
@@ -35,7 +31,7 @@ func SelectionMenuPanelCreate(
 }
 
 func (sm SelectionMenuPanel) Render() {
-	sm.textbox.DrawTextWithPanel()
+	sm.textbox.RenderWithPanel()
 	sm.menu.Render()
 	sm.textbox.HandleInput()
 	sm.menu.HandleInput()

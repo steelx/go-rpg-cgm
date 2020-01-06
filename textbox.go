@@ -5,6 +5,7 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
+	"golang.org/x/image/font/basicfont"
 	"math"
 	"strings"
 )
@@ -12,9 +13,7 @@ import (
 /* e.g.
 tBox := TextboxCreate(
 		"A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear. Jai Hind I Love India <3 ",
-		basicAtlas12,
-		PanelCreate(pic, pixel.V(-150, 200), 300, 100),
-		continueCaretPng,
+		pixel.V(-150, 200), 300, 100,
 		"Ajinkya",
 		avatarPng,
 	)
@@ -37,24 +36,57 @@ type Textbox struct {
 	avatarImg           pixel.Picture
 }
 
-func TextboxCreate(txt string, textAtlas *text.Atlas, panel Panel, continueImage pixel.Picture, avatarName string, avatarImg pixel.Picture, withMenu bool) Textbox {
+func TextboxCreate(txt string, panelPos pixel.Vec, panelWidth, panelHeight float64, avatarName string, avatarImg pixel.Picture, withMenu bool) Textbox {
+	panel := PanelCreate(panelPos, panelWidth, panelHeight)
 	t := Textbox{
 		text:         txt,
 		textScale:    1,
 		size:         14,
 		mPanel:       panel,
 		textBounds:   panel.mBounds,
-		continueMark: continueImage,
+		continueMark: continueCaretPng,
+		avatarName:   avatarName,
+		avatarImg:    avatarImg,
+		textAtlas:    basicAtlas12,
 	}
-
-	t.avatarName = avatarName
-	t.avatarImg = avatarImg
-	t.textAtlas = textAtlas
 
 	t.makeTextColumns(withMenu)
 	t.buildTextBlocks()
 
 	return t
+}
+
+func TextboxCreateFitted(txt string, panelPos pixel.Vec, withMenu bool) Textbox {
+	basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
+	tBox := Textbox{
+		text:         txt,
+		textScale:    1,
+		size:         13,
+		continueMark: continueCaretPng,
+		avatarName:   "",
+		avatarImg:    nil,
+		textAtlas:    basicAtlas,
+	}
+	padding := 20.0
+	//textPos := pixel.V(panelPos.X+t.size, topLeft.Y-t.size)
+	tBox.textBase = text.New(panelPos, tBox.textAtlas)
+	tBox.textBase.LineHeight = padding
+	textBounds := tBox.getTextBound()
+
+	var panelHeight = textBounds.H() + padding
+	if withMenu {
+		panelHeight = panelHeight + 100 //+menu height
+	}
+	panel := PanelCreate(panelPos, textBounds.W()+(padding*2), panelHeight)
+	topLeft, _, _, _ := panel.GetCorners()
+	textPos := pixel.V(topLeft.X+padding, topLeft.Y-padding)
+	tBox.textBase = text.New(textPos, tBox.textAtlas) //reset text position to bounds
+	tBox.mPanel = panel
+
+	tBox.mPanel.RefreshPanelCorners()
+	tBox.makeTextColumns(withMenu)
+
+	return tBox
 }
 
 func (t *Textbox) makeTextColumns(withMenu bool) {
@@ -81,11 +113,15 @@ func (t *Textbox) makeTextColumns(withMenu bool) {
 	t.Height = textColumnHeight
 }
 
+func (t Textbox) getTextBound() pixel.Rect {
+	return t.textBase.BoundsOf(t.text)
+}
+
 func (t *Textbox) buildTextBlocks() {
 	t.textBase = text.New(t.Position, t.textAtlas)
 	t.textBase.LineHeight = t.size
 	t.textBlocks = make([]string, 0) //imp to avoid null reference
-	blocks := math.Abs(t.textBase.BoundsOf(t.text).W() / t.Width)
+	blocks := math.Abs(t.getTextBound().W() / t.Width)
 	eachBlockWidth := math.Ceil(t.textBase.BoundsOf(t.text).W()) / blocks
 	splitTextAt := math.Ceil(eachBlockWidth / (t.size))
 
@@ -100,7 +136,14 @@ func (t *Textbox) buildTextBlocks() {
 	}
 }
 
-func (t *Textbox) DrawTextWithPanel() {
+func (t *Textbox) Render() {
+	t.textBase.Clear()
+	t.mPanel.Draw()
+	fmt.Fprintln(t.textBase, t.text)
+	t.textBase.Draw(global.gWin, pixel.IM)
+}
+
+func (t *Textbox) RenderWithPanel() {
 	t.textBase.Clear()
 	//limit prints
 	eachBlockHeight := math.Abs(t.textBase.BoundsOf(t.text).H())

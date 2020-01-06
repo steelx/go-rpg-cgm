@@ -27,12 +27,12 @@ type SelectionMenu struct {
 	OnSelection               func(int, string) //to be called after selection
 }
 
-func SelectionMenuCreate(data []string, columns int, position pixel.Vec, onSelection func(int, string)) SelectionMenu {
+func SelectionMenuCreate(data []string, position pixel.Vec, onSelection func(int, string)) SelectionMenu {
 	m := SelectionMenu{
 		x:            position.X,
 		y:            position.Y,
 		dataSource:   data,
-		columns:      columns,
+		columns:      1,
 		focusX:       0,
 		focusY:       0,
 		spacingY:     24,
@@ -157,11 +157,13 @@ func (m *SelectionMenu) HandleInput() {
 		m.MoveUp()
 	} else if global.gWin.JustPressed(pixelgl.KeyDown) {
 		m.MoveDown()
-	} else if global.gWin.JustPressed(pixelgl.KeyLeft) {
-		m.MoveLeft()
-	} else if global.gWin.JustPressed(pixelgl.KeyRight) {
-		m.MoveRight()
 	} else if global.gWin.JustPressed(pixelgl.KeyEnter) {
 		m.OnClick()
 	}
+	//disabled since fixed to column 1
+	//else if global.gWin.JustPressed(pixelgl.KeyLeft) {
+	//	m.MoveLeft()
+	//} else if global.gWin.JustPressed(pixelgl.KeyRight) {
+	//	m.MoveRight()
+	//}
 }
