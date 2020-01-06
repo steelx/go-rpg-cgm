@@ -1,4 +1,4 @@
-package main
+package game_map
 
 type Trigger struct {
 	OnEnter func(entity *Entity)
@@ -8,7 +8,7 @@ type Trigger struct {
 
 //TriggerCreate
 //e.g. tileX, tileY = CastleRoomMap.GetTileIndex(9, 10)
-//     CastleRoomMap.mTriggers[[2]float64{tileX, tileY}].OnEnter(gHero.mEntity)
+//     CastleRoomMap.Triggers[[2]float64{tileX, tileY}].OnEnter(gHero.Entity)
 func TriggerCreate(OnEnter func(entity *Entity), OnExit func(), OnUse func(entity *Entity)) Trigger {
 	//OnUse: When the spacebar is pressed,
 	// -> the tile that the character is facing is checked for triggers

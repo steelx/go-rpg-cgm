@@ -1,4 +1,4 @@
-package main
+package globals
 
 import (
 	"encoding/csv"
@@ -84,7 +84,7 @@ func LoadAnimationsFromCSV(descPath string, spriteFrames []pixel.Rect) map[strin
 	}
 	defer descFile.Close()
 
-	// load the animation information, name and interval inside the spritesheet
+	// load the animation information, Name and interval inside the spritesheet
 	desc := csv.NewReader(descFile)
 	var animations = make(map[string][]pixel.Rect)
 	for {
@@ -140,42 +140,42 @@ func GenerateUVs(tileWidth, tileHeight float64, texture pixel.Picture) []UV {
 //LoadSprite load TMX tile image source
 func LoadSprite(path string) (*pixel.Sprite, *pixel.PictureData) {
 	f, err := os.Open(path)
-	panicIfErr(err)
+	PanicIfErr(err)
 
 	img, err := png.Decode(f)
-	panicIfErr(err)
+	PanicIfErr(err)
 
 	pd := pixel.PictureDataFromImage(img)
 	return pixel.NewSprite(pd, pd.Bounds()), pd
 }
 
-func panicIfErr(err error) {
+func PanicIfErr(err error) {
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(2)
 	}
 }
 
-func randInt(min, max int) int {
+func RandInt(min, max int) int {
 	return rand.Intn(max-min) + min
 }
-func randFloat(min, max float64) float64 {
+func RandFloat(min, max float64) float64 {
 	return min + rand.Float64()*(max-min)
 }
-func minInt(a, b int) int {
+func MinInt(a, b int) int {
 	if a < b {
 		return a
 	}
 	return b
 }
-func maxInt(a, b int) int {
+func MaxInt(a, b int) int {
 	if a > b {
 		return a
 	}
 	return b
 }
 
-func loadTTF(path string, size float64) (font.Face, error) {
+func LoadTTF(path string, size float64) (font.Face, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err

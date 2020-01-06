@@ -1,62 +1,63 @@
-package main
+package game_map
 
 import (
 	"github.com/bcvery1/tilepix"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	log "github.com/sirupsen/logrus"
+	"github.com/steelx/go-rpg-cgm/globals"
 	"image/color"
 )
 
 type GameMap struct {
-	mX, mY float64
+	x, y float64
 
 	// To track the camera position
-	mCamX, mCamY float64
+	CamX, CamY float64
 
-	mTilemap *tilepix.Map
-	mSprites map[string]*pixel.Sprite
+	Tilemap *tilepix.Map
+	sprites map[string]*pixel.Sprite
 
-	mTileSprite     pixel.Sprite
-	mWidth, mHeight float64
+	mTileSprite   pixel.Sprite
+	Width, Height float64
 
-	mTiles        []*pixel.Batch
-	mTilesIndices map[string]int
-	mTilesCounter int
+	Tiles        []*pixel.Batch
+	tilesIndices map[string]int
+	tilesCounter int
 
-	mTileWidth, mTileHeight float64
-	blockingTileGID         tilepix.GID
-	canvas                  *pixelgl.Canvas
-	renderLayer             int
+	TileWidth, TileHeight float64
+	blockingTileGID       tilepix.GID
+	Canvas                *pixelgl.Canvas
+	renderLayer           int
 
-	mTriggers map[[2]float64]Trigger
-	mEntities []*Entity
+	Triggers map[[2]float64]Trigger
+	Entities []*Entity
 }
 
 func (m *GameMap) Create(tilemap *tilepix.Map) {
 	// assuming exported tiled map
 	//lua definition has 1 layer
-	m.mTilemap = tilemap
-	m.mTriggers = make(map[[2]float64]Trigger)
-	m.mEntities = make([]*Entity, 0)
+	m.Tilemap = tilemap
+	m.Triggers = make(map[[2]float64]Trigger)
+	m.Entities = make([]*Entity, 0)
 
-	m.mHeight = float64(tilemap.Height)
-	m.mWidth = float64(tilemap.Width)
+	m.Height = float64(tilemap.Height)
+	m.Width = float64(tilemap.Width)
 
-	m.mTileWidth = float64(tilemap.TileWidth)
-	m.mTileHeight = float64(tilemap.TileHeight)
+	m.TileWidth = float64(tilemap.TileWidth)
+	m.TileHeight = float64(tilemap.TileHeight)
 
 	//Bottom left corner of the map, since pixel starts at 0, 0
-	m.mX = m.mTileWidth
-	m.mY = m.mTileHeight
+	m.x = m.TileWidth
+	m.y = m.TileHeight
 
-	m.canvas = pixelgl.NewCanvas(m.mTilemap.Bounds())
+	m.Canvas = pixelgl.NewCanvas(m.Tilemap.Bounds())
 	m.setTiles()
 	m.setBlockingTileInfo()
 }
 
 func (m *GameMap) setBlockingTileInfo() {
-	for _, tile := range m.mTilemap.Tilesets {
+	for _, tile := range m.Tilemap.Tilesets {
 		if tile.Name == "collision_px" {
 			m.blockingTileGID = tile.FirstGID
 			break
@@ -64,22 +65,22 @@ func (m *GameMap) setBlockingTileInfo() {
 	}
 }
 func (m *GameMap) ClearAllEntities() {
-	m.mEntities = make([]*Entity, 0)
+	m.Entities = make([]*Entity, 0)
 }
 
 func (m GameMap) GetEntityAtPos(x, y float64) *Entity {
-	for _, e := range m.mEntities {
-		if e.mTileX == x && e.mTileY == y {
+	for _, e := range m.Entities {
+		if e.TileX == x && e.TileY == y {
 			return e
 		}
 	}
 	return nil
 }
 
-//IsBlockingTile check's x, y cords on collision map layer
-// if ID is not 0, tile exists on x, y we return true
+//IsBlockingTile check's X, Y cords on collision map layer
+// if ID is not 0, tile exists on X, Y we return true
 func (m GameMap) IsBlockingTile(x, y, layer int) bool {
-	tile := m.mTilemap.TileLayers[layer].DecodedTiles[x+y*int(m.mWidth)]
+	tile := m.Tilemap.TileLayers[layer].DecodedTiles[x+y*int(m.Width)]
 	return !tile.IsNil() || tile.ID != 0
 }
 
@@ -90,38 +91,38 @@ func (m *GameMap) setTiles() {
 
 	// Load the sprites
 	sprites := make(map[string]*pixel.Sprite)
-	for _, tileset := range m.mTilemap.Tilesets {
+	for _, tileset := range m.Tilemap.Tilesets {
 		if _, alreadyLoaded := sprites[tileset.Image.Source]; !alreadyLoaded {
-			sprite, pictureData := LoadSprite(tileset.Image.Source)
+			sprite, pictureData := globals.LoadSprite(tileset.Image.Source)
 			sprites[tileset.Image.Source] = sprite
 			batches = append(batches, pixel.NewBatch(&pixel.TrianglesData{}, pictureData))
 			batchIndices[tileset.Image.Source] = batchCounter
 			batchCounter++
 		}
 	}
-	m.mTiles = batches
-	m.mTilesIndices = batchIndices
-	m.mTilesCounter = batchCounter
-	m.mSprites = sprites
+	m.Tiles = batches
+	m.tilesIndices = batchIndices
+	m.tilesCounter = batchCounter
+	m.sprites = sprites
 }
 
 //CamToTile pan camera to given coordinates
 func (m *GameMap) CamToTile(x, y float64) {
 	tileX, tileY := m.GetTileIndex(x, y)
-	x = tileX - m.mTileWidth/2
-	y = tileY - m.mTileHeight/2
+	x = tileX - m.TileWidth/2
+	y = tileY - m.TileHeight/2
 	m.Goto(x, y)
 }
 
 func (m *GameMap) Goto(x, y float64) {
-	m.mCamX = x
-	m.mCamY = y
+	m.CamX = x
+	m.CamY = y
 }
 
 func (m GameMap) GetTileIndex(x, y float64) (tileX, tileY float64) {
-	y = m.mHeight - y //make count y from top (Tiled app starts from top)
-	tileX = m.mX + (x * m.mTileWidth)
-	tileY = m.mY + (y * m.mTileHeight)
+	y = m.Height - y //make count Y from top (Tiled app starts from top)
+	tileX = m.x + (x * m.TileWidth)
+	tileY = m.y + (y * m.TileHeight)
 	return
 }
 
@@ -133,54 +134,54 @@ func (m GameMap) GetTilePositionAtFeet(x, y, charW, charH float64) pixel.Vec {
 }
 
 func (m GameMap) DrawAll(target pixel.Target, clearColour color.Color, mat pixel.Matrix) {
-	//m.mTilemap.DrawAll(global.gWin, color.Transparent, pixel.IM)
-	m.mTilemap.DrawAll(target, clearColour, mat)
+	//m.Tilemap.DrawAll(Global.Win, color.Transparent, pixel.IM)
+	m.Tilemap.DrawAll(target, clearColour, mat)
 }
 
 //DrawAfter will render the callback function after given layer index
-// uses pixelgl Canvas instead of gWin to render
+// uses pixelgl Canvas instead of Win to render
 func (m GameMap) DrawAfter(callback func(canvas *pixelgl.Canvas, layer int)) error {
 	// Draw tiles
-	target, mat := global.gWin, pixel.IM
+	target, mat := globals.Global.Win, pixel.IM
 
-	if m.canvas == nil {
-		m.canvas = pixelgl.NewCanvas(m.mTilemap.Bounds())
+	if m.Canvas == nil {
+		m.Canvas = pixelgl.NewCanvas(m.Tilemap.Bounds())
 	}
-	m.canvas.Clear(color.Transparent)
+	m.Canvas.Clear(color.Transparent)
 
-	for index, l := range m.mTilemap.TileLayers {
-		callback(m.canvas, index)
-		if l.Name == global.collisionLayer {
+	for index, l := range m.Tilemap.TileLayers {
+		callback(m.Canvas, index)
+		if l.Name == globals.Global.CollisionLayer {
 			//we do NOT render the collision layer
 			continue
 		}
-		if err := l.Draw(m.canvas); err != nil {
+		if err := l.Draw(m.Canvas); err != nil {
 			log.WithError(err).Error("Map.DrawAll: could not draw layer")
 			return err
 		}
 	}
 
-	for _, il := range m.mTilemap.ImageLayers {
+	for _, il := range m.Tilemap.ImageLayers {
 		// The matrix shift is because images are drawn from the top-left in Tiled.
-		if err := il.Draw(m.canvas, pixel.IM.Moved(pixel.V(0, m.pixelHeight()))); err != nil {
+		if err := il.Draw(m.Canvas, pixel.IM.Moved(pixel.V(0, m.pixelHeight()))); err != nil {
 			log.WithError(err).Error("Map.DrawAll: could not draw image layer")
 			return err
 		}
 	}
 
-	m.canvas.Draw(target, mat.Moved(m.mTilemap.Bounds().Center()))
+	m.Canvas.Draw(target, mat.Moved(m.Tilemap.Bounds().Center()))
 
 	return nil
 }
 
 func (m GameMap) pixelHeight() float64 {
-	return float64(m.mTilemap.Height * m.mTilemap.TileHeight)
+	return float64(m.Tilemap.Height * m.Tilemap.TileHeight)
 }
 
 func (m GameMap) GetTrigger(x, y float64) Trigger {
-	return m.mTriggers[[2]float64{x, y}]
+	return m.Triggers[[2]float64{x, y}]
 }
 func (m GameMap) SetTrigger(x, y float64, t Trigger) {
 	tileX, tileY := m.GetTileIndex(x, y)
-	m.mTriggers[[2]float64{tileX, tileY}] = t
+	m.Triggers[[2]float64{tileX, tileY}] = t
 }

@@ -1,8 +1,12 @@
-package main
+package state_machine
+
+import (
+	"github.com/steelx/go-rpg-cgm/globals"
+)
 
 /*
-mController :
-	StateMachineCreate({
+Controller :
+	Create({
 		"wait" : function() return WaitStateCreate(Entity, gMap),
 		"move" : function() return MoveStateCreate(gHero, gMap),
 	})
@@ -27,14 +31,20 @@ mController :
 // }
 // gStateMachine:Change("MainGame")
 //
+type State interface {
+	Enter(data globals.Direction)
+	Render()
+	Exit()
+	Update(dt float64)
+}
 
-//StateMachine mController
+//StateMachine Controller
 type StateMachine struct {
 	states  map[string]func() State
 	current State
 }
 
-func StateMachineCreate(states map[string]func() State) *StateMachine {
+func Create(states map[string]func() State) *StateMachine {
 	return &StateMachine{
 		states:  states,
 		current: nil,
@@ -42,8 +52,8 @@ func StateMachineCreate(states map[string]func() State) *StateMachine {
 }
 
 //Change state
-// e.g. mController.Change("move", {x = -1, y = 0})
-func (m *StateMachine) Change(stateName string, enterParams Direction) {
+// e.g. Controller.Change("move", {x = -1, y = 0})
+func (m *StateMachine) Change(stateName string, enterParams globals.Direction) {
 	if m.current != nil {
 		m.current.Exit()
 	}

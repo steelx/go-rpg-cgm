@@ -9,7 +9,7 @@ require (
 	github.com/go-gl/glfw v0.0.0-20191125211704-12ad95a8df72 // indirect
 	github.com/go-gl/mathgl v0.0.0-20190713194549-592312d8590a // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
-	github.com/looplab/fsm v0.1.0
+	github.com/looplab/fsm v0.1.0 // indirect
 	github.com/sirupsen/logrus v1.4.2
 	golang.org/x/crypto v0.0.0-20191227163750-53104e6ec876 // indirect
 	golang.org/x/image v0.0.0-20191214001246-9130b4cfad52

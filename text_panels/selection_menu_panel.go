@@ -1,4 +1,4 @@
-package main
+package text_panels
 
 import (
 	"github.com/faiface/pixel"

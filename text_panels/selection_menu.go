@@ -1,10 +1,11 @@
-package main
+package text_panels
 
 import (
 	"fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
+	"github.com/steelx/go-rpg-cgm/globals"
 	"math"
 )
 
@@ -43,12 +44,12 @@ func SelectionMenuCreate(data []string, position pixel.Vec, onSelection func(int
 		scale:        1,
 		OnSelection:  onSelection,
 	}
-	m.textBase = text.New(position, basicAtlas12)
-	m.renderer = global.gWin
+	m.textBase = text.New(position, globals.BasicAtlas12)
+	m.renderer = globals.Global.Win
 	m.displayRows = m.maxRows
-	m.cursor = pixel.NewSprite(cursorPng, cursorPng.Bounds())
-	m.cursorWidth = cursorPng.Bounds().W()
-	m.cursorHeight = cursorPng.Bounds().H()
+	m.cursor = pixel.NewSprite(globals.CursorPng, globals.CursorPng.Bounds())
+	m.cursorWidth = globals.CursorPng.Bounds().W()
+	m.cursorHeight = globals.CursorPng.Bounds().H()
 
 	m.width = m.calcTotalWidth()
 	m.height = m.calcTotalHeight()
@@ -72,7 +73,7 @@ func (m SelectionMenu) calcTotalWidth() float64 {
 }
 
 func (m SelectionMenu) renderItem(pos pixel.Vec, item string) {
-	textBase := text.New(pos, basicAtlas12)
+	textBase := text.New(pos, globals.BasicAtlas12)
 	if item == "" {
 		fmt.Fprintf(textBase, "--")
 	} else {
@@ -113,25 +114,25 @@ func (m SelectionMenu) Render() {
 }
 
 func (m *SelectionMenu) MoveUp() {
-	m.focusY = maxInt(m.focusY-1, 0)
+	m.focusY = globals.MaxInt(m.focusY-1, 0)
 	if m.focusY < m.displayStart {
 		m.MoveDisplayUp()
 	}
 }
 
 func (m *SelectionMenu) MoveDown() {
-	m.focusY = minInt(m.focusY+1, m.maxRows)
+	m.focusY = globals.MinInt(m.focusY+1, m.maxRows)
 	if m.focusY >= m.displayStart+m.displayRows {
 		m.MoveDisplayDown()
 	}
 }
 
 func (m *SelectionMenu) MoveLeft() {
-	m.focusX = maxInt(m.focusX-1, 1)
+	m.focusX = globals.MaxInt(m.focusX-1, 1)
 }
 
 func (m *SelectionMenu) MoveRight() {
-	m.focusX = minInt(m.focusX+1, m.columns)
+	m.focusX = globals.MinInt(m.focusX+1, m.columns)
 }
 
 func (m *SelectionMenu) MoveDisplayUp() {
@@ -153,17 +154,17 @@ func (m SelectionMenu) OnClick() {
 }
 
 func (m *SelectionMenu) HandleInput() {
-	if global.gWin.JustPressed(pixelgl.KeyUp) {
+	if globals.Global.Win.JustPressed(pixelgl.KeyUp) {
 		m.MoveUp()
-	} else if global.gWin.JustPressed(pixelgl.KeyDown) {
+	} else if globals.Global.Win.JustPressed(pixelgl.KeyDown) {
 		m.MoveDown()
-	} else if global.gWin.JustPressed(pixelgl.KeyEnter) {
+	} else if globals.Global.Win.JustPressed(pixelgl.KeyEnter) {
 		m.OnClick()
 	}
 	//disabled since fixed to column 1
-	//else if global.gWin.JustPressed(pixelgl.KeyLeft) {
+	//else if Global.Win.JustPressed(pixelgl.KeyLeft) {
 	//	m.MoveLeft()
-	//} else if global.gWin.JustPressed(pixelgl.KeyRight) {
+	//} else if Global.Win.JustPressed(pixelgl.KeyRight) {
 	//	m.MoveRight()
 	//}
 }
