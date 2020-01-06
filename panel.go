@@ -19,8 +19,9 @@ type Panel struct {
 //     texture = [texture],
 //     size = [size of a single tile in pixels]
 // }
-func PanelCreate(texture pixel.Picture, pos pixel.Vec, width, height float64) Panel {
+func PanelCreate(pos pixel.Vec, width, height float64) Panel {
 	var size float64 = 3
+	texture := panelPng
 	p := Panel{
 		mTexture:  texture,
 		mUVs:      LoadAsFrames(texture, size, size),
@@ -31,6 +32,12 @@ func PanelCreate(texture pixel.Picture, pos pixel.Vec, width, height float64) Pa
 		},
 	}
 
+	p.RefreshPanelCorners()
+
+	return p
+}
+
+func (p *Panel) RefreshPanelCorners() {
 	// Fix up center U,Vs by moving them 0.5 texels in.
 	p.mUVs[4] = PixelTexels(p.mUVs[4], p.mTexture)
 	p.mCenterScale = p.mTileSize / (p.mTileSize - 1)
@@ -41,11 +48,9 @@ func PanelCreate(texture pixel.Picture, pos pixel.Vec, width, height float64) Pa
 	// 6. bottom left   7. bottom       8. bottom right
 	p.mTiles = make([]*pixel.Sprite, 9)
 	for k, v := range p.mUVs {
-		var sprite = pixel.NewSprite(texture, v)
+		var sprite = pixel.NewSprite(p.mTexture, v)
 		p.mTiles[k] = sprite
 	}
-
-	return p
 }
 
 func (p Panel) GetCorners() (topLeft pixel.Vec, topRight pixel.Vec, bottomLeft pixel.Vec, bottomRight pixel.Vec) {
