@@ -1,7 +1,8 @@
-package main
+package text_panels
 
 import (
 	"github.com/faiface/pixel"
+	"github.com/steelx/go-rpg-cgm/globals"
 	"math"
 )
 
@@ -21,10 +22,10 @@ type Panel struct {
 // }
 func PanelCreate(pos pixel.Vec, width, height float64) Panel {
 	var size float64 = 3
-	texture := panelPng
+	texture := globals.PanelPng
 	p := Panel{
 		mTexture:  texture,
-		mUVs:      LoadAsFrames(texture, size, size),
+		mUVs:      globals.LoadAsFrames(texture, size, size),
 		mTileSize: size,
 		mBounds: pixel.Rect{
 			Min: pixel.V(pos.X-width/2, pos.Y-height/2),
@@ -67,10 +68,10 @@ func (p Panel) Draw() {
 
 	// Align the corner tiles
 	topLeft, topRight, bottomLeft, bottomRight := p.GetCorners()
-	p.mTiles[6].Draw(global.gWin, pixel.IM.Moved(topLeft))
-	p.mTiles[8].Draw(global.gWin, pixel.IM.Moved(topRight))
-	p.mTiles[0].Draw(global.gWin, pixel.IM.Moved(bottomLeft))
-	p.mTiles[2].Draw(global.gWin, pixel.IM.Moved(bottomRight))
+	p.mTiles[6].Draw(globals.Global.Win, pixel.IM.Moved(topLeft))
+	p.mTiles[8].Draw(globals.Global.Win, pixel.IM.Moved(topRight))
+	p.mTiles[0].Draw(globals.Global.Win, pixel.IM.Moved(bottomLeft))
+	p.mTiles[2].Draw(globals.Global.Win, pixel.IM.Moved(bottomRight))
 
 	// Calculate how much to scale the side tiles
 	var hSize = p.mTileSize / 2
@@ -80,13 +81,13 @@ func (p Panel) Draw() {
 
 	//top horizontal line
 	p.mTiles[1].Draw(
-		global.gWin,
+		globals.Global.Win,
 		pixel.IM.Moved(pixel.V(centerX, bounds.Max.Y-hSize)).ScaledXY(pixel.V(centerX, bounds.Max.Y-hSize), pixel.V(widthScale, 1)),
 	)
 
 	//bottom horizontal line
 	p.mTiles[7].Draw(
-		global.gWin,
+		globals.Global.Win,
 		pixel.IM.Moved(pixel.V(centerX, bounds.Min.Y+hSize)).ScaledXY(pixel.V(centerX, bounds.Min.Y+hSize), pixel.V(widthScale, 1)),
 	)
 
@@ -96,19 +97,19 @@ func (p Panel) Draw() {
 
 	//left vertical line
 	p.mTiles[3].Draw(
-		global.gWin,
+		globals.Global.Win,
 		pixel.IM.Moved(pixel.V(bounds.Min.X+hSize, centerY)).ScaledXY(pixel.V(bounds.Min.X+hSize, centerY), pixel.V(1, heightScale)),
 	)
 
 	//right vertical line
 	p.mTiles[5].Draw(
-		global.gWin,
+		globals.Global.Win,
 		pixel.IM.Moved(pixel.V(bounds.Max.X-hSize, centerY)).ScaledXY(pixel.V(bounds.Max.X-hSize, centerY), pixel.V(1, heightScale)),
 	)
 
 	// Scale the middle backing panel
 	p.mTiles[4].Draw(
-		global.gWin,
+		globals.Global.Win,
 		pixel.IM.Moved(pixel.V(centerX, centerY)).ScaledXY(
 			pixel.V(centerX, centerY),
 			pixel.V(widthScale+(hSize*p.mCenterScale)+p.mTileSize, heightScale+(hSize*p.mCenterScale)),

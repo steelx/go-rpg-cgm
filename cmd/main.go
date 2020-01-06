@@ -5,7 +5,9 @@ import (
 	"github.com/bcvery1/tilepix"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	"github.com/faiface/pixel/text"
+	"github.com/steelx/go-rpg-cgm/game_map"
+	"github.com/steelx/go-rpg-cgm/globals"
+	"github.com/steelx/go-rpg-cgm/text_panels"
 	"sort"
 	"time"
 )
@@ -13,53 +15,33 @@ import (
 const camZoom = 1.0
 
 var (
-	basicAtlas14  *text.Atlas
-	basicAtlas12  *text.Atlas
-	CastleRoomMap = &GameMap{}
+	CastleRoomMap = &game_map.GameMap{}
 	camPos        = pixel.ZV
 	//camSpeed    = 1000.0
 	//camZoomSpeed = 1.2
-	frameRate                                        = 15 * time.Millisecond
-	avatarPng, continueCaretPng, cursorPng, panelPng pixel.Picture
+	frameRate = 15 * time.Millisecond
 )
 
 func run() {
 	cfg := pixelgl.WindowConfig{
 		Title:       "GP RPG",
-		Bounds:      pixel.R(0, 0, global.gWindowWidth, global.gWindowHeight),
-		VSync:       global.gVsync,
-		Undecorated: global.gUndecorated,
+		Bounds:      pixel.R(0, 0, globals.Global.WindowWidth, globals.Global.WindowHeight),
+		VSync:       globals.Global.Vsync,
+		Undecorated: globals.Global.Undecorated,
 	}
 	win, err := pixelgl.NewWindow(cfg)
 	if err != nil {
 		panic(err)
 	}
-	global.gWin = win
+	globals.Global.Win = win
 
-	PrintMemoryUsage()
+	globals.PrintMemoryUsage()
 	// Setup world etc.
 	setup()
-	PrintMemoryUsage()
+	globals.PrintMemoryUsage()
 	gameLoop()
 }
-func init() {
-	fontFace14, err := loadTTF("./resources/font/joystix.ttf", 14)
-	panicIfErr(err)
-	fontFace12, err := loadTTF("./resources/font/joystix.ttf", 12)
-	panicIfErr(err)
-	basicAtlas14 = text.NewAtlas(fontFace14, text.ASCII)
-	basicAtlas12 = text.NewAtlas(fontFace12, text.ASCII)
 
-	//images for Textbox & Panel
-	avatarPng, err = LoadPicture("./resources/avatar.png")
-	panicIfErr(err)
-	continueCaretPng, err = LoadPicture("./resources/continue_caret.png")
-	panicIfErr(err)
-	cursorPng, err = LoadPicture("./resources/cursor.png")
-	panicIfErr(err)
-	panelPng, err = LoadPicture("./resources/simple_panel.png")
-	panicIfErr(err)
-}
 func main() {
 	pixelgl.Run(run)
 }
@@ -70,23 +52,23 @@ func main() {
 func setup() {
 	// Init map
 	m, err := tilepix.ReadFile("small_room.tmx")
-	panicIfErr(err)
+	globals.PanicIfErr(err)
 	CastleRoomMap.Create(m)
 
 	//Actions & Triggers
-	gUpDoorTeleport := ActionTeleport(*CastleRoomMap, Direction{7, 2})
-	gDownDoorTeleport := ActionTeleport(*CastleRoomMap, Direction{9, 10})
-	gTriggerTop := TriggerCreate(gDownDoorTeleport, nil, nil)
-	gTriggerBottom := TriggerCreate(
+	gUpDoorTeleport := ActionTeleport(*CastleRoomMap, globals.Direction{7, 2})
+	gDownDoorTeleport := ActionTeleport(*CastleRoomMap, globals.Direction{9, 10})
+	gTriggerTop := game_map.TriggerCreate(gDownDoorTeleport, nil, nil)
+	gTriggerBottom := game_map.TriggerCreate(
 		gUpDoorTeleport,
 		nil,
 		nil,
 	)
-	gTriggerFlowerPot := TriggerCreate(
+	gTriggerFlowerPot := game_map.TriggerCreate(
 		nil,
 		nil,
-		func(entity *Entity) {
-			//story01a.gMap = entity.gMap
+		func(entity *game_map.Entity) {
+			//story01a.Map = entity.Map
 			//story01a.Render()
 			//story01a = story01a.Play("space")
 
@@ -97,7 +79,7 @@ func setup() {
 	CastleRoomMap.SetTrigger(9, 10, gTriggerBottom)
 	CastleRoomMap.SetTrigger(8, 6, gTriggerFlowerPot)
 
-	CastleRoomMap.mEntities = []*Entity{gHero.mEntity, gNPC2.mEntity, gNPC1.mEntity}
+	CastleRoomMap.Entities = []*game_map.Entity{Hero.Entity, NPC2.Entity, NPC1.Entity}
 }
 
 //=============================================================
@@ -106,7 +88,7 @@ func setup() {
 func gameLoop() {
 	last := time.Now()
 
-	menu := SelectionMenuPanelCreate(
+	menu := text_panels.SelectionMenuPanelCreate(
 		"A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear. Jai Hind I Love India <3 ",
 		pixel.V(-100, 250), 400, 200,
 		[]string{"Menu 1-", "", "Menu 2", "Menu 03", "Menu 007"},
@@ -114,16 +96,16 @@ func gameLoop() {
 			fmt.Println(i, item)
 		})
 
-	textFitted := TextboxCreateFitted("Hello! if you smell the rock was cookin", pixel.V(100, 100), false)
+	textFitted := text_panels.TextboxCreateFitted("Hello! if you smell the rock was cookin", pixel.V(100, 100), false)
 
 	tick := time.Tick(frameRate)
-	for !global.gWin.Closed() {
+	for !globals.Global.Win.Closed() {
 
-		if global.gWin.JustPressed(pixelgl.KeyQ) {
+		if globals.Global.Win.JustPressed(pixelgl.KeyQ) {
 			break
 		}
 
-		global.gWin.Clear(global.gClearColor)
+		globals.Global.Win.Clear(globals.Global.ClearColor)
 
 		select {
 		case <-tick:
@@ -131,39 +113,39 @@ func gameLoop() {
 			last = time.Now()
 
 			err := CastleRoomMap.DrawAfter(func(canvas *pixelgl.Canvas, layer int) {
-				gameCharacters := [3]Character{*gHero, *gNPC2, *gNPC1}
+				gameCharacters := [3]game_map.Character{*Hero, *NPC2, *NPC1}
 
 				sort.Slice(gameCharacters[:], func(i, j int) bool {
-					return gameCharacters[i].mEntity.mTileY < gameCharacters[j].mEntity.mTileY
+					return gameCharacters[i].Entity.TileY < gameCharacters[j].Entity.TileY
 				})
 
 				if layer == 2 {
 					for _, gCharacter := range gameCharacters {
-						gCharacter.mEntity.TeleportAndDraw(*CastleRoomMap, canvas)
-						gCharacter.mController.Update(dt)
+						gCharacter.Entity.TeleportAndDraw(*CastleRoomMap, canvas)
+						gCharacter.Controller.Update(dt)
 					}
 				}
 			})
-			panicIfErr(err)
+			globals.PanicIfErr(err)
 
 			textFitted.Render()
 			menu.Render()
 
 			// Camera
-			CastleRoomMap.CamToTile(gHero.mEntity.mTileX, gHero.mEntity.mTileY)
-			camPos = pixel.V(CastleRoomMap.mCamX, CastleRoomMap.mCamY)
-			cam := pixel.IM.Scaled(camPos, camZoom).Moved(global.gWin.Bounds().Center().Sub(camPos))
-			global.gWin.SetMatrix(cam)
+			CastleRoomMap.CamToTile(Hero.Entity.TileX, Hero.Entity.TileY)
+			camPos = pixel.V(CastleRoomMap.CamX, CastleRoomMap.CamY)
+			cam := pixel.IM.Scaled(camPos, camZoom).Moved(globals.Global.Win.Bounds().Center().Sub(camPos))
+			globals.Global.Win.SetMatrix(cam)
 
-			if global.gWin.JustPressed(pixelgl.KeyE) {
-				tileX, tileY := gHero.mEntity.gMap.GetTileIndex(gHero.GetFacedTileCoords())
-				trigger := gHero.mEntity.gMap.GetTrigger(tileX, tileY)
+			if globals.Global.Win.JustPressed(pixelgl.KeyE) {
+				tileX, tileY := Hero.Entity.Map.GetTileIndex(Hero.GetFacedTileCoords())
+				trigger := Hero.Entity.Map.GetTrigger(tileX, tileY)
 				if trigger.OnUse != nil {
-					trigger.OnUse(gHero.mEntity)
+					trigger.OnUse(Hero.Entity)
 				}
 			}
 		}
 
-		global.gWin.Update()
+		globals.Global.Win.Update()
 	}
 }

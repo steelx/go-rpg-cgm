@@ -1,10 +1,11 @@
-package main
+package text_panels
 
 import (
 	"fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
+	"github.com/steelx/go-rpg-cgm/globals"
 	"golang.org/x/image/font/basicfont"
 	"math"
 	"strings"
@@ -44,10 +45,10 @@ func TextboxCreate(txt string, panelPos pixel.Vec, panelWidth, panelHeight float
 		size:         14,
 		mPanel:       panel,
 		textBounds:   panel.mBounds,
-		continueMark: continueCaretPng,
+		continueMark: globals.ContinueCaretPng,
 		avatarName:   avatarName,
 		avatarImg:    avatarImg,
-		textAtlas:    basicAtlas12,
+		textAtlas:    globals.BasicAtlas12,
 	}
 
 	t.makeTextColumns(withMenu)
@@ -62,7 +63,7 @@ func TextboxCreateFitted(txt string, panelPos pixel.Vec, withMenu bool) Textbox 
 		text:         txt,
 		textScale:    1,
 		size:         13,
-		continueMark: continueCaretPng,
+		continueMark: globals.ContinueCaretPng,
 		avatarName:   "",
 		avatarImg:    nil,
 		textAtlas:    basicAtlas,
@@ -140,7 +141,7 @@ func (t *Textbox) Render() {
 	t.textBase.Clear()
 	t.mPanel.Draw()
 	fmt.Fprintln(t.textBase, t.text)
-	t.textBase.Draw(global.gWin, pixel.IM)
+	t.textBase.Draw(globals.Global.Win, pixel.IM)
 }
 
 func (t *Textbox) RenderWithPanel() {
@@ -148,7 +149,7 @@ func (t *Textbox) RenderWithPanel() {
 	//limit prints
 	eachBlockHeight := math.Abs(t.textBase.BoundsOf(t.text).H())
 	t.textRowLimit = int(math.Ceil(t.Height / eachBlockHeight))
-	lastIndex := minInt(t.textBlockLimitIndex+t.textRowLimit, len(t.textBlocks))
+	lastIndex := globals.MinInt(t.textBlockLimitIndex+t.textRowLimit, len(t.textBlocks))
 	firstIndex := t.textBlockLimitIndex
 
 	if t.textBlockLimitIndex >= len(t.textBlocks) {
@@ -160,11 +161,11 @@ func (t *Textbox) RenderWithPanel() {
 
 	for _, line := range readFrom {
 		_, err := fmt.Fprintln(t.textBase, line)
-		panicIfErr(err)
+		globals.PanicIfErr(err)
 	}
 
 	t.mPanel.Draw()
-	t.textBase.Draw(global.gWin, pixel.IM)
+	t.textBase.Draw(globals.Global.Win, pixel.IM)
 
 	t.drawAvatar()
 	t.drawContinueArrow()
@@ -183,14 +184,14 @@ func (t Textbox) drawAvatar() {
 	title := text.New(titlePos, t.textAtlas)
 	fmt.Fprintln(title, t.avatarName)
 
-	title.Draw(global.gWin, pixel.IM.Scaled(titlePos, 0.8))
-	avatarSprite.Draw(global.gWin, pixel.IM.Moved(topLeft).Scaled(topLeft, 0.9))
+	title.Draw(globals.Global.Win, pixel.IM.Scaled(titlePos, 0.8))
+	avatarSprite.Draw(globals.Global.Win, pixel.IM.Moved(topLeft).Scaled(topLeft, 0.9))
 }
 func (t Textbox) drawContinueArrow() {
 	if t.textBlockLimitIndex+t.textRowLimit < len(t.textBlocks) {
 		bottomRight := pixel.V(t.mPanel.mBounds.Max.X-t.size, t.mPanel.mBounds.Min.Y+t.size)
 		sprite := pixel.NewSprite(t.continueMark, t.continueMark.Bounds())
-		sprite.Draw(global.gWin, pixel.IM.Moved(bottomRight))
+		sprite.Draw(globals.Global.Win, pixel.IM.Moved(bottomRight))
 	}
 }
 
@@ -199,7 +200,7 @@ func (t *Textbox) Next() {
 }
 
 func (t *Textbox) HandleInput() {
-	if global.gWin.JustPressed(pixelgl.KeySpace) {
+	if globals.Global.Win.JustPressed(pixelgl.KeySpace) {
 		t.Next()
 	}
 }
