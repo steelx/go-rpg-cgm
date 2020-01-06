@@ -64,10 +64,10 @@ func (t *Textbox) makeTextColumns() {
 	t.position = textPos
 	t.mWidth = textColumnWidth
 	t.mHeight = textColumnHeight
-	t.textBase = text.New(t.position, t.textAtlas)
 }
 
 func (t *Textbox) buildTextBlocks() {
+	t.textBase = text.New(t.position, t.textAtlas)
 	t.textBase.LineHeight = t.size
 	t.textBlocks = make([]string, 0) //imp to avoid null reference
 	blocks := math.Abs(t.textBase.BoundsOf(t.text).W() / t.mWidth)
