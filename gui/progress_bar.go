@@ -15,10 +15,9 @@ type ProgressBar struct {
 	foregroundPosition        pixel.Vec
 	foregroundPng             pixel.Picture
 	Value, Maximum, halfWidth float64
-	renderer                  pixel.Target
 }
 
-func ProgressBarCreate(renderer pixel.Target) ProgressBar {
+func ProgressBarCreate() ProgressBar {
 	bgImg, fgImg := globals.ProgressBarBgPng, globals.ProgressBarFbPng
 	pb := ProgressBar{
 		x:             0,
@@ -29,7 +28,6 @@ func ProgressBarCreate(renderer pixel.Target) ProgressBar {
 		scale:         10,
 		Value:         0,
 		Maximum:       100,
-		renderer:      renderer,
 	}
 
 	// Get UV positions in texture atlas
@@ -102,15 +100,15 @@ func (pb ProgressBar) GetPosition() (x, y float64) {
 	return pb.x, pb.y
 }
 
-func (pb ProgressBar) Render() {
+func (pb ProgressBar) Render(renderer pixel.Target) {
 	mat := pixel.V(pb.x, pb.y)
-	pb.Background.Draw(pb.renderer, pixel.IM.Moved(mat))
+	pb.Background.Draw(renderer, pixel.IM.Moved(mat))
 
 	fgMat := mat.Sub(pixel.V(pb.halfWidth, 0))
 	scaleFactor := pb.foregroundWidthBlock()
 	for i := 0; i < pb.foregroundFrame; i++ {
 		px := pixel.NewSprite(pb.foregroundPng, pb.foregroundFrames[i])
-		px.Draw(pb.renderer, pixel.IM.Moved(
+		px.Draw(renderer, pixel.IM.Moved(
 			pixel.V(fgMat.X+(float64(i)*scaleFactor)+pb.scale, fgMat.Y)))
 	}
 }

@@ -39,7 +39,7 @@ func run() {
 	// Setup world etc.
 	setup()
 	globals.PrintMemoryUsage()
-	gameLoop()
+	gameLoop(win)
 }
 
 func main() {
@@ -85,7 +85,7 @@ func setup() {
 //=============================================================
 // Game loop
 //=============================================================
-func gameLoop() {
+func gameLoop(win *pixelgl.Window) {
 	last := time.Now()
 
 	menu := gui.SelectionMenuPanelCreate(
@@ -106,17 +106,17 @@ func gameLoop() {
 
 	textFitted := gui.TextboxCreateFitted("Hello! if you smell the rock was cookin", pixel.V(100, 100), false)
 
-	progressBar := gui.ProgressBarCreate(globals.Global.Win)
+	progressBar := gui.ProgressBarCreate()
 	//progressBar.SetValue(90)
 
 	tick := time.Tick(frameRate)
-	for !globals.Global.Win.Closed() {
+	for !win.Closed() {
 
-		if globals.Global.Win.JustPressed(pixelgl.KeyQ) {
+		if win.JustPressed(pixelgl.KeyQ) {
 			break
 		}
 
-		globals.Global.Win.Clear(globals.Global.ClearColor)
+		win.Clear(globals.Global.ClearColor)
 
 		select {
 		case <-tick:
@@ -140,23 +140,23 @@ func gameLoop() {
 			globals.PanicIfErr(err)
 
 			textFitted.Update(dt)
-			textFitted.Render()
+			textFitted.Render(win)
 
-			menu.Render()
+			menu.Render(win)
 
 			tBox.Update(dt)
-			tBox.RenderWithPanel()
+			tBox.RenderWithPanel(win)
 			tBox.HandleInput()
 
-			progressBar.Render()
+			progressBar.Render(win)
 
 			// Camera
 			CastleRoomMap.CamToTile(Hero.Entity.TileX, Hero.Entity.TileY)
 			camPos = pixel.V(CastleRoomMap.CamX, CastleRoomMap.CamY)
-			cam := pixel.IM.Scaled(camPos, camZoom).Moved(globals.Global.Win.Bounds().Center().Sub(camPos))
-			globals.Global.Win.SetMatrix(cam)
+			cam := pixel.IM.Scaled(camPos, camZoom).Moved(win.Bounds().Center().Sub(camPos))
+			win.SetMatrix(cam)
 
-			if globals.Global.Win.JustPressed(pixelgl.KeyE) {
+			if win.JustPressed(pixelgl.KeyE) {
 				tileX, tileY := Hero.Entity.Map.GetTileIndex(Hero.GetFacedTileCoords())
 				trigger := Hero.Entity.Map.GetTrigger(tileX, tileY)
 				if trigger.OnUse != nil {
@@ -165,6 +165,6 @@ func gameLoop() {
 			}
 		}
 
-		globals.Global.Win.Update()
+		win.Update()
 	}
 }

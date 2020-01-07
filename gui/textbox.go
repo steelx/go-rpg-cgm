@@ -161,18 +161,17 @@ func (t *Textbox) Update(dt float64) {
 	t.AppearTween.Update(dt)
 }
 
-func (t *Textbox) Render() {
+func (t *Textbox) Render(renderer pixel.Target) {
 	scale := t.AppearTween.Value()
-	fmt.Println("scale", scale)
 	t.textBase.Clear()
-	t.mPanel.Draw()
+	t.mPanel.Draw(renderer)
 	fmt.Fprintln(t.textBase, t.text)
-	t.textBase.Draw(globals.Global.Win, pixel.IM.Scaled(t.Position, scale))
+	t.textBase.Draw(renderer, pixel.IM.Scaled(t.Position, scale))
 }
 
 //RenderWithPanel will render text based on Panel height and divide rows
 //based on available height, it will destroy at the end of Next last user input
-func (t *Textbox) RenderWithPanel() {
+func (t *Textbox) RenderWithPanel(renderer pixel.Target) {
 	t.textBase.Clear()
 	//limit prints
 	eachBlockHeight := math.Abs(t.textBase.BoundsOf(t.text).H())
@@ -191,8 +190,8 @@ func (t *Textbox) RenderWithPanel() {
 		globals.PanicIfErr(err)
 	}
 
-	t.mPanel.Draw()
-	t.textBase.Draw(globals.Global.Win, pixel.IM)
+	t.mPanel.Draw(renderer)
+	t.textBase.Draw(renderer, pixel.IM)
 
 	t.drawAvatar()
 	t.drawContinueArrow()

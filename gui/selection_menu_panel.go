@@ -33,8 +33,8 @@ func SelectionMenuPanelCreate(
 	}
 }
 
-func (sm SelectionMenuPanel) Render() {
-	sm.textbox.RenderWithPanel()
+func (sm SelectionMenuPanel) Render(renderer pixel.Target) {
+	sm.textbox.RenderWithPanel(renderer)
 	sm.menu.Render()
 	sm.menu.HandleInput()
 }
