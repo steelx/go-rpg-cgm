@@ -21,20 +21,20 @@ tBox := TextboxCreate(
 */
 
 type Textbox struct {
-	text                string
-	textScale, size     float64
-	Position            pixel.Vec
-	textBounds          pixel.Rect
-	textBase            *text.Text
-	textAtlas           *text.Atlas
-	mPanel              Panel
-	continueMark        pixel.Picture
-	Width, Height       float64
-	textBlocks          []string
-	textBlockLimitIndex int
-	textRowLimit        int
-	avatarName          string
-	avatarImg           pixel.Picture
+	text                        string
+	textScale, size, topPadding float64
+	Position                    pixel.Vec
+	textBounds                  pixel.Rect
+	textBase                    *text.Text
+	textAtlas                   *text.Atlas
+	mPanel                      Panel
+	continueMark                pixel.Picture
+	Width, Height               float64
+	textBlocks                  []string
+	textBlockLimitIndex         int
+	textRowLimit                int
+	avatarName                  string
+	avatarImg                   pixel.Picture
 }
 
 func TextboxCreate(txt string, panelPos pixel.Vec, panelWidth, panelHeight float64, avatarName string, avatarImg pixel.Picture, withMenu bool) Textbox {
@@ -49,6 +49,10 @@ func TextboxCreate(txt string, panelPos pixel.Vec, panelWidth, panelHeight float
 		avatarName:   avatarName,
 		avatarImg:    avatarImg,
 		textAtlas:    globals.BasicAtlas12,
+	}
+
+	if withMenu {
+		t.topPadding = 10
 	}
 
 	t.makeTextColumns(withMenu)
@@ -98,7 +102,7 @@ func (t *Textbox) makeTextColumns(withMenu bool) {
 	var textColumnWidth = t.mPanel.mBounds.W() - (t.size * 2)
 	var textColumnHeight = t.mPanel.mBounds.H() - (t.size * 2)
 	var topLeft, _, _, _ = t.mPanel.GetCorners()
-	var textPos = pixel.V(topLeft.X+t.size, topLeft.Y-t.size)
+	var textPos = pixel.V(topLeft.X+t.size, topLeft.Y-t.size-t.topPadding)
 	if makeColumns {
 		textColumnWidth -= t.avatarImg.Bounds().W()
 		textColumnHeight -= t.size
@@ -154,7 +158,8 @@ func (t *Textbox) RenderWithPanel() {
 
 	if t.textBlockLimitIndex >= len(t.textBlocks) {
 		//reached limit
-		t.textBase.Clear()
+		t.mPanel.Draw()
+		t.textBase.Draw(globals.Global.Win, pixel.IM)
 		return
 	}
 	readFrom := t.textBlocks[firstIndex:lastIndex]

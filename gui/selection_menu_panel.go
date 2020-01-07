@@ -22,7 +22,10 @@ func SelectionMenuPanelCreate(
 		true,
 	)
 
-	menu := SelectionMenuCreate(choices, textbox.Position.Add(pixel.V(5, -textbox.Height-10)), onSelection)
+	textBounds := textbox.getTextBound()
+
+	menu := SelectionMenuCreate(choices, true, pixel.V(
+		textbox.Position.X-10, textbox.Position.Y-textBounds.H()-10), onSelection)
 
 	return SelectionMenuPanel{
 		textbox: &textbox,
@@ -33,6 +36,5 @@ func SelectionMenuPanelCreate(
 func (sm SelectionMenuPanel) Render() {
 	sm.textbox.RenderWithPanel()
 	sm.menu.Render()
-	sm.textbox.HandleInput()
 	sm.menu.HandleInput()
 }

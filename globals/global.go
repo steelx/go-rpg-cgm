@@ -10,8 +10,14 @@ import (
 // Global variables
 //=============================================================
 var (
-	AvatarPng, ContinueCaretPng, CursorPng, PanelPng pixel.Picture
-	BasicAtlas14, BasicAtlas12                       *text.Atlas
+	PanelPng         pixel.Picture
+	CursorPng        pixel.Picture
+	ContinueCaretPng pixel.Picture
+	AvatarPng        pixel.Picture
+	ProgressBarBgPng pixel.Picture
+	ProgressBarFbPng pixel.Picture
+	BasicAtlas12     *text.Atlas
+	BasicAtlas14     *text.Atlas
 )
 
 type GlobalVars struct {
@@ -52,5 +58,9 @@ func init() {
 	CursorPng, err = LoadPicture("../resources/cursor.png")
 	PanicIfErr(err)
 	PanelPng, err = LoadPicture("../resources/simple_panel.png")
+	PanicIfErr(err)
+	ProgressBarBgPng, err = LoadPicture("../resources/progressbar_bg.png")
+	PanicIfErr(err)
+	ProgressBarFbPng, err = LoadPicture("../resources/progressbar_fg.png")
 	PanicIfErr(err)
 }

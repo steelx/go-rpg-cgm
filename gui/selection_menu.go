@@ -9,6 +9,12 @@ import (
 	"math"
 )
 
+/* e.g.
+menu2 := gui.SelectionMenuCreate([]string{"Menu 1", "", "Menu 2", "Menu 03", "Menu 04", "Menu 05"}, false, pixel.V(200, 250), func(i int, item string) {
+		fmt.Println(i, item)
+	})
+*/
+
 type SelectionMenu struct {
 	x, y           float64
 	width, height  float64
@@ -28,7 +34,7 @@ type SelectionMenu struct {
 	OnSelection               func(int, string) //to be called after selection
 }
 
-func SelectionMenuCreate(data []string, position pixel.Vec, onSelection func(int, string)) SelectionMenu {
+func SelectionMenuCreate(data []string, showColumns bool, position pixel.Vec, onSelection func(int, string)) SelectionMenu {
 	m := SelectionMenu{
 		x:            position.X,
 		y:            position.Y,
@@ -39,17 +45,21 @@ func SelectionMenuCreate(data []string, position pixel.Vec, onSelection func(int
 		spacingY:     24,
 		spacingX:     128,
 		showCursor:   true,
-		maxRows:      4, //or len(data)
+		maxRows:      len(data) - 1,
 		displayStart: 0,
 		scale:        1,
 		OnSelection:  onSelection,
 	}
 	m.textBase = text.New(position, globals.BasicAtlas12)
 	m.renderer = globals.Global.Win
-	m.displayRows = m.maxRows
+	m.displayRows = 4
 	m.cursor = pixel.NewSprite(globals.CursorPng, globals.CursorPng.Bounds())
 	m.cursorWidth = globals.CursorPng.Bounds().W()
 	m.cursorHeight = globals.CursorPng.Bounds().H()
+
+	if showColumns {
+		m.columns += m.maxRows / m.displayRows
+	}
 
 	m.width = m.calcTotalWidth()
 	m.height = m.calcTotalHeight()
@@ -121,18 +131,23 @@ func (m *SelectionMenu) MoveUp() {
 }
 
 func (m *SelectionMenu) MoveDown() {
-	m.focusY = globals.MinInt(m.focusY+1, m.maxRows)
+	if m.columns == 1 {
+		m.focusY = globals.MinInt(m.focusY+1, m.maxRows)
+	} else {
+		m.focusY = globals.MinInt(m.focusY+1, m.displayRows-1)
+	}
+
 	if m.focusY >= m.displayStart+m.displayRows {
 		m.MoveDisplayDown()
 	}
 }
 
 func (m *SelectionMenu) MoveLeft() {
-	m.focusX = globals.MaxInt(m.focusX-1, 1)
+	m.focusX = globals.MaxInt(m.focusX-1, 0)
 }
 
 func (m *SelectionMenu) MoveRight() {
-	m.focusX = globals.MinInt(m.focusX+1, m.columns)
+	m.focusX = globals.MinInt(m.focusX+1, m.columns-1)
 }
 
 func (m *SelectionMenu) MoveDisplayUp() {
@@ -158,13 +173,12 @@ func (m *SelectionMenu) HandleInput() {
 		m.MoveUp()
 	} else if globals.Global.Win.JustPressed(pixelgl.KeyDown) {
 		m.MoveDown()
+	} else if m.columns > 1 && globals.Global.Win.JustPressed(pixelgl.KeyLeft) {
+		m.MoveLeft()
+	} else if m.columns > 1 && globals.Global.Win.JustPressed(pixelgl.KeyRight) {
+		m.MoveRight()
 	} else if globals.Global.Win.JustPressed(pixelgl.KeyEnter) {
 		m.OnClick()
 	}
-	//disabled since fixed to column 1
-	//else if Global.Win.JustPressed(pixelgl.KeyLeft) {
-	//	m.MoveLeft()
-	//} else if Global.Win.JustPressed(pixelgl.KeyRight) {
-	//	m.MoveRight()
-	//}
+
 }
