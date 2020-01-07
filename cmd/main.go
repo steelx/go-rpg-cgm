@@ -98,6 +98,9 @@ func gameLoop() {
 
 	textFitted := gui.TextboxCreateFitted("Hello! if you smell the rock was cookin", pixel.V(100, 100), false)
 
+	progressBar := gui.ProgressBarCreate(globals.Global.Win)
+	progressBar.SetValue(90)
+
 	tick := time.Tick(frameRate)
 	for !globals.Global.Win.Closed() {
 
@@ -130,6 +133,7 @@ func gameLoop() {
 
 			textFitted.Render()
 			menu.Render()
+			progressBar.Render()
 
 			// Camera
 			CastleRoomMap.CamToTile(Hero.Entity.TileX, Hero.Entity.TileY)
