@@ -5,6 +5,7 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
+	"github.com/steelx/go-rpg-cgm/animation"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"golang.org/x/image/font/basicfont"
 	"math"
@@ -35,6 +36,8 @@ type Textbox struct {
 	textRowLimit                int
 	avatarName                  string
 	avatarImg                   pixel.Picture
+	AppearTween                 animation.Tween
+	time                        float64
 }
 
 func TextboxCreate(txt string, panelPos pixel.Vec, panelWidth, panelHeight float64, avatarName string, avatarImg pixel.Picture, withMenu bool) Textbox {
@@ -49,6 +52,8 @@ func TextboxCreate(txt string, panelPos pixel.Vec, panelWidth, panelHeight float
 		avatarName:   avatarName,
 		avatarImg:    avatarImg,
 		textAtlas:    globals.BasicAtlas12,
+		AppearTween:  animation.TweenCreate(0, 1, 0.4),
+		time:         0,
 	}
 
 	if withMenu {
@@ -71,6 +76,8 @@ func TextboxCreateFitted(txt string, panelPos pixel.Vec, withMenu bool) Textbox 
 		avatarName:   "",
 		avatarImg:    nil,
 		textAtlas:    basicAtlas,
+		AppearTween:  animation.TweenCreate(0, 1, 0.4),
+		time:         0,
 	}
 	padding := 20.0
 	//textPos := pixel.V(panelPos.X+t.size, topLeft.Y-t.size)
@@ -141,13 +148,30 @@ func (t *Textbox) buildTextBlocks() {
 	}
 }
 
+func (t Textbox) IsDead() bool {
+	return t.AppearTween.IsFinished() && t.AppearTween.Value() == 0
+}
+
+func (t Textbox) HasReachedLimit() bool {
+	return t.textBlockLimitIndex >= len(t.textBlocks)
+}
+
+func (t *Textbox) Update(dt float64) {
+	t.time = t.time + dt
+	t.AppearTween.Update(dt)
+}
+
 func (t *Textbox) Render() {
+	scale := t.AppearTween.Value()
+	fmt.Println("scale", scale)
 	t.textBase.Clear()
 	t.mPanel.Draw()
 	fmt.Fprintln(t.textBase, t.text)
-	t.textBase.Draw(globals.Global.Win, pixel.IM)
+	t.textBase.Draw(globals.Global.Win, pixel.IM.Scaled(t.Position, scale))
 }
 
+//RenderWithPanel will render text based on Panel height and divide rows
+//based on available height, it will destroy at the end of Next last user input
 func (t *Textbox) RenderWithPanel() {
 	t.textBase.Clear()
 	//limit prints
@@ -156,10 +180,8 @@ func (t *Textbox) RenderWithPanel() {
 	lastIndex := globals.MinInt(t.textBlockLimitIndex+t.textRowLimit, len(t.textBlocks))
 	firstIndex := t.textBlockLimitIndex
 
-	if t.textBlockLimitIndex >= len(t.textBlocks) {
+	if t.HasReachedLimit() {
 		//reached limit
-		t.mPanel.Draw()
-		t.textBase.Draw(globals.Global.Win, pixel.IM)
 		return
 	}
 	readFrom := t.textBlocks[firstIndex:lastIndex]

@@ -139,10 +139,15 @@ func gameLoop() {
 			})
 			globals.PanicIfErr(err)
 
+			textFitted.Update(dt)
 			textFitted.Render()
+
 			menu.Render()
+
+			tBox.Update(dt)
 			tBox.RenderWithPanel()
 			tBox.HandleInput()
+
 			progressBar.Render()
 
 			// Camera
