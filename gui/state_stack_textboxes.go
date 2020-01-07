@@ -37,10 +37,14 @@ func (ss StateStack) Render(renderer pixel.Target) {
 	}
 }
 
-func (ss *StateStack) AddFixed(x, y, width, height float64, txt, avatarName string, avatarPng pixel.Picture) {
-	fixed := TextboxCreateFixed(txt, pixel.V(x, y), width, height, "Ajinkya", avatarPng,
-		false,
-	)
+func (ss *StateStack) AddMenu(x, y, width, height float64, txt string, choices []string, onSelection func(int, string)) {
+	textBoxMenu := TextboxWithMenuCreate(txt, pixel.V(x, y), width, height, choices, onSelection)
+	ss.States = append(ss.States, textBoxMenu)
+}
+
+func (ss *StateStack) AddFixed(
+	x, y, width, height float64, txt, avatarName string, avatarPng pixel.Picture) {
+	fixed := TextboxCreateFixed(txt, pixel.V(x, y), width, height, "Ajinkya", avatarPng, false)
 	ss.States = append(ss.States, &fixed)
 }
 

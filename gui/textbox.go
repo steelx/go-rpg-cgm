@@ -38,7 +38,8 @@ type Textbox struct {
 	avatarImg                   pixel.Picture
 	AppearTween                 animation.Tween
 	time                        float64
-	isFixed, isDead             bool
+	isFixed, isDead, hasMenu    bool
+	menu                        SelectionMenu
 }
 
 func TextboxNew(txt string, size float64, atlas *text.Atlas, avatarName string, avatarImg pixel.Picture) Textbox {
@@ -55,18 +56,40 @@ func TextboxNew(txt string, size float64, atlas *text.Atlas, avatarName string, 
 	}
 }
 
-func TextboxCreateFixed(txt string, panelPos pixel.Vec, panelWidth, panelHeight float64, avatarName string, avatarImg pixel.Picture, withMenu bool) Textbox {
+func TextboxWithMenuCreate(textBoxText string, panelPos pixel.Vec, panelWidth, panelHeight float64,
+	choices []string, onSelection func(int, string)) *Textbox {
+
+	textbox := TextboxCreateFixed(
+		textBoxText,
+		panelPos, panelWidth, panelHeight,
+		"",
+		nil,
+		true,
+	)
+
+	textBounds := textbox.getTextBound()
+
+	textbox.menu = SelectionMenuCreate(choices, true,
+		pixel.V(textbox.Position.X-10, textbox.Position.Y-textBounds.H()-10), func(i int, s string) {
+			onSelection(i, s)
+			textbox.isDead = true
+		})
+
+	return &textbox
+}
+
+func TextboxCreateFixed(txt string, panelPos pixel.Vec, panelWidth, panelHeight float64, avatarName string, avatarImg pixel.Picture, hasMenu bool) Textbox {
 	panel := PanelCreate(panelPos, panelWidth, panelHeight)
 	t := TextboxNew(txt, 14, globals.BasicAtlas12, avatarName, avatarImg)
 	t.isFixed = true
 	t.mPanel = panel
 	t.textBounds = panel.mBounds
-
-	if withMenu {
+	t.hasMenu = hasMenu
+	if hasMenu {
 		t.topPadding = 10
 	}
 
-	t.makeTextColumns(withMenu)
+	t.makeTextColumns()
 	t.buildTextBlocks()
 
 	return t
@@ -74,16 +97,16 @@ func TextboxCreateFixed(txt string, panelPos pixel.Vec, panelWidth, panelHeight 
 
 //TextboxCreateFitted are good for small chats
 // height and width gets set automatically
-func TextboxCreateFitted(txt string, panelPos pixel.Vec, withMenu bool) Textbox {
+func TextboxCreateFitted(txt string, panelPos pixel.Vec, hasMenu bool) Textbox {
 	const padding = 20.0
 	basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
 	tBox := TextboxNew(txt, 13, basicAtlas, "", nil)
 	tBox.textBase = text.New(panelPos, tBox.textAtlas)
 	tBox.textBase.LineHeight = padding
 	textBounds := tBox.getTextBound()
-
+	tBox.hasMenu = hasMenu
 	panelHeight := textBounds.H() + padding
-	if withMenu {
+	if hasMenu {
 		panelHeight = panelHeight + 100 //+menu height
 	}
 	panel := PanelCreate(panelPos, textBounds.W()+(padding*2), panelHeight)
@@ -93,12 +116,12 @@ func TextboxCreateFitted(txt string, panelPos pixel.Vec, withMenu bool) Textbox 
 	tBox.mPanel = panel
 
 	tBox.mPanel.RefreshPanelCorners()
-	tBox.makeTextColumns(withMenu)
+	tBox.makeTextColumns()
 
 	return tBox
 }
 
-func (t *Textbox) makeTextColumns(withMenu bool) {
+func (t *Textbox) makeTextColumns() {
 	var makeColumns bool
 	if len(t.avatarName) != 0 {
 		makeColumns = true
@@ -113,7 +136,7 @@ func (t *Textbox) makeTextColumns(withMenu bool) {
 		textPos.X += t.avatarImg.Bounds().W() - t.size/2
 		textPos.Y -= t.size / 2
 	}
-	if withMenu {
+	if t.hasMenu {
 		textColumnHeight = textColumnHeight / 2
 	}
 
@@ -225,6 +248,13 @@ func (t *Textbox) renderFixed(renderer pixel.Target) {
 }
 
 func (t *Textbox) Render(renderer pixel.Target) {
+
+	if t.hasMenu {
+		t.renderFitted(renderer)
+		t.menu.Render()
+		return
+	}
+
 	if t.isFixed {
 		t.renderFixed(renderer)
 	} else {
@@ -232,10 +262,14 @@ func (t *Textbox) Render(renderer pixel.Target) {
 	}
 }
 
-//HandleInput takes care of 2 types of textbox's
-//1 fixed then we let the blocks render
-//2 fitted users marks as read and goes to next text popup
+//HandleInput takes care of 3 types of textbox's
+//1 textbox with menu
+//2 Fixed then we let the blocks render
+//3 Fitted users marks as read and goes to next text popup
 func (t *Textbox) HandleInput() {
+	if t.hasMenu {
+		t.menu.HandleInput()
+	}
 	if globals.Global.Win.JustPressed(pixelgl.KeySpace) {
 		if t.isFixed {
 			t.Next()

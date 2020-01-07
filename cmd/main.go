@@ -88,23 +88,24 @@ func setup() {
 func gameLoop(win *pixelgl.Window) {
 	last := time.Now()
 
-	menu := gui.SelectionMenuPanelCreate(
+	choices := []string{"Menu 1", "lola", "Menu 2", "Menu 03", "Menu 04", "Menu 05", "Menu 06", "Menu 007", "", "", "", "Menu @_@"}
+	textStacks := gui.StateStackCreate()
+
+	textStacks.AddMenu(
+		-100, 250, 400, 200,
 		"Select from the list below",
-		pixel.V(-100, 250), 400, 200,
-		[]string{"Menu 1", "lola", "Menu 2", "Menu 03", "Menu 04", "Menu 05", "Menu 06", "Menu 007", "", "", "", "Menu @_@"},
-		func(i int, item string) {
+		choices, func(i int, item string) {
 			fmt.Println(i, item)
 		})
 
-	textStacks := gui.StateStackCreate()
-	textStacks.AddFixed(
-		-150, 10, 300, 100,
-		"A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear. Jai Hind I Love India <3 ",
-		"Ajinkya", globals.AvatarPng)
-
-	textStacks.AddFitted(100, 100, "Hello! if you smell the rock was cookin")
-	textStacks.AddFitted(200, 200, "1111 if you smell the rock was cookin")
-	textStacks.AddFitted(300, 250, "Pop pop pop. mark me unread HIT spacebar")
+	//textStacks.AddFixed(
+	//	-150, 10, 300, 100,
+	//	"A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear. Jai Hind I Love India <3 ",
+	//	"Ajinkya", globals.AvatarPng)
+	//
+	//textStacks.AddFitted(100, 100, "Hello! if you smell the rock was cookin")
+	//textStacks.AddFitted(200, 200, "1111 if you smell the rock was cookin")
+	//textStacks.AddFitted(300, 250, "Pop pop pop. mark me unread HIT spacebar")
 
 	progressBar := gui.ProgressBarCreate(200, 0)
 	//progressBar.SetValue(90)
@@ -138,8 +139,6 @@ func gameLoop(win *pixelgl.Window) {
 				}
 			})
 			globals.PanicIfErr(err)
-
-			menu.Render(win)
 
 			textStacks.Render(win)
 			textStacks.Update(dt)
