@@ -14,7 +14,7 @@ func SelectionMenuPanelCreate(
 	panelPos pixel.Vec, panelWidth, panelHeight float64,
 	choices []string, onSelection func(int, string)) SelectionMenuPanel {
 
-	textbox := TextboxCreate(
+	textbox := TextboxCreateFixed(
 		textBoxText,
 		panelPos, panelWidth, panelHeight,
 		"",
@@ -34,7 +34,7 @@ func SelectionMenuPanelCreate(
 }
 
 func (sm SelectionMenuPanel) Render(renderer pixel.Target) {
-	sm.textbox.RenderWithPanel(renderer)
+	sm.textbox.Render(renderer)
 	sm.menu.Render()
 	sm.menu.HandleInput()
 }

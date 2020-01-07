@@ -17,11 +17,11 @@ type ProgressBar struct {
 	Value, Maximum, halfWidth float64
 }
 
-func ProgressBarCreate() ProgressBar {
+func ProgressBarCreate(x, y float64) ProgressBar {
 	bgImg, fgImg := globals.ProgressBarBgPng, globals.ProgressBarFbPng
 	pb := ProgressBar{
-		x:             0,
-		y:             0,
+		x:             x,
+		y:             y,
 		foregroundPng: fgImg,
 		Background:    pixel.NewSprite(bgImg, bgImg.Bounds()),
 		Foreground:    pixel.NewSprite(fgImg, fgImg.Bounds()),

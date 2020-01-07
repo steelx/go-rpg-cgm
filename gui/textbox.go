@@ -13,7 +13,7 @@ import (
 )
 
 /* e.g.
-tBox := TextboxCreate(
+tBox := TextboxCreateFixed(
 		"A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear. Jai Hind I Love India <3 ",
 		pixel.V(-150, 200), 300, 100,
 		"Ajinkya",
@@ -38,23 +38,29 @@ type Textbox struct {
 	avatarImg                   pixel.Picture
 	AppearTween                 animation.Tween
 	time                        float64
+	isFixed, isDead             bool
 }
 
-func TextboxCreate(txt string, panelPos pixel.Vec, panelWidth, panelHeight float64, avatarName string, avatarImg pixel.Picture, withMenu bool) Textbox {
-	panel := PanelCreate(panelPos, panelWidth, panelHeight)
-	t := Textbox{
+func TextboxNew(txt string, size float64, atlas *text.Atlas, avatarName string, avatarImg pixel.Picture) Textbox {
+	return Textbox{
 		text:         txt,
 		textScale:    1,
-		size:         14,
-		mPanel:       panel,
-		textBounds:   panel.mBounds,
+		size:         size,
 		continueMark: globals.ContinueCaretPng,
 		avatarName:   avatarName,
 		avatarImg:    avatarImg,
-		textAtlas:    globals.BasicAtlas12,
+		textAtlas:    atlas,
 		AppearTween:  animation.TweenCreate(0, 1, 0.4),
 		time:         0,
 	}
+}
+
+func TextboxCreateFixed(txt string, panelPos pixel.Vec, panelWidth, panelHeight float64, avatarName string, avatarImg pixel.Picture, withMenu bool) Textbox {
+	panel := PanelCreate(panelPos, panelWidth, panelHeight)
+	t := TextboxNew(txt, 14, globals.BasicAtlas12, avatarName, avatarImg)
+	t.isFixed = true
+	t.mPanel = panel
+	t.textBounds = panel.mBounds
 
 	if withMenu {
 		t.topPadding = 10
@@ -66,26 +72,17 @@ func TextboxCreate(txt string, panelPos pixel.Vec, panelWidth, panelHeight float
 	return t
 }
 
+//TextboxCreateFitted are good for small chats
+// height and width gets set automatically
 func TextboxCreateFitted(txt string, panelPos pixel.Vec, withMenu bool) Textbox {
+	const padding = 20.0
 	basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
-	tBox := Textbox{
-		text:         txt,
-		textScale:    1,
-		size:         13,
-		continueMark: globals.ContinueCaretPng,
-		avatarName:   "",
-		avatarImg:    nil,
-		textAtlas:    basicAtlas,
-		AppearTween:  animation.TweenCreate(0, 1, 0.4),
-		time:         0,
-	}
-	padding := 20.0
-	//textPos := pixel.V(panelPos.X+t.size, topLeft.Y-t.size)
+	tBox := TextboxNew(txt, 13, basicAtlas, "", nil)
 	tBox.textBase = text.New(panelPos, tBox.textAtlas)
 	tBox.textBase.LineHeight = padding
 	textBounds := tBox.getTextBound()
 
-	var panelHeight = textBounds.H() + padding
+	panelHeight := textBounds.H() + padding
 	if withMenu {
 		panelHeight = panelHeight + 100 //+menu height
 	}
@@ -148,54 +145,14 @@ func (t *Textbox) buildTextBlocks() {
 	}
 }
 
-func (t Textbox) IsDead() bool {
-	return t.AppearTween.IsFinished() && t.AppearTween.Value() == 0
+func (t *Textbox) IsDead() bool {
+	return (t.AppearTween.IsFinished() && t.AppearTween.Value() == 0) || t.isDead
 }
 
 func (t Textbox) HasReachedLimit() bool {
 	return t.textBlockLimitIndex >= len(t.textBlocks)
 }
 
-func (t *Textbox) Update(dt float64) {
-	t.time = t.time + dt
-	t.AppearTween.Update(dt)
-}
-
-func (t *Textbox) Render(renderer pixel.Target) {
-	scale := t.AppearTween.Value()
-	t.textBase.Clear()
-	t.mPanel.Draw(renderer)
-	fmt.Fprintln(t.textBase, t.text)
-	t.textBase.Draw(renderer, pixel.IM.Scaled(t.Position, scale))
-}
-
-//RenderWithPanel will render text based on Panel height and divide rows
-//based on available height, it will destroy at the end of Next last user input
-func (t *Textbox) RenderWithPanel(renderer pixel.Target) {
-	t.textBase.Clear()
-	//limit prints
-	eachBlockHeight := math.Abs(t.textBase.BoundsOf(t.text).H())
-	t.textRowLimit = int(math.Ceil(t.Height / eachBlockHeight))
-	lastIndex := globals.MinInt(t.textBlockLimitIndex+t.textRowLimit, len(t.textBlocks))
-	firstIndex := t.textBlockLimitIndex
-
-	if t.HasReachedLimit() {
-		//reached limit
-		return
-	}
-	readFrom := t.textBlocks[firstIndex:lastIndex]
-
-	for _, line := range readFrom {
-		_, err := fmt.Fprintln(t.textBase, line)
-		globals.PanicIfErr(err)
-	}
-
-	t.mPanel.Draw(renderer)
-	t.textBase.Draw(renderer, pixel.IM)
-
-	t.drawAvatar()
-	t.drawContinueArrow()
-}
 func (t Textbox) drawAvatar() {
 	if len(t.avatarName) == 0 {
 		return
@@ -225,8 +182,69 @@ func (t *Textbox) Next() {
 	t.textBlockLimitIndex += t.textRowLimit
 }
 
+func (t *Textbox) Update(dt float64) {
+	t.time = t.time + dt
+	t.AppearTween.Update(dt)
+}
+
+func (t *Textbox) renderFitted(renderer pixel.Target) {
+	scale := t.AppearTween.Value()
+	t.textBase.Clear()
+	t.mPanel.Draw(renderer)
+	fmt.Fprintln(t.textBase, t.text)
+	t.textBase.Draw(renderer, pixel.IM.Scaled(t.Position, scale))
+}
+
+//RenderWithPanel will render text based on Panel height and divide rows
+//based on available height, it will destroy at the end of Next last user input
+func (t *Textbox) renderFixed(renderer pixel.Target) {
+	t.textBase.Clear()
+	//limit prints
+	eachBlockHeight := math.Abs(t.textBase.BoundsOf(t.text).H())
+	t.textRowLimit = int(math.Ceil(t.Height / eachBlockHeight))
+	lastIndex := globals.MinInt(t.textBlockLimitIndex+t.textRowLimit, len(t.textBlocks))
+	firstIndex := t.textBlockLimitIndex
+
+	if t.HasReachedLimit() {
+		//reached limit
+		t.isDead = true
+		return
+	}
+	readFrom := t.textBlocks[firstIndex:lastIndex]
+
+	for _, line := range readFrom {
+		_, err := fmt.Fprintln(t.textBase, line)
+		globals.PanicIfErr(err)
+	}
+
+	t.mPanel.Draw(renderer)
+	t.textBase.Draw(renderer, pixel.IM)
+
+	t.drawAvatar()
+	t.drawContinueArrow()
+}
+
+func (t *Textbox) Render(renderer pixel.Target) {
+	if t.isFixed {
+		t.renderFixed(renderer)
+	} else {
+		t.renderFitted(renderer)
+	}
+}
+
+//HandleInput takes care of 2 types of textbox's
+//1 fixed then we let the blocks render
+//2 fitted users marks as read and goes to next text popup
 func (t *Textbox) HandleInput() {
 	if globals.Global.Win.JustPressed(pixelgl.KeySpace) {
-		t.Next()
+		if t.isFixed {
+			t.Next()
+			return
+		}
+
+		if t.AppearTween.IsFinished() && t.AppearTween.Value() == 0 {
+			return
+		}
+		t.AppearTween = animation.TweenCreate(1, 0, 0.2)
 	}
 }
