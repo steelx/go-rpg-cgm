@@ -98,14 +98,14 @@ func gameLoop(win *pixelgl.Window) {
 			fmt.Println(i, item)
 		})
 
-	//textStacks.AddFixed(
-	//	-150, 10, 300, 100,
-	//	"A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear. Jai Hind I Love India <3 ",
-	//	"Ajinkya", globals.AvatarPng)
-	//
-	//textStacks.AddFitted(100, 100, "Hello! if you smell the rock was cookin")
-	//textStacks.AddFitted(200, 200, "1111 if you smell the rock was cookin")
-	//textStacks.AddFitted(300, 250, "Pop pop pop. mark me unread HIT spacebar")
+	textStacks.AddFixed(
+		-150, 10, 300, 100,
+		"A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear. Jai Hind I Love India <3 ",
+		"Ajinkya", globals.AvatarPng)
+
+	textStacks.AddFitted(100, 100, "Hello! if you smell the rock was cookin")
+	textStacks.AddFitted(200, 200, "1111 if you smell the rock was cookin")
+	textStacks.AddFitted(300, 250, "Pop pop pop. mark me unread HIT spacebar")
 
 	progressBar := gui.ProgressBarCreate(200, 0)
 	//progressBar.SetValue(90)
