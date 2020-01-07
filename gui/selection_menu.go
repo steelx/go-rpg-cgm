@@ -59,7 +59,6 @@ func SelectionMenuCreate(data []string, showColumns bool, position pixel.Vec, on
 
 	if showColumns {
 		m.columns += m.maxRows / m.displayRows
-		fmt.Println("columns", m.columns)
 	}
 
 	m.width = m.calcTotalWidth()

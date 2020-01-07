@@ -37,6 +37,8 @@ func ProgressBarCreate(renderer pixel.Target) ProgressBar {
 	pb.halfWidth = bgImg.Bounds().W() / 2
 	pb.foregroundFrames = globals.LoadAsFrames(fgImg, pb.foregroundWidthBlock(), pb.foregroundPng.Bounds().H())
 
+	pb.SetValue(10)
+
 	return pb
 }
 

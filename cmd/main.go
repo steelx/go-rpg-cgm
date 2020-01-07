@@ -99,7 +99,7 @@ func gameLoop() {
 	textFitted := gui.TextboxCreateFitted("Hello! if you smell the rock was cookin", pixel.V(100, 100), false)
 
 	progressBar := gui.ProgressBarCreate(globals.Global.Win)
-	progressBar.SetValue(90)
+	//progressBar.SetValue(90)
 
 	tick := time.Tick(frameRate)
 	for !globals.Global.Win.Closed() {
