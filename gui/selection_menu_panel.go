@@ -22,7 +22,7 @@ func SelectionMenuPanelCreate(
 		true,
 	)
 
-	menu := SelectionMenuCreate(choices, textbox.Position.Add(pixel.V(5, -textbox.Height-10)), onSelection)
+	menu := SelectionMenuCreate(choices, true, textbox.Position.Add(pixel.V(-10, -textbox.Height-10)), onSelection)
 
 	return SelectionMenuPanel{
 		textbox: &textbox,

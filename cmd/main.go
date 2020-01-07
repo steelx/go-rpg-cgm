@@ -91,7 +91,7 @@ func gameLoop() {
 	menu := gui.SelectionMenuPanelCreate(
 		"A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear. Jai Hind I Love India <3 ",
 		pixel.V(-100, 250), 400, 200,
-		[]string{"Menu 1-", "", "Menu 2", "Menu 03", "Menu 007"},
+		[]string{"Menu 1", "lola", "Menu 2", "Menu 03", "Menu 04", "Menu 05", "Menu 06", "Menu 007", "", "", "", "Menu @_@"},
 		func(i int, item string) {
 			fmt.Println(i, item)
 		})
