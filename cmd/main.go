@@ -19,7 +19,8 @@ var (
 	camPos        = pixel.ZV
 	//camSpeed    = 1000.0
 	//camZoomSpeed = 1.2
-	frameRate = 15 * time.Millisecond
+	frameRate  = 15 * time.Millisecond
+	textStacks gui.StateStack
 )
 
 func run() {
@@ -50,6 +51,8 @@ func main() {
 // Setup map, world, player etc.
 //=============================================================
 func setup() {
+	textStacks = gui.StateStackCreate()
+
 	// Init map
 	m, err := tilepix.ReadFile("small_room.tmx")
 	globals.PanicIfErr(err)
@@ -68,10 +71,7 @@ func setup() {
 		nil,
 		nil,
 		func(entity *game_map.Entity) {
-			//story01a.Map = entity.Map
-			//story01a.Render()
-			//story01a = story01a.Play("space")
-
+			textStacks.AddFitted(300, 250, "Dude, snakes.. run!")
 		},
 	)
 
@@ -89,9 +89,7 @@ func gameLoop(win *pixelgl.Window) {
 	last := time.Now()
 
 	choices := []string{"Menu 1", "lola", "Menu 2", "Menu 03", "Menu 04", "Menu 05", "Menu 06", "Menu 007", "", "", "", "Menu @_@"}
-	textStacks := gui.StateStackCreate()
-
-	textStacks.AddMenu(
+	textStacks.AddSelectionMenu(
 		-100, 250, 400, 200,
 		"Select from the list below",
 		choices, func(i int, item string) {

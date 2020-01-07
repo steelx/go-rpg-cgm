@@ -37,7 +37,7 @@ func (ss StateStack) Render(renderer pixel.Target) {
 	}
 }
 
-func (ss *StateStack) AddMenu(x, y, width, height float64, txt string, choices []string, onSelection func(int, string)) {
+func (ss *StateStack) AddSelectionMenu(x, y, width, height float64, txt string, choices []string, onSelection func(int, string)) {
 	textBoxMenu := TextboxWithMenuCreate(txt, pixel.V(x, y), width, height, choices, onSelection)
 	ss.States = append(ss.States, textBoxMenu)
 }
