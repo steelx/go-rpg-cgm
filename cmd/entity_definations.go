@@ -27,7 +27,7 @@ func init() {
 		Entity: game_map.CreateEntity(game_map.CharacterDefinition{
 			Texture: pic, Width: 16, Height: 24,
 			StartFrame: 24,
-			TileX:      4,
+			TileX:      2,
 			TileY:      4,
 			Map:        CastleRoomMap,
 		}),
