@@ -76,6 +76,7 @@ func setup(win *pixelgl.Window) {
 	exploreState.Stack.PushFitted(100, 100, "Hello! if you smell the rock was cookin")
 	exploreState.Stack.PushFitted(200, 200, "1111 if you smell the rock was cookin")
 	exploreState.Stack.PushFitted(300, 250, "Pop pop pop. mark me unread HIT spacebar")
+	exploreState.Stack.Push(gui.ProgressBarCreate(exploreState.Stack, 200, -50))
 
 	//Actions & Triggers
 	gUpDoorTeleport := ActionTeleport(*exploreState.Map, globals.Direction{7, 2})
@@ -145,9 +146,6 @@ func setup(win *pixelgl.Window) {
 func gameLoop(win *pixelgl.Window) {
 	last := time.Now()
 
-	progressBar := gui.ProgressBarCreate(200, 0)
-	//progressBar.SetValue(90)
-
 	tick := time.Tick(frameRate)
 	for !win.Closed() {
 
@@ -169,8 +167,10 @@ func gameLoop(win *pixelgl.Window) {
 			exploreState.Stack.Render(win)
 			exploreState.Stack.Update(dt)
 
-			progressBar.Render(win)
-
+			if win.JustPressed(pixelgl.KeyF) {
+				fade := gui.FadeScreenCreate(exploreState.Stack, 1, 0, 3, pixel.V(exploreState.Map.CamX, exploreState.Map.CamY))
+				exploreState.Stack.Push(&fade)
+			}
 		}
 
 		win.Update()

@@ -2,10 +2,12 @@ package gui
 
 import (
 	"github.com/faiface/pixel"
+	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/globals"
 )
 
 type ProgressBar struct {
+	Stack                     *StateStack
 	x, y                      float64
 	Background                *pixel.Sprite
 	Foreground                *pixel.Sprite
@@ -17,9 +19,10 @@ type ProgressBar struct {
 	Value, Maximum, halfWidth float64
 }
 
-func ProgressBarCreate(x, y float64) ProgressBar {
+func ProgressBarCreate(stack *StateStack, x, y float64) ProgressBar {
 	bgImg, fgImg := globals.ProgressBarBgPng, globals.ProgressBarFbPng
 	pb := ProgressBar{
+		Stack:         stack,
 		x:             x,
 		y:             y,
 		foregroundPng: fgImg,
@@ -100,7 +103,7 @@ func (pb ProgressBar) GetPosition() (x, y float64) {
 	return pb.x, pb.y
 }
 
-func (pb ProgressBar) Render(renderer pixel.Target) {
+func (pb ProgressBar) Render(renderer *pixelgl.Window) {
 	mat := pixel.V(pb.x, pb.y)
 	pb.Background.Draw(renderer, pixel.IM.Moved(mat))
 
@@ -111,4 +114,18 @@ func (pb ProgressBar) Render(renderer pixel.Target) {
 		px.Draw(renderer, pixel.IM.Moved(
 			pixel.V(fgMat.X+(float64(i)*scaleFactor)+pb.scale, fgMat.Y)))
 	}
+}
+
+/*
+TO MATCH StackInterface below
+*/
+func (pb ProgressBar) HandleInput(win *pixelgl.Window) {
+	if win.JustPressed(pixelgl.KeySpace) {
+		pb.Stack.Pop()
+	}
+}
+func (pb ProgressBar) Enter() {}
+func (pb ProgressBar) Exit()  {}
+func (pb ProgressBar) Update(dt float64) bool {
+	return true
 }

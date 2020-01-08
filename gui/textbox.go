@@ -172,7 +172,7 @@ func (t *Textbox) buildTextBlocks() {
 }
 
 func (t *Textbox) IsDead() bool {
-	return (t.AppearTween.IsFinished() && t.AppearTween.Value() == 0) || t.isDead
+	return t.isDead || (t.AppearTween.IsFinished() && t.AppearTween.Value() == 0)
 }
 
 func (t Textbox) HasReachedLimit() bool {
@@ -203,13 +203,13 @@ func (t Textbox) drawContinueArrow(renderer pixel.Target) {
 		sprite := pixel.NewSprite(t.continueMark, t.continueMark.Bounds())
 		sprite.Draw(renderer, mat.Moved(bottomRight))
 
-		//title := text.New(bottomRight, text.NewAtlas(basicfont.Face7x13, text.ASCII))
-		//keyHintTxt, padding := "spacebar", 20.0
-		//textPos := bottomRight.Sub(
-		//	pixel.V(title.BoundsOf(keyHintTxt).W(), -padding),
-		//)
-		//fmt.Fprintln(title, keyHintTxt)
-		//title.Draw(renderer, pixel.IM.Moved(textPos))
+		title := text.New(bottomRight, text.NewAtlas(basicfont.Face7x13, text.ASCII))
+		keyHintTxt, padding := "spacebar", 20.0
+		textPos := bottomRight.Sub(
+			pixel.V(title.BoundsOf(keyHintTxt).W(), -padding),
+		)
+		fmt.Fprintln(title, keyHintTxt)
+		title.Draw(renderer, pixel.IM.Moved(textPos))
 	}
 }
 
@@ -254,7 +254,7 @@ func (t *Textbox) renderFixed(renderer pixel.Target) {
 	t.drawContinueArrow(renderer)
 }
 
-func (t *Textbox) Render(renderer pixel.Target) {
+func (t *Textbox) Render(renderer *pixelgl.Window) {
 
 	if t.hasMenu {
 		t.renderFitted(renderer)
@@ -272,9 +272,9 @@ func (t *Textbox) Render(renderer pixel.Target) {
 func (t *Textbox) Update(dt float64) bool {
 	t.time = t.time + dt
 	t.AppearTween.Update(dt)
-	//if t.IsDead() {
-	//	t.Stack.Pop()
-	//}
+	if t.IsDead() {
+		t.Stack.Pop()
+	}
 	return true
 }
 
@@ -304,5 +304,6 @@ func (t *Textbox) HandleInput(window *pixelgl.Window) {
 			return
 		}
 		t.AppearTween = animation.TweenCreate(1, 0, 0.2)
+		t.isDead = true
 	}
 }
