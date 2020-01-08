@@ -54,7 +54,7 @@ func setup(win *pixelgl.Window) {
 	choices := []string{"Menu 1", "lola", "Menu 2", "Menu 03", "Menu 04", "Menu 05", "Menu 06", "Menu 007", "", "", "", "Menu @_@"}
 	//textStacks = gui.StateStackCreate()
 
-	// Init map
+	// Init map & Add Stacks
 	walkCyclePng, err := globals.LoadPicture("../resources/walk_cycle.png")
 	globals.PanicIfErr(err)
 	exploreState = game_states.ExploreStateCreate(
@@ -73,10 +73,12 @@ func setup(win *pixelgl.Window) {
 		"A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear. Jai Hind I Love India <3 ",
 		"Ajinkya", globals.AvatarPng)
 
-	exploreState.Stack.PushFitted(100, 100, "Hello! if you smell the rock was cookin")
-	exploreState.Stack.PushFitted(200, 200, "1111 if you smell the rock was cookin")
-	exploreState.Stack.PushFitted(300, 250, "Pop pop pop. mark me unread HIT spacebar")
+	exploreState.Stack.PushFitted(100, 100, "I should better get moving...")
+	exploreState.Stack.PushFitted(200, 200, "Where Am I")
+	exploreState.Stack.PushFitted(300, 250, "Ah, this headache!!")
 	exploreState.Stack.Push(gui.ProgressBarCreate(exploreState.Stack, 200, -50))
+	fade := gui.FadeScreenCreate(exploreState.Stack, 1, 0, 3, pixel.V(exploreState.Map.CamX, exploreState.Map.CamY))
+	exploreState.Stack.Push(&fade)
 
 	//Actions & Triggers
 	gUpDoorTeleport := ActionTeleport(*exploreState.Map, globals.Direction{7, 2})
@@ -166,11 +168,6 @@ func gameLoop(win *pixelgl.Window) {
 
 			exploreState.Stack.Render(win)
 			exploreState.Stack.Update(dt)
-
-			if win.JustPressed(pixelgl.KeyF) {
-				fade := gui.FadeScreenCreate(exploreState.Stack, 1, 0, 3, pixel.V(exploreState.Map.CamX, exploreState.Map.CamY))
-				exploreState.Stack.Push(&fade)
-			}
 		}
 
 		win.Update()

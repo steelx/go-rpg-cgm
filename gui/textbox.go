@@ -275,7 +275,7 @@ func (t *Textbox) Update(dt float64) bool {
 	if t.IsDead() {
 		t.Stack.Pop()
 	}
-	return true
+	return t.IsDead()
 }
 
 func (t *Textbox) Enter() {

@@ -68,10 +68,16 @@ func (ss StateStack) getLastIndex() int {
 	return len(ss.States) - 1
 }
 
+//Render only last item in array
+//unless the last item gets Pop() next would show.
 func (ss StateStack) Render(renderer *pixelgl.Window) {
-	for _, v := range ss.States {
-		v.Render(renderer)
+	if len(ss.States) == 0 {
+		return
 	}
+	ss.States[ss.getLastIndex()].Render(renderer)
+	//for _, v := range ss.States {
+	//	v.Render(renderer)
+	//}
 }
 
 func (ss *StateStack) PushSelectionMenu(x, y, width, height float64, txt string, choices []string, onSelection func(int, string)) {
