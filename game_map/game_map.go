@@ -109,7 +109,7 @@ func (m *GameMap) setTiles() {
 	m.sprites = sprites
 }
 
-//GoToTile pan camera to given coordinates
+//Cam to Tile : GoToTile pan camera to given coordinates
 func (m *GameMap) GoToTile(x, y float64) {
 	tileX, tileY := m.GetTileIndex(x, y)
 	x = tileX - m.TileWidth/2

@@ -7,15 +7,14 @@ import (
 	"github.com/steelx/go-rpg-cgm/game_map"
 	"github.com/steelx/go-rpg-cgm/game_map/character_states"
 	"github.com/steelx/go-rpg-cgm/globals"
+	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/state_machine"
-	"github.com/steelx/go-rpg-cgm/state_stacks"
 	"log"
-	"math"
 	"sort"
 )
 
 type ExploreState struct {
-	Stack  *state_stacks.StateStack
+	Stack  *gui.StateStack
 	MapDef *tilepix.Map
 	Map    *game_map.GameMap
 	Hero   *game_map.Character
@@ -23,7 +22,7 @@ type ExploreState struct {
 }
 
 func ExploreStateCreate(
-	stack *state_stacks.StateStack, tilemap *tilepix.Map, startPos pixel.Vec, heroPng pixel.Picture, window *pixelgl.Window) ExploreState {
+	stack *gui.StateStack, tilemap *tilepix.Map, startPos pixel.Vec, heroPng pixel.Picture, window *pixelgl.Window) ExploreState {
 	es := ExploreState{
 		Stack:  stack,
 		MapDef: tilemap,
@@ -68,8 +67,7 @@ func (es ExploreState) Exit() {
 func (es *ExploreState) Update(dt float64) {
 	// Update the camera according to player position
 	playerPosX, playerPosY := es.Hero.Entity.TileX, es.Hero.Entity.TileY
-	es.Map.CamX = math.Floor(playerPosX)
-	es.Map.CamY = math.Floor(playerPosY)
+	es.Map.GoToTile(playerPosX, playerPosY)
 
 	gameCharacters := append([]*game_map.Character{es.Hero}, es.Map.NPCs...)
 	for _, gCharacter := range gameCharacters {

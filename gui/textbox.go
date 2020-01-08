@@ -22,6 +22,7 @@ tBox := TextboxCreateFixed(
 */
 
 type Textbox struct {
+	Stack                       *StateStack
 	text                        string
 	textScale, size, topPadding float64
 	Position                    pixel.Vec
@@ -42,8 +43,9 @@ type Textbox struct {
 	menu                        SelectionMenu
 }
 
-func TextboxNew(txt string, size float64, atlas *text.Atlas, avatarName string, avatarImg pixel.Picture) Textbox {
+func TextboxNew(stack *StateStack, txt string, size float64, atlas *text.Atlas, avatarName string, avatarImg pixel.Picture) Textbox {
 	return Textbox{
+		Stack:        stack,
 		text:         txt,
 		textScale:    1,
 		size:         size,
@@ -56,10 +58,11 @@ func TextboxNew(txt string, size float64, atlas *text.Atlas, avatarName string, 
 	}
 }
 
-func TextboxWithMenuCreate(textBoxText string, panelPos pixel.Vec, panelWidth, panelHeight float64,
+func TextboxWithMenuCreate(stack *StateStack, textBoxText string, panelPos pixel.Vec, panelWidth, panelHeight float64,
 	choices []string, onSelection func(int, string)) *Textbox {
 
 	textbox := TextboxCreateFixed(
+		stack,
 		textBoxText,
 		panelPos, panelWidth, panelHeight,
 		"",
@@ -78,9 +81,9 @@ func TextboxWithMenuCreate(textBoxText string, panelPos pixel.Vec, panelWidth, p
 	return &textbox
 }
 
-func TextboxCreateFixed(txt string, panelPos pixel.Vec, panelWidth, panelHeight float64, avatarName string, avatarImg pixel.Picture, hasMenu bool) Textbox {
+func TextboxCreateFixed(stack *StateStack, txt string, panelPos pixel.Vec, panelWidth, panelHeight float64, avatarName string, avatarImg pixel.Picture, hasMenu bool) Textbox {
 	panel := PanelCreate(panelPos, panelWidth, panelHeight)
-	t := TextboxNew(txt, 14, globals.BasicAtlas12, avatarName, avatarImg)
+	t := TextboxNew(stack, txt, 14, globals.BasicAtlas12, avatarName, avatarImg)
 	t.isFixed = true
 	t.mPanel = panel
 	t.textBounds = panel.mBounds
@@ -97,10 +100,10 @@ func TextboxCreateFixed(txt string, panelPos pixel.Vec, panelWidth, panelHeight 
 
 //TextboxCreateFitted are good for small chats
 // height and width gets set automatically
-func TextboxCreateFitted(txt string, panelPos pixel.Vec, hasMenu bool) Textbox {
+func TextboxCreateFitted(stack *StateStack, txt string, panelPos pixel.Vec, hasMenu bool) Textbox {
 	const padding = 20.0
 	basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
-	tBox := TextboxNew(txt, 13, basicAtlas, "", nil)
+	tBox := TextboxNew(stack, txt, 13, basicAtlas, "", nil)
 	tBox.textBase = text.New(panelPos, tBox.textAtlas)
 	tBox.textBase.LineHeight = padding
 	textBounds := tBox.getTextBound()
@@ -205,11 +208,6 @@ func (t *Textbox) Next() {
 	t.textBlockLimitIndex += t.textRowLimit
 }
 
-func (t *Textbox) Update(dt float64) {
-	t.time = t.time + dt
-	t.AppearTween.Update(dt)
-}
-
 func (t *Textbox) renderFitted(renderer pixel.Target) {
 	scale := t.AppearTween.Value()
 	t.textBase.Clear()
@@ -260,6 +258,23 @@ func (t *Textbox) Render(renderer pixel.Target) {
 	} else {
 		t.renderFitted(renderer)
 	}
+}
+
+func (t *Textbox) Update(dt float64) bool {
+	t.time = t.time + dt
+	t.AppearTween.Update(dt)
+	//if t.IsDead() {
+	//	t.Stack.Pop()
+	//}
+	return true
+}
+
+func (t *Textbox) Enter() {
+
+}
+
+func (t *Textbox) Exit() {
+
 }
 
 //HandleInput takes care of 3 types of textbox's

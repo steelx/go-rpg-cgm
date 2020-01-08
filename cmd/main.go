@@ -10,7 +10,6 @@ import (
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/state_machine"
-	"github.com/steelx/go-rpg-cgm/state_stacks"
 	"time"
 )
 
@@ -21,7 +20,7 @@ var (
 	//camSpeed    = 1000.0
 	//camZoomSpeed = 1.2
 	frameRate  = 15 * time.Millisecond
-	textStacks *state_stacks.StateStack
+	textStacks *gui.StateStack
 )
 
 func run() {
@@ -54,7 +53,7 @@ func main() {
 func setup(win *pixelgl.Window) {
 	// Init map
 	choices := []string{"Menu 1", "lola", "Menu 2", "Menu 03", "Menu 04", "Menu 05", "Menu 06", "Menu 007", "", "", "", "Menu @_@"}
-	textStacks = state_stacks.StateStackCreate()
+	textStacks = gui.StateStackCreate()
 	textStacks.AddSelectionMenu(
 		-100, 250, 400, 200,
 		"Select from the list below",
@@ -167,8 +166,8 @@ func gameLoop(win *pixelgl.Window) {
 			exploreState.HandleInput(win)
 			exploreState.Render()
 
-			//textStacks.Render(win)
-			//textStacks.Update(dt)
+			textStacks.Render(win)
+			textStacks.Update(dt)
 
 			progressBar.Render(win)
 
