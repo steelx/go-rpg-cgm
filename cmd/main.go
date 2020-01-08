@@ -57,7 +57,7 @@ func setup() {
 	// Init map
 	m, err := tilepix.ReadFile("small_room.tmx")
 	globals.PanicIfErr(err)
-	CastleRoomMap.Create(m)
+	CastleRoomMap = game_map.MapCreate(m)
 
 	//Actions & Triggers
 	gUpDoorTeleport := ActionTeleport(*CastleRoomMap, globals.Direction{7, 2})
@@ -146,7 +146,7 @@ func gameLoop(win *pixelgl.Window) {
 			progressBar.Render(win)
 
 			// Camera
-			CastleRoomMap.CamToTile(Hero.Entity.TileX, Hero.Entity.TileY)
+			CastleRoomMap.GoToTile(Hero.Entity.TileX, Hero.Entity.TileY)
 			camPos = pixel.V(CastleRoomMap.CamX, CastleRoomMap.CamY)
 			cam := pixel.IM.Scaled(camPos, camZoom).Moved(win.Bounds().Center().Sub(camPos))
 			win.SetMatrix(cam)

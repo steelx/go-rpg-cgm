@@ -39,3 +39,17 @@ func (ch Character) GetFacedTileCoords() (x, y float64) {
 func (ch *Character) SetFacing(dir int) {
 	ch.Facing = CharacterFacingDirection[dir]
 }
+
+func CharacterCreate(
+	name string, animations [][]int, facingDirection string, charDef CharacterDefinition, controllerStates map[string]func() state_machine.State) *Character {
+	return &Character{
+		Name:       name,
+		AnimUp:     animations[0],
+		AnimRight:  animations[1],
+		AnimDown:   animations[2],
+		AnimLeft:   animations[3],
+		Facing:     facingDirection,
+		Entity:     CreateEntity(charDef),
+		Controller: state_machine.Create(controllerStates),
+	}
+}

@@ -34,7 +34,8 @@ type GameMap struct {
 	Entities []*Entity
 }
 
-func (m *GameMap) Create(tilemap *tilepix.Map) {
+func MapCreate(tilemap *tilepix.Map) *GameMap {
+	m := &GameMap{}
 	// assuming exported tiled map
 	//TMX definition has 1 layer
 	m.Tilemap = tilemap
@@ -54,6 +55,7 @@ func (m *GameMap) Create(tilemap *tilepix.Map) {
 	m.Canvas = pixelgl.NewCanvas(m.Tilemap.Bounds())
 	m.setTiles()
 	m.setBlockingTileInfo()
+	return m
 }
 
 func (m *GameMap) setBlockingTileInfo() {
@@ -106,8 +108,8 @@ func (m *GameMap) setTiles() {
 	m.sprites = sprites
 }
 
-//CamToTile pan camera to given coordinates
-func (m *GameMap) CamToTile(x, y float64) {
+//GoToTile pan camera to given coordinates
+func (m *GameMap) GoToTile(x, y float64) {
 	tileX, tileY := m.GetTileIndex(x, y)
 	x = tileX - m.TileWidth/2
 	y = tileY - m.TileHeight/2

@@ -17,32 +17,52 @@ func init() {
 	pic, err := globals.LoadPicture("../resources/walk_cycle.png")
 	globals.PanicIfErr(err)
 
-	//Character:Create
-	Hero = &game_map.Character{
-		Name:      "Ajinkya",
-		AnimUp:    []int{16, 17, 18, 19},
-		AnimRight: []int{20, 21, 22, 23},
-		AnimDown:  []int{24, 25, 26, 27},
-		AnimLeft:  []int{28, 29, 30, 31},
-		Facing:    game_map.CharacterFacingDirection[2],
-		Entity: game_map.CreateEntity(game_map.CharacterDefinition{
+	Hero = game_map.CharacterCreate("Ajinkya",
+		[][]int{{16, 17, 18, 19}, {20, 21, 22, 23}, {24, 25, 26, 27}, {28, 29, 30, 31}},
+		game_map.CharacterFacingDirection[2],
+		game_map.CharacterDefinition{
 			Texture: pic, Width: 16, Height: 24,
 			StartFrame: 24,
 			TileX:      2,
 			TileY:      4,
 			Map:        CastleRoomMap,
-		}),
-		Controller: state_machine.Create(
-			map[string]func() state_machine.State{
-				"wait": func() state_machine.State {
-					return character_states.WaitStateCreate(Hero, CastleRoomMap)
-				},
-				"move": func() state_machine.State {
-					return character_states.MoveStateCreate(Hero, CastleRoomMap)
-				},
+		},
+		map[string]func() state_machine.State{
+			"wait": func() state_machine.State {
+				return character_states.WaitStateCreate(Hero, CastleRoomMap)
 			},
-		),
-	}
+			"move": func() state_machine.State {
+				return character_states.MoveStateCreate(Hero, CastleRoomMap)
+			},
+		},
+	)
+
+	//Character:Create
+	//Hero = &game_map.Character{
+	//	Name:      "Ajinkya",
+	//	AnimUp:    []int{16, 17, 18, 19},
+	//	AnimRight: []int{20, 21, 22, 23},
+	//	AnimDown:  []int{24, 25, 26, 27},
+	//	AnimLeft:  []int{28, 29, 30, 31},
+	//	Facing:    game_map.CharacterFacingDirection[2],
+	//	Entity: game_map.CreateEntity(game_map.CharacterDefinition{
+	//		Texture: pic, Width: 16, Height: 24,
+	//		StartFrame: 24,
+	//		TileX:      2,
+	//		TileY:      4,
+	//		Map:        CastleRoomMap,
+	//	}),
+	//	Controller: state_machine.Create(
+	//		map[string]func() state_machine.State{
+	//			"wait": func() state_machine.State {
+	//				return character_states.WaitStateCreate(Hero, CastleRoomMap)
+	//			},
+	//			"move": func() state_machine.State {
+	//				return character_states.MoveStateCreate(Hero, CastleRoomMap)
+	//			},
+	//		},
+	//	),
+	//}
 
 	NPC1 = &game_map.Character{
 		Name:   "Aghori Baba",
