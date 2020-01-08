@@ -36,7 +36,7 @@ type GameMap struct {
 
 func (m *GameMap) Create(tilemap *tilepix.Map) {
 	// assuming exported tiled map
-	//lua definition has 1 layer
+	//TMX definition has 1 layer
 	m.Tilemap = tilemap
 	m.Triggers = make(map[[2]float64]Trigger)
 	m.Entities = make([]*Entity, 0)

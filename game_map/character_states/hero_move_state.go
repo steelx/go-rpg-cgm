@@ -1,4 +1,4 @@
-package states
+package character_states
 
 import (
 	"github.com/steelx/go-rpg-cgm/animation"
@@ -58,7 +58,7 @@ func (s *MoveState) Enter(data globals.Direction) {
 
 	//save Move X,Y value to used inside Update call
 	s.MoveX = data.X
-	s.MoveY = data.X
+	s.MoveY = data.Y
 	s.PixelX = s.Entity.TileX
 	s.PixelY = s.Entity.TileY
 	s.Tween = animation.TweenCreate(0, 1, s.MoveSpeed)

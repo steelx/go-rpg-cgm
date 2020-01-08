@@ -1,4 +1,4 @@
-package states
+package character_states
 
 import (
 	"github.com/faiface/pixel/pixelgl"

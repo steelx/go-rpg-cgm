@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/steelx/go-rpg-cgm/game_map"
-	"github.com/steelx/go-rpg-cgm/game_map/states"
+	"github.com/steelx/go-rpg-cgm/game_map/character_states"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/state_machine"
 )
@@ -17,6 +17,7 @@ func init() {
 	pic, err := globals.LoadPicture("../resources/walk_cycle.png")
 	globals.PanicIfErr(err)
 
+	//Character:Create
 	Hero = &game_map.Character{
 		Name:      "Ajinkya",
 		AnimUp:    []int{16, 17, 18, 19},
@@ -27,17 +28,17 @@ func init() {
 		Entity: game_map.CreateEntity(game_map.CharacterDefinition{
 			Texture: pic, Width: 16, Height: 24,
 			StartFrame: 24,
-			TileX:      4,
+			TileX:      2,
 			TileY:      4,
 			Map:        CastleRoomMap,
 		}),
 		Controller: state_machine.Create(
 			map[string]func() state_machine.State{
 				"wait": func() state_machine.State {
-					return states.WaitStateCreate(Hero, CastleRoomMap)
+					return character_states.WaitStateCreate(Hero, CastleRoomMap)
 				},
 				"move": func() state_machine.State {
-					return states.MoveStateCreate(Hero, CastleRoomMap)
+					return character_states.MoveStateCreate(Hero, CastleRoomMap)
 				},
 			},
 		),
@@ -55,7 +56,7 @@ func init() {
 		Controller: state_machine.Create(
 			map[string]func() state_machine.State{
 				"wait": func() state_machine.State {
-					return states.NPCWaitStateCreate(NPC1, CastleRoomMap)
+					return character_states.NPCWaitStateCreate(NPC1, CastleRoomMap)
 				},
 			},
 		),
@@ -77,10 +78,10 @@ func init() {
 		Controller: state_machine.Create(
 			map[string]func() state_machine.State{
 				"wait": func() state_machine.State {
-					return states.NPCStrollWaitStateCreate(NPC2, CastleRoomMap)
+					return character_states.NPCStrollWaitStateCreate(NPC2, CastleRoomMap)
 				},
 				"move": func() state_machine.State {
-					return states.MoveStateCreate(NPC2, CastleRoomMap)
+					return character_states.MoveStateCreate(NPC2, CastleRoomMap)
 				},
 			},
 		),

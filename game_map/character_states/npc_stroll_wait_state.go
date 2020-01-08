@@ -1,4 +1,4 @@
-package states
+package character_states
 
 import (
 	"github.com/steelx/go-rpg-cgm/game_map"
@@ -51,7 +51,7 @@ func (s *NPCStrollWaitState) Update(dt float64) {
 
 	s.mCountDown = s.mCountDown - dt
 	if s.mCountDown <= 0 {
-		choice := globals.RandFloat(0, 4)
+		choice := globals.RandInt(0, 4)
 		if choice == 1 {
 			s.Controller.Change("move", globals.Direction{-1, 0})
 		}

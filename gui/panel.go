@@ -63,15 +63,15 @@ func (p Panel) GetCorners() (topLeft pixel.Vec, topRight pixel.Vec, bottomLeft p
 	return
 }
 
-func (p Panel) Draw() {
+func (p Panel) Draw(renderer pixel.Target) {
 	bounds := p.mBounds
 
 	// Align the corner tiles
 	topLeft, topRight, bottomLeft, bottomRight := p.GetCorners()
-	p.mTiles[6].Draw(globals.Global.Win, pixel.IM.Moved(topLeft))
-	p.mTiles[8].Draw(globals.Global.Win, pixel.IM.Moved(topRight))
-	p.mTiles[0].Draw(globals.Global.Win, pixel.IM.Moved(bottomLeft))
-	p.mTiles[2].Draw(globals.Global.Win, pixel.IM.Moved(bottomRight))
+	p.mTiles[6].Draw(renderer, pixel.IM.Moved(topLeft))
+	p.mTiles[8].Draw(renderer, pixel.IM.Moved(topRight))
+	p.mTiles[0].Draw(renderer, pixel.IM.Moved(bottomLeft))
+	p.mTiles[2].Draw(renderer, pixel.IM.Moved(bottomRight))
 
 	// Calculate how much to scale the side tiles
 	var hSize = p.mTileSize / 2
@@ -81,13 +81,13 @@ func (p Panel) Draw() {
 
 	//top horizontal line
 	p.mTiles[1].Draw(
-		globals.Global.Win,
+		renderer,
 		pixel.IM.Moved(pixel.V(centerX, bounds.Max.Y-hSize)).ScaledXY(pixel.V(centerX, bounds.Max.Y-hSize), pixel.V(widthScale, 1)),
 	)
 
 	//bottom horizontal line
 	p.mTiles[7].Draw(
-		globals.Global.Win,
+		renderer,
 		pixel.IM.Moved(pixel.V(centerX, bounds.Min.Y+hSize)).ScaledXY(pixel.V(centerX, bounds.Min.Y+hSize), pixel.V(widthScale, 1)),
 	)
 
@@ -97,19 +97,19 @@ func (p Panel) Draw() {
 
 	//left vertical line
 	p.mTiles[3].Draw(
-		globals.Global.Win,
+		renderer,
 		pixel.IM.Moved(pixel.V(bounds.Min.X+hSize, centerY)).ScaledXY(pixel.V(bounds.Min.X+hSize, centerY), pixel.V(1, heightScale)),
 	)
 
 	//right vertical line
 	p.mTiles[5].Draw(
-		globals.Global.Win,
+		renderer,
 		pixel.IM.Moved(pixel.V(bounds.Max.X-hSize, centerY)).ScaledXY(pixel.V(bounds.Max.X-hSize, centerY), pixel.V(1, heightScale)),
 	)
 
 	// Scale the middle backing panel
 	p.mTiles[4].Draw(
-		globals.Global.Win,
+		renderer,
 		pixel.IM.Moved(pixel.V(centerX, centerY)).ScaledXY(
 			pixel.V(centerX, centerY),
 			pixel.V(widthScale+(hSize*p.mCenterScale)+p.mTileSize, heightScale+(hSize*p.mCenterScale)),
