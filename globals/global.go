@@ -1,6 +1,7 @@
 package globals
 
 import (
+	"github.com/bcvery1/tilepix"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
@@ -18,6 +19,7 @@ var (
 	ProgressBarFbPng pixel.Picture
 	BasicAtlas12     *text.Atlas
 	BasicAtlas14     *text.Atlas
+	CastleMapDef     *tilepix.Map
 )
 
 type GlobalVars struct {
@@ -49,6 +51,10 @@ func init() {
 	PanicIfErr(err)
 	BasicAtlas14 = text.NewAtlas(fontFace14, text.ASCII)
 	BasicAtlas12 = text.NewAtlas(fontFace12, text.ASCII)
+
+	//Game Map TMX
+	CastleMapDef, err = tilepix.ReadFile("small_room.tmx")
+	PanicIfErr(err)
 
 	//images for Textbox & Panel
 	AvatarPng, err = LoadPicture("../resources/avatar.png")

@@ -11,6 +11,10 @@ type CharacterStateBase struct {
 	Controller *state_machine.StateMachine
 }
 
+type Direction struct {
+	X, Y float64
+}
+
 type Character struct {
 	Name                                  string
 	AnimUp, AnimRight, AnimDown, AnimLeft []int
@@ -42,14 +46,17 @@ func (ch *Character) SetFacing(dir int) {
 
 func CharacterCreate(
 	name string, animations [][]int, facingDirection string, charDef CharacterDefinition, controllerStates map[string]func() state_machine.State) *Character {
-	return &Character{
+	player := &Character{
 		Name:       name,
-		AnimUp:     animations[0],
-		AnimRight:  animations[1],
-		AnimDown:   animations[2],
-		AnimLeft:   animations[3],
 		Facing:     facingDirection,
 		Entity:     CreateEntity(charDef),
 		Controller: state_machine.Create(controllerStates),
 	}
+	if animations != nil && len(animations) == 4 {
+		player.AnimUp = animations[0]
+		player.AnimRight = animations[1]
+		player.AnimDown = animations[2]
+		player.AnimLeft = animations[3]
+	}
+	return player
 }

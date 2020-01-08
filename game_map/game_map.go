@@ -32,13 +32,14 @@ type GameMap struct {
 
 	Triggers map[[2]float64]Trigger
 	Entities []*Entity
+	NPCs     []*Character
 }
 
 func MapCreate(tilemap *tilepix.Map) *GameMap {
-	m := &GameMap{}
-	// assuming exported tiled map
-	//TMX definition has 1 layer
-	m.Tilemap = tilemap
+	m := &GameMap{
+		Tilemap: tilemap,
+	}
+
 	m.Triggers = make(map[[2]float64]Trigger)
 	m.Entities = make([]*Entity, 0)
 
@@ -186,4 +187,10 @@ func (m GameMap) GetTrigger(x, y float64) Trigger {
 func (m GameMap) SetTrigger(x, y float64, t Trigger) {
 	tileX, tileY := m.GetTileIndex(x, y)
 	m.Triggers[[2]float64{tileX, tileY}] = t
+}
+
+//AddNPC helps in detecting player if x,y has NPC or not
+func (m *GameMap) AddNPC(npc *Character) {
+	m.NPCs = append(m.NPCs, npc)
+	m.Entities = append(m.Entities, npc.Entity)
 }

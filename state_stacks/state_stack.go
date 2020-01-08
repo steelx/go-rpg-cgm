@@ -11,9 +11,9 @@ type StateStack struct {
 	States []*gui.Textbox
 }
 
-func StateStackCreate() StateStack {
+func StateStackCreate() *StateStack {
 	//call AddFixed, AddFitted after
-	return StateStack{}
+	return &StateStack{}
 }
 
 func (ss *StateStack) Update(dt float64) {

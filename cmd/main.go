@@ -2,26 +2,26 @@ package main
 
 import (
 	"fmt"
-	"github.com/bcvery1/tilepix"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/game_map"
+	"github.com/steelx/go-rpg-cgm/game_map/character_states"
+	"github.com/steelx/go-rpg-cgm/game_states"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/gui"
+	"github.com/steelx/go-rpg-cgm/state_machine"
 	"github.com/steelx/go-rpg-cgm/state_stacks"
-	"sort"
 	"time"
 )
 
 const camZoom = 1.0
 
 var (
-	CastleRoomMap = &game_map.GameMap{}
-	camPos        = pixel.ZV
+	exploreState game_states.ExploreState
 	//camSpeed    = 1000.0
 	//camZoomSpeed = 1.2
 	frameRate  = 15 * time.Millisecond
-	textStacks state_stacks.StateStack
+	textStacks *state_stacks.StateStack
 )
 
 func run() {
@@ -39,7 +39,7 @@ func run() {
 
 	globals.PrintMemoryUsage()
 	// Setup world etc.
-	setup()
+	setup(win)
 	globals.PrintMemoryUsage()
 	gameLoop(win)
 }
@@ -51,46 +51,10 @@ func main() {
 //=============================================================
 // Setup map, world, player etc.
 //=============================================================
-func setup() {
-	textStacks = state_stacks.StateStackCreate()
-
+func setup(win *pixelgl.Window) {
 	// Init map
-	m, err := tilepix.ReadFile("small_room.tmx")
-	globals.PanicIfErr(err)
-	CastleRoomMap = game_map.MapCreate(m)
-
-	//Actions & Triggers
-	gUpDoorTeleport := ActionTeleport(*CastleRoomMap, globals.Direction{7, 2})
-	gDownDoorTeleport := ActionTeleport(*CastleRoomMap, globals.Direction{9, 10})
-	gTriggerTop := game_map.TriggerCreate(gDownDoorTeleport, nil, nil)
-	gTriggerBottom := game_map.TriggerCreate(
-		gUpDoorTeleport,
-		nil,
-		nil,
-	)
-	gTriggerFlowerPot := game_map.TriggerCreate(
-		nil,
-		nil,
-		func(entity *game_map.Entity) {
-			textStacks.AddFitted(300, 250, "Dude, snakes.. run!")
-		},
-	)
-
-	CastleRoomMap.SetTrigger(7, 2, gTriggerTop)
-	CastleRoomMap.SetTrigger(9, 10, gTriggerBottom)
-	CastleRoomMap.SetTrigger(8, 6, gTriggerFlowerPot)
-
-	//GameMap.GetEntityAtPos needs this
-	CastleRoomMap.Entities = []*game_map.Entity{Hero.Entity, NPC2.Entity, NPC1.Entity}
-}
-
-//=============================================================
-// Game loop
-//=============================================================
-func gameLoop(win *pixelgl.Window) {
-	last := time.Now()
-
 	choices := []string{"Menu 1", "lola", "Menu 2", "Menu 03", "Menu 04", "Menu 05", "Menu 06", "Menu 007", "", "", "", "Menu @_@"}
+	textStacks = state_stacks.StateStackCreate()
 	textStacks.AddSelectionMenu(
 		-100, 250, 400, 200,
 		"Select from the list below",
@@ -106,6 +70,81 @@ func gameLoop(win *pixelgl.Window) {
 	textStacks.AddFitted(100, 100, "Hello! if you smell the rock was cookin")
 	textStacks.AddFitted(200, 200, "1111 if you smell the rock was cookin")
 	textStacks.AddFitted(300, 250, "Pop pop pop. mark me unread HIT spacebar")
+
+	// Init map
+	walkCyclePng, err := globals.LoadPicture("../resources/walk_cycle.png")
+	globals.PanicIfErr(err)
+	exploreState = game_states.ExploreStateCreate(
+		textStacks, globals.CastleMapDef, pixel.V(2, 4), walkCyclePng, win,
+	)
+
+	//Actions & Triggers
+	gUpDoorTeleport := ActionTeleport(*exploreState.Map, globals.Direction{7, 2})
+	gDownDoorTeleport := ActionTeleport(*exploreState.Map, globals.Direction{9, 10})
+	gTriggerTop := game_map.TriggerCreate(gDownDoorTeleport, nil, nil)
+	gTriggerBottom := game_map.TriggerCreate(
+		gUpDoorTeleport,
+		nil,
+		nil,
+	)
+	gTriggerFlowerPot := game_map.TriggerCreate(
+		nil,
+		nil,
+		func(entity *game_map.Entity) {
+			textStacks.AddFitted(300, 250, "Dude, snakes.. run!")
+		},
+	)
+
+	exploreState.Map.SetTrigger(7, 2, gTriggerTop)
+	exploreState.Map.SetTrigger(9, 10, gTriggerBottom)
+	exploreState.Map.SetTrigger(8, 6, gTriggerFlowerPot)
+
+	//Add NPCs
+	var NPC1 *game_map.Character
+	NPC1 = game_map.CharacterCreate(
+		"Aghori Baba", nil, game_map.CharacterFacingDirection[2],
+		game_map.CharacterDefinition{
+			Texture: walkCyclePng, Width: 16, Height: 24,
+			StartFrame: 46,
+			TileX:      9,
+			TileY:      4,
+		},
+		map[string]func() state_machine.State{
+			"wait": func() state_machine.State {
+				return character_states.NPCWaitStateCreate(NPC1, exploreState.Map)
+			},
+		},
+	)
+
+	var NPC2 *game_map.Character
+	NPC2 = game_map.CharacterCreate(
+		"Bhadrasaal", [][]int{{48, 49, 50, 51}, {52, 53, 54, 55}, {56, 57, 58, 59}, {60, 61, 62, 63}},
+		game_map.CharacterFacingDirection[2],
+		game_map.CharacterDefinition{
+			Texture: walkCyclePng, Width: 16, Height: 24,
+			StartFrame: 56,
+			TileX:      3,
+			TileY:      8,
+		},
+		map[string]func() state_machine.State{
+			"wait": func() state_machine.State {
+				return character_states.NPCStrollWaitStateCreate(NPC2, exploreState.Map)
+			},
+			"move": func() state_machine.State {
+				return character_states.MoveStateCreate(NPC2, exploreState.Map)
+			},
+		},
+	)
+
+	exploreState.AddNPC(NPC1)
+	exploreState.AddNPC(NPC2)
+}
+
+//=============================================================
+// Game loop
+//=============================================================
+func gameLoop(win *pixelgl.Window) {
+	last := time.Now()
 
 	progressBar := gui.ProgressBarCreate(200, 0)
 	//progressBar.SetValue(90)
@@ -124,40 +163,15 @@ func gameLoop(win *pixelgl.Window) {
 			dt := time.Since(last).Seconds()
 			last = time.Now()
 
-			err := CastleRoomMap.DrawAfter(func(canvas *pixelgl.Canvas, layer int) {
-				gameCharacters := [3]game_map.Character{*Hero, *NPC2, *NPC1}
+			exploreState.Update(dt)
+			exploreState.HandleInput(win)
+			exploreState.Render()
 
-				sort.Slice(gameCharacters[:], func(i, j int) bool {
-					return gameCharacters[i].Entity.TileY < gameCharacters[j].Entity.TileY
-				})
-
-				if layer == 2 {
-					for _, gCharacter := range gameCharacters {
-						gCharacter.Entity.TeleportAndDraw(*CastleRoomMap, canvas)
-						gCharacter.Controller.Update(dt)
-					}
-				}
-			})
-			globals.PanicIfErr(err)
-
-			textStacks.Render(win)
-			textStacks.Update(dt)
+			//textStacks.Render(win)
+			//textStacks.Update(dt)
 
 			progressBar.Render(win)
 
-			// Camera
-			CastleRoomMap.GoToTile(Hero.Entity.TileX, Hero.Entity.TileY)
-			camPos = pixel.V(CastleRoomMap.CamX, CastleRoomMap.CamY)
-			cam := pixel.IM.Scaled(camPos, camZoom).Moved(win.Bounds().Center().Sub(camPos))
-			win.SetMatrix(cam)
-
-			if win.JustPressed(pixelgl.KeyE) {
-				tileX, tileY := Hero.Entity.Map.GetTileIndex(Hero.GetFacedTileCoords())
-				trigger := Hero.Entity.Map.GetTrigger(tileX, tileY)
-				if trigger.OnUse != nil {
-					trigger.OnUse(Hero.Entity)
-				}
-			}
 		}
 
 		win.Update()
