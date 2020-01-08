@@ -179,7 +179,7 @@ func (t Textbox) HasReachedLimit() bool {
 	return t.textBlockLimitIndex >= len(t.textBlocks)
 }
 
-func (t Textbox) drawAvatar() {
+func (t Textbox) drawAvatar(renderer pixel.Target) {
 	if len(t.avatarName) == 0 {
 		return
 	}
@@ -193,14 +193,23 @@ func (t Textbox) drawAvatar() {
 	title := text.New(titlePos, t.textAtlas)
 	fmt.Fprintln(title, t.avatarName)
 
-	title.Draw(globals.Global.Win, pixel.IM.Scaled(titlePos, 0.8))
-	avatarSprite.Draw(globals.Global.Win, pixel.IM.Moved(topLeft).Scaled(topLeft, 0.9))
+	title.Draw(renderer, pixel.IM.Scaled(titlePos, 0.8))
+	avatarSprite.Draw(renderer, pixel.IM.Moved(topLeft).Scaled(topLeft, 0.9))
 }
-func (t Textbox) drawContinueArrow() {
+func (t Textbox) drawContinueArrow(renderer pixel.Target) {
 	if t.textBlockLimitIndex+t.textRowLimit < len(t.textBlocks) {
+		mat := pixel.IM
 		bottomRight := pixel.V(t.mPanel.mBounds.Max.X-t.size, t.mPanel.mBounds.Min.Y+t.size)
 		sprite := pixel.NewSprite(t.continueMark, t.continueMark.Bounds())
-		sprite.Draw(globals.Global.Win, pixel.IM.Moved(bottomRight))
+		sprite.Draw(renderer, mat.Moved(bottomRight))
+
+		//title := text.New(bottomRight, text.NewAtlas(basicfont.Face7x13, text.ASCII))
+		//keyHintTxt, padding := "spacebar", 20.0
+		//textPos := bottomRight.Sub(
+		//	pixel.V(title.BoundsOf(keyHintTxt).W(), -padding),
+		//)
+		//fmt.Fprintln(title, keyHintTxt)
+		//title.Draw(renderer, pixel.IM.Moved(textPos))
 	}
 }
 
@@ -241,8 +250,8 @@ func (t *Textbox) renderFixed(renderer pixel.Target) {
 	t.mPanel.Draw(renderer)
 	t.textBase.Draw(renderer, pixel.IM)
 
-	t.drawAvatar()
-	t.drawContinueArrow()
+	t.drawAvatar(renderer)
+	t.drawContinueArrow(renderer)
 }
 
 func (t *Textbox) Render(renderer pixel.Target) {
@@ -281,11 +290,11 @@ func (t *Textbox) Exit() {
 //1 textbox with menu
 //2 Fixed then we let the blocks render
 //3 Fitted users marks as read and goes to next text popup
-func (t *Textbox) HandleInput() {
+func (t *Textbox) HandleInput(window *pixelgl.Window) {
 	if t.hasMenu {
-		t.menu.HandleInput()
+		t.menu.HandleInput(window)
 	}
-	if globals.Global.Win.JustPressed(pixelgl.KeySpace) {
+	if window.JustPressed(pixelgl.KeySpace) {
 		if t.isFixed {
 			t.Next()
 			return

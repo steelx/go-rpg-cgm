@@ -22,9 +22,10 @@ type ExploreState struct {
 }
 
 func ExploreStateCreate(
-	stack *gui.StateStack, tilemap *tilepix.Map, startPos pixel.Vec, heroPng pixel.Picture, window *pixelgl.Window) ExploreState {
+	tilemap *tilepix.Map, startPos pixel.Vec, heroPng pixel.Picture, window *pixelgl.Window) ExploreState {
+
 	es := ExploreState{
-		Stack:  stack,
+		Stack:  gui.StateStackCreate(window),
 		MapDef: tilemap,
 	}
 
@@ -100,6 +101,7 @@ func (es ExploreState) Render() {
 	es.win.SetMatrix(cam)
 }
 func (es ExploreState) HandleInput(window *pixelgl.Window) {
+	//use key
 	if window.JustPressed(pixelgl.KeyE) {
 		// which way is the player facing?
 		tileX, tileY := es.Hero.Entity.Map.GetTileIndex(es.Hero.GetFacedTileCoords())

@@ -2,17 +2,19 @@ package gui
 
 import (
 	"github.com/faiface/pixel"
+	"github.com/faiface/pixel/pixelgl"
 )
 
 //A state stack is, simply, a stack of states. Every time you add a new state it goes on
 //top of the stack and is rendered last.
 type StateStack struct {
 	States []*Textbox
+	win    *pixelgl.Window
 }
 
-func StateStackCreate() *StateStack {
-	//call AddFixed, AddFitted after
-	return &StateStack{}
+func StateStackCreate(win *pixelgl.Window) *StateStack {
+	//call PushFixed, PushFitted after
+	return &StateStack{win: win}
 }
 
 func (ss *StateStack) Push(state *Textbox) {
@@ -51,7 +53,7 @@ func (ss *StateStack) Update(dt float64) {
 		ss.States = ss.States[:len(ss.States)-1]
 	}
 
-	top.HandleInput()
+	top.HandleInput(ss.win)
 }
 
 func (ss StateStack) Render(renderer pixel.Target) {
@@ -60,18 +62,18 @@ func (ss StateStack) Render(renderer pixel.Target) {
 	}
 }
 
-func (ss *StateStack) AddSelectionMenu(x, y, width, height float64, txt string, choices []string, onSelection func(int, string)) {
+func (ss *StateStack) PushSelectionMenu(x, y, width, height float64, txt string, choices []string, onSelection func(int, string)) {
 	textBoxMenu := TextboxWithMenuCreate(ss, txt, pixel.V(x, y), width, height, choices, onSelection)
 	ss.States = append(ss.States, textBoxMenu)
 }
 
-func (ss *StateStack) AddFixed(
+func (ss *StateStack) PushFixed(
 	x, y, width, height float64, txt, avatarName string, avatarPng pixel.Picture) {
 	fixed := TextboxCreateFixed(ss, txt, pixel.V(x, y), width, height, "Ajinkya", avatarPng, false)
 	ss.States = append(ss.States, &fixed)
 }
 
-func (ss *StateStack) AddFitted(x, y float64, txt string) {
+func (ss *StateStack) PushFitted(x, y float64, txt string) {
 	fitted := TextboxCreateFitted(ss, txt, pixel.V(x, y), false)
 	ss.States = append(ss.States, &fitted)
 }

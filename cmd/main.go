@@ -19,8 +19,7 @@ var (
 	exploreState game_states.ExploreState
 	//camSpeed    = 1000.0
 	//camZoomSpeed = 1.2
-	frameRate  = 15 * time.Millisecond
-	textStacks *gui.StateStack
+	frameRate = 15 * time.Millisecond
 )
 
 func run() {
@@ -53,29 +52,30 @@ func main() {
 func setup(win *pixelgl.Window) {
 	// Init map
 	choices := []string{"Menu 1", "lola", "Menu 2", "Menu 03", "Menu 04", "Menu 05", "Menu 06", "Menu 007", "", "", "", "Menu @_@"}
-	textStacks = gui.StateStackCreate()
-	textStacks.AddSelectionMenu(
+	//textStacks = gui.StateStackCreate()
+
+	// Init map
+	walkCyclePng, err := globals.LoadPicture("../resources/walk_cycle.png")
+	globals.PanicIfErr(err)
+	exploreState = game_states.ExploreStateCreate(
+		globals.CastleMapDef, pixel.V(2, 4), walkCyclePng, win,
+	)
+
+	exploreState.Stack.PushSelectionMenu(
 		-100, 250, 400, 200,
 		"Select from the list below",
 		choices, func(i int, item string) {
 			fmt.Println(i, item)
 		})
 
-	textStacks.AddFixed(
+	exploreState.Stack.PushFixed(
 		-150, 10, 300, 100,
 		"A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear. Jai Hind I Love India <3 ",
 		"Ajinkya", globals.AvatarPng)
 
-	textStacks.AddFitted(100, 100, "Hello! if you smell the rock was cookin")
-	textStacks.AddFitted(200, 200, "1111 if you smell the rock was cookin")
-	textStacks.AddFitted(300, 250, "Pop pop pop. mark me unread HIT spacebar")
-
-	// Init map
-	walkCyclePng, err := globals.LoadPicture("../resources/walk_cycle.png")
-	globals.PanicIfErr(err)
-	exploreState = game_states.ExploreStateCreate(
-		textStacks, globals.CastleMapDef, pixel.V(2, 4), walkCyclePng, win,
-	)
+	exploreState.Stack.PushFitted(100, 100, "Hello! if you smell the rock was cookin")
+	exploreState.Stack.PushFitted(200, 200, "1111 if you smell the rock was cookin")
+	exploreState.Stack.PushFitted(300, 250, "Pop pop pop. mark me unread HIT spacebar")
 
 	//Actions & Triggers
 	gUpDoorTeleport := ActionTeleport(*exploreState.Map, globals.Direction{7, 2})
@@ -90,7 +90,7 @@ func setup(win *pixelgl.Window) {
 		nil,
 		nil,
 		func(entity *game_map.Entity) {
-			textStacks.AddFitted(300, 250, "Dude, snakes.. run!")
+			exploreState.Stack.PushFitted(300, 250, "Dude, snakes.. run!")
 		},
 	)
 
@@ -166,8 +166,8 @@ func gameLoop(win *pixelgl.Window) {
 			exploreState.HandleInput(win)
 			exploreState.Render()
 
-			textStacks.Render(win)
-			textStacks.Update(dt)
+			exploreState.Stack.Render(win)
+			exploreState.Stack.Update(dt)
 
 			progressBar.Render(win)
 
