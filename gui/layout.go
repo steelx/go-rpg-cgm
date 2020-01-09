@@ -49,8 +49,8 @@ func (l Layout) DebugRender(win *pixelgl.Window) {
 	}
 
 	//temp camera matrix
-	cam := pixel.IM.Scaled(l.centerPos, 1.0).Moved(l.centerPos)
-	win.SetMatrix(cam)
+	//cam := pixel.IM.Scaled(l.centerPos, 1.0).Moved(l.centerPos)
+	//win.SetMatrix(cam)
 }
 
 //Contract will reduce the Panel dimension with give value
@@ -61,7 +61,7 @@ func (l Layout) Contract(name string, horz, vert float64) {
 	panelDef.height = panelDef.height - vert
 }
 
-//e.g. SplitHorz('screen', "top", "bottom", 0.12, 2) // x = from 0 to 1
+//e.g. SplitHorz('screen', "top", "bottom", 0.12, 2) // X = from 0 to 1
 func (l *Layout) SplitHorz(name, topName, bottomName string, x, margin float64) {
 	parent := l.getPanelDef(name)
 	//delete parent from Layout, we dont need it anymore
@@ -83,7 +83,7 @@ func (l *Layout) SplitHorz(name, topName, bottomName string, x, margin float64) 
 	}
 }
 
-//e.g. SplitVert('bottom', "left", "party", 0.726, 2) // y = from 0 to 1
+//e.g. SplitVert('bottom', "left", "party", 0.726, 2) // Y = from 0 to 1
 func (l *Layout) SplitVert(name, leftName, rightName string, y, margin float64) {
 	parent := l.getPanelDef(name)
 	//delete parent from Layout, we dont need it anymore
@@ -105,7 +105,7 @@ func (l *Layout) SplitVert(name, leftName, rightName string, y, margin float64) 
 	}
 }
 
-//since Panel renders from Center of X, y
+//since Panel renders from Center of X, Y
 func (l Layout) Top(name string) float64 {
 	panel := l.getPanelDef(name)
 	return panel.pos.Y + panel.height/2

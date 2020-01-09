@@ -16,7 +16,7 @@ menu2 := gui.SelectionMenuCreate([]string{"Menu 1", "", "Menu 2", "Menu 03", "Me
 */
 
 type SelectionMenu struct {
-	x, y           float64
+	X, Y           float64
 	width, height  float64
 	dataSource     []string //The list of items to be displayed. It can’t be empty
 	columns        int      //The number of columns the menu has. This defaults to 1
@@ -36,8 +36,8 @@ type SelectionMenu struct {
 
 func SelectionMenuCreate(data []string, showColumns bool, position pixel.Vec, onSelection func(int, string)) SelectionMenu {
 	m := SelectionMenu{
-		x:            position.X,
-		y:            position.Y,
+		X:            position.X,
+		Y:            position.Y,
 		dataSource:   data,
 		columns:      1,
 		focusX:       0,
@@ -66,6 +66,11 @@ func SelectionMenuCreate(data []string, showColumns bool, position pixel.Vec, on
 	return m
 }
 
+func (m *SelectionMenu) SetPosition(x, y float64) {
+	m.X = x
+	m.Y = y
+}
+
 func (m SelectionMenu) calcTotalHeight() float64 {
 	height := float64(m.displayRows) * m.spacingY
 	return height - m.spacingY/2
@@ -82,7 +87,7 @@ func (m SelectionMenu) calcTotalWidth() float64 {
 	return m.spacingX * float64(m.columns)
 }
 
-func (m SelectionMenu) renderItem(pos pixel.Vec, item string) {
+func (m SelectionMenu) renderItem(pos pixel.Vec, item string, renderer pixel.Target) {
 	textBase := text.New(pos, globals.BasicAtlas12)
 	if item == "" {
 		fmt.Fprintf(textBase, "--")
@@ -92,7 +97,7 @@ func (m SelectionMenu) renderItem(pos pixel.Vec, item string) {
 	textBase.Draw(m.renderer, pixel.IM.Scaled(pixel.V(0, 0), m.scale))
 }
 
-func (m SelectionMenu) Render() {
+func (m SelectionMenu) Render(renderer *pixelgl.Window) {
 	displayStart := m.displayStart
 	displayEnd := displayStart + m.displayRows
 
@@ -102,24 +107,35 @@ func (m SelectionMenu) Render() {
 	spacingX := m.spacingX * m.scale
 	rowHeight := m.spacingY * m.scale
 
-	var x, y = m.x, m.y
+	var x, y = m.X, m.Y
 	var mat = pixel.IM.Scaled(pixel.V(x, y), m.scale)
+
+	if m.columns == 1 {
+		for i := 0; i < len(m.dataSource); i++ {
+			if i == 0 && m.showCursor {
+				m.cursor.Draw(renderer, mat.Moved(pixel.V(x+cursorHalfWidth, y+cursorHalfHeight/2)))
+			}
+			m.renderItem(pixel.V(x+cursorWidth, y), m.dataSource[i], renderer)
+			x = x + spacingX
+		}
+		return
+	}
 
 	//itemIndex := ((displayStart - 1) * m.columns) + 1
 	itemIndex := displayStart * m.columns
 	for i := displayStart; i < displayEnd; i++ {
 		for j := 0; j < m.columns; j++ {
 			if i == m.focusY && j == m.focusX && m.showCursor {
-				m.cursor.Draw(m.renderer, mat.Moved(pixel.V(x+cursorHalfWidth, y+cursorHalfHeight/2)))
+				m.cursor.Draw(renderer, mat.Moved(pixel.V(x+cursorHalfWidth, y+cursorHalfHeight/2)))
 			}
 			item := m.dataSource[itemIndex]
-			m.renderItem(pixel.V(x+cursorWidth, y), item)
+			m.renderItem(pixel.V(x+cursorWidth, y), item, renderer)
 
 			x = x + spacingX
 			itemIndex = itemIndex + 1
 		}
 		y = y - rowHeight
-		x = m.x
+		x = m.X
 	}
 }
 

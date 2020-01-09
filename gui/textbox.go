@@ -259,7 +259,7 @@ func (t *Textbox) Render(renderer *pixelgl.Window) {
 
 	if t.hasMenu {
 		t.renderFitted(renderer)
-		t.menu.Render()
+		t.menu.Render(renderer)
 		return
 	}
 

@@ -121,18 +121,20 @@ func setup(win *pixelgl.Window) {
 
 	//State Stack
 	stack.Push(&exploreState)
+
 	choices := []string{"Menu 1", "lola", "Menu 2", "Menu 03", "Menu 04", "Menu 05", "Menu 06", "Menu 007", "", "", "", "Menu @_@"}
 	stack.PushSelectionMenu(
 		-100, 250, 400, 200,
 		"Select from the list below",
-		choices, func(i int, item string) {
+		choices,
+		func(i int, item string) {
 			fmt.Println(i, item)
 		})
 
-	stack.PushFixed(
-		-150, 10, 300, 100,
-		"A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear. Jai Hind I Love India <3 ",
-		"Ajinkya", globals.AvatarPng)
+	//stack.PushFixed(
+	//	-150, 10, 300, 100,
+	//	"A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear. Jai Hind I Love India <3 ",
+	//	"Ajinkya", globals.AvatarPng)
 
 	stack.PushFitted(100, 100, "I should better get moving...")
 	stack.PushFitted(200, 200, "Where Am I")
@@ -140,8 +142,6 @@ func setup(win *pixelgl.Window) {
 	stack.Push(&fade1)
 	stack.PushFitted(0, 0, "Ah, this headache!!")
 	//stack.Push(gui.ProgressBarCreate(stack, 200, -50))
-	fade0 := gui.FadeScreenCreate(stack, 1, 0, 1, pixel.V(exploreState.Map.CamX, exploreState.Map.CamY))
-	stack.Push(&fade0)
 }
 
 //=============================================================
@@ -155,6 +155,12 @@ func gameLoop(win *pixelgl.Window) {
 	layout.SplitHorz("screen", "top", "bottom", 0.12, 2)
 	layout.SplitVert("bottom", "left", "party", 0.726, 2)
 	layout.SplitHorz("left", "menu", "gold", 0.7, 2)
+
+	//initial map Camera
+	exploreState.Map.GoToTile(4, 4)
+	camPos := pixel.V(exploreState.Map.CamX, exploreState.Map.CamY)
+	cam := pixel.IM.Scaled(camPos, 1.0).Moved(win.Bounds().Center().Sub(camPos))
+	win.SetMatrix(cam)
 
 	tick := time.Tick(frameRate)
 	for !win.Closed() {
@@ -174,13 +180,11 @@ func gameLoop(win *pixelgl.Window) {
 			stack.Update(dt)
 			stack.Render(win)
 
-			//Camera
-			camPos := pixel.V(exploreState.Map.CamX, exploreState.Map.CamY)
-			cam := pixel.IM.Scaled(camPos, 1.0).Moved(win.Bounds().Center().Sub(camPos))
-			win.SetMatrix(cam)
-
 			//Fullscreen Layout Menu
-			layout.DebugRender(win)
+			if win.JustPressed(pixelgl.KeyLeftAlt) {
+				menu := game_states.InGameMenuStateCreate(stack, win)
+				stack.Push(menu)
+			}
 		}
 
 		win.Update()

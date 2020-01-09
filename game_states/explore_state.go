@@ -98,9 +98,9 @@ func (es ExploreState) Render(win *pixelgl.Window) {
 	}
 
 	//Camera
-	//camPos := pixel.V(es.Map.CamX, es.Map.CamY)
-	//cam := pixel.IM.Scaled(camPos, 1.0).Moved(es.win.Bounds().Center().Sub(camPos))
-	//win.SetMatrix(cam)
+	camPos := pixel.V(es.Map.CamX, es.Map.CamY)
+	cam := pixel.IM.Scaled(camPos, 1.0).Moved(es.win.Bounds().Center().Sub(camPos))
+	win.SetMatrix(cam)
 }
 
 func (es ExploreState) HandleInput(win *pixelgl.Window) {

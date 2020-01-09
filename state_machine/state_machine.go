@@ -66,3 +66,8 @@ func (m *StateMachine) Update(dt float64) {
 func (m *StateMachine) Render(win *pixelgl.Window) {
 	m.current.Render(win)
 }
+
+func (m *StateMachine) Enter(data interface{}) {
+}
+func (m *StateMachine) Exit() {
+}
