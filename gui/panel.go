@@ -16,10 +16,6 @@ type Panel struct {
 }
 
 //PanelCreate
-// {
-//     texture = [texture],
-//     size = [size of a single tile in pixels]
-// }
 func PanelCreate(pos pixel.Vec, width, height float64) Panel {
 	var size float64 = 3
 	texture := globals.PanelPng

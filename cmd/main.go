@@ -13,8 +13,6 @@ import (
 	"time"
 )
 
-const camZoom = 1.0
-
 var (
 	exploreState game_states.ExploreState
 	//camSpeed    = 1000.0
@@ -77,7 +75,7 @@ func setup(win *pixelgl.Window) {
 	exploreState.Stack.PushFitted(200, 200, "Where Am I")
 	fade1 := gui.FadeScreenCreate(exploreState.Stack, 1, 0, 3, pixel.V(exploreState.Map.CamX, exploreState.Map.CamY))
 	exploreState.Stack.Push(&fade1)
-	exploreState.Stack.PushFitted(250, 250, "Ah, this headache!!")
+	exploreState.Stack.PushFitted(0, 0, "Ah, this headache!!")
 	//exploreState.Stack.Push(gui.ProgressBarCreate(exploreState.Stack, 200, -50))
 	fade0 := gui.FadeScreenCreate(exploreState.Stack, 1, 0, 1, pixel.V(exploreState.Map.CamX, exploreState.Map.CamY))
 	exploreState.Stack.Push(&fade0)
@@ -150,6 +148,12 @@ func setup(win *pixelgl.Window) {
 func gameLoop(win *pixelgl.Window) {
 	last := time.Now()
 
+	layout := gui.LayoutCreate(exploreState.Map.CamX, exploreState.Map.CamY, win)
+	layout.Contract("screen", 0, 0)
+	layout.SplitHorz("screen", "top", "bottom", 0.12, 2)
+	layout.SplitVert("bottom", "left", "party", 0.726, 2)
+	layout.SplitHorz("left", "menu", "gold", 0.7, 2)
+
 	tick := time.Tick(frameRate)
 	for !win.Closed() {
 
@@ -170,6 +174,8 @@ func gameLoop(win *pixelgl.Window) {
 
 			exploreState.Stack.Render(win)
 			exploreState.Stack.Update(dt)
+
+			layout.DebugRender(win)
 		}
 
 		win.Update()
