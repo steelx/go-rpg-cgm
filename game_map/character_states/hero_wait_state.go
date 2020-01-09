@@ -31,7 +31,7 @@ func WaitStateCreate(character *game_map.Character, gMap *game_map.GameMap) stat
 //The StateMachine requires each state to have
 // four functions: Enter, Exit, Render and Update
 
-func (s *WaitState) Enter(data globals.Direction) {
+func (s *WaitState) Enter(data interface{}) {
 	// Reset to default frame
 	s.FrameCount = 0
 	s.Entity.SetFrame(s.Entity.StartFrame)
@@ -43,7 +43,7 @@ func (s *WaitState) Enter(data globals.Direction) {
 	}
 }
 
-func (s *WaitState) Render() {
+func (s *WaitState) Render(win *pixelgl.Window) {
 	//pixelgl renderer
 	//s.Entity.TeleportAndDraw(s.Map)
 }

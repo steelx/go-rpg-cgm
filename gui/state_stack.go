@@ -57,6 +57,10 @@ func (ss *StateStack) Update(dt float64) {
 	top.HandleInput(ss.win)
 }
 
+func (ss StateStack) Top() *StackInterface {
+	return &ss.States[ss.getLastIndex()]
+}
+
 func (ss StateStack) getLastIndex() int {
 	if len(ss.States) == 1 {
 		return 0

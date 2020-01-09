@@ -1,6 +1,7 @@
 package character_states
 
 import (
+	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/game_map"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/state_machine"
@@ -29,12 +30,12 @@ func NPCStrollWaitStateCreate(character *game_map.Character, gMap *game_map.Game
 //The StateMachine requires each state to have
 // four functions: Enter, Exit, Render and Update
 
-func (s *NPCStrollWaitState) Enter(data globals.Direction) {
+func (s *NPCStrollWaitState) Enter(data interface{}) {
 	s.mFrameCount = 0
 	s.mCountDown = globals.RandFloat(0, 3)
 }
 
-func (s *NPCStrollWaitState) Render() {}
+func (s *NPCStrollWaitState) Render(win *pixelgl.Window) {}
 
 func (s *NPCStrollWaitState) Exit() {}
 

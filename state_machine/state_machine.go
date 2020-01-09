@@ -1,8 +1,6 @@
 package state_machine
 
-import (
-	"github.com/steelx/go-rpg-cgm/globals"
-)
+import "github.com/faiface/pixel/pixelgl"
 
 /*
 Controller :
@@ -32,8 +30,8 @@ Controller :
 // gStateMachine:Change("MainGame")
 //
 type State interface {
-	Enter(data globals.Direction)
-	Render()
+	Enter(data interface{})
+	Render(win *pixelgl.Window)
 	Exit()
 	Update(dt float64)
 }
@@ -53,7 +51,7 @@ func Create(states map[string]func() State) *StateMachine {
 
 //Change state
 // e.g. Controller.Change("move", {x = -1, y = 0})
-func (m *StateMachine) Change(stateName string, enterParams globals.Direction) {
+func (m *StateMachine) Change(stateName string, enterParams interface{}) {
 	if m.current != nil {
 		m.current.Exit()
 	}
@@ -61,11 +59,15 @@ func (m *StateMachine) Change(stateName string, enterParams globals.Direction) {
 	m.current.Enter(enterParams)
 }
 
-//Update(dt)
 func (m *StateMachine) Update(dt float64) {
 	m.current.Update(dt)
 }
 
-func (m *StateMachine) Render() {
-	m.current.Render()
+func (m *StateMachine) Render(win *pixelgl.Window) {
+	m.current.Render(win)
+}
+
+func (m *StateMachine) Enter(data interface{}) {
+}
+func (m *StateMachine) Exit() {
 }

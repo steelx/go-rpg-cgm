@@ -13,9 +13,8 @@ import (
 	"time"
 )
 
-const camZoom = 1.0
-
 var (
+	stack        *gui.StateStack
 	exploreState game_states.ExploreState
 	//camSpeed    = 1000.0
 	//camZoomSpeed = 1.2
@@ -50,58 +49,14 @@ func main() {
 // Setup map, world, player etc.
 //=============================================================
 func setup(win *pixelgl.Window) {
-	// Init map
-	choices := []string{"Menu 1", "lola", "Menu 2", "Menu 03", "Menu 04", "Menu 05", "Menu 06", "Menu 007", "", "", "", "Menu @_@"}
-	//textStacks = gui.StateStackCreate()
+	stack = gui.StateStackCreate(win)
 
 	// Init map & Add Stacks
 	walkCyclePng, err := globals.LoadPicture("../resources/walk_cycle.png")
 	globals.PanicIfErr(err)
-	exploreState = game_states.ExploreStateCreate(
+	exploreState = game_states.ExploreStateCreate(stack,
 		globals.CastleMapDef, pixel.V(2, 4), walkCyclePng, win,
 	)
-
-	exploreState.Stack.PushSelectionMenu(
-		-100, 250, 400, 200,
-		"Select from the list below",
-		choices, func(i int, item string) {
-			fmt.Println(i, item)
-		})
-
-	exploreState.Stack.PushFixed(
-		-150, 10, 300, 100,
-		"A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear. Jai Hind I Love India <3 ",
-		"Ajinkya", globals.AvatarPng)
-
-	exploreState.Stack.PushFitted(100, 100, "I should better get moving...")
-	exploreState.Stack.PushFitted(200, 200, "Where Am I")
-	fade1 := gui.FadeScreenCreate(exploreState.Stack, 1, 0, 3, pixel.V(exploreState.Map.CamX, exploreState.Map.CamY))
-	exploreState.Stack.Push(&fade1)
-	exploreState.Stack.PushFitted(250, 250, "Ah, this headache!!")
-	//exploreState.Stack.Push(gui.ProgressBarCreate(exploreState.Stack, 200, -50))
-	fade0 := gui.FadeScreenCreate(exploreState.Stack, 1, 0, 1, pixel.V(exploreState.Map.CamX, exploreState.Map.CamY))
-	exploreState.Stack.Push(&fade0)
-
-	//Actions & Triggers
-	gUpDoorTeleport := ActionTeleport(*exploreState.Map, globals.Direction{7, 2})
-	gDownDoorTeleport := ActionTeleport(*exploreState.Map, globals.Direction{9, 10})
-	gTriggerTop := game_map.TriggerCreate(gDownDoorTeleport, nil, nil)
-	gTriggerBottom := game_map.TriggerCreate(
-		gUpDoorTeleport,
-		nil,
-		nil,
-	)
-	gTriggerFlowerPot := game_map.TriggerCreate(
-		nil,
-		nil,
-		func(entity *game_map.Entity) {
-			exploreState.Stack.PushFitted(300, 250, "Dude, snakes.. run!")
-		},
-	)
-
-	exploreState.Map.SetTrigger(7, 2, gTriggerTop)
-	exploreState.Map.SetTrigger(9, 10, gTriggerBottom)
-	exploreState.Map.SetTrigger(8, 6, gTriggerFlowerPot)
 
 	//Add NPCs
 	var NPC1 *game_map.Character
@@ -142,6 +97,51 @@ func setup(win *pixelgl.Window) {
 
 	exploreState.AddNPC(NPC1)
 	exploreState.AddNPC(NPC2)
+
+	//Actions & Triggers
+	gUpDoorTeleport := ActionTeleport(*exploreState.Map, globals.Direction{7, 2})
+	gDownDoorTeleport := ActionTeleport(*exploreState.Map, globals.Direction{9, 10})
+	gTriggerTop := game_map.TriggerCreate(gDownDoorTeleport, nil, nil)
+	gTriggerBottom := game_map.TriggerCreate(
+		gUpDoorTeleport,
+		nil,
+		nil,
+	)
+	gTriggerFlowerPot := game_map.TriggerCreate(
+		nil,
+		nil,
+		func(entity *game_map.Entity) {
+			exploreState.Stack.PushFitted(300, 250, "Dude, snakes.. run!")
+		},
+	)
+
+	exploreState.Map.SetTrigger(7, 2, gTriggerTop)
+	exploreState.Map.SetTrigger(9, 10, gTriggerBottom)
+	exploreState.Map.SetTrigger(8, 6, gTriggerFlowerPot)
+
+	//State Stack
+	stack.Push(&exploreState)
+
+	choices := []string{"Menu 1", "lola", "Menu 2", "Menu 03", "Menu 04", "Menu 05", "Menu 06", "Menu 007", "", "", "", "Menu @_@"}
+	stack.PushSelectionMenu(
+		-100, 250, 400, 200,
+		"Select from the list below",
+		choices,
+		func(i int, item string) {
+			fmt.Println(i, item)
+		})
+
+	//stack.PushFixed(
+	//	-150, 10, 300, 100,
+	//	"A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear. Jai Hind I Love India <3 ",
+	//	"Ajinkya", globals.AvatarPng)
+
+	stack.PushFitted(100, 100, "I should better get moving...")
+	stack.PushFitted(200, 200, "Where Am I")
+	fade1 := gui.FadeScreenCreate(stack, 1, 0, 1.5, pixel.V(exploreState.Map.CamX, exploreState.Map.CamY))
+	stack.Push(&fade1)
+	stack.PushFitted(0, 0, "Ah, this headache!!")
+	//stack.Push(gui.ProgressBarCreate(stack, 200, -50))
 }
 
 //=============================================================
@@ -149,6 +149,18 @@ func setup(win *pixelgl.Window) {
 //=============================================================
 func gameLoop(win *pixelgl.Window) {
 	last := time.Now()
+
+	layout := gui.LayoutCreate(exploreState.Map.CamX, exploreState.Map.CamY, win)
+	layout.Contract("screen", 0, 0)
+	layout.SplitHorz("screen", "top", "bottom", 0.12, 2)
+	layout.SplitVert("bottom", "left", "party", 0.726, 2)
+	layout.SplitHorz("left", "menu", "gold", 0.7, 2)
+
+	//initial map Camera
+	exploreState.Map.GoToTile(4, 4)
+	camPos := pixel.V(exploreState.Map.CamX, exploreState.Map.CamY)
+	cam := pixel.IM.Scaled(camPos, 1.0).Moved(win.Bounds().Center().Sub(camPos))
+	win.SetMatrix(cam)
 
 	tick := time.Tick(frameRate)
 	for !win.Closed() {
@@ -164,12 +176,15 @@ func gameLoop(win *pixelgl.Window) {
 			dt := time.Since(last).Seconds()
 			last = time.Now()
 
-			exploreState.Update(dt)
-			exploreState.HandleInput(win)
-			exploreState.Render()
+			//update StateStack
+			stack.Update(dt)
+			stack.Render(win)
 
-			exploreState.Stack.Render(win)
-			exploreState.Stack.Update(dt)
+			//Fullscreen Layout Menu
+			if win.JustPressed(pixelgl.KeyLeftAlt) {
+				menu := game_states.InGameMenuStateCreate(stack, win)
+				stack.Push(menu)
+			}
 		}
 
 		win.Update()
