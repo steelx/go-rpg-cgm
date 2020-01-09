@@ -51,11 +51,14 @@ func (fd FadeScreen) HandleInput(win *pixelgl.Window) {
 }
 func (fd FadeScreen) Render(win *pixelgl.Window) {
 	fd.imd.Clear()
-	toTheScreen := pixel.V(fd.position.X-win.Bounds().W()/2, fd.position.Y-win.Bounds().H()/2)
+	toTheScreen := pixel.V(fd.position.X, fd.position.Y)
 	// Draw the rectangle.
 	fd.imd.Color = fd.Color
-	fd.imd.Push(win.Bounds().Min, win.Bounds().Max)
+	fd.imd.Push(win.Bounds().Min.Sub(pixel.V(win.Bounds().W()/2, win.Bounds().H()/2)), win.Bounds().Max)
 	fd.imd.Rectangle(0)
 	fd.imd.SetMatrix(pixel.IM.Moved(toTheScreen))
+
+	camera := pixel.IM.Scaled(toTheScreen, 1.0).Moved(win.Bounds().Center().Sub(toTheScreen))
+	win.SetMatrix(camera)
 	fd.imd.Draw(win)
 }
