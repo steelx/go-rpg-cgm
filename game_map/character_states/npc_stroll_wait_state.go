@@ -29,7 +29,7 @@ func NPCStrollWaitStateCreate(character *game_map.Character, gMap *game_map.Game
 //The StateMachine requires each state to have
 // four functions: Enter, Exit, Render and Update
 
-func (s *NPCStrollWaitState) Enter(data globals.Direction) {
+func (s *NPCStrollWaitState) Enter(data interface{}) {
 	s.mFrameCount = 0
 	s.mCountDown = globals.RandFloat(0, 3)
 }

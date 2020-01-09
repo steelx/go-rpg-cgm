@@ -2,7 +2,6 @@ package character_states
 
 import (
 	"github.com/steelx/go-rpg-cgm/game_map"
-	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/state_machine"
 )
 
@@ -27,7 +26,7 @@ func NPCWaitStateCreate(character *game_map.Character, gMap *game_map.GameMap) s
 //The StateMachine requires each state to have
 // four functions: Enter, Exit, Render and Update
 
-func (s *NPCWaitState) Enter(data globals.Direction) {}
+func (s *NPCWaitState) Enter(data interface{}) {}
 
 func (s *NPCWaitState) Render() {}
 

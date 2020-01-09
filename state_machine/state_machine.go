@@ -1,9 +1,5 @@
 package state_machine
 
-import (
-	"github.com/steelx/go-rpg-cgm/globals"
-)
-
 /*
 Controller :
 	Create({
@@ -32,7 +28,7 @@ Controller :
 // gStateMachine:Change("MainGame")
 //
 type State interface {
-	Enter(data globals.Direction)
+	Enter(data interface{})
 	Render()
 	Exit()
 	Update(dt float64)
@@ -53,7 +49,7 @@ func Create(states map[string]func() State) *StateMachine {
 
 //Change state
 // e.g. Controller.Change("move", {x = -1, y = 0})
-func (m *StateMachine) Change(stateName string, enterParams globals.Direction) {
+func (m *StateMachine) Change(stateName string, enterParams interface{}) {
 	if m.current != nil {
 		m.current.Exit()
 	}

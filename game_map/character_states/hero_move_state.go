@@ -5,6 +5,7 @@ import (
 	"github.com/steelx/go-rpg-cgm/game_map"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/state_machine"
+	"reflect"
 )
 
 type MoveState struct {
@@ -39,8 +40,10 @@ func MoveStateCreate(character *game_map.Character, gMap *game_map.GameMap) stat
 //The StateMachine class requires each state to have
 // four functions: Enter, Exit, Render and Update
 
-func (s *MoveState) Enter(data globals.Direction) {
+func (s *MoveState) Enter(dataI interface{}) {
 	var frames []int
+	v := reflect.ValueOf(dataI)
+	data := v.Interface().(globals.Direction)
 	if data.X == -1 {
 		frames = s.Character.AnimLeft
 		s.Character.SetFacing(3)
