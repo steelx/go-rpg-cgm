@@ -3,6 +3,7 @@ package gui
 import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
+	"github.com/steelx/go-rpg-cgm/animation"
 )
 
 type StackInterface interface {
@@ -44,12 +45,8 @@ func (ss *StateStack) Update(dt float64) {
 	//The most important state is at the top and it needs updating first.
 	//Each state can return a value, stored in the OK variable. If OK is false
 	//then the loop breaks and no subsequent states are updated.
-	for last := len(ss.States) - 1; last >= 0; last-- {
-		v := ss.States[last]
-		if OK := v.Update(dt); !OK {
-			break
-		}
-	}
+	ss.States[ss.getLastIndex()].Update(dt)
+
 	//this duplicate is needed, after user interaction,
 	//user does Pop() hence empty check
 	if len(ss.States) == 0 {
@@ -82,6 +79,7 @@ func (ss StateStack) Render(renderer *pixelgl.Window) {
 
 func (ss *StateStack) PushSelectionMenu(x, y, width, height float64, txt string, choices []string, onSelection func(int, string)) {
 	textBoxMenu := TextboxWithMenuCreate(ss, txt, pixel.V(x, y), width, height, choices, onSelection)
+	textBoxMenu.AppearTween = animation.TweenCreate(0, 1, 1)
 	ss.States = append(ss.States, textBoxMenu)
 }
 

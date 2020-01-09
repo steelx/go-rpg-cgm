@@ -53,7 +53,6 @@ func TextboxNew(stack *StateStack, txt string, size float64, atlas *text.Atlas, 
 		avatarName:   avatarName,
 		avatarImg:    avatarImg,
 		textAtlas:    atlas,
-		AppearTween:  animation.TweenCreate(0, 1, 0.4),
 		time:         0,
 	}
 }
@@ -84,6 +83,7 @@ func TextboxWithMenuCreate(stack *StateStack, textBoxText string, panelPos pixel
 func TextboxCreateFixed(stack *StateStack, txt string, panelPos pixel.Vec, panelWidth, panelHeight float64, avatarName string, avatarImg pixel.Picture, hasMenu bool) Textbox {
 	panel := PanelCreate(panelPos, panelWidth, panelHeight)
 	t := TextboxNew(stack, txt, 14, globals.BasicAtlas12, avatarName, avatarImg)
+	t.AppearTween = animation.TweenCreate(1, 0, 1)
 	t.isFixed = true
 	t.mPanel = panel
 	t.textBounds = panel.mBounds
@@ -104,6 +104,7 @@ func TextboxCreateFitted(stack *StateStack, txt string, panelPos pixel.Vec, hasM
 	const padding = 20.0
 	basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
 	tBox := TextboxNew(stack, txt, 13, basicAtlas, "", nil)
+	tBox.AppearTween = animation.TweenCreate(2, 1, 1)
 	tBox.textBase = text.New(panelPos, tBox.textAtlas)
 	tBox.textBase.LineHeight = padding
 	textBounds := tBox.getTextBound()
@@ -172,7 +173,7 @@ func (t *Textbox) buildTextBlocks() {
 }
 
 func (t *Textbox) IsDead() bool {
-	return t.isDead || (t.AppearTween.IsFinished() && t.AppearTween.Value() == 0)
+	return t.isDead
 }
 
 func (t Textbox) HasReachedLimit() bool {
@@ -300,9 +301,6 @@ func (t *Textbox) HandleInput(window *pixelgl.Window) {
 			return
 		}
 
-		if t.AppearTween.IsFinished() && t.AppearTween.Value() == 0 {
-			return
-		}
 		t.AppearTween = animation.TweenCreate(1, 0, 0.2)
 		t.isDead = true
 	}

@@ -75,10 +75,12 @@ func setup(win *pixelgl.Window) {
 
 	exploreState.Stack.PushFitted(100, 100, "I should better get moving...")
 	exploreState.Stack.PushFitted(200, 200, "Where Am I")
-	exploreState.Stack.PushFitted(300, 250, "Ah, this headache!!")
-	exploreState.Stack.Push(gui.ProgressBarCreate(exploreState.Stack, 200, -50))
-	fade := gui.FadeScreenCreate(exploreState.Stack, 1, 0, 3, pixel.V(exploreState.Map.CamX, exploreState.Map.CamY))
-	exploreState.Stack.Push(&fade)
+	fade1 := gui.FadeScreenCreate(exploreState.Stack, 1, 0, 3, pixel.V(exploreState.Map.CamX, exploreState.Map.CamY))
+	exploreState.Stack.Push(&fade1)
+	exploreState.Stack.PushFitted(250, 250, "Ah, this headache!!")
+	//exploreState.Stack.Push(gui.ProgressBarCreate(exploreState.Stack, 200, -50))
+	fade0 := gui.FadeScreenCreate(exploreState.Stack, 1, 0, 1, pixel.V(exploreState.Map.CamX, exploreState.Map.CamY))
+	exploreState.Stack.Push(&fade0)
 
 	//Actions & Triggers
 	gUpDoorTeleport := ActionTeleport(*exploreState.Map, globals.Direction{7, 2})
