@@ -104,3 +104,34 @@ func (l *Layout) SplitVert(name, leftName, rightName string, y, margin float64) 
 		height: parent.height,
 	}
 }
+
+//since Panel renders from Center of X, y
+func (l Layout) Top(name string) float64 {
+	panel := l.getPanelDef(name)
+	return panel.pos.Y + panel.height/2
+}
+
+func (l Layout) Bottom(name string) float64 {
+	panel := l.getPanelDef(name)
+	return panel.pos.Y - panel.height/2
+}
+
+func (l Layout) Left(name string) float64 {
+	panel := l.getPanelDef(name)
+	return panel.pos.X - panel.width/2
+}
+
+func (l Layout) Right(name string) float64 {
+	panel := l.getPanelDef(name)
+	return panel.pos.X + panel.width/2
+}
+
+func (l Layout) MidX(name string) float64 {
+	panel := l.getPanelDef(name)
+	return panel.pos.X
+}
+
+func (l Layout) MidY(name string) float64 {
+	panel := l.getPanelDef(name)
+	return panel.pos.Y
+}
