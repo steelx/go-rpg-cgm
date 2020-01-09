@@ -22,6 +22,7 @@ tBox := TextboxCreateFixed(
 */
 
 type Textbox struct {
+	Stack                       *StateStack
 	text                        string
 	textScale, size, topPadding float64
 	Position                    pixel.Vec
@@ -42,8 +43,9 @@ type Textbox struct {
 	menu                        SelectionMenu
 }
 
-func TextboxNew(txt string, size float64, atlas *text.Atlas, avatarName string, avatarImg pixel.Picture) Textbox {
+func TextboxNew(stack *StateStack, txt string, size float64, atlas *text.Atlas, avatarName string, avatarImg pixel.Picture) Textbox {
 	return Textbox{
+		Stack:        stack,
 		text:         txt,
 		textScale:    1,
 		size:         size,
@@ -51,15 +53,15 @@ func TextboxNew(txt string, size float64, atlas *text.Atlas, avatarName string, 
 		avatarName:   avatarName,
 		avatarImg:    avatarImg,
 		textAtlas:    atlas,
-		AppearTween:  animation.TweenCreate(0, 1, 0.4),
 		time:         0,
 	}
 }
 
-func TextboxWithMenuCreate(textBoxText string, panelPos pixel.Vec, panelWidth, panelHeight float64,
+func TextboxWithMenuCreate(stack *StateStack, textBoxText string, panelPos pixel.Vec, panelWidth, panelHeight float64,
 	choices []string, onSelection func(int, string)) *Textbox {
 
 	textbox := TextboxCreateFixed(
+		stack,
 		textBoxText,
 		panelPos, panelWidth, panelHeight,
 		"",
@@ -78,9 +80,10 @@ func TextboxWithMenuCreate(textBoxText string, panelPos pixel.Vec, panelWidth, p
 	return &textbox
 }
 
-func TextboxCreateFixed(txt string, panelPos pixel.Vec, panelWidth, panelHeight float64, avatarName string, avatarImg pixel.Picture, hasMenu bool) Textbox {
+func TextboxCreateFixed(stack *StateStack, txt string, panelPos pixel.Vec, panelWidth, panelHeight float64, avatarName string, avatarImg pixel.Picture, hasMenu bool) Textbox {
 	panel := PanelCreate(panelPos, panelWidth, panelHeight)
-	t := TextboxNew(txt, 14, globals.BasicAtlas12, avatarName, avatarImg)
+	t := TextboxNew(stack, txt, 14, globals.BasicAtlas12, avatarName, avatarImg)
+	t.AppearTween = animation.TweenCreate(1, 0, 1)
 	t.isFixed = true
 	t.mPanel = panel
 	t.textBounds = panel.mBounds
@@ -97,10 +100,11 @@ func TextboxCreateFixed(txt string, panelPos pixel.Vec, panelWidth, panelHeight 
 
 //TextboxCreateFitted are good for small chats
 // height and width gets set automatically
-func TextboxCreateFitted(txt string, panelPos pixel.Vec, hasMenu bool) Textbox {
+func TextboxCreateFitted(stack *StateStack, txt string, panelPos pixel.Vec, hasMenu bool) Textbox {
 	const padding = 20.0
 	basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
-	tBox := TextboxNew(txt, 13, basicAtlas, "", nil)
+	tBox := TextboxNew(stack, txt, 13, basicAtlas, "", nil)
+	tBox.AppearTween = animation.TweenCreate(2, 1, 1)
 	tBox.textBase = text.New(panelPos, tBox.textAtlas)
 	tBox.textBase.LineHeight = padding
 	textBounds := tBox.getTextBound()
@@ -169,14 +173,14 @@ func (t *Textbox) buildTextBlocks() {
 }
 
 func (t *Textbox) IsDead() bool {
-	return (t.AppearTween.IsFinished() && t.AppearTween.Value() == 0) || t.isDead
+	return t.isDead
 }
 
 func (t Textbox) HasReachedLimit() bool {
 	return t.textBlockLimitIndex >= len(t.textBlocks)
 }
 
-func (t Textbox) drawAvatar() {
+func (t Textbox) drawAvatar(renderer pixel.Target) {
 	if len(t.avatarName) == 0 {
 		return
 	}
@@ -190,24 +194,28 @@ func (t Textbox) drawAvatar() {
 	title := text.New(titlePos, t.textAtlas)
 	fmt.Fprintln(title, t.avatarName)
 
-	title.Draw(globals.Global.Win, pixel.IM.Scaled(titlePos, 0.8))
-	avatarSprite.Draw(globals.Global.Win, pixel.IM.Moved(topLeft).Scaled(topLeft, 0.9))
+	title.Draw(renderer, pixel.IM.Scaled(titlePos, 0.8))
+	avatarSprite.Draw(renderer, pixel.IM.Moved(topLeft).Scaled(topLeft, 0.9))
 }
-func (t Textbox) drawContinueArrow() {
+func (t Textbox) drawContinueArrow(renderer pixel.Target) {
 	if t.textBlockLimitIndex+t.textRowLimit < len(t.textBlocks) {
+		mat := pixel.IM
 		bottomRight := pixel.V(t.mPanel.mBounds.Max.X-t.size, t.mPanel.mBounds.Min.Y+t.size)
 		sprite := pixel.NewSprite(t.continueMark, t.continueMark.Bounds())
-		sprite.Draw(globals.Global.Win, pixel.IM.Moved(bottomRight))
+		sprite.Draw(renderer, mat.Moved(bottomRight))
+
+		title := text.New(bottomRight, text.NewAtlas(basicfont.Face7x13, text.ASCII))
+		keyHintTxt, padding := "spacebar", 20.0
+		textPos := bottomRight.Sub(
+			pixel.V(title.BoundsOf(keyHintTxt).W(), -padding),
+		)
+		fmt.Fprintln(title, keyHintTxt)
+		title.Draw(renderer, pixel.IM.Moved(textPos))
 	}
 }
 
 func (t *Textbox) Next() {
 	t.textBlockLimitIndex += t.textRowLimit
-}
-
-func (t *Textbox) Update(dt float64) {
-	t.time = t.time + dt
-	t.AppearTween.Update(dt)
 }
 
 func (t *Textbox) renderFitted(renderer pixel.Target) {
@@ -243,11 +251,11 @@ func (t *Textbox) renderFixed(renderer pixel.Target) {
 	t.mPanel.Draw(renderer)
 	t.textBase.Draw(renderer, pixel.IM)
 
-	t.drawAvatar()
-	t.drawContinueArrow()
+	t.drawAvatar(renderer)
+	t.drawContinueArrow(renderer)
 }
 
-func (t *Textbox) Render(renderer pixel.Target) {
+func (t *Textbox) Render(renderer *pixelgl.Window) {
 
 	if t.hasMenu {
 		t.renderFitted(renderer)
@@ -262,23 +270,38 @@ func (t *Textbox) Render(renderer pixel.Target) {
 	}
 }
 
+func (t *Textbox) Update(dt float64) bool {
+	t.time = t.time + dt
+	t.AppearTween.Update(dt)
+	if t.IsDead() {
+		t.Stack.Pop()
+	}
+	return t.IsDead()
+}
+
+func (t *Textbox) Enter() {
+
+}
+
+func (t *Textbox) Exit() {
+
+}
+
 //HandleInput takes care of 3 types of textbox's
 //1 textbox with menu
 //2 Fixed then we let the blocks render
 //3 Fitted users marks as read and goes to next text popup
-func (t *Textbox) HandleInput() {
+func (t *Textbox) HandleInput(window *pixelgl.Window) {
 	if t.hasMenu {
-		t.menu.HandleInput()
+		t.menu.HandleInput(window)
 	}
-	if globals.Global.Win.JustPressed(pixelgl.KeySpace) {
+	if window.JustPressed(pixelgl.KeySpace) {
 		if t.isFixed {
 			t.Next()
 			return
 		}
 
-		if t.AppearTween.IsFinished() && t.AppearTween.Value() == 0 {
-			return
-		}
 		t.AppearTween = animation.TweenCreate(1, 0, 0.2)
+		t.isDead = true
 	}
 }

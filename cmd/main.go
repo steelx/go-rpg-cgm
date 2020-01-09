@@ -2,25 +2,24 @@ package main
 
 import (
 	"fmt"
-	"github.com/bcvery1/tilepix"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/game_map"
+	"github.com/steelx/go-rpg-cgm/game_map/character_states"
+	"github.com/steelx/go-rpg-cgm/game_states"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/gui"
-	"sort"
+	"github.com/steelx/go-rpg-cgm/state_machine"
 	"time"
 )
 
 const camZoom = 1.0
 
 var (
-	CastleRoomMap = &game_map.GameMap{}
-	camPos        = pixel.ZV
+	exploreState game_states.ExploreState
 	//camSpeed    = 1000.0
 	//camZoomSpeed = 1.2
-	frameRate  = 15 * time.Millisecond
-	textStacks gui.StateStack
+	frameRate = 15 * time.Millisecond
 )
 
 func run() {
@@ -38,7 +37,7 @@ func run() {
 
 	globals.PrintMemoryUsage()
 	// Setup world etc.
-	setup()
+	setup(win)
 	globals.PrintMemoryUsage()
 	gameLoop(win)
 }
@@ -50,17 +49,42 @@ func main() {
 //=============================================================
 // Setup map, world, player etc.
 //=============================================================
-func setup() {
-	textStacks = gui.StateStackCreate()
-
+func setup(win *pixelgl.Window) {
 	// Init map
-	m, err := tilepix.ReadFile("small_room.tmx")
+	choices := []string{"Menu 1", "lola", "Menu 2", "Menu 03", "Menu 04", "Menu 05", "Menu 06", "Menu 007", "", "", "", "Menu @_@"}
+	//textStacks = gui.StateStackCreate()
+
+	// Init map & Add Stacks
+	walkCyclePng, err := globals.LoadPicture("../resources/walk_cycle.png")
 	globals.PanicIfErr(err)
-	CastleRoomMap.Create(m)
+	exploreState = game_states.ExploreStateCreate(
+		globals.CastleMapDef, pixel.V(2, 4), walkCyclePng, win,
+	)
+
+	exploreState.Stack.PushSelectionMenu(
+		-100, 250, 400, 200,
+		"Select from the list below",
+		choices, func(i int, item string) {
+			fmt.Println(i, item)
+		})
+
+	exploreState.Stack.PushFixed(
+		-150, 10, 300, 100,
+		"A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear. Jai Hind I Love India <3 ",
+		"Ajinkya", globals.AvatarPng)
+
+	exploreState.Stack.PushFitted(100, 100, "I should better get moving...")
+	exploreState.Stack.PushFitted(200, 200, "Where Am I")
+	fade1 := gui.FadeScreenCreate(exploreState.Stack, 1, 0, 3, pixel.V(exploreState.Map.CamX, exploreState.Map.CamY))
+	exploreState.Stack.Push(&fade1)
+	exploreState.Stack.PushFitted(250, 250, "Ah, this headache!!")
+	//exploreState.Stack.Push(gui.ProgressBarCreate(exploreState.Stack, 200, -50))
+	fade0 := gui.FadeScreenCreate(exploreState.Stack, 1, 0, 1, pixel.V(exploreState.Map.CamX, exploreState.Map.CamY))
+	exploreState.Stack.Push(&fade0)
 
 	//Actions & Triggers
-	gUpDoorTeleport := ActionTeleport(*CastleRoomMap, globals.Direction{7, 2})
-	gDownDoorTeleport := ActionTeleport(*CastleRoomMap, globals.Direction{9, 10})
+	gUpDoorTeleport := ActionTeleport(*exploreState.Map, globals.Direction{7, 2})
+	gDownDoorTeleport := ActionTeleport(*exploreState.Map, globals.Direction{9, 10})
 	gTriggerTop := game_map.TriggerCreate(gDownDoorTeleport, nil, nil)
 	gTriggerBottom := game_map.TriggerCreate(
 		gUpDoorTeleport,
@@ -71,15 +95,53 @@ func setup() {
 		nil,
 		nil,
 		func(entity *game_map.Entity) {
-			textStacks.AddFitted(300, 250, "Dude, snakes.. run!")
+			exploreState.Stack.PushFitted(300, 250, "Dude, snakes.. run!")
 		},
 	)
 
-	CastleRoomMap.SetTrigger(7, 2, gTriggerTop)
-	CastleRoomMap.SetTrigger(9, 10, gTriggerBottom)
-	CastleRoomMap.SetTrigger(8, 6, gTriggerFlowerPot)
+	exploreState.Map.SetTrigger(7, 2, gTriggerTop)
+	exploreState.Map.SetTrigger(9, 10, gTriggerBottom)
+	exploreState.Map.SetTrigger(8, 6, gTriggerFlowerPot)
 
-	CastleRoomMap.Entities = []*game_map.Entity{Hero.Entity, NPC2.Entity, NPC1.Entity}
+	//Add NPCs
+	var NPC1 *game_map.Character
+	NPC1 = game_map.CharacterCreate(
+		"Aghori Baba", nil, game_map.CharacterFacingDirection[2],
+		game_map.CharacterDefinition{
+			Texture: walkCyclePng, Width: 16, Height: 24,
+			StartFrame: 46,
+			TileX:      9,
+			TileY:      4,
+		},
+		map[string]func() state_machine.State{
+			"wait": func() state_machine.State {
+				return character_states.NPCWaitStateCreate(NPC1, exploreState.Map)
+			},
+		},
+	)
+
+	var NPC2 *game_map.Character
+	NPC2 = game_map.CharacterCreate(
+		"Bhadrasaal", [][]int{{48, 49, 50, 51}, {52, 53, 54, 55}, {56, 57, 58, 59}, {60, 61, 62, 63}},
+		game_map.CharacterFacingDirection[2],
+		game_map.CharacterDefinition{
+			Texture: walkCyclePng, Width: 16, Height: 24,
+			StartFrame: 56,
+			TileX:      3,
+			TileY:      8,
+		},
+		map[string]func() state_machine.State{
+			"wait": func() state_machine.State {
+				return character_states.NPCStrollWaitStateCreate(NPC2, exploreState.Map)
+			},
+			"move": func() state_machine.State {
+				return character_states.MoveStateCreate(NPC2, exploreState.Map)
+			},
+		},
+	)
+
+	exploreState.AddNPC(NPC1)
+	exploreState.AddNPC(NPC2)
 }
 
 //=============================================================
@@ -87,26 +149,6 @@ func setup() {
 //=============================================================
 func gameLoop(win *pixelgl.Window) {
 	last := time.Now()
-
-	choices := []string{"Menu 1", "lola", "Menu 2", "Menu 03", "Menu 04", "Menu 05", "Menu 06", "Menu 007", "", "", "", "Menu @_@"}
-	textStacks.AddSelectionMenu(
-		-100, 250, 400, 200,
-		"Select from the list below",
-		choices, func(i int, item string) {
-			fmt.Println(i, item)
-		})
-
-	textStacks.AddFixed(
-		-150, 10, 300, 100,
-		"A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no longer resist. A murderer is less to fear. Jai Hind I Love India <3 ",
-		"Ajinkya", globals.AvatarPng)
-
-	textStacks.AddFitted(100, 100, "Hello! if you smell the rock was cookin")
-	textStacks.AddFitted(200, 200, "1111 if you smell the rock was cookin")
-	textStacks.AddFitted(300, 250, "Pop pop pop. mark me unread HIT spacebar")
-
-	progressBar := gui.ProgressBarCreate(200, 0)
-	//progressBar.SetValue(90)
 
 	tick := time.Tick(frameRate)
 	for !win.Closed() {
@@ -122,40 +164,12 @@ func gameLoop(win *pixelgl.Window) {
 			dt := time.Since(last).Seconds()
 			last = time.Now()
 
-			err := CastleRoomMap.DrawAfter(func(canvas *pixelgl.Canvas, layer int) {
-				gameCharacters := [3]game_map.Character{*Hero, *NPC2, *NPC1}
+			exploreState.Update(dt)
+			exploreState.HandleInput(win)
+			exploreState.Render()
 
-				sort.Slice(gameCharacters[:], func(i, j int) bool {
-					return gameCharacters[i].Entity.TileY < gameCharacters[j].Entity.TileY
-				})
-
-				if layer == 2 {
-					for _, gCharacter := range gameCharacters {
-						gCharacter.Entity.TeleportAndDraw(*CastleRoomMap, canvas)
-						gCharacter.Controller.Update(dt)
-					}
-				}
-			})
-			globals.PanicIfErr(err)
-
-			textStacks.Render(win)
-			textStacks.Update(dt)
-
-			progressBar.Render(win)
-
-			// Camera
-			CastleRoomMap.CamToTile(Hero.Entity.TileX, Hero.Entity.TileY)
-			camPos = pixel.V(CastleRoomMap.CamX, CastleRoomMap.CamY)
-			cam := pixel.IM.Scaled(camPos, camZoom).Moved(win.Bounds().Center().Sub(camPos))
-			win.SetMatrix(cam)
-
-			if win.JustPressed(pixelgl.KeyE) {
-				tileX, tileY := Hero.Entity.Map.GetTileIndex(Hero.GetFacedTileCoords())
-				trigger := Hero.Entity.Map.GetTrigger(tileX, tileY)
-				if trigger.OnUse != nil {
-					trigger.OnUse(Hero.Entity)
-				}
-			}
+			exploreState.Stack.Render(win)
+			exploreState.Stack.Update(dt)
 		}
 
 		win.Update()

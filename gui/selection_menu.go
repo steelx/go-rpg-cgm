@@ -168,16 +168,16 @@ func (m SelectionMenu) OnClick() {
 	m.OnSelection(index, m.dataSource[index])
 }
 
-func (m *SelectionMenu) HandleInput() {
-	if globals.Global.Win.JustPressed(pixelgl.KeyUp) {
+func (m *SelectionMenu) HandleInput(window *pixelgl.Window) {
+	if window.JustPressed(pixelgl.KeyUp) {
 		m.MoveUp()
-	} else if globals.Global.Win.JustPressed(pixelgl.KeyDown) {
+	} else if window.JustPressed(pixelgl.KeyDown) {
 		m.MoveDown()
-	} else if m.columns > 1 && globals.Global.Win.JustPressed(pixelgl.KeyLeft) {
+	} else if m.columns > 1 && window.JustPressed(pixelgl.KeyLeft) {
 		m.MoveLeft()
-	} else if m.columns > 1 && globals.Global.Win.JustPressed(pixelgl.KeyRight) {
+	} else if m.columns > 1 && window.JustPressed(pixelgl.KeyRight) {
 		m.MoveRight()
-	} else if globals.Global.Win.JustPressed(pixelgl.KeyEnter) {
+	} else if window.JustPressed(pixelgl.KeySpace) {
 		m.OnClick()
 	}
 

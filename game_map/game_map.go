@@ -32,12 +32,14 @@ type GameMap struct {
 
 	Triggers map[[2]float64]Trigger
 	Entities []*Entity
+	NPCs     []*Character
 }
 
-func (m *GameMap) Create(tilemap *tilepix.Map) {
-	// assuming exported tiled map
-	//lua definition has 1 layer
-	m.Tilemap = tilemap
+func MapCreate(tilemap *tilepix.Map) *GameMap {
+	m := &GameMap{
+		Tilemap: tilemap,
+	}
+
 	m.Triggers = make(map[[2]float64]Trigger)
 	m.Entities = make([]*Entity, 0)
 
@@ -54,6 +56,7 @@ func (m *GameMap) Create(tilemap *tilepix.Map) {
 	m.Canvas = pixelgl.NewCanvas(m.Tilemap.Bounds())
 	m.setTiles()
 	m.setBlockingTileInfo()
+	return m
 }
 
 func (m *GameMap) setBlockingTileInfo() {
@@ -106,8 +109,8 @@ func (m *GameMap) setTiles() {
 	m.sprites = sprites
 }
 
-//CamToTile pan camera to given coordinates
-func (m *GameMap) CamToTile(x, y float64) {
+//Cam to Tile : GoToTile pan camera to given coordinates
+func (m *GameMap) GoToTile(x, y float64) {
 	tileX, tileY := m.GetTileIndex(x, y)
 	x = tileX - m.TileWidth/2
 	y = tileY - m.TileHeight/2
@@ -184,4 +187,10 @@ func (m GameMap) GetTrigger(x, y float64) Trigger {
 func (m GameMap) SetTrigger(x, y float64, t Trigger) {
 	tileX, tileY := m.GetTileIndex(x, y)
 	m.Triggers[[2]float64{tileX, tileY}] = t
+}
+
+//AddNPC helps in detecting player if x,y has NPC or not
+func (m *GameMap) AddNPC(npc *Character) {
+	m.NPCs = append(m.NPCs, npc)
+	m.Entities = append(m.Entities, npc.Entity)
 }
