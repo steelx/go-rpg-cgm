@@ -21,11 +21,12 @@ type ExploreState struct {
 	win    *pixelgl.Window
 }
 
-func ExploreStateCreate(
+func ExploreStateCreate(stack *gui.StateStack,
 	tilemap *tilepix.Map, startPos pixel.Vec, heroPng pixel.Picture, window *pixelgl.Window) ExploreState {
 
 	es := ExploreState{
-		Stack:  gui.StateStackCreate(window),
+		Stack: stack,
+		//Stack:  gui.StateStackCreate(window),
 		MapDef: tilemap,
 	}
 
@@ -58,14 +59,14 @@ func ExploreStateCreate(
 	return es
 }
 
-func (es ExploreState) Enter(data globals.Direction) {
+func (es ExploreState) Enter() {
 
 }
 func (es ExploreState) Exit() {
 
 }
 
-func (es *ExploreState) Update(dt float64) {
+func (es *ExploreState) Update(dt float64) bool {
 	// Update the camera according to player position
 	playerPosX, playerPosY := es.Hero.Entity.TileX, es.Hero.Entity.TileY
 	es.Map.GoToTile(playerPosX, playerPosY)
@@ -74,9 +75,10 @@ func (es *ExploreState) Update(dt float64) {
 	for _, gCharacter := range gameCharacters {
 		gCharacter.Controller.Update(dt)
 	}
+	return true
 }
 
-func (es ExploreState) Render() {
+func (es ExploreState) Render(win *pixelgl.Window) {
 	//Map & Characters
 	err := es.Map.DrawAfter(func(canvas *pixelgl.Canvas, layer int) {
 		gameCharacters := append([]*game_map.Character{es.Hero}, es.Map.NPCs...)
@@ -96,13 +98,14 @@ func (es ExploreState) Render() {
 	}
 
 	//Camera
-	camPos := pixel.V(es.Map.CamX, es.Map.CamY)
-	cam := pixel.IM.Scaled(camPos, 1.0).Moved(es.win.Bounds().Center().Sub(camPos))
-	es.win.SetMatrix(cam)
+	//camPos := pixel.V(es.Map.CamX, es.Map.CamY)
+	//cam := pixel.IM.Scaled(camPos, 1.0).Moved(es.win.Bounds().Center().Sub(camPos))
+	//win.SetMatrix(cam)
 }
-func (es ExploreState) HandleInput(window *pixelgl.Window) {
+
+func (es ExploreState) HandleInput(win *pixelgl.Window) {
 	//use key
-	if window.JustPressed(pixelgl.KeyE) {
+	if win.JustPressed(pixelgl.KeyE) {
 		// which way is the player facing?
 		tileX, tileY := es.Hero.Entity.Map.GetTileIndex(es.Hero.GetFacedTileCoords())
 		trigger := es.Hero.Entity.Map.GetTrigger(tileX, tileY)
