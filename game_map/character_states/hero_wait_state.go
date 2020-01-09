@@ -43,7 +43,7 @@ func (s *WaitState) Enter(data interface{}) {
 	}
 }
 
-func (s *WaitState) Render() {
+func (s *WaitState) Render(win *pixelgl.Window) {
 	//pixelgl renderer
 	//s.Entity.TeleportAndDraw(s.Map)
 }

@@ -1,6 +1,7 @@
 package character_states
 
 import (
+	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/animation"
 	"github.com/steelx/go-rpg-cgm/game_map"
 	"github.com/steelx/go-rpg-cgm/globals"
@@ -87,7 +88,7 @@ func (s MoveState) Exit() {
 	}
 }
 
-func (s *MoveState) Render() {
+func (s *MoveState) Render(win *pixelgl.Window) {
 	//pending
 }
 

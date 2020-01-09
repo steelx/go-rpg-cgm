@@ -1,5 +1,7 @@
 package state_machine
 
+import "github.com/faiface/pixel/pixelgl"
+
 /*
 Controller :
 	Create({
@@ -29,7 +31,7 @@ Controller :
 //
 type State interface {
 	Enter(data interface{})
-	Render()
+	Render(win *pixelgl.Window)
 	Exit()
 	Update(dt float64)
 }
@@ -57,11 +59,10 @@ func (m *StateMachine) Change(stateName string, enterParams interface{}) {
 	m.current.Enter(enterParams)
 }
 
-//Update(dt)
 func (m *StateMachine) Update(dt float64) {
 	m.current.Update(dt)
 }
 
-func (m *StateMachine) Render() {
-	m.current.Render()
+func (m *StateMachine) Render(win *pixelgl.Window) {
+	m.current.Render(win)
 }

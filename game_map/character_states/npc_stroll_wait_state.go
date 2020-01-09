@@ -1,6 +1,7 @@
 package character_states
 
 import (
+	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/game_map"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/state_machine"
@@ -34,7 +35,7 @@ func (s *NPCStrollWaitState) Enter(data interface{}) {
 	s.mCountDown = globals.RandFloat(0, 3)
 }
 
-func (s *NPCStrollWaitState) Render() {}
+func (s *NPCStrollWaitState) Render(win *pixelgl.Window) {}
 
 func (s *NPCStrollWaitState) Exit() {}
 
