@@ -16,7 +16,7 @@ type FrontMenuState struct {
 	Stack        *gui.StateStack
 	StateMachine *state_machine.StateMachine
 	TopBarText   string
-	Selections   gui.SelectionMenu
+	Selections   *gui.SelectionMenu
 	Panels       []gui.Panel
 	win          *pixelgl.Window
 }
@@ -39,14 +39,16 @@ func FrontMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) FrontMen
 	}
 
 	selectionsX, selectionsY := fm.Layout.MidX("menu")-60, fm.Layout.Top("menu")-24
-	fm.Selections = gui.SelectionMenuCreate(
-		[]string{"Items", "Magic"}, // "Magic", "Equipment", "Status", "Save"}
+	selectionMenu := gui.SelectionMenuCreate(
+		[]string{"Items", "Magic", "Equipment", "Status", "Save"},
 		false,
 		pixel.V(selectionsX, selectionsY),
 		func(i int, str string) {
+			fmt.Println("Menu", i, str)
 			fm.OnMenuClick(i, str)
 		},
 	)
+	fm.Selections = &selectionMenu
 	fm.Panels = []gui.Panel{
 		layout.CreatePanel("gold"),
 		layout.CreatePanel("top"),
@@ -76,7 +78,7 @@ func (fm FrontMenuState) Exit() {
 func (fm FrontMenuState) Update(dt float64) {
 	fm.Selections.HandleInput(fm.win)
 
-	if fm.win.JustPressed(pixelgl.KeyBackspace) || fm.win.JustPressed(pixelgl.KeySpace) {
+	if fm.win.JustPressed(pixelgl.KeyBackspace) || fm.win.JustPressed(pixelgl.KeyEscape) {
 		fm.Stack.Pop()
 	}
 }

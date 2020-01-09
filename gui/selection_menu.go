@@ -110,13 +110,14 @@ func (m SelectionMenu) Render(renderer *pixelgl.Window) {
 	var x, y = m.X, m.Y
 	var mat = pixel.IM.Scaled(pixel.V(x, y), m.scale)
 
+	//temp single columns not rendering hence
 	if m.columns == 1 {
 		for i := 0; i < len(m.dataSource); i++ {
-			if i == 0 && m.showCursor {
+			if i == m.focusY && m.showCursor {
 				m.cursor.Draw(renderer, mat.Moved(pixel.V(x+cursorHalfWidth, y+cursorHalfHeight/2)))
 			}
 			m.renderItem(pixel.V(x+cursorWidth, y), m.dataSource[i], renderer)
-			x = x + spacingX
+			y = y - rowHeight
 		}
 		return
 	}

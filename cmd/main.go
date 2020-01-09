@@ -138,7 +138,7 @@ func setup(win *pixelgl.Window) {
 
 	stack.PushFitted(100, 100, "I should better get moving...")
 	stack.PushFitted(200, 200, "Where Am I")
-	fade1 := gui.FadeScreenCreate(stack, 1, 0, 3, pixel.V(exploreState.Map.CamX, exploreState.Map.CamY))
+	fade1 := gui.FadeScreenCreate(stack, 1, 0, 1.5, pixel.V(exploreState.Map.CamX, exploreState.Map.CamY))
 	stack.Push(&fade1)
 	stack.PushFitted(0, 0, "Ah, this headache!!")
 	//stack.Push(gui.ProgressBarCreate(stack, 200, -50))

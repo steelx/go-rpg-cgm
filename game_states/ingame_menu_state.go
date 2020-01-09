@@ -5,7 +5,6 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/state_machine"
-	"reflect"
 )
 
 type InGameMenuState struct {
@@ -46,9 +45,11 @@ func InGameMenuStateCreate(stack *gui.StateStack, win *pixelgl.Window) *InGameMe
 }
 
 func (igm *InGameMenuState) Update(dt float64) bool {
-	if reflect.DeepEqual(igm.Stack.Top(), igm) {
-		igm.StateMachine.Update(dt)
-	}
+	igm.StateMachine.Update(dt)
+	//fmt.Println("ingame_menu_state", reflect.DeepEqual(igm.Stack.Top(), igm)) // temp
+	//if reflect.DeepEqual(igm.Stack.Top(), igm) {
+	//	igm.StateMachine.Update(dt)
+	//}
 	return true
 }
 func (igm InGameMenuState) Render(win *pixelgl.Window) {
