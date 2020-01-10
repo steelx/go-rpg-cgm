@@ -150,11 +150,11 @@ func setup(win *pixelgl.Window) {
 func gameLoop(win *pixelgl.Window) {
 	last := time.Now()
 
-	layout := gui.LayoutCreate(exploreState.Map.CamX, exploreState.Map.CamY, win)
-	layout.Contract("screen", 0, 0)
-	layout.SplitHorz("screen", "top", "bottom", 0.12, 2)
-	layout.SplitVert("bottom", "left", "party", 0.726, 2)
-	layout.SplitHorz("left", "menu", "gold", 0.7, 2)
+	//layout := gui.LayoutCreate(exploreState.Map.CamX, exploreState.Map.CamY, win)
+	//layout.Contract("screen", 0, 0)
+	//layout.SplitHorz("screen", "top", "bottom", 0.12, 2)
+	//layout.SplitVert("bottom", "left", "party", 0.726, 2)
+	//layout.SplitHorz("left", "menu", "gold", 0.7, 2)
 
 	//initial map Camera
 	exploreState.Map.GoToTile(4, 4)

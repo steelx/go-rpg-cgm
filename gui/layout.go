@@ -62,6 +62,7 @@ func (l Layout) Contract(name string, horz, vert float64) {
 }
 
 //e.g. SplitHorz('screen', "top", "bottom", 0.12, 2) // X = from 0 to 1
+// X represents top height percent
 func (l *Layout) SplitHorz(name, topName, bottomName string, x, margin float64) {
 	parent := l.getPanelDef(name)
 	//delete parent from Layout, we dont need it anymore
@@ -71,19 +72,20 @@ func (l *Layout) SplitHorz(name, topName, bottomName string, x, margin float64) 
 	p2Height := parent.height * (1 - x)
 
 	l.Panels[topName] = PanelDef{
-		pos:    pixel.V(parent.pos.X, parent.pos.Y-parent.height/2+p1Height/2-margin/2),
+		pos:    pixel.V(parent.pos.X, parent.pos.Y+parent.height/2-p1Height/2+margin/2),
 		width:  parent.width,
 		height: p1Height - margin,
 	}
 
 	l.Panels[bottomName] = PanelDef{
-		pos:    pixel.V(parent.pos.X, parent.pos.Y+parent.height/2-p2Height/2+margin/2),
+		pos:    pixel.V(parent.pos.X, parent.pos.Y-parent.height/2+p2Height/2-margin/2),
 		width:  parent.width,
 		height: p2Height - margin,
 	}
 }
 
 //e.g. SplitVert('bottom', "left", "party", 0.726, 2) // Y = from 0 to 1
+// Y represents rightName width percent
 func (l *Layout) SplitVert(name, leftName, rightName string, y, margin float64) {
 	parent := l.getPanelDef(name)
 	//delete parent from Layout, we dont need it anymore

@@ -83,6 +83,11 @@ func (fm FrontMenuState) Update(dt float64) {
 	}
 }
 
+//get text Width
+func getTextW(textBase *text.Text, txt string) float64 {
+	return textBase.BoundsOf(txt).W()
+}
+
 func (fm FrontMenuState) Render(renderer *pixelgl.Window) {
 	for _, p := range fm.Panels {
 		p.Draw(renderer)
@@ -90,39 +95,39 @@ func (fm FrontMenuState) Render(renderer *pixelgl.Window) {
 
 	basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
 
-	//renderer:ScaleText(1.5, 1.5)
-	//renderer:AlignText("left", "center")
+	//Selection List
 	menuX := fm.Layout.Left("menu") - 16
 	menuY := fm.Layout.Top("menu") - 24
 	fm.Selections.SetPosition(menuX, menuY)
 	fm.Selections.Render(renderer)
 
+	//TOP Headline
 	nameX := fm.Layout.MidX("top")
 	nameY := fm.Layout.MidY("top")
-	topBarText := text.New(pixel.V(nameX, nameY), basicAtlas)
-	topBarText = text.New(pixel.V(nameX-topBarText.BoundsOf(fm.TopBarText).W()/2, nameY), basicAtlas)
-	fmt.Fprintln(topBarText, fm.TopBarText)
-	topBarText.Draw(renderer, pixel.IM)
+	textBase := text.New(pixel.V(nameX, nameY), basicAtlas)
+	textBase = text.New(pixel.V(nameX-getTextW(textBase, fm.TopBarText)/2, nameY), basicAtlas)
+	fmt.Fprintln(textBase, fm.TopBarText)
+	textBase.Draw(renderer, pixel.IM)
 
-	goldX := fm.Layout.MidX("gold") - 22
-	goldY := fm.Layout.MidY("gold") + 22
+	//Bottom Left
+	goldX := fm.Layout.Left("gold") + 16
+	goldY := fm.Layout.Top("gold") - 24
+	textBase = text.New(pixel.V(goldX, goldY), basicAtlas)
+	fmt.Fprintln(textBase, "GP :")
+	textBase.Draw(renderer, pixel.IM)
 
-	//renderer:ScaleText(1.22, 1.22)
-	//renderer:AlignText("right", "top")
-	topBarText = text.New(pixel.V(goldX, goldY), basicAtlas)
-	fmt.Fprintln(topBarText, "GP :")
-	topBarText.Draw(renderer, pixel.IM)
-
-	topBarText = text.New(pixel.V(goldX, goldY+25), basicAtlas)
-	fmt.Fprintln(topBarText, "TIME :")
-	topBarText.Draw(renderer, pixel.IM)
+	textBase = text.New(pixel.V(goldX, goldY-25), basicAtlas)
+	fmt.Fprintln(textBase, "TIME :")
+	textBase.Draw(renderer, pixel.IM)
 
 	//renderer:AlignText("left", "top")
-	topBarText = text.New(pixel.V(goldX+10, goldY), basicAtlas)
-	fmt.Fprintln(topBarText, "0")
-	topBarText.Draw(renderer, pixel.IM)
+	textBase = text.New(pixel.V(goldX+10, goldY), basicAtlas)
+	textBase = text.New(pixel.V(goldX+10+getTextW(textBase, "GP :"), goldY), basicAtlas)
+	fmt.Fprintln(textBase, "0")
+	textBase.Draw(renderer, pixel.IM)
 
-	topBarText = text.New(pixel.V(goldX+10, goldY+25), basicAtlas)
-	fmt.Fprintln(topBarText, "0")
-	topBarText.Draw(renderer, pixel.IM)
+	textBase = text.New(pixel.V(goldX+10, goldY-25), basicAtlas)
+	textBase = text.New(pixel.V(goldX+10+getTextW(textBase, "TIME :"), goldY-25), basicAtlas)
+	fmt.Fprintln(textBase, "0")
+	textBase.Draw(renderer, pixel.IM)
 }
