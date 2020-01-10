@@ -6,6 +6,7 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
 	"github.com/steelx/go-rpg-cgm/globals"
+	"github.com/steelx/go-rpg-cgm/world"
 	"math"
 )
 
@@ -22,19 +23,21 @@ type SelectionMenu struct {
 	columns        int      //The number of columns the menu has. This defaults to 1
 	focusX, focusY int      //Indicates which item in the list is currently selected.
 	//focusX tells us which column is selected and focusY which element in that column
-	spacingY, spacingX        float64 //space btw each items
+	SpacingY, SpacingX        float64 //space btw each items
 	scale                     float64 //menu scale in size
 	cursor                    *pixel.Sprite
 	cursorWidth, cursorHeight float64
-	showCursor                bool
+	IsShowCursor              bool
 	maxRows, displayRows      int //rows might be 30 but only 5 maxRows are displayed at once
 	displayStart              int //index at which we start displaying menu, e.g. out of 30 max 5 are visible from index 6
 	renderer                  pixel.Target
 	textBase                  *text.Text
 	OnSelection               func(int, string) //to be called after selection
+	DataI                     []world.ItemIndex
 }
 
-func SelectionMenuCreate(data []string, showColumns bool, position pixel.Vec, onSelection func(int, string)) SelectionMenu {
+//TODO: custom renderItem method
+func SelectionMenuCreate(data []string, showColumns bool, position pixel.Vec, onSelection func(int, string), additionalData []world.ItemIndex) SelectionMenu {
 	m := SelectionMenu{
 		X:            position.X,
 		Y:            position.Y,
@@ -42,9 +45,9 @@ func SelectionMenuCreate(data []string, showColumns bool, position pixel.Vec, on
 		columns:      1,
 		focusX:       0,
 		focusY:       0,
-		spacingY:     24,
-		spacingX:     128,
-		showCursor:   true,
+		SpacingY:     24,
+		SpacingX:     128,
+		IsShowCursor: true,
 		maxRows:      len(data) - 1,
 		displayStart: 0,
 		scale:        1,
@@ -57,8 +60,17 @@ func SelectionMenuCreate(data []string, showColumns bool, position pixel.Vec, on
 	m.cursorWidth = globals.CursorPng.Bounds().W()
 	m.cursorHeight = globals.CursorPng.Bounds().H()
 
+	//temp implement correct columns pending
 	if showColumns {
 		m.columns += m.maxRows / m.displayRows
+		if m.maxRows == 1 {
+			m.columns = 2
+			m.displayRows = 1
+		}
+	}
+
+	if additionalData != nil {
+		m.DataI = additionalData
 	}
 
 	m.width = m.calcTotalWidth()
@@ -70,10 +82,16 @@ func (m *SelectionMenu) SetPosition(x, y float64) {
 	m.X = x
 	m.Y = y
 }
+func (m *SelectionMenu) ShowCursor() {
+	m.IsShowCursor = true
+}
+func (m *SelectionMenu) HideCursor() {
+	m.IsShowCursor = false
+}
 
 func (m SelectionMenu) calcTotalHeight() float64 {
-	height := float64(m.displayRows) * m.spacingY
-	return height - m.spacingY/2
+	height := float64(m.displayRows) * m.SpacingY
+	return height - m.SpacingY/2
 }
 func (m SelectionMenu) calcTotalWidth() float64 {
 	if m.columns == 1 {
@@ -84,7 +102,7 @@ func (m SelectionMenu) calcTotalWidth() float64 {
 		}
 		return maxEntryWidth + m.cursorWidth
 	}
-	return m.spacingX * float64(m.columns)
+	return m.SpacingX * float64(m.columns)
 }
 
 func (m SelectionMenu) renderItem(pos pixel.Vec, item string, renderer pixel.Target) {
@@ -104,8 +122,8 @@ func (m SelectionMenu) Render(renderer *pixelgl.Window) {
 	cursorWidth := m.cursorWidth * m.scale
 	cursorHalfWidth := cursorWidth / 2
 	cursorHalfHeight := m.cursorHeight / 2
-	spacingX := m.spacingX * m.scale
-	rowHeight := m.spacingY * m.scale
+	spacingX := m.SpacingX * m.scale
+	rowHeight := m.SpacingY * m.scale
 
 	var x, y = m.X, m.Y
 	var mat = pixel.IM.Scaled(pixel.V(x, y), m.scale)
@@ -113,7 +131,7 @@ func (m SelectionMenu) Render(renderer *pixelgl.Window) {
 	//temp single columns not rendering hence
 	if m.columns == 1 {
 		for i := 0; i < len(m.dataSource); i++ {
-			if i == m.focusY && m.showCursor {
+			if i == m.focusY && m.IsShowCursor {
 				m.cursor.Draw(renderer, mat.Moved(pixel.V(x+cursorHalfWidth, y+cursorHalfHeight/2)))
 			}
 			m.renderItem(pixel.V(x+cursorWidth, y), m.dataSource[i], renderer)
@@ -126,7 +144,7 @@ func (m SelectionMenu) Render(renderer *pixelgl.Window) {
 	itemIndex := displayStart * m.columns
 	for i := displayStart; i < displayEnd; i++ {
 		for j := 0; j < m.columns; j++ {
-			if i == m.focusY && j == m.focusX && m.showCursor {
+			if i == m.focusY && j == m.focusX && m.IsShowCursor {
 				m.cursor.Draw(renderer, mat.Moved(pixel.V(x+cursorHalfWidth, y+cursorHalfHeight/2)))
 			}
 			item := m.dataSource[itemIndex]
@@ -173,6 +191,11 @@ func (m *SelectionMenu) MoveDisplayUp() {
 
 func (m *SelectionMenu) MoveDisplayDown() {
 	m.displayStart = m.displayStart + 1
+}
+
+func (m SelectionMenu) SelectedItem() world.ItemIndex {
+	//return m.GetIndex()
+	return m.DataI[m.GetIndex()]
 }
 
 func (m SelectionMenu) GetIndex() int {

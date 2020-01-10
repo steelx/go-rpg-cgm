@@ -22,8 +22,7 @@ func InGameMenuStateCreate(stack *gui.StateStack, win *pixelgl.Window) *InGameMe
 			return FrontMenuStateCreate(igm, win)
 		},
 		"items": func() state_machine.State {
-			//return ItemMenuState:Create(this)
-			return state_machine.Create(map[string]func() state_machine.State{})
+			return ItemsMenuStateCreate(igm, win)
 		},
 		"magic": func() state_machine.State {
 			//return MagicMenuStateCreate(this)

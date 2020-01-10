@@ -75,7 +75,7 @@ func TextboxWithMenuCreate(stack *StateStack, textBoxText string, panelPos pixel
 		pixel.V(textbox.Position.X-10, textbox.Position.Y-textBounds.H()-10), func(i int, s string) {
 			onSelection(i, s)
 			textbox.isDead = true
-		})
+		}, nil)
 
 	return &textbox
 }
