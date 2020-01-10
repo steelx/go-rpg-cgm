@@ -1,0 +1,5 @@
+layout := gui.LayoutCreate(exploreState.Map.CamX, exploreState.Map.CamY, win)
+layout.Contract("screen", 0, 0)
+layout.SplitHorz("screen", "top", "bottom", 0.12, 2)
+layout.SplitVert("bottom", "left", "party", 0.726, 2)
+layout.SplitHorz("left", "menu", "gold", 0.7, 2)
