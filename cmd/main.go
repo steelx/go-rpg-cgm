@@ -141,7 +141,9 @@ func setup(win *pixelgl.Window) {
 	fade1 := gui.FadeScreenCreate(stack, 1, 0, 1.5, pixel.V(exploreState.Map.CamX, exploreState.Map.CamY))
 	stack.Push(&fade1)
 	stack.PushFitted(0, 0, "Ah, this headache!!")
-	//stack.Push(gui.ProgressBarCreate(stack, 200, -50))
+
+	ign_menu := game_states.InGameMenuStateCreate(stack, win)
+	stack.Push(ign_menu)
 }
 
 //=============================================================

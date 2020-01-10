@@ -2,28 +2,35 @@ package world
 
 import (
 	"fmt"
+	"github.com/faiface/pixel"
+	"github.com/faiface/pixel/text"
+	"golang.org/x/image/font/basicfont"
 	"log"
 	"math"
 )
 
 type World struct {
 	Time, Gold      float64
-	Items, KeyItems map[int]ItemIndex
+	Items, KeyItems []ItemIndex
 }
 
 type ItemIndex struct {
-	id, count int
+	Id, Count int
 }
 
 func WorldCreate() World {
 	w := World{
 		Time:     0,
 		Gold:     0,
-		Items:    make(map[int]ItemIndex, 0),
-		KeyItems: make(map[int]ItemIndex, 0),
+		Items:    make([]ItemIndex, 0),
+		KeyItems: make([]ItemIndex, 0),
 	}
 
-	w.Items[2] = ItemIndex{id: 2, count: 1}
+	w.Items = append(w.Items, ItemIndex{Id: 1, Count: 2})
+	w.Items = append(w.Items, ItemIndex{Id: 2, Count: 1})
+	w.Items = append(w.Items, ItemIndex{Id: 3, Count: 1})
+	w.KeyItems = append(w.KeyItems, ItemIndex{Id: 4, Count: 1})
+
 	return w
 }
 
@@ -32,16 +39,19 @@ func (w *World) AddItem(itemId, count int) {
 		log.Fatal(fmt.Sprintf("Item ID {%v} does not exists in DB", itemId))
 	}
 
-	//Does it already exist in World
-	if item, ok := w.Items[itemId]; ok {
-		item.count += count
-		return
+	for i := range w.Items {
+		//Does it already exist in World
+		if w.Items[i].Id == itemId {
+			w.Items[i].Count += count
+			return
+		}
 	}
 
-	w.Items[itemId] = ItemIndex{
-		id:    itemId,
-		count: count,
-	}
+	//Add new
+	w.Items = append(w.Items, ItemIndex{
+		Id:    itemId,
+		Count: count,
+	})
 }
 
 func (w *World) RemoveItem(itemId, count int) {
@@ -49,37 +59,58 @@ func (w *World) RemoveItem(itemId, count int) {
 		log.Fatal(fmt.Sprintf("Item ID {%v} does not exists in DB", itemId))
 	}
 
-	//if it doesnt exists
-	if _, ok := w.Items[itemId]; !ok {
-		return
-	}
+	for i := len(w.Items) - 1; i <= 0; i-- {
+		//Does it already exist in World
+		if w.Items[i].Id == itemId {
+			w.Items[i].Count -= count
+		}
 
-	item := w.Items[itemId]
-	if item.count-count <= 0 {
-		delete(w.Items, itemId)
-	} else {
-		item.count = item.count + count
+		if w.Items[i].Count <= 0 {
+			w.removeItemFromArray(i)
+		}
 	}
 }
 
+func (w *World) removeItemFromArray(index int) {
+	if len(w.Items) == 1 {
+		w.Items = make([]ItemIndex, 0)
+		return
+	}
+	w.Items[index], w.Items[0] = w.Items[0], w.Items[index]
+	w.Items = w.Items[1 : len(w.Items)-1]
+}
+
 func (w World) hasKeyItem(itemId int) bool {
-	_, ok := w.KeyItems[itemId]
-	return ok
+	for _, v := range w.KeyItems {
+		if v.Id == itemId {
+			return true
+		}
+	}
+	return false
 }
 
 func (w *World) AddKeyItem(itemId int) {
 	if w.hasKeyItem(itemId) {
+		//if already exists we dont add again
 		return
 	}
 
-	w.KeyItems[itemId] = ItemIndex{id: itemId, count: 1}
+	w.KeyItems = append(w.KeyItems, ItemIndex{Id: itemId, Count: 1})
 }
 func (w *World) RemoveKeyItem(itemId int) {
 	if !w.hasKeyItem(itemId) {
 		return
 	}
 
-	delete(w.KeyItems, itemId)
+	w.removeKeyItemFromArray(itemId)
+}
+func (w *World) removeKeyItemFromArray(index int) {
+	if len(w.KeyItems) == 1 {
+		w.Items = make([]ItemIndex, 0)
+		return
+	}
+	w.KeyItems[index], w.KeyItems[0] = w.KeyItems[0], w.KeyItems[index]
+	w.KeyItems = w.KeyItems[1 : len(w.KeyItems)-1]
 }
 
 func (w *World) Update(dt float64) {
@@ -96,4 +127,34 @@ func (w World) TimeAsString() string {
 
 func (w World) GoldAsString() string {
 	return fmt.Sprintf("%v", w.Gold)
+}
+
+func (w World) GetItemsAsStrings() []string {
+	var items []string
+	for _, item := range w.Items {
+		items = append(items, fmt.Sprintf("%s, #%d (%v)", ItemsDB[item.Id].Name, item.Id, item.Count))
+	}
+	return items
+}
+
+func (w World) GetKeyItemsAsStrings() []string {
+	var items []string
+	for _, item := range w.KeyItems {
+		items = append(items, fmt.Sprintf("%s, #%d (%v)", ItemsDB[item.Id].Name, item.Id, item.Count))
+	}
+	return items
+}
+
+//TODO: use inside SelectionMenu renderItem pending
+func (w World) DrawItem(renderer pixel.Target, x, y float64, itemIdx ItemIndex) {
+	itemDef := ItemsDB[itemIdx.Id]
+
+	basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
+	pos := pixel.V(x+18, y)
+	textBase := text.New(pos, basicAtlas)
+	fmt.Fprintln(textBase, fmt.Sprintf("%-6s (%-6v)", itemDef.Name, itemIdx.Count))
+
+	//first uncomment icons.go line no. 9
+	//iconSprite := IconPNGs.Get(itemDef.ItemType)
+	//iconSprite.Draw(renderer, pixel.IM.Moved(pixel.V(x + 6, y)))
 }

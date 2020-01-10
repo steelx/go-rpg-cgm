@@ -46,7 +46,7 @@ func FrontMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) FrontMen
 		func(i int, str string) {
 			fmt.Println("Menu", i, str)
 			fm.OnMenuClick(i, str)
-		},
+		}, nil,
 	)
 	fm.Selections = &selectionMenu
 	fm.Panels = []gui.Panel{
