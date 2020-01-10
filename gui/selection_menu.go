@@ -6,8 +6,8 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
 	"github.com/steelx/go-rpg-cgm/globals"
-	"github.com/steelx/go-rpg-cgm/world"
 	"math"
+	"reflect"
 )
 
 /* e.g.
@@ -33,11 +33,11 @@ type SelectionMenu struct {
 	renderer                  pixel.Target
 	textBase                  *text.Text
 	OnSelection               func(int, string) //to be called after selection
-	DataI                     []world.ItemIndex
+	DataI                     []interface{}
 }
 
 //TODO: custom renderItem method
-func SelectionMenuCreate(data []string, showColumns bool, position pixel.Vec, onSelection func(int, string), additionalData []world.ItemIndex) SelectionMenu {
+func SelectionMenuCreate(data []string, showColumns bool, position pixel.Vec, onSelection func(int, string), additionalData interface{}) SelectionMenu {
 	m := SelectionMenu{
 		X:            position.X,
 		Y:            position.Y,
@@ -70,7 +70,13 @@ func SelectionMenuCreate(data []string, showColumns bool, position pixel.Vec, on
 	}
 
 	if additionalData != nil {
-		m.DataI = additionalData
+		dataI := reflect.ValueOf(additionalData)
+		if dataI.Len() > 0 {
+			m.DataI = make([]interface{}, dataI.Len())
+			for i := 0; i < dataI.Len(); i++ {
+				m.DataI[i] = dataI.Index(i).Interface()
+			}
+		}
 	}
 
 	m.width = m.calcTotalWidth()
@@ -193,7 +199,7 @@ func (m *SelectionMenu) MoveDisplayDown() {
 	m.displayStart = m.displayStart + 1
 }
 
-func (m SelectionMenu) SelectedItem() world.ItemIndex {
+func (m SelectionMenu) SelectedItem() interface{} {
 	//return m.GetIndex()
 	return m.DataI[m.GetIndex()]
 }

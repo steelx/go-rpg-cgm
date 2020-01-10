@@ -9,6 +9,7 @@ import (
 	"github.com/steelx/go-rpg-cgm/state_machine"
 	"github.com/steelx/go-rpg-cgm/world"
 	"golang.org/x/image/font/basicfont"
+	"reflect"
 )
 
 type ItemsMenuState struct {
@@ -125,7 +126,9 @@ func (im ItemsMenuState) Render(win *pixelgl.Window) {
 
 	menu := im.ItemMenus[im.CategoryMenu.GetIndex()]
 	if !im.InCategoryMenu || !im.CategoryMenu.IsShowCursor {
-		selectedItemIdx := menu.SelectedItem()
+		//convert interface to world.ItemIndex type
+		selectedItemIdxV := reflect.ValueOf(menu.SelectedItem())
+		selectedItemIdx := selectedItemIdxV.Interface().(world.ItemIndex)
 		itemDef := world.ItemsDB[selectedItemIdx.Id]
 
 		descX := im.Layout.Left("mid") + 20
