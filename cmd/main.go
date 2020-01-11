@@ -103,15 +103,16 @@ func setup(win *pixelgl.Window) {
 	var introScene = []interface{}{
 		storyboard.Wait(0),
 		storyboard.BlackScreen("blackscreen"),
+		storyboard.Wait(1),
+		storyboard.FadeScreen("fadeWhite", 1, 0, 2),
+		storyboard.TitleCaptionScreen("title", "Chandragupta Maurya", 3),
+		storyboard.SubTitleCaptionScreen("subtitle", "A jRPG game in GO", 2),
 		storyboard.Wait(2),
-		storyboard.FadeScreen("fadeWhite", 1, 0, 1),
-		storyboard.TitleCaptionScreen("title", "Welcome to Mumbai", 3),
-		storyboard.SubTitleCaptionScreen("subtitle", "Mumbai is very crowded", 2),
-		storyboard.Wait(5),
 	}
 
 	var storyboardI = storyboard.Create(stack, win, introScene)
-	stack.Push(&storyboardI)
+	stack.Push(storyboardI)
+
 }
 
 //=============================================================
@@ -121,10 +122,10 @@ func gameLoop(win *pixelgl.Window) {
 	last := time.Now()
 
 	//initial map Camera
-	exploreState.Map.GoToTile(4, 4)
-	camPos := pixel.V(exploreState.Map.CamX, exploreState.Map.CamY)
-	cam := pixel.IM.Scaled(camPos, 1.0).Moved(win.Bounds().Center().Sub(camPos))
-	win.SetMatrix(cam)
+	//exploreState.Map.GoToTile(4, 4)
+	//camPos := pixel.V(exploreState.Map.CamX, exploreState.Map.CamY)
+	//cam := pixel.IM.Scaled(camPos, 1.0).Moved(win.Bounds().Center().Sub(camPos))
+	//win.SetMatrix(cam)
 
 	tick := time.Tick(frameRate)
 	for !win.Closed() {

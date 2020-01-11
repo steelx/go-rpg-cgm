@@ -10,15 +10,15 @@ import (
 type Storyboard struct {
 	Stack         *gui.StateStack
 	InternalStack *gui.StateStack
-	States        map[string]*gui.StackInterface
+	States        map[string]gui.StackInterface
 	Events        []interface{} //always keep as last args
 }
 
-func Create(stack *gui.StateStack, win *pixelgl.Window, eventsI interface{}) Storyboard {
-	sb := Storyboard{
+func Create(stack *gui.StateStack, win *pixelgl.Window, eventsI interface{}) *Storyboard {
+	sb := &Storyboard{
 		Stack:         stack,
 		InternalStack: gui.StateStackCreate(win),
-		States:        make(map[string]*gui.StackInterface),
+		States:        make(map[string]gui.StackInterface),
 	}
 
 	if eventsI != nil {
@@ -40,7 +40,7 @@ func (s Storyboard) CleanUp() {
 
 func (s *Storyboard) PushState(identifier string, state gui.StackInterface) {
 	//push a State on the stack but keep a reference here
-	s.States[identifier] = &state //identifier e.g. blackscreen
+	s.States[identifier] = state //identifier e.g. blackscreen
 	s.InternalStack.Push(state)
 }
 

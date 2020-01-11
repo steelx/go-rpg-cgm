@@ -63,7 +63,6 @@ func SubTitleCaptionScreen(id string, txt string, duration float64) func(storybo
 		dtTime += dt
 		captions := gui.CaptionScreenCreate(txt, pixel.V(0, 50), 1)
 		storyboard.PushState(id, &captions)
-		storyboard.RemoveState("blackscreen")
 
 		return TweenEventCreate(
 			1, 0, duration,
