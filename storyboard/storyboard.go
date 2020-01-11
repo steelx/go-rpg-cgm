@@ -10,7 +10,7 @@ import (
 type Storyboard struct {
 	Stack         *gui.StateStack
 	InternalStack *gui.StateStack
-	States        map[string]gui.StackInterface
+	States        map[string]*gui.StackInterface
 	Events        []interface{} //always keep as last args
 }
 
@@ -18,7 +18,7 @@ func Create(stack *gui.StateStack, win *pixelgl.Window, eventsI interface{}) Sto
 	sb := Storyboard{
 		Stack:         stack,
 		InternalStack: gui.StateStackCreate(win),
-		States:        make(map[string]gui.StackInterface),
+		States:        make(map[string]*gui.StackInterface),
 	}
 
 	if eventsI != nil {
@@ -40,7 +40,7 @@ func (s Storyboard) CleanUp() {
 
 func (s *Storyboard) PushState(identifier string, state gui.StackInterface) {
 	//push a State on the stack but keep a reference here
-	s.States[identifier] = state //identifier e.g. blackscreen
+	s.States[identifier] = &state //identifier e.g. blackscreen
 	s.InternalStack.Push(state)
 }
 
@@ -78,6 +78,19 @@ Loop:
 
 		case func(storyboard *Storyboard) *WaitEvent:
 			xv := x(s)
+			xv.Update(dt)
+			if xv.IsFinished() {
+				deleteIndex = k
+				break Loop
+			}
+			if xv.IsBlocking() {
+				break Loop
+			}
+
+		case func(storyboard *Storyboard, dt float64) TweenEvent:
+			xv := x(s, dt)
+			xv.Update(dt)
+
 			if xv.IsFinished() {
 				deleteIndex = k
 				break Loop

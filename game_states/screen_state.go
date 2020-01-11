@@ -25,6 +25,15 @@ func ScreenStateCreate(stack *gui.StateStack, color color.Color) ScreenState {
 	return s
 }
 
+func (s *ScreenState) SetW(value float64) {
+	s.Color = color.RGBA{
+		R: 0,
+		G: 255,
+		B: 0,
+		A: uint8(value),
+	}
+}
+
 /*
 	StackInterface implemented below
 */

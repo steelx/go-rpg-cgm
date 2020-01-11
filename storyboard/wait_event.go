@@ -2,8 +2,6 @@ package storyboard
 
 import (
 	"github.com/faiface/pixel/pixelgl"
-	"github.com/steelx/go-rpg-cgm/game_states"
-	"image/color"
 )
 
 type SBEvent interface {
@@ -34,16 +32,4 @@ func (e WaitEvent) IsFinished() bool {
 }
 func (e WaitEvent) Render(win *pixelgl.Window) {
 
-}
-
-func Wait(seconds float64) *WaitEvent {
-	return WaitEventCreate(seconds)
-}
-
-func BlackScreen(id string) func(storyboard *Storyboard) *WaitEvent {
-	return func(storyboard *Storyboard) *WaitEvent {
-		screen := game_states.ScreenStateCreate(storyboard.Stack, color.RGBA{R: 255, G: 0, B: 0, A: 1})
-		storyboard.PushState(id, screen)
-		return WaitEventCreate(0)
-	}
 }

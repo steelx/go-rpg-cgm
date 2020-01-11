@@ -19,7 +19,7 @@ type FadeScreen struct {
 	position                pixel.Vec
 }
 
-func FadeScreenCreate(stack *StateStack, alphaStart, alphaFinish uint8, duration float64, position pixel.Vec) FadeScreen {
+func FadeScreenCreate(stack *StateStack, alphaStart, alphaFinish uint8, duration float64) FadeScreen {
 
 	fd := FadeScreen{
 		Stack:       stack,
@@ -27,7 +27,7 @@ func FadeScreenCreate(stack *StateStack, alphaStart, alphaFinish uint8, duration
 		AlphaFinish: (alphaFinish >> 24) & 0xff,
 		Duration:    duration,
 		imd:         imdraw.New(nil),
-		position:    position,
+		position:    pixel.V(0, 0),
 	}
 	fd.Color = color.RGBA{R: 255, G: 255, B: 255, A: fd.AlphaStart}
 	fd.Tween = animation.TweenCreate(float64(fd.AlphaStart), float64(fd.AlphaFinish), fd.Duration)
