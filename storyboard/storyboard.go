@@ -8,13 +8,17 @@ import (
 )
 
 type Storyboard struct {
-	Stack  *gui.StateStack
-	Events []interface{} //always keep as last args
+	Stack         *gui.StateStack
+	InternalStack *gui.StateStack
+	States        map[string]gui.StackInterface
+	Events        []interface{} //always keep as last args
 }
 
-func Create(stack *gui.StateStack, eventsI interface{}) Storyboard {
+func Create(stack *gui.StateStack, win *pixelgl.Window, eventsI interface{}) Storyboard {
 	sb := Storyboard{
-		Stack: stack,
+		Stack:         stack,
+		InternalStack: gui.StateStackCreate(win),
+		States:        make(map[string]gui.StackInterface),
 	}
 
 	if eventsI != nil {
@@ -34,6 +38,12 @@ func (s Storyboard) CleanUp() {
 
 }
 
+func (s *Storyboard) PushState(identifier string, state gui.StackInterface) {
+	//push a State on the stack but keep a reference here
+	s.States[identifier] = state //identifier e.g. blackscreen
+	s.InternalStack.Push(state)
+}
+
 /*
 	StateStack interface implemented below
 */
@@ -46,6 +56,8 @@ func (s Storyboard) Exit() {
 }
 
 func (s *Storyboard) Update(dt float64) bool {
+	s.InternalStack.Update(dt)
+
 	if len(s.Events) == 0 {
 		s.Stack.Pop()
 	}
@@ -64,6 +76,16 @@ Loop:
 				break Loop
 			}
 
+		case func(storyboard *Storyboard) *WaitEvent:
+			xv := x(s)
+			if xv.IsFinished() {
+				deleteIndex = k
+				break Loop
+			}
+			if xv.IsBlocking() {
+				break Loop
+			}
+
 		default:
 			fmt.Printf("Unsupported type: %T\n", x)
 		}
@@ -75,13 +97,15 @@ Loop:
 		s.Events[deleteIndex], s.Events[0] = s.Events[0], s.Events[deleteIndex]
 		s.Events = s.Events[1:]
 	}
-	//fmt.Println("AFTER", s.Events)
 
 	return true
 }
 
 func (s Storyboard) Render(win *pixelgl.Window) {
+	debugText := fmt.Sprintf("Storyboard Events # %v", len(s.Events))
+	fmt.Println(debugText)
 
+	s.InternalStack.Render(win)
 }
 
 func (s Storyboard) HandleInput(win *pixelgl.Window) {

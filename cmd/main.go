@@ -101,11 +101,12 @@ func setup(win *pixelgl.Window) {
 	stack.Push(&exploreState)
 
 	var introScene = []interface{}{
-		storyboard.Wait(5),
+		storyboard.Wait(0),
+		storyboard.BlackScreen("blackscreen"),
 		storyboard.Wait(2),
 	}
 
-	var storyboardI = storyboard.Create(stack, introScene)
+	var storyboardI = storyboard.Create(stack, win, introScene)
 	stack.Push(&storyboardI)
 }
 
