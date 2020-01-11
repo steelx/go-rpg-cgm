@@ -104,7 +104,10 @@ func setup(win *pixelgl.Window) {
 		storyboard.Wait(0),
 		storyboard.BlackScreen("blackscreen"),
 		storyboard.Wait(2),
-		storyboard.FadeScreen("fadeWhite", 1, 0, 3),
+		storyboard.FadeScreen("fadeWhite", 1, 0, 1),
+		storyboard.TitleCaptionScreen("title", "Welcome to Mumbai", 3),
+		storyboard.SubTitleCaptionScreen("subtitle", "Mumbai is very crowded", 2),
+		storyboard.Wait(5),
 	}
 
 	var storyboardI = storyboard.Create(stack, win, introScene)

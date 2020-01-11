@@ -44,6 +44,16 @@ func (s *Storyboard) PushState(identifier string, state gui.StackInterface) {
 	s.InternalStack.Push(state)
 }
 
+//func (s *Storyboard) RemoveState(identifier string) {
+//	stateV := s.States[identifier]
+//	delete(s.States, identifier)
+//	for _, v := range s.InternalStack.States {
+//		if reflect.DeepEqual(v, stateV) {
+//			fmt.Println("found")
+//		}
+//	}
+//}
+
 /*
 	StateStack interface implemented below
 */

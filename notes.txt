@@ -1,3 +1,6 @@
+//Text
+basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
+
 layout := gui.LayoutCreate(exploreState.Map.CamX, exploreState.Map.CamY, win)
 layout.Contract("screen", 0, 0)
 layout.SplitHorz("screen", "top", "bottom", 0.12, 2)
