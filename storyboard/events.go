@@ -2,8 +2,11 @@ package storyboard
 
 import (
 	"github.com/faiface/pixel"
+	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/game_states"
+	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/gui"
+	"github.com/steelx/go-rpg-cgm/maps_db"
 	"image/color"
 )
 
@@ -72,5 +75,24 @@ func SubTitleCaptionScreen(id string, txt string, duration float64) func(storybo
 				captions.Update(e.Tween.Value())
 			},
 		)
+	}
+}
+
+func Scene(mapName string, focusX, focusY float64, hideHero bool, win *pixelgl.Window) func(storyboard *Storyboard) *NonBlockEvent {
+	walkCyclePng, err := globals.LoadPicture("../resources/walk_cycle.png")
+	globals.PanicIfErr(err)
+
+	return func(storyboard *Storyboard) *NonBlockEvent {
+		gMap, collision, collisionLayerName := maps_db.MapsDB[mapName]()
+		exploreState := game_states.ExploreStateCreate(nil,
+			gMap, collision, collisionLayerName, pixel.V(focusX, focusY), walkCyclePng, win,
+		)
+		if hideHero {
+			exploreState.HideHero()
+		}
+
+		storyboard.PushState(mapName, &exploreState)
+
+		return NonBlockEventCreate(0.1)
 	}
 }

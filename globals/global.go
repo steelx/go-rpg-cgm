@@ -29,6 +29,7 @@ type GlobalVars struct {
 	Undecorated       bool
 	ClearColor        pixel.RGBA
 	Win               *pixelgl.Window
+	DeltaTime         float64
 	CollisionLayer    string
 	CollisionLayerPos int
 }

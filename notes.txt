@@ -8,6 +8,50 @@ layout.SplitVert("bottom", "left", "party", 0.726, 2)
 layout.SplitHorz("left", "menu", "gold", 0.7, 2)
 
 
+exploreState = game_states.ExploreStateCreate(stack,
+		globals.CastleMapDef, 3, "collision", pixel.V(2, 4), walkCyclePng, win,
+	)
+
+	//Add NPCs
+	var NPC1 *game_map.Character
+	NPC1 = game_map.CharacterCreate(
+		"Aghori Baba", nil, game_map.CharacterFacingDirection[2],
+		game_map.CharacterDefinition{
+			Texture: walkCyclePng, Width: 16, Height: 24,
+			StartFrame: 46,
+			TileX:      9,
+			TileY:      4,
+		},
+		map[string]func() state_machine.State{
+			"wait": func() state_machine.State {
+				return character_states.NPCWaitStateCreate(NPC1, exploreState.Map)
+			},
+		},
+	)
+
+	var NPC2 *game_map.Character
+	NPC2 = game_map.CharacterCreate(
+		"Bhadrasaal", [][]int{{48, 49, 50, 51}, {52, 53, 54, 55}, {56, 57, 58, 59}, {60, 61, 62, 63}},
+		game_map.CharacterFacingDirection[2],
+		game_map.CharacterDefinition{
+			Texture: walkCyclePng, Width: 16, Height: 24,
+			StartFrame: 56,
+			TileX:      3,
+			TileY:      8,
+		},
+		map[string]func() state_machine.State{
+			"wait": func() state_machine.State {
+				return character_states.NPCStrollWaitStateCreate(NPC2, exploreState.Map)
+			},
+			"move": func() state_machine.State {
+				return character_states.MoveStateCreate(NPC2, exploreState.Map)
+			},
+		},
+	)
+
+	exploreState.AddNPC(NPC1)
+	exploreState.AddNPC(NPC2)
+
 //Actions & Triggers
 gUpDoorTeleport := ActionTeleport(*exploreState.Map, globals.Direction{7, 2})
 gDownDoorTeleport := ActionTeleport(*exploreState.Map, globals.Direction{9, 10})

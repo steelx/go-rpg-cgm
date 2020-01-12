@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.2" tiledversion="1.3.1" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="12" height="12" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="1">
  <tileset firstgid="1" name="rpg_indoor" tilewidth="16" tileheight="16" tilecount="132" columns="11">
-  <image source="rpg_indoor.png" width="176" height="192"/>
+  <image source="../resources/rpg_indoor.png" width="176" height="192"/>
  </tileset>
  <tileset firstgid="133" name="collision_px" tilewidth="16" tileheight="16" tilecount="4" columns="2">
-  <image source="collision_graphic.png" width="32" height="32"/>
+  <image source="../resources/collision_graphic.png" width="32" height="32"/>
  </tileset>
  <layer id="1" name="Tile Layer 1" width="12" height="12" locked="1">
   <data encoding="csv">

@@ -71,7 +71,7 @@ func (s *MoveState) Enter(dataI interface{}) {
 	targetX, targetY := s.Entity.TileX+data.X, s.Entity.TileY+data.Y
 
 	if player := s.Map.GetEntityAtPos(targetX, targetY); player != nil ||
-		s.Map.IsBlockingTile(int(targetX), int(targetY), globals.Global.CollisionLayerPos) {
+		s.Map.IsBlockingTile(int(targetX), int(targetY)) {
 		s.MoveX = 0
 		s.MoveY = 0
 		s.Entity.SetFrame(s.Anim.GetFirstFrame())

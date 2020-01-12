@@ -76,6 +76,17 @@ Loop:
 	for k, v := range s.Events {
 
 		switch x := v.(type) {
+		case func(storyboard *Storyboard) *NonBlockEvent:
+			xv := x(s)
+			xv.Update(dt)
+			if xv.IsFinished() {
+				deleteIndex = k
+				break Loop
+			}
+			if xv.IsBlocking() {
+				break Loop
+			}
+
 		case *WaitEvent:
 			x.Update(dt)
 			if x.IsFinished() {
@@ -125,8 +136,8 @@ Loop:
 }
 
 func (s Storyboard) Render(win *pixelgl.Window) {
-	debugText := fmt.Sprintf("Storyboard Events # %v", len(s.Events))
-	fmt.Println(debugText)
+	//debugText := fmt.Sprintf("Storyboard Events # %v", len(s.Events))
+	//fmt.Println(debugText)
 
 	s.InternalStack.Render(win)
 }

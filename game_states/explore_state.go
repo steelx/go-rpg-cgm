@@ -14,24 +14,26 @@ import (
 )
 
 type ExploreState struct {
-	Stack  *gui.StateStack
-	MapDef *tilepix.Map
-	Map    *game_map.GameMap
-	Hero   *game_map.Character
-	win    *pixelgl.Window
+	Stack    *gui.StateStack
+	MapDef   *tilepix.Map
+	Map      *game_map.GameMap
+	Hero     *game_map.Character
+	win      *pixelgl.Window
+	startPos pixel.Vec
 }
 
 func ExploreStateCreate(stack *gui.StateStack,
-	tilemap *tilepix.Map, startPos pixel.Vec, heroPng pixel.Picture, window *pixelgl.Window) ExploreState {
+	tilemap *tilepix.Map, collisionLayer int, collisionLayerName string,
+	startPos pixel.Vec, heroPng pixel.Picture, window *pixelgl.Window) ExploreState {
 
 	es := ExploreState{
-		Stack: stack,
-		//Stack:  gui.StateStackCreate(window),
-		MapDef: tilemap,
+		Stack:    stack,
+		startPos: startPos,
+		MapDef:   tilemap,
 	}
 
 	es.win = window
-	es.Map = game_map.MapCreate(es.MapDef)
+	es.Map = game_map.MapCreate(es.MapDef, collisionLayer, collisionLayerName)
 
 	es.Hero = game_map.CharacterCreate("Ajinkya",
 		[][]int{{16, 17, 18, 19}, {20, 21, 22, 23}, {24, 25, 26, 27}, {28, 29, 30, 31}},
@@ -57,6 +59,16 @@ func ExploreStateCreate(stack *gui.StateStack,
 	es.Map.GoToTile(startPos.X, startPos.Y)
 
 	return es
+}
+
+func (es *ExploreState) HideHero() {
+	es.Hero.Entity.TileX = -1
+	es.Hero.Entity.TileY = -1
+}
+func (es *ExploreState) ShowHero() {
+	es.Hero.Entity.TileX = es.startPos.X
+	es.Hero.Entity.TileY = es.startPos.Y
+	es.Map.GoToTile(es.startPos.X, es.startPos.Y)
 }
 
 func (es ExploreState) Enter() {
@@ -104,6 +116,7 @@ func (es ExploreState) Render(win *pixelgl.Window) {
 }
 
 func (es ExploreState) HandleInput(win *pixelgl.Window) {
+	//es.Hero.Controller.Update(globals.Global.DeltaTime)
 	//use key
 	if win.JustPressed(pixelgl.KeyE) {
 		// which way is the player facing?
