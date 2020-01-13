@@ -87,6 +87,9 @@ func (m GameMap) GetEntityAtPos(x, y float64) *Entity {
 //IsBlockingTile check's X, Y cords on collision map layer
 // if ID is not 0, tile exists on X, Y we return true
 func (m GameMap) IsBlockingTile(x, y int) bool {
+	if (x + y*int(m.Width)) <= 0 {
+		return true //we dont let him go out of map
+	}
 	tile := m.Tilemap.TileLayers[m.CollisionLayer].DecodedTiles[x+y*int(m.Width)]
 	return !tile.IsNil() || tile.ID != 0
 }

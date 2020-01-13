@@ -33,7 +33,7 @@ func ExploreStateCreate(stack *gui.StateStack,
 	es.Map = game_map.MapCreate(es.MapDef, collisionLayer, collisionLayerName)
 
 	es.Hero = character_states.Hero(es.Map)
-	es.Hero.Controller.Change("wait", globals.Direction{0, 0})
+	//es.Hero.Controller.Change("wait", globals.Direction{0, 0})
 
 	es.startPos = pixel.V(es.Hero.Entity.TileX, es.Hero.Entity.TileY)
 	es.Map.GoToTile(es.startPos.X, es.startPos.Y)
@@ -81,7 +81,8 @@ func (es ExploreState) Render(win *pixelgl.Window) {
 
 		if layer == es.Map.CollisionLayer {
 			for _, gCharacter := range gameCharacters {
-				gCharacter.Entity.TeleportAndDraw(es.Map, canvas)
+				//gCharacter.Entity.TeleportAndDraw(es.Map, canvas) //probably can remove now
+				gCharacter.Entity.Render(es.Map, canvas)
 			}
 		}
 	})
@@ -96,7 +97,6 @@ func (es ExploreState) Render(win *pixelgl.Window) {
 }
 
 func (es ExploreState) HandleInput(win *pixelgl.Window) {
-	//es.Hero.Controller.Update(globals.Global.DeltaTime)
 	//use key
 	if win.JustPressed(pixelgl.KeyE) {
 		// which way is the player facing?

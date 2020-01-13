@@ -73,18 +73,20 @@ func (e Entity) GetTilePositionOnMap(gMap *GameMap) (vec pixel.Vec) {
 }
 
 //Render will render self + any effects on entity e.g. SleepEntity
-func (e *Entity) Render(renderer pixel.Target) {
+func (e *Entity) Render(gMap *GameMap, renderer pixel.Target) {
 	//Draw self first
 	spriteFrame := e.Frames[e.StartFrame]
-	position := pixel.V(e.TileX, e.TileY) //might need GetTilePositionOnMap
+	position := e.GetTilePositionOnMap(gMap)
 	e.Sprite = pixel.NewSprite(e.Texture, spriteFrame)
 	e.Sprite.Draw(renderer, pixel.IM.Moved(position))
 
 	//Draw children
 	if len(e.Children) > 0 {
 		for _, child := range e.Children {
-			child.SetTilePos(child.TileX+e.TileX, child.TileY+e.TileY)
-			child.Render(renderer)
+			spriteFrame := child.Frames[e.StartFrame]
+			childPos := pixel.V(child.TileX+position.X, child.TileY+position.Y)
+			child.Sprite = pixel.NewSprite(child.Texture, spriteFrame)
+			child.Sprite.Draw(renderer, pixel.IM.Moved(childPos))
 		}
 	}
 }

@@ -95,17 +95,18 @@ func Scene(mapName string, hideHero bool, win *pixelgl.Window) func(storyboard *
 
 		storyboard.PushState(mapName, &exploreState)
 
-		return NonBlockEventCreate(0.1)
+		return NonBlockEventCreate(0)
 	}
 }
 
 //player_house, def = "sleeper", x = 14, y = 19
-func RunActionAddNPC(mapName, entityDef string, x, y float64) func(storyboard *Storyboard) {
-	return func(storyboard *Storyboard) {
+func RunActionAddNPC(mapName, entityDef string, x, y float64) func(storyboard *Storyboard) *NonBlockEvent {
+	return func(storyboard *Storyboard) *NonBlockEvent {
 		gMap := GetMapRef(storyboard, mapName)
 		runFunc := actions.ActionAddNPC(gMap, globals.Direction{x, y})
 		char := character_states.Characters[entityDef](gMap)
 		runFunc(char)
+		return NonBlockEventCreate(0)
 	}
 }
 

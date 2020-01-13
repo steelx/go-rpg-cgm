@@ -27,7 +27,7 @@ func init() {
 		},
 		"sleeper": {
 			Texture: sleepingPng, Width: 32, Height: 32,
-			StartFrame: 3,
+			StartFrame: 13,
 			TileX:      14,
 			TileY:      19,
 		},
@@ -45,7 +45,10 @@ func init() {
 		},
 	}
 
+	Characters["hero"] = Hero
 	Characters["sleeper"] = Sleeper
+	Characters["npc1"] = NPC1
+	Characters["npc2"] = NPC2
 }
 
 func Hero(gMap *game_map.GameMap) *game_map.Character {
@@ -65,6 +68,7 @@ func Hero(gMap *game_map.GameMap) *game_map.Character {
 			},
 		},
 	)
+	gameCharacter.Controller.Change("wait", globals.Direction{0, 0})
 	return gameCharacter
 }
 
@@ -75,7 +79,7 @@ func Sleeper(gMap *game_map.GameMap) *game_map.Character {
 			"left": {13},
 		},
 		game_map.CharacterFacingDirection[3],
-		Entities["sleeper"],
+		Entities["hero"],
 		map[string]func() state_machine.State{
 			"sleep": func() state_machine.State {
 				return SleepStateCreate(gameCharacter, gMap)
@@ -87,23 +91,24 @@ func Sleeper(gMap *game_map.GameMap) *game_map.Character {
 }
 
 func NPC1(gMap *game_map.GameMap) *game_map.Character {
-	var NPC *game_map.Character
-	NPC = game_map.CharacterCreate("Aghori Baba",
+	var gameCharacter *game_map.Character
+	gameCharacter = game_map.CharacterCreate("Aghori Baba",
 		nil,
 		game_map.CharacterFacingDirection[2],
 		Entities["npc1"],
 		map[string]func() state_machine.State{
 			"wait": func() state_machine.State {
-				return NPCWaitStateCreate(NPC, gMap)
+				return NPCWaitStateCreate(gameCharacter, gMap)
 			},
 		},
 	)
-	return NPC
+	gameCharacter.Controller.Change("wait", globals.Direction{0, 0})
+	return gameCharacter
 }
 
 func NPC2(gMap *game_map.GameMap) *game_map.Character {
-	var NPC *game_map.Character
-	NPC = game_map.CharacterCreate("Bhadrasaal",
+	var gameCharacter *game_map.Character
+	gameCharacter = game_map.CharacterCreate("Bhadrasaal",
 		map[string][]int{
 			"up": {48, 49, 50, 51}, "right": {52, 53, 54, 55}, "down": {56, 57, 58, 59}, "left": {60, 61, 62, 63},
 		},
@@ -111,12 +116,13 @@ func NPC2(gMap *game_map.GameMap) *game_map.Character {
 		Entities["npc2"],
 		map[string]func() state_machine.State{
 			"wait": func() state_machine.State {
-				return NPCStrollWaitStateCreate(NPC, gMap)
+				return NPCStrollWaitStateCreate(gameCharacter, gMap)
 			},
 			"move": func() state_machine.State {
-				return MoveStateCreate(NPC, gMap)
+				return MoveStateCreate(gameCharacter, gMap)
 			},
 		},
 	)
-	return NPC
+	gameCharacter.Controller.Change("wait", globals.Direction{0, 0})
+	return gameCharacter
 }
