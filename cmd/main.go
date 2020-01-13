@@ -51,7 +51,7 @@ func setup(win *pixelgl.Window) {
 	//stack.Push(&exploreState)
 
 	var introScene = []interface{}{
-		storyboard.Scene("sontos_house", 20, 20, false, win),
+		storyboard.Scene("player_room", false, win),
 		storyboard.Wait(0),
 		storyboard.BlackScreen("blackscreen"),
 		storyboard.Wait(1),

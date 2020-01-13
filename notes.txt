@@ -8,36 +8,36 @@ layout.SplitVert("bottom", "left", "party", 0.726, 2)
 layout.SplitHorz("left", "menu", "gold", 0.7, 2)
 
 
-    player_room, collisionLayer, collisionLayerName := maps_db.MapsDB["player_room"]()
-    exploreState = game_states.ExploreStateCreate(stack, player_room, collisionLayer, collisionLayerName, win)
+player_room, collisionLayer, collisionLayerName := maps_db.MapsDB["player_room"]()
+	exploreState = game_states.ExploreStateCreate(stack, player_room, collisionLayer, collisionLayerName, win)
 
 	//Add NPCs
-	exploreState.AddNPC(character_states.NPC1(pixel.V(9, 4), exploreState.Map))
-	exploreState.AddNPC(character_states.NPC2(pixel.V(3, 8), exploreState.Map))
+	exploreState.AddNPC(character_states.NPC1(exploreState.Map))
+	exploreState.AddNPC(character_states.NPC2(exploreState.Map))
 
-//Actions & Triggers
-gUpDoorTeleport := ActionTeleport(*exploreState.Map, globals.Direction{7, 2})
-gDownDoorTeleport := ActionTeleport(*exploreState.Map, globals.Direction{9, 10})
-gTriggerTop := game_map.TriggerCreate(gDownDoorTeleport, nil, nil)
-gTriggerBottom := game_map.TriggerCreate(
-    gUpDoorTeleport,
-    nil,
-    nil,
-)
-gTriggerFlowerPot := game_map.TriggerCreate(
-    nil,
-    nil,
-    func(entity *game_map.Entity) {
-        exploreState.Stack.PushFitted(300, 250, "Dude, snakes.. run!")
-    },
-)
+	//Actions & Triggers
+	gUpDoorTeleport := ActionTeleport(exploreState.Map, globals.Direction{7, 2})
+	gDownDoorTeleport := ActionTeleport(exploreState.Map, globals.Direction{9, 10})
+	gTriggerTop := game_map.TriggerCreate(gDownDoorTeleport, nil, nil)
+	gTriggerBottom := game_map.TriggerCreate(
+		gUpDoorTeleport,
+		nil,
+		nil,
+	)
+	gTriggerFlowerPot := game_map.TriggerCreate(
+		nil,
+		nil,
+		func(entity *game_map.Entity) {
+			exploreState.Stack.PushFitted(300, 250, "Dude, snakes.. run!")
+		},
+	)
 
-exploreState.Map.SetTrigger(7, 2, gTriggerTop)
-exploreState.Map.SetTrigger(9, 10, gTriggerBottom)
-exploreState.Map.SetTrigger(8, 6, gTriggerFlowerPot)
+	exploreState.Map.SetTrigger(7, 2, gTriggerTop)
+	exploreState.Map.SetTrigger(9, 10, gTriggerBottom)
+	exploreState.Map.SetTrigger(8, 6, gTriggerFlowerPot)
 
-//State Stack
-stack.Push(&exploreState)
+	//State Stack
+	stack.Push(&exploreState)
 
 choices := []string{"Menu 1", "lola", "Menu 2", "Menu 03", "Menu 04", "Menu 05", "Menu 06", "Menu 007", "", "", "", "Menu @_@"}
 stack.PushSelectionMenu(
