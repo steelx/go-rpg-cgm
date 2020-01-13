@@ -38,6 +38,7 @@ func CreateEntity(def EntityDefinition) *Entity {
 	e.TileX = def.TileX
 	e.TileY = def.TileY
 	e.StartFrame = def.StartFrame
+	e.Children = make(map[string]*Entity)
 	return e
 }
 

@@ -45,7 +45,7 @@ func init() {
 		},
 	}
 
-	Characters["Sleeper"] = Sleeper
+	Characters["sleeper"] = Sleeper
 }
 
 func Hero(gMap *game_map.GameMap) *game_map.Character {
@@ -82,6 +82,7 @@ func Sleeper(gMap *game_map.GameMap) *game_map.Character {
 			},
 		},
 	)
+	gameCharacter.Controller.Change("sleep", globals.Direction{0, 0})
 	return gameCharacter
 }
 

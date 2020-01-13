@@ -104,12 +104,14 @@ func RunActionAddNPC(mapName, entityDef string, x, y float64) func(storyboard *S
 	return func(storyboard *Storyboard) {
 		gMap := GetMapRef(storyboard, mapName)
 		runFunc := actions.ActionAddNPC(gMap, globals.Direction{x, y})
-		runFunc(character_states.Characters[entityDef](gMap))
+		char := character_states.Characters[entityDef](gMap)
+		runFunc(char)
 	}
 }
 
 func GetMapRef(storyboard *Storyboard, stateId string) *game_map.GameMap {
 	exploreStateI := storyboard.States[stateId]
 	exploreStateV := reflect.ValueOf(exploreStateI)
-	return exploreStateV.Interface().(*game_map.GameMap)
+	exploreState := exploreStateV.Interface().(*game_states.ExploreState)
+	return exploreState.Map
 }
