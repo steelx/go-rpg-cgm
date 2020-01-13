@@ -80,8 +80,7 @@ func (es ExploreState) Render(win *pixelgl.Window) {
 			return gameCharacters[i].Entity.TileY < gameCharacters[j].Entity.TileY
 		})
 
-		//TODO: fix to Map.CollisionLayer int
-		if layer == 2 {
+		if layer == (es.Map.CollisionLayer - 1) {
 			for _, gCharacter := range gameCharacters {
 				gCharacter.Entity.TeleportAndDraw(es.Map, canvas)
 			}
