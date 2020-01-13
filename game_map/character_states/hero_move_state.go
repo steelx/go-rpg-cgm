@@ -46,16 +46,16 @@ func (s *MoveState) Enter(dataI interface{}) {
 	v := reflect.ValueOf(dataI)
 	data := v.Interface().(globals.Direction)
 	if data.X == -1 {
-		frames = s.Character.AnimLeft
+		frames = s.Character.Anims[game_map.CharacterFacingDirection[3]]
 		s.Character.SetFacing(3)
 	} else if data.X == 1 {
-		frames = s.Character.AnimRight
+		frames = s.Character.Anims[game_map.CharacterFacingDirection[1]]
 		s.Character.SetFacing(1)
 	} else if data.Y == -1 {
-		frames = s.Character.AnimUp
+		frames = s.Character.Anims[game_map.CharacterFacingDirection[0]]
 		s.Character.SetFacing(0)
 	} else if data.Y == 1 {
-		frames = s.Character.AnimDown
+		frames = s.Character.Anims[game_map.CharacterFacingDirection[2]]
 		s.Character.SetFacing(2)
 	}
 	s.Anim.SetFrames(frames)
