@@ -22,22 +22,21 @@ type ExploreState struct {
 }
 
 func ExploreStateCreate(stack *gui.StateStack,
-	tilemap *tilepix.Map, collisionLayer int, collisionLayerName string,
-	startPos pixel.Vec, window *pixelgl.Window) ExploreState {
+	tilemap *tilepix.Map, collisionLayer int, collisionLayerName string, window *pixelgl.Window) ExploreState {
 
 	es := ExploreState{
-		Stack:    stack,
-		startPos: startPos,
-		MapDef:   tilemap,
+		Stack:  stack,
+		MapDef: tilemap,
 	}
 
 	es.win = window
 	es.Map = game_map.MapCreate(es.MapDef, collisionLayer, collisionLayerName)
 
-	es.Hero = character_states.Hero(startPos, es.Map)
+	es.Hero = character_states.Hero(es.Map)
 	es.Hero.Controller.Change("wait", globals.Direction{0, 0})
 
-	es.Map.GoToTile(startPos.X, startPos.Y)
+	es.startPos = pixel.V(es.Hero.Entity.TileX, es.Hero.Entity.TileY)
+	es.Map.GoToTile(es.startPos.X, es.startPos.Y)
 
 	return es
 }
@@ -80,7 +79,7 @@ func (es ExploreState) Render(win *pixelgl.Window) {
 			return gameCharacters[i].Entity.TileY < gameCharacters[j].Entity.TileY
 		})
 
-		if layer == (es.Map.CollisionLayer - 1) {
+		if layer == es.Map.CollisionLayer {
 			for _, gCharacter := range gameCharacters {
 				gCharacter.Entity.TeleportAndDraw(es.Map, canvas)
 			}

@@ -8,9 +8,8 @@ layout.SplitVert("bottom", "left", "party", 0.726, 2)
 layout.SplitHorz("left", "menu", "gold", 0.7, 2)
 
 
-    exploreState = game_states.ExploreStateCreate(stack,
-		globals.CastleMapDef, 3, "collision", pixel.V(2, 4), win,
-	)
+    player_room, collisionLayer, collisionLayerName := maps_db.MapsDB["player_room"]()
+    exploreState = game_states.ExploreStateCreate(stack, player_room, collisionLayer, collisionLayerName, win)
 
 	//Add NPCs
 	exploreState.AddNPC(character_states.NPC1(pixel.V(9, 4), exploreState.Map))
