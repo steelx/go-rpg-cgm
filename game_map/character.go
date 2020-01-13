@@ -11,10 +11,6 @@ type CharacterStateBase struct {
 	Controller *state_machine.StateMachine
 }
 
-type Direction struct {
-	X, Y float64
-}
-
 type Character struct {
 	Name       string
 	Anims      map[string][]int

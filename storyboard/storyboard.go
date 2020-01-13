@@ -76,6 +76,9 @@ Loop:
 	for k, v := range s.Events {
 
 		switch x := v.(type) {
+		case func(storyboard *Storyboard):
+			x(s)
+
 		case func(storyboard *Storyboard) *NonBlockEvent:
 			xv := x(s)
 			xv.Update(dt)

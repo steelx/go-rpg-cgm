@@ -22,7 +22,7 @@ func SleepStateCreate(character *game_map.Character, gMap *game_map.GameMap) sta
 		Entity:      character.Entity,
 		Controller:  character.Controller,
 		Anim:        animation.AnimationCreate([]int{1, 2, 3, 4}, true, 0.6),
-		SleepEntity: game_map.CreateEntity(gEntities["sleeper"]),
+		SleepEntity: game_map.CreateEntity(Entities["sleeper"]),
 	}
 
 	s.Entity.SetFrame(character.Anims[character.Facing][0])

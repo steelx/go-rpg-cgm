@@ -51,9 +51,10 @@ func setup(win *pixelgl.Window) {
 	//stack.Push(&exploreState)
 
 	var introScene = []interface{}{
-		storyboard.Scene("player_room", false, win),
+		storyboard.Scene("player_room", true, win),
 		storyboard.Wait(0),
 		storyboard.BlackScreen("blackscreen"),
+		//storyboard.RunActionAddNPC("player_room", "sleeper", 14, 19),
 		storyboard.Wait(1),
 		storyboard.FadeScreen("fadeWhite", 1, 0, 2),
 		storyboard.TitleCaptionScreen("title", "Chandragupta Maurya", 3),

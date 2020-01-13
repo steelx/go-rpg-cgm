@@ -3,10 +3,15 @@ package storyboard
 import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
+	"github.com/steelx/go-rpg-cgm/actions"
+	"github.com/steelx/go-rpg-cgm/game_map"
+	"github.com/steelx/go-rpg-cgm/game_map/character_states"
 	"github.com/steelx/go-rpg-cgm/game_states"
+	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/maps_db"
 	"image/color"
+	"reflect"
 )
 
 func Wait(seconds float64) *WaitEvent {
@@ -92,4 +97,19 @@ func Scene(mapName string, hideHero bool, win *pixelgl.Window) func(storyboard *
 
 		return NonBlockEventCreate(0.1)
 	}
+}
+
+//player_house, def = "sleeper", x = 14, y = 19
+func RunActionAddNPC(mapName, entityDef string, x, y float64) func(storyboard *Storyboard) {
+	return func(storyboard *Storyboard) {
+		gMap := GetMapRef(storyboard, mapName)
+		runFunc := actions.ActionAddNPC(gMap, globals.Direction{x, y})
+		runFunc(character_states.Characters[entityDef](gMap))
+	}
+}
+
+func GetMapRef(storyboard *Storyboard, stateId string) *game_map.GameMap {
+	exploreStateI := storyboard.States[stateId]
+	exploreStateV := reflect.ValueOf(exploreStateI)
+	return exploreStateV.Interface().(*game_map.GameMap)
 }
