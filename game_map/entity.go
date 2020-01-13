@@ -71,7 +71,7 @@ func (e Entity) GetTilePositionOnMap(gMap *GameMap) (vec pixel.Vec) {
 	return
 }
 
-//Render will render self + any effects on entity
+//Render will render self + any effects on entity e.g. SleepEntity
 func (e *Entity) Render(renderer pixel.Target) {
 	//Draw self first
 	spriteFrame := e.Frames[e.StartFrame]
