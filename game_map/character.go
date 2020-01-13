@@ -45,7 +45,7 @@ func (ch *Character) SetFacing(dir int) {
 }
 
 func CharacterCreate(
-	name string, animations [][]int, facingDirection string, charDef CharacterDefinition, controllerStates map[string]func() state_machine.State) *Character {
+	name string, animations [][]int, facingDirection string, charDef EntityDefinition, controllerStates map[string]func() state_machine.State) *Character {
 	player := &Character{
 		Name:       name,
 		Facing:     facingDirection,

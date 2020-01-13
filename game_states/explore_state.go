@@ -8,7 +8,6 @@ import (
 	"github.com/steelx/go-rpg-cgm/game_map/character_states"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/gui"
-	"github.com/steelx/go-rpg-cgm/state_machine"
 	"log"
 	"sort"
 )
@@ -24,7 +23,7 @@ type ExploreState struct {
 
 func ExploreStateCreate(stack *gui.StateStack,
 	tilemap *tilepix.Map, collisionLayer int, collisionLayerName string,
-	startPos pixel.Vec, heroPng pixel.Picture, window *pixelgl.Window) ExploreState {
+	startPos pixel.Vec, window *pixelgl.Window) ExploreState {
 
 	es := ExploreState{
 		Stack:    stack,
@@ -35,25 +34,7 @@ func ExploreStateCreate(stack *gui.StateStack,
 	es.win = window
 	es.Map = game_map.MapCreate(es.MapDef, collisionLayer, collisionLayerName)
 
-	es.Hero = game_map.CharacterCreate("Ajinkya",
-		[][]int{{16, 17, 18, 19}, {20, 21, 22, 23}, {24, 25, 26, 27}, {28, 29, 30, 31}},
-		game_map.CharacterFacingDirection[2],
-		game_map.CharacterDefinition{
-			Texture: heroPng, Width: 16, Height: 24,
-			StartFrame: 24,
-			TileX:      startPos.X,
-			TileY:      startPos.Y,
-			Map:        es.Map,
-		},
-		map[string]func() state_machine.State{
-			"wait": func() state_machine.State {
-				return character_states.WaitStateCreate(es.Hero, es.Map)
-			},
-			"move": func() state_machine.State {
-				return character_states.MoveStateCreate(es.Hero, es.Map)
-			},
-		},
-	)
+	es.Hero = character_states.Hero(startPos, es.Map)
 	es.Hero.Controller.Change("wait", globals.Direction{0, 0})
 
 	es.Map.GoToTile(startPos.X, startPos.Y)
@@ -62,8 +43,8 @@ func ExploreStateCreate(stack *gui.StateStack,
 }
 
 func (es *ExploreState) HideHero() {
-	es.Hero.Entity.TileX = -1
-	es.Hero.Entity.TileY = -1
+	es.Hero.Entity.TileX = 0
+	es.Hero.Entity.TileY = 0
 }
 func (es *ExploreState) ShowHero() {
 	es.Hero.Entity.TileX = es.startPos.X
@@ -99,9 +80,10 @@ func (es ExploreState) Render(win *pixelgl.Window) {
 			return gameCharacters[i].Entity.TileY < gameCharacters[j].Entity.TileY
 		})
 
+		//TODO: fix to Map.CollisionLayer int
 		if layer == 2 {
 			for _, gCharacter := range gameCharacters {
-				gCharacter.Entity.TeleportAndDraw(*es.Map, canvas)
+				gCharacter.Entity.TeleportAndDraw(es.Map, canvas)
 			}
 		}
 	})
@@ -120,8 +102,8 @@ func (es ExploreState) HandleInput(win *pixelgl.Window) {
 	//use key
 	if win.JustPressed(pixelgl.KeyE) {
 		// which way is the player facing?
-		tileX, tileY := es.Hero.Entity.Map.GetTileIndex(es.Hero.GetFacedTileCoords())
-		trigger := es.Hero.Entity.Map.GetTrigger(tileX, tileY)
+		tileX, tileY := es.Map.GetTileIndex(es.Hero.GetFacedTileCoords())
+		trigger := es.Map.GetTrigger(tileX, tileY)
 		if trigger.OnUse != nil {
 			trigger.OnUse(es.Hero.Entity)
 		}
