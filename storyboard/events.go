@@ -107,3 +107,27 @@ func KillState(id string) func(storyboard *Storyboard) *WaitEvent {
 		return WaitEventCreate(0)
 	}
 }
+
+func MoveNPC(npcId, mapName string, path []string) func(storyboard *Storyboard) *BlockUntilEvent {
+
+	return func(storyboard *Storyboard) *BlockUntilEvent {
+		exploreState := getExploreState(storyboard, mapName)
+		npc := exploreState.Map.NPCbyId[npcId]
+		npc.FollowPath(path)
+
+		return BlockUntilEventCreate(func() bool {
+			return npc.PathIndex > len(path)
+		})
+	}
+}
+
+func Say(mapName, npcId, textMessage string, time float64) func(storyboard *Storyboard) *TimedTextboxEvent {
+	return func(storyboard *Storyboard) *TimedTextboxEvent {
+		exploreState := getExploreState(storyboard, mapName)
+		npc := exploreState.Map.NPCbyId[npcId]
+		tileX, tileY := npc.GetFacedTileCoords()
+		posX, posY := exploreState.Map.GetTileIndex(tileX, tileY)
+		tBox := storyboard.InternalStack.PushFitted(posX, posY+npc.Entity.Height, textMessage)
+		return TimedTextboxEventCreate(tBox, time)
+	}
+}

@@ -12,7 +12,7 @@ type NPCWaitState struct {
 	mFrameResetSpeed, mFrameCount float64
 }
 
-func NPCWaitStateCreate(character *game_map.Character, gMap *game_map.GameMap) state_machine.State {
+func NPCStandStateCreate(character *game_map.Character, gMap *game_map.GameMap) state_machine.State {
 	s := &NPCWaitState{}
 	s.Character = character
 	s.Map = gMap

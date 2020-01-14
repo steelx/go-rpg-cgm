@@ -104,7 +104,7 @@ func TextboxCreateFitted(stack *StateStack, txt string, panelPos pixel.Vec, hasM
 	const padding = 20.0
 	basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
 	tBox := TextboxNew(stack, txt, 13, basicAtlas, "", nil)
-	tBox.AppearTween = animation.TweenCreate(2, 1, 1)
+	tBox.AppearTween = animation.TweenCreate(0.9, 1, 0.3)
 	tBox.textBase = text.New(panelPos, tBox.textAtlas)
 	tBox.textBase.LineHeight = padding
 	textBounds := tBox.getTextBound()
@@ -301,7 +301,11 @@ func (t *Textbox) HandleInput(window *pixelgl.Window) {
 			return
 		}
 
-		t.AppearTween = animation.TweenCreate(1, 0, 0.2)
-		t.isDead = true
+		t.OnClick()
 	}
+}
+
+func (t *Textbox) OnClick() {
+	t.AppearTween = animation.TweenCreate(1, 0, 0.2)
+	t.isDead = true
 }

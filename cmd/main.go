@@ -62,11 +62,16 @@ func setup(win *pixelgl.Window) {
 		storyboard.KillState("blackscreen"),
 		storyboard.TitleCaptionScreen("title", "Chandragupta Maurya", 3),
 		storyboard.SubTitleCaptionScreen("subtitle", "A jRPG game in GO", 2),
-		storyboard.Wait(2),
+		storyboard.Wait(3),
 		storyboard.KillState("title"),
 		storyboard.KillState("subtitle"),
 		storyboard.Scene("player_room", true, win),
 		storyboard.RunActionAddNPC("player_room", "sleeper", 14, 19, 3),
+		storyboard.RunActionAddNPC("player_room", "guard", 19, 22, 0),
+		storyboard.MoveNPC("guard", "player_room", []string{
+			"up", "up", "up", "left", "left", "left",
+		}),
+		storyboard.Say("player_room", "guard", "You'r coming with me!!", 3),
 		storyboard.KillState("player_room"),
 	}
 

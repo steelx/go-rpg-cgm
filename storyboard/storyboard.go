@@ -95,6 +95,10 @@ Loop:
 			s.Events[k] = x
 		case *TweenEvent:
 			s.Events[k] = x
+		case *BlockUntilEvent:
+			s.Events[k] = x
+		case *TimedTextboxEvent:
+			s.Events[k] = x
 
 		case func(storyboard *Storyboard) *WaitEvent:
 			s.Events[k] = x(s)
@@ -103,6 +107,12 @@ Loop:
 			s.Events[k] = x(s)
 
 		case func(storyboard *Storyboard) *TweenEvent:
+			s.Events[k] = x(s)
+
+		case func(storyboard *Storyboard) *BlockUntilEvent:
+			s.Events[k] = x(s)
+
+		case func(storyboard *Storyboard) *TimedTextboxEvent:
 			s.Events[k] = x(s)
 
 		default:
@@ -119,9 +129,6 @@ Loop:
 		}
 		if valI.IsBlocking() {
 			break Loop
-		}
-		if len(s.Events) == 1 {
-			fmt.Println("1 valI", valI)
 		}
 
 	}

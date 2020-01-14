@@ -35,6 +35,7 @@ type GameMap struct {
 	Triggers map[[2]float64]Trigger
 	Entities []*Entity
 	NPCs     []*Character
+	NPCbyId  map[string]*Character
 }
 
 func MapCreate(tilemap *tilepix.Map, collisionLayer int, collisionLayerName string) *GameMap {
@@ -45,6 +46,7 @@ func MapCreate(tilemap *tilepix.Map, collisionLayer int, collisionLayerName stri
 	}
 
 	m.Triggers = make(map[[2]float64]Trigger)
+	m.NPCbyId = make(map[string]*Character, 0)
 	m.Entities = make([]*Entity, 0)
 
 	m.Height = float64(tilemap.Height)
@@ -198,6 +200,7 @@ func (m GameMap) SetTrigger(x, y float64, t Trigger) {
 
 //AddNPC helps in detecting player if x,y has NPC or not
 func (m *GameMap) AddNPC(npc *Character) {
+	m.NPCbyId[npc.Id] = npc
 	m.NPCs = append(m.NPCs, npc)
 	m.Entities = append(m.Entities, npc.Entity)
 }

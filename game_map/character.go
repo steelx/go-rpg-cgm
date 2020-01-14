@@ -12,11 +12,43 @@ type CharacterStateBase struct {
 }
 
 type Character struct {
-	Name       string
-	Anims      map[string][]int
-	Facing     string
-	Entity     *Entity
-	Controller *state_machine.StateMachine //[Name] -> [function that returns state]
+	Id                             string
+	Anims                          map[string][]int
+	Facing                         string
+	Entity                         *Entity
+	Controller                     *state_machine.StateMachine //[Name] -> [function that returns state]
+	DefaultState, PrevDefaultState string                      //"wait"
+	PathIndex                      int
+	Path                           []string //e.g. ["up", "up", "up", "left", "right", "right",]
+}
+
+func CharacterCreate(
+	id string, animations map[string][]int, facingDirection string, charDef EntityDefinition, controllerStates map[string]func() state_machine.State) *Character {
+	player := &Character{
+		Id:           id,
+		Facing:       facingDirection,
+		Entity:       CreateEntity(charDef),
+		Controller:   state_machine.Create(controllerStates),
+		DefaultState: "wait",
+	}
+
+	//AnimUp, AnimRight, AnimDown, AnimLeft []int
+	player.Anims = make(map[string][]int, 0)
+
+	if anim, ok := animations["left"]; ok {
+		player.Anims["left"] = anim
+	}
+	if anim, ok := animations["right"]; ok {
+		player.Anims["right"] = anim
+	}
+	if anim, ok := animations["up"]; ok {
+		player.Anims["up"] = anim
+	}
+	if anim, ok := animations["down"]; ok {
+		player.Anims["down"] = anim
+	}
+
+	return player
 }
 
 func (ch Character) GetFacedTileCoords() (x, y float64) {
@@ -40,30 +72,10 @@ func (ch *Character) SetFacing(dir int) {
 	ch.Facing = CharacterFacingDirection[dir]
 }
 
-func CharacterCreate(
-	name string, animations map[string][]int, facingDirection string, charDef EntityDefinition, controllerStates map[string]func() state_machine.State) *Character {
-	player := &Character{
-		Name:       name,
-		Facing:     facingDirection,
-		Entity:     CreateEntity(charDef),
-		Controller: state_machine.Create(controllerStates),
-	}
-
-	//AnimUp, AnimRight, AnimDown, AnimLeft []int
-	player.Anims = make(map[string][]int, 0)
-
-	if anim, ok := animations["left"]; ok {
-		player.Anims["left"] = anim
-	}
-	if anim, ok := animations["right"]; ok {
-		player.Anims["right"] = anim
-	}
-	if anim, ok := animations["up"]; ok {
-		player.Anims["up"] = anim
-	}
-	if anim, ok := animations["down"]; ok {
-		player.Anims["down"] = anim
-	}
-
-	return player
+func (ch *Character) FollowPath(path []string) {
+	ch.PathIndex = 0
+	ch.Path = path
+	ch.PrevDefaultState = ch.DefaultState
+	ch.DefaultState = "follow_path"
+	ch.Controller.Change("follow_path", nil)
 }

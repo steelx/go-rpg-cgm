@@ -49,6 +49,7 @@ func init() {
 	Characters["sleeper"] = Sleeper
 	Characters["npc1"] = NPC1
 	Characters["npc2"] = NPC2
+	Characters["guard"] = guard
 }
 
 func Hero(gMap *game_map.GameMap) *game_map.Character {
@@ -98,7 +99,7 @@ func NPC1(gMap *game_map.GameMap) *game_map.Character {
 		Entities["npc1"],
 		map[string]func() state_machine.State{
 			"wait": func() state_machine.State {
-				return NPCWaitStateCreate(gameCharacter, gMap)
+				return NPCStandStateCreate(gameCharacter, gMap)
 			},
 		},
 	)
@@ -120,6 +121,30 @@ func NPC2(gMap *game_map.GameMap) *game_map.Character {
 			},
 			"move": func() state_machine.State {
 				return MoveStateCreate(gameCharacter, gMap)
+			},
+		},
+	)
+	gameCharacter.Controller.Change("wait", globals.Direction{0, 0})
+	return gameCharacter
+}
+
+func guard(gMap *game_map.GameMap) *game_map.Character {
+	var gameCharacter *game_map.Character
+	gameCharacter = game_map.CharacterCreate("guard",
+		map[string][]int{
+			"up": {48, 49, 50, 51}, "right": {52, 53, 54, 55}, "down": {56, 57, 58, 59}, "left": {60, 61, 62, 63},
+		},
+		game_map.CharacterFacingDirection[2],
+		Entities["npc2"],
+		map[string]func() state_machine.State{
+			"wait": func() state_machine.State {
+				return NPCStandStateCreate(gameCharacter, gMap)
+			},
+			"move": func() state_machine.State {
+				return MoveStateCreate(gameCharacter, gMap)
+			},
+			"follow_path": func() state_machine.State {
+				return FollowPathStateCreate(gameCharacter, gMap)
 			},
 		},
 	)
