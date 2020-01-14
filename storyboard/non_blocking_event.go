@@ -19,8 +19,7 @@ func (e NonBlockEvent) IsBlocking() bool {
 	return false
 }
 func (e NonBlockEvent) IsFinished() bool {
-	//return e.Seconds <= 0
-	return false
+	return e.Seconds <= 0
 }
 func (e NonBlockEvent) Render(win *pixelgl.Window) {
 

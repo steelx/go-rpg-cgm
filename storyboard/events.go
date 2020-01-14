@@ -4,7 +4,6 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/actions"
-	"github.com/steelx/go-rpg-cgm/game_map"
 	"github.com/steelx/go-rpg-cgm/game_map/character_states"
 	"github.com/steelx/go-rpg-cgm/game_states"
 	"github.com/steelx/go-rpg-cgm/gui"
@@ -19,36 +18,24 @@ func Wait(seconds float64) *WaitEvent {
 
 func BlackScreen(id string) func(storyboard *Storyboard) *WaitEvent {
 	return func(storyboard *Storyboard) *WaitEvent {
-		screen := game_states.ScreenStateCreate(storyboard.Stack, color.RGBA{R: 255, G: 0, B: 0, A: 1})
+		screen := game_states.ScreenStateCreate(storyboard.Stack, color.RGBA{R: 255, G: 255, B: 255, A: 1})
 		storyboard.PushState(id, screen)
 		return WaitEventCreate(0)
 	}
 }
 
-//pending KillState and FadeOutState 323
 //FadeScreen not working properly
-func FadeScreen(id string, start, finish, duration float64) func(storyboard *Storyboard, dt float64) TweenEvent {
-	var dtTime float64
-	return func(storyboard *Storyboard, dt float64) TweenEvent {
-		dtTime += dt
+func FadeScreen(id string, start, finish, duration float64) func(storyboard *Storyboard) *WaitEvent {
+	return func(storyboard *Storyboard) *WaitEvent {
 		screen := gui.FadeScreenCreate(storyboard.Stack, uint8(start), uint8(finish), duration)
 		storyboard.PushState(id, &screen)
 
-		return TweenEventCreate(
-			start, finish, duration,
-			&screen,
-			func(e *TweenEvent) {
-				e.Tween.Update(dtTime)
-				screen.Update(e.Tween.Value())
-			},
-		)
+		return WaitEventCreate(0)
 	}
 }
 
-func TitleCaptionScreen(id string, txt string, duration float64) func(storyboard *Storyboard, dt float64) TweenEvent {
-	var dtTime float64
-	return func(storyboard *Storyboard, dt float64) TweenEvent {
-		dtTime += dt
+func TitleCaptionScreen(id string, txt string, duration float64) func(storyboard *Storyboard) *TweenEvent {
+	return func(storyboard *Storyboard) *TweenEvent {
 		captions := gui.CaptionScreenCreate(txt, pixel.V(0, 100), 3)
 		storyboard.PushState(id, &captions)
 
@@ -56,17 +43,15 @@ func TitleCaptionScreen(id string, txt string, duration float64) func(storyboard
 			1, 0, duration,
 			&captions,
 			func(e *TweenEvent) {
-				e.Tween.Update(dtTime)
 				captions.Update(e.Tween.Value())
 			},
 		)
 	}
 }
 
-func SubTitleCaptionScreen(id string, txt string, duration float64) func(storyboard *Storyboard, dt float64) TweenEvent {
-	var dtTime float64
-	return func(storyboard *Storyboard, dt float64) TweenEvent {
-		dtTime += dt
+func SubTitleCaptionScreen(id string, txt string, duration float64) func(storyboard *Storyboard) *TweenEvent {
+
+	return func(storyboard *Storyboard) *TweenEvent {
 		captions := gui.CaptionScreenCreate(txt, pixel.V(0, 50), 1)
 		storyboard.PushState(id, &captions)
 
@@ -74,7 +59,6 @@ func SubTitleCaptionScreen(id string, txt string, duration float64) func(storybo
 			1, 0, duration,
 			&captions,
 			func(e *TweenEvent) {
-				e.Tween.Update(dtTime)
 				captions.Update(e.Tween.Value())
 			},
 		)
@@ -97,32 +81,29 @@ func Scene(mapName string, hideHero bool, win *pixelgl.Window) func(storyboard *
 		return NonBlockEventCreate(0)
 	}
 }
-func ScenePopOut() func(storyboard *Storyboard) {
-	return func(storyboard *Storyboard) {
-		storyboard.Events = make([]interface{}, 0)
-	}
-}
 
 //player_house, def = "sleeper", x = 14, y = 19
-func RunActionAddNPC(mapName, entityDef string, x, y float64) func(storyboard *Storyboard) *NonBlockEvent {
-	return func(storyboard *Storyboard) *NonBlockEvent {
-		gMap := GetMapRef(storyboard, mapName)
-		runFunc := actions.ActionAddNPC(gMap, x, y)
-		char := character_states.Characters[entityDef](gMap)
+func RunActionAddNPC(mapName, entityDef string, x, y, seconds float64) func(storyboard *Storyboard) *WaitEvent {
+	return func(storyboard *Storyboard) *WaitEvent {
+		exploreState := getExploreState(storyboard, mapName)
+		exploreState.Hero.Entity.SetTilePos(x, y)
+		runFunc := actions.ActionAddNPC(exploreState.Map, x, y)
+		char := character_states.Characters[entityDef](exploreState.Map)
 		runFunc(char)
-		return NonBlockEventCreate(0)
+		return WaitEventCreate(seconds)
 	}
 }
 
-func GetMapRef(storyboard *Storyboard, stateId string) *game_map.GameMap {
+func getExploreState(storyboard *Storyboard, stateId string) *game_states.ExploreState {
 	exploreStateI := storyboard.States[stateId]
 	exploreStateV := reflect.ValueOf(exploreStateI)
 	exploreState := exploreStateV.Interface().(*game_states.ExploreState)
-	return exploreState.Map
+	return exploreState
 }
 
-func KillScene() func(storyboard *Storyboard) {
-	return func(storyboard *Storyboard) {
-		storyboard.InternalStack.Pop()
+func KillState(id string) func(storyboard *Storyboard) *WaitEvent {
+	return func(storyboard *Storyboard) *WaitEvent {
+		storyboard.RemoveState(id)
+		return WaitEventCreate(0)
 	}
 }

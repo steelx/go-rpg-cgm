@@ -27,5 +27,6 @@ func ActionAddNPC(gMap *game_map.GameMap, x, y float64) func(char *game_map.Char
 	return func(char *game_map.Character) {
 		char.Entity.SetTilePos(x, y)
 		gMap.AddNPC(char)
+		gMap.GoToTile(x, y)
 	}
 }

@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	stack        *gui.StateStack
-	exploreState game_states.ExploreState
+	stack *gui.StateStack
+	//exploreState game_states.ExploreState
 	//camSpeed    = 1000.0
 	//camZoomSpeed = 1.2
 	frameRate = 15 * time.Millisecond
@@ -50,9 +50,6 @@ func setup(win *pixelgl.Window) {
 
 	//player_room, collision, collisionLayerName := maps_db.MapsDB["player_room"]()
 	//exploreState = game_states.ExploreStateCreate(stack, player_room, collision, collisionLayerName, win)
-	//runFunc := actions.ActionAddNPC(exploreState.Map, 14, 19)
-	//char := character_states.Characters["sleeper"](exploreState.Map)
-	//runFunc(char)
 	//
 	////Add NPCs
 	//exploreState.AddNPC(character_states.NPC1(exploreState.Map))
@@ -60,18 +57,21 @@ func setup(win *pixelgl.Window) {
 	//stack.Push(&exploreState)
 
 	var introScene = []interface{}{
-		storyboard.Scene("player_room", true, win),
-		storyboard.RunActionAddNPC("player_room", "sleeper", 14, 19),
 		storyboard.BlackScreen("blackscreen"),
 		storyboard.Wait(1),
-		storyboard.FadeScreen("fadeWhite", 1, 0, 2),
+		storyboard.KillState("blackscreen"),
 		storyboard.TitleCaptionScreen("title", "Chandragupta Maurya", 3),
 		storyboard.SubTitleCaptionScreen("subtitle", "A jRPG game in GO", 2),
 		storyboard.Wait(2),
-		//storyboard.ScenePopOut(),
+		storyboard.KillState("title"),
+		storyboard.KillState("subtitle"),
+		storyboard.Scene("player_room", true, win),
+		storyboard.RunActionAddNPC("player_room", "sleeper", 14, 19, 3),
+		storyboard.KillState("player_room"),
 	}
 
 	var storyboardI = storyboard.Create(stack, win, introScene)
+	stack.PushFitted(200, 1300, "storyboardI stack pop out.. :)")
 	stack.Push(storyboardI)
 
 }
