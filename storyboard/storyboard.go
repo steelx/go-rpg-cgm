@@ -10,15 +10,15 @@ import (
 type Storyboard struct {
 	Stack         *gui.StateStack
 	InternalStack *gui.StateStack
-	States        map[string]*gui.StackInterface
+	States        map[string]gui.StackInterface
 	Events        []interface{} //always keep as last args
 }
 
-func Create(stack *gui.StateStack, win *pixelgl.Window, eventsI interface{}) Storyboard {
-	sb := Storyboard{
+func Create(stack *gui.StateStack, win *pixelgl.Window, eventsI interface{}) *Storyboard {
+	sb := &Storyboard{
 		Stack:         stack,
 		InternalStack: gui.StateStackCreate(win),
-		States:        make(map[string]*gui.StackInterface),
+		States:        make(map[string]gui.StackInterface),
 	}
 
 	if eventsI != nil {
@@ -40,19 +40,32 @@ func (s Storyboard) CleanUp() {
 
 func (s *Storyboard) PushState(identifier string, state gui.StackInterface) {
 	//push a State on the stack but keep a reference here
-	s.States[identifier] = &state //identifier e.g. blackscreen
+	if _, ok := s.States[identifier]; ok {
+		//found already
+		return
+	}
+	fmt.Println("Adding", identifier)
+	s.States[identifier] = state
 	s.InternalStack.Push(state)
 }
 
-//func (s *Storyboard) RemoveState(identifier string) {
-//	stateV := s.States[identifier]
-//	delete(s.States, identifier)
-//	for _, v := range s.InternalStack.States {
-//		if reflect.DeepEqual(v, stateV) {
-//			fmt.Println("found")
-//		}
-//	}
-//}
+func (s *Storyboard) RemoveState(identifier string) {
+	stateV := s.States[identifier]
+	delete(s.States, identifier)
+	for i, v := range s.InternalStack.States {
+		if reflect.DeepEqual(v, stateV) {
+			fmt.Println("removing", identifier)
+			s.removeSliceItem(i)
+			break
+		}
+	}
+}
+
+func (s *Storyboard) removeSliceItem(i int) {
+	s.InternalStack.States[i] = s.InternalStack.States[len(s.InternalStack.States)-1]
+	// We do not need to put s[i] at the end, as it will be discarded anyway
+	s.InternalStack.States = s.InternalStack.States[:len(s.InternalStack.States)-1]
+}
 
 /*
 	StateStack interface implemented below
@@ -68,49 +81,47 @@ func (s Storyboard) Exit() {
 func (s *Storyboard) Update(dt float64) bool {
 	s.InternalStack.Update(dt)
 
-	if len(s.Events) == 0 {
-		s.Stack.Pop()
-	}
 	deleteIndex := -1
 Loop:
 	for k, v := range s.Events {
 
 		switch x := v.(type) {
+		case func(storyboard *Storyboard):
+			x(s)
+
 		case *WaitEvent:
-			x.Update(dt)
-			if x.IsFinished() {
-				deleteIndex = k
-				break Loop
-			}
-			if x.IsBlocking() {
-				break Loop
-			}
+			s.Events[k] = x
+		case *NonBlockEvent:
+			s.Events[k] = x
+		case *TweenEvent:
+			s.Events[k] = x
 
 		case func(storyboard *Storyboard) *WaitEvent:
-			xv := x(s)
-			xv.Update(dt)
-			if xv.IsFinished() {
-				deleteIndex = k
-				break Loop
-			}
-			if xv.IsBlocking() {
-				break Loop
-			}
+			s.Events[k] = x(s)
 
-		case func(storyboard *Storyboard, dt float64) TweenEvent:
-			xv := x(s, dt)
-			xv.Update(dt)
+		case func(storyboard *Storyboard) *NonBlockEvent:
+			s.Events[k] = x(s)
 
-			if xv.IsFinished() {
-				deleteIndex = k
-				break Loop
-			}
-			if xv.IsBlocking() {
-				break Loop
-			}
+		case func(storyboard *Storyboard) *TweenEvent:
+			s.Events[k] = x(s)
 
 		default:
 			fmt.Printf("Unsupported type: %T\n", x)
+		}
+
+		valV := reflect.ValueOf(s.Events[k])
+		valI := valV.Interface().(SBEvent)
+		s.Events[k] = valI
+		valI.Update(dt)
+		if valI.IsFinished() {
+			deleteIndex = k
+			break Loop
+		}
+		if valI.IsBlocking() {
+			break Loop
+		}
+		if len(s.Events) == 1 {
+			fmt.Println("1 valI", valI)
 		}
 
 	}
@@ -121,12 +132,17 @@ Loop:
 		s.Events = s.Events[1:]
 	}
 
+	if len(s.Events) == 0 {
+		s.Stack.Pop()
+		return true
+	}
+
 	return true
 }
 
 func (s Storyboard) Render(win *pixelgl.Window) {
-	debugText := fmt.Sprintf("Storyboard Events # %v", len(s.Events))
-	fmt.Println(debugText)
+	//debugText := fmt.Sprintf("Storyboard Events # %v", len(s.Events))
+	//fmt.Println(debugText)
 
 	s.InternalStack.Render(win)
 }

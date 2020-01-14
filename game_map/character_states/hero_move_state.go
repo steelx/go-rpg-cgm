@@ -46,16 +46,16 @@ func (s *MoveState) Enter(dataI interface{}) {
 	v := reflect.ValueOf(dataI)
 	data := v.Interface().(globals.Direction)
 	if data.X == -1 {
-		frames = s.Character.AnimLeft
+		frames = s.Character.Anims[game_map.CharacterFacingDirection[3]]
 		s.Character.SetFacing(3)
 	} else if data.X == 1 {
-		frames = s.Character.AnimRight
+		frames = s.Character.Anims[game_map.CharacterFacingDirection[1]]
 		s.Character.SetFacing(1)
 	} else if data.Y == -1 {
-		frames = s.Character.AnimUp
+		frames = s.Character.Anims[game_map.CharacterFacingDirection[0]]
 		s.Character.SetFacing(0)
 	} else if data.Y == 1 {
-		frames = s.Character.AnimDown
+		frames = s.Character.Anims[game_map.CharacterFacingDirection[2]]
 		s.Character.SetFacing(2)
 	}
 	s.Anim.SetFrames(frames)
@@ -71,7 +71,7 @@ func (s *MoveState) Enter(dataI interface{}) {
 	targetX, targetY := s.Entity.TileX+data.X, s.Entity.TileY+data.Y
 
 	if player := s.Map.GetEntityAtPos(targetX, targetY); player != nil ||
-		s.Map.IsBlockingTile(int(targetX), int(targetY), globals.Global.CollisionLayerPos) {
+		s.Map.IsBlockingTile(int(targetX), int(targetY)) {
 		s.MoveX = 0
 		s.MoveY = 0
 		s.Entity.SetFrame(s.Anim.GetFirstFrame())

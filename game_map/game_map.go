@@ -15,8 +15,10 @@ type GameMap struct {
 	// To track the camera position
 	CamX, CamY float64
 
-	Tilemap *tilepix.Map
-	sprites map[string]*pixel.Sprite
+	Tilemap            *tilepix.Map
+	CollisionLayer     int
+	CollisionLayerName string
+	sprites            map[string]*pixel.Sprite
 
 	mTileSprite   pixel.Sprite
 	Width, Height float64
@@ -35,9 +37,11 @@ type GameMap struct {
 	NPCs     []*Character
 }
 
-func MapCreate(tilemap *tilepix.Map) *GameMap {
+func MapCreate(tilemap *tilepix.Map, collisionLayer int, collisionLayerName string) *GameMap {
 	m := &GameMap{
-		Tilemap: tilemap,
+		Tilemap:            tilemap,
+		CollisionLayer:     collisionLayer,
+		CollisionLayerName: collisionLayerName,
 	}
 
 	m.Triggers = make(map[[2]float64]Trigger)
@@ -82,8 +86,11 @@ func (m GameMap) GetEntityAtPos(x, y float64) *Entity {
 
 //IsBlockingTile check's X, Y cords on collision map layer
 // if ID is not 0, tile exists on X, Y we return true
-func (m GameMap) IsBlockingTile(x, y, layer int) bool {
-	tile := m.Tilemap.TileLayers[layer].DecodedTiles[x+y*int(m.Width)]
+func (m GameMap) IsBlockingTile(x, y int) bool {
+	if (x + y*int(m.Width)) <= 0 {
+		return true //we dont let him go out of map
+	}
+	tile := m.Tilemap.TileLayers[m.CollisionLayer].DecodedTiles[x+y*int(m.Width)]
 	return !tile.IsNil() || tile.ID != 0
 }
 
@@ -154,12 +161,12 @@ func (m GameMap) DrawAfter(callback func(canvas *pixelgl.Canvas, layer int)) err
 
 	for index, l := range m.Tilemap.TileLayers {
 		callback(m.Canvas, index)
-		if l.Name == globals.Global.CollisionLayer {
+		if l.Name == m.CollisionLayerName {
 			//we do NOT render the collision layer
 			continue
 		}
 		if err := l.Draw(m.Canvas); err != nil {
-			log.WithError(err).Error("Map.DrawAll: could not draw layer")
+			log.WithError(err).Error("GameMap.DrawAfter: could not draw layer")
 			return err
 		}
 	}

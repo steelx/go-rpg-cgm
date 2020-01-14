@@ -12,8 +12,8 @@ type TweenEvent struct {
 	ApplyFunc func(e *TweenEvent)
 }
 
-func TweenEventCreate(start, finish, duration float64, target gui.StackInterface, applyFunc func(e *TweenEvent)) TweenEvent {
-	return TweenEvent{
+func TweenEventCreate(start, finish, duration float64, target gui.StackInterface, applyFunc func(e *TweenEvent)) *TweenEvent {
+	return &TweenEvent{
 		Tween:     animation.TweenCreate(start, finish, duration),
 		Target:    target,
 		ApplyFunc: applyFunc,
@@ -21,6 +21,7 @@ func TweenEventCreate(start, finish, duration float64, target gui.StackInterface
 }
 
 func (e *TweenEvent) Update(dt float64) {
+	e.Tween.Update(dt)
 	e.ApplyFunc(e)
 }
 func (e TweenEvent) IsBlocking() bool {

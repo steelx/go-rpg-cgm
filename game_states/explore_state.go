@@ -6,57 +6,52 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/game_map"
 	"github.com/steelx/go-rpg-cgm/game_map/character_states"
-	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/gui"
-	"github.com/steelx/go-rpg-cgm/state_machine"
 	"log"
 	"sort"
 )
 
 type ExploreState struct {
-	Stack  *gui.StateStack
-	MapDef *tilepix.Map
-	Map    *game_map.GameMap
-	Hero   *game_map.Character
-	win    *pixelgl.Window
+	Stack       *gui.StateStack
+	MapDef      *tilepix.Map
+	Map         *game_map.GameMap
+	Hero        *game_map.Character
+	win         *pixelgl.Window
+	startPos    pixel.Vec
+	heroVisible bool
 }
 
 func ExploreStateCreate(stack *gui.StateStack,
-	tilemap *tilepix.Map, startPos pixel.Vec, heroPng pixel.Picture, window *pixelgl.Window) ExploreState {
+	tilemap *tilepix.Map, collisionLayer int, collisionLayerName string, window *pixelgl.Window) ExploreState {
 
 	es := ExploreState{
-		Stack: stack,
-		//Stack:  gui.StateStackCreate(window),
-		MapDef: tilemap,
+		Stack:       stack,
+		MapDef:      tilemap,
+		heroVisible: true,
 	}
 
 	es.win = window
-	es.Map = game_map.MapCreate(es.MapDef)
+	es.Map = game_map.MapCreate(es.MapDef, collisionLayer, collisionLayerName)
 
-	es.Hero = game_map.CharacterCreate("Ajinkya",
-		[][]int{{16, 17, 18, 19}, {20, 21, 22, 23}, {24, 25, 26, 27}, {28, 29, 30, 31}},
-		game_map.CharacterFacingDirection[2],
-		game_map.CharacterDefinition{
-			Texture: heroPng, Width: 16, Height: 24,
-			StartFrame: 24,
-			TileX:      startPos.X,
-			TileY:      startPos.Y,
-			Map:        es.Map,
-		},
-		map[string]func() state_machine.State{
-			"wait": func() state_machine.State {
-				return character_states.WaitStateCreate(es.Hero, es.Map)
-			},
-			"move": func() state_machine.State {
-				return character_states.MoveStateCreate(es.Hero, es.Map)
-			},
-		},
-	)
-	es.Hero.Controller.Change("wait", globals.Direction{0, 0})
+	es.Hero = character_states.Hero(es.Map)
+	//es.Hero.Controller.Change("wait", globals.Direction{0, 0})
 
-	es.Map.GoToTile(startPos.X, startPos.Y)
+	es.startPos = pixel.V(es.Hero.Entity.TileX, es.Hero.Entity.TileY)
+	es.Map.GoToTile(es.startPos.X, es.startPos.Y)
 
 	return es
+}
+
+func (es *ExploreState) HideHero() {
+	es.heroVisible = false
+	es.Hero.Entity.TileX = 0
+	es.Hero.Entity.TileY = 0
+}
+func (es *ExploreState) ShowHero() {
+	es.heroVisible = true
+	es.Hero.Entity.TileX = es.startPos.X
+	es.Hero.Entity.TileY = es.startPos.Y
+	es.Map.GoToTile(es.startPos.X, es.startPos.Y)
 }
 
 func (es ExploreState) Enter() {
@@ -81,15 +76,20 @@ func (es *ExploreState) Update(dt float64) bool {
 func (es ExploreState) Render(win *pixelgl.Window) {
 	//Map & Characters
 	err := es.Map.DrawAfter(func(canvas *pixelgl.Canvas, layer int) {
-		gameCharacters := append([]*game_map.Character{es.Hero}, es.Map.NPCs...)
+		var gameCharacters []*game_map.Character
+		gameCharacters = append(gameCharacters, es.Map.NPCs...)
+		if es.heroVisible {
+			gameCharacters = append([]*game_map.Character{es.Hero}, gameCharacters...)
+		}
 		//sort players as per visible to screen Y position
 		sort.Slice(gameCharacters[:], func(i, j int) bool {
 			return gameCharacters[i].Entity.TileY < gameCharacters[j].Entity.TileY
 		})
 
-		if layer == 2 {
+		if layer == es.Map.CollisionLayer {
 			for _, gCharacter := range gameCharacters {
-				gCharacter.Entity.TeleportAndDraw(*es.Map, canvas)
+				//gCharacter.Entity.TeleportAndDraw(es.Map, canvas) //probably can remove now
+				gCharacter.Entity.Render(es.Map, canvas)
 			}
 		}
 	})
@@ -107,8 +107,8 @@ func (es ExploreState) HandleInput(win *pixelgl.Window) {
 	//use key
 	if win.JustPressed(pixelgl.KeyE) {
 		// which way is the player facing?
-		tileX, tileY := es.Hero.Entity.Map.GetTileIndex(es.Hero.GetFacedTileCoords())
-		trigger := es.Hero.Entity.Map.GetTrigger(tileX, tileY)
+		tileX, tileY := es.Map.GetTileIndex(es.Hero.GetFacedTileCoords())
+		trigger := es.Map.GetTrigger(tileX, tileY)
 		if trigger.OnUse != nil {
 			trigger.OnUse(es.Hero.Entity)
 		}
@@ -117,5 +117,5 @@ func (es ExploreState) HandleInput(win *pixelgl.Window) {
 
 func (es *ExploreState) AddNPC(NPC *game_map.Character) {
 	es.Map.AddNPC(NPC)
-	NPC.Controller.Change("wait", globals.Direction{0, 0})
+	//NPC.Controller.Change("wait", globals.Direction{0, 0})
 }

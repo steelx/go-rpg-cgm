@@ -3,19 +3,16 @@ package main
 import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	"github.com/steelx/go-rpg-cgm/game_map"
-	"github.com/steelx/go-rpg-cgm/game_map/character_states"
 	"github.com/steelx/go-rpg-cgm/game_states"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/gui"
-	"github.com/steelx/go-rpg-cgm/state_machine"
 	"github.com/steelx/go-rpg-cgm/storyboard"
 	"time"
 )
 
 var (
-	stack        *gui.StateStack
-	exploreState game_states.ExploreState
+	stack *gui.StateStack
+	//exploreState game_states.ExploreState
 	//camSpeed    = 1000.0
 	//camZoomSpeed = 1.2
 	frameRate = 15 * time.Millisecond
@@ -51,67 +48,32 @@ func main() {
 func setup(win *pixelgl.Window) {
 	stack = gui.StateStackCreate(win)
 
-	// Init map & Add Stacks
-	walkCyclePng, err := globals.LoadPicture("../resources/walk_cycle.png")
-	globals.PanicIfErr(err)
-	exploreState = game_states.ExploreStateCreate(stack,
-		globals.CastleMapDef, pixel.V(2, 4), walkCyclePng, win,
-	)
-
-	//Add NPCs
-	var NPC1 *game_map.Character
-	NPC1 = game_map.CharacterCreate(
-		"Aghori Baba", nil, game_map.CharacterFacingDirection[2],
-		game_map.CharacterDefinition{
-			Texture: walkCyclePng, Width: 16, Height: 24,
-			StartFrame: 46,
-			TileX:      9,
-			TileY:      4,
-		},
-		map[string]func() state_machine.State{
-			"wait": func() state_machine.State {
-				return character_states.NPCWaitStateCreate(NPC1, exploreState.Map)
-			},
-		},
-	)
-
-	var NPC2 *game_map.Character
-	NPC2 = game_map.CharacterCreate(
-		"Bhadrasaal", [][]int{{48, 49, 50, 51}, {52, 53, 54, 55}, {56, 57, 58, 59}, {60, 61, 62, 63}},
-		game_map.CharacterFacingDirection[2],
-		game_map.CharacterDefinition{
-			Texture: walkCyclePng, Width: 16, Height: 24,
-			StartFrame: 56,
-			TileX:      3,
-			TileY:      8,
-		},
-		map[string]func() state_machine.State{
-			"wait": func() state_machine.State {
-				return character_states.NPCStrollWaitStateCreate(NPC2, exploreState.Map)
-			},
-			"move": func() state_machine.State {
-				return character_states.MoveStateCreate(NPC2, exploreState.Map)
-			},
-		},
-	)
-
-	exploreState.AddNPC(NPC1)
-	exploreState.AddNPC(NPC2)
-
-	stack.Push(&exploreState)
+	//player_room, collision, collisionLayerName := maps_db.MapsDB["player_room"]()
+	//exploreState = game_states.ExploreStateCreate(stack, player_room, collision, collisionLayerName, win)
+	//
+	////Add NPCs
+	//exploreState.AddNPC(character_states.NPC1(exploreState.Map))
+	//exploreState.AddNPC(character_states.NPC2(exploreState.Map))
+	//stack.Push(&exploreState)
 
 	var introScene = []interface{}{
-		storyboard.Wait(0),
 		storyboard.BlackScreen("blackscreen"),
+		storyboard.Wait(1),
+		storyboard.KillState("blackscreen"),
+		storyboard.TitleCaptionScreen("title", "Chandragupta Maurya", 3),
+		storyboard.SubTitleCaptionScreen("subtitle", "A jRPG game in GO", 2),
 		storyboard.Wait(2),
-		storyboard.FadeScreen("fadeWhite", 1, 0, 1),
-		storyboard.TitleCaptionScreen("title", "Welcome to Mumbai", 3),
-		storyboard.SubTitleCaptionScreen("subtitle", "Mumbai is very crowded", 2),
-		storyboard.Wait(5),
+		storyboard.KillState("title"),
+		storyboard.KillState("subtitle"),
+		storyboard.Scene("player_room", true, win),
+		storyboard.RunActionAddNPC("player_room", "sleeper", 14, 19, 3),
+		storyboard.KillState("player_room"),
 	}
 
 	var storyboardI = storyboard.Create(stack, win, introScene)
-	stack.Push(&storyboardI)
+	stack.PushFitted(200, 1300, "storyboardI stack pop out.. :)")
+	stack.Push(storyboardI)
+
 }
 
 //=============================================================
@@ -121,10 +83,6 @@ func gameLoop(win *pixelgl.Window) {
 	last := time.Now()
 
 	//initial map Camera
-	exploreState.Map.GoToTile(4, 4)
-	camPos := pixel.V(exploreState.Map.CamX, exploreState.Map.CamY)
-	cam := pixel.IM.Scaled(camPos, 1.0).Moved(win.Bounds().Center().Sub(camPos))
-	win.SetMatrix(cam)
 
 	tick := time.Tick(frameRate)
 	for !win.Closed() {
@@ -139,6 +97,7 @@ func gameLoop(win *pixelgl.Window) {
 		case <-tick:
 			dt := time.Since(last).Seconds()
 			last = time.Now()
+			globals.Global.DeltaTime = dt
 
 			//update StateStack
 			stack.Update(dt)
