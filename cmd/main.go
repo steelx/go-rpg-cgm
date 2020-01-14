@@ -67,6 +67,11 @@ func setup(win *pixelgl.Window) {
 		storyboard.KillState("subtitle"),
 		storyboard.Scene("player_room", true, win),
 		storyboard.RunActionAddNPC("player_room", "sleeper", 14, 19, 3),
+		storyboard.RunActionAddNPC("player_room", "guard", 19, 22, 0),
+		storyboard.MoveNPC("guard", "player_room", []string{
+			"up", "up", "up", "left", "left", "left",
+		}),
+		storyboard.Wait(1),
 		storyboard.KillState("player_room"),
 	}
 

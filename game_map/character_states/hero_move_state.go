@@ -102,6 +102,6 @@ func (s *MoveState) Update(dt float64) {
 	s.Entity.TileY = s.PixelY + value*s.MoveY
 
 	if s.Tween.IsFinished() {
-		s.Controller.Change("wait", globals.Direction{0, 0})
+		s.Controller.Change(s.Character.DefaultState, globals.Direction{0, 0})
 	}
 }
