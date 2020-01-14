@@ -48,6 +48,15 @@ func main() {
 func setup(win *pixelgl.Window) {
 	stack = gui.StateStackCreate(win)
 
+	//player_room, collision, collisionLayerName := maps_db.MapsDB["player_room"]()
+	//exploreState = game_states.ExploreStateCreate(stack, player_room, collision, collisionLayerName, win)
+	//runFunc := actions.ActionAddNPC(exploreState.Map, 14, 19)
+	//char := character_states.Characters["sleeper"](exploreState.Map)
+	//runFunc(char)
+	//
+	////Add NPCs
+	//exploreState.AddNPC(character_states.NPC1(exploreState.Map))
+	//exploreState.AddNPC(character_states.NPC2(exploreState.Map))
 	//stack.Push(&exploreState)
 
 	var introScene = []interface{}{
@@ -59,6 +68,7 @@ func setup(win *pixelgl.Window) {
 		storyboard.TitleCaptionScreen("title", "Chandragupta Maurya", 3),
 		storyboard.SubTitleCaptionScreen("subtitle", "A jRPG game in GO", 2),
 		storyboard.Wait(2),
+		//storyboard.ScenePopOut(),
 	}
 
 	var storyboardI = storyboard.Create(stack, win, introScene)

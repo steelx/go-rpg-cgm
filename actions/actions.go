@@ -23,9 +23,9 @@ func ActionTeleport(gMap *game_map.GameMap, a ...interface{}) func(entity *game_
 	}
 }
 
-func ActionAddNPC(gMap *game_map.GameMap, direction globals.Direction) func(char *game_map.Character) {
+func ActionAddNPC(gMap *game_map.GameMap, x, y float64) func(char *game_map.Character) {
 	return func(char *game_map.Character) {
-		char.Entity.SetTilePos(direction.X, direction.Y)
+		char.Entity.SetTilePos(x, y)
 		gMap.AddNPC(char)
 	}
 }

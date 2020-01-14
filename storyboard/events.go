@@ -7,7 +7,6 @@ import (
 	"github.com/steelx/go-rpg-cgm/game_map"
 	"github.com/steelx/go-rpg-cgm/game_map/character_states"
 	"github.com/steelx/go-rpg-cgm/game_states"
-	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/maps_db"
 	"image/color"
@@ -98,12 +97,17 @@ func Scene(mapName string, hideHero bool, win *pixelgl.Window) func(storyboard *
 		return NonBlockEventCreate(0)
 	}
 }
+func ScenePopOut() func(storyboard *Storyboard) {
+	return func(storyboard *Storyboard) {
+		storyboard.Events = make([]interface{}, 0)
+	}
+}
 
 //player_house, def = "sleeper", x = 14, y = 19
 func RunActionAddNPC(mapName, entityDef string, x, y float64) func(storyboard *Storyboard) *NonBlockEvent {
 	return func(storyboard *Storyboard) *NonBlockEvent {
 		gMap := GetMapRef(storyboard, mapName)
-		runFunc := actions.ActionAddNPC(gMap, globals.Direction{x, y})
+		runFunc := actions.ActionAddNPC(gMap, x, y)
 		char := character_states.Characters[entityDef](gMap)
 		runFunc(char)
 		return NonBlockEventCreate(0)
@@ -115,4 +119,10 @@ func GetMapRef(storyboard *Storyboard, stateId string) *game_map.GameMap {
 	exploreStateV := reflect.ValueOf(exploreStateI)
 	exploreState := exploreStateV.Interface().(*game_states.ExploreState)
 	return exploreState.Map
+}
+
+func KillScene() func(storyboard *Storyboard) {
+	return func(storyboard *Storyboard) {
+		storyboard.InternalStack.Pop()
+	}
 }

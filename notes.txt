@@ -8,7 +8,7 @@ layout.SplitVert("bottom", "left", "party", 0.726, 2)
 layout.SplitHorz("left", "menu", "gold", 0.7, 2)
 
 
-player_room, collisionLayer, collisionLayerName := maps_db.MapsDB["player_room"]()
+    player_room, collisionLayer, collisionLayerName := maps_db.MapsDB["player_room"]()
 	exploreState = game_states.ExploreStateCreate(stack, player_room, collisionLayer, collisionLayerName, win)
 
 	//Add NPCs

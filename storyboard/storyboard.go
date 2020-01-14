@@ -3,6 +3,7 @@ package storyboard
 import (
 	"fmt"
 	"github.com/faiface/pixel/pixelgl"
+	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"reflect"
 )
@@ -40,7 +41,10 @@ func (s Storyboard) CleanUp() {
 
 func (s *Storyboard) PushState(identifier string, state gui.StackInterface) {
 	//push a State on the stack but keep a reference here
-	s.States[identifier] = state //identifier e.g. blackscreen
+	if _, ok := s.States[identifier]; ok {
+		s.States[identifier].Update(globals.Global.DeltaTime)
+	}
+	s.States[identifier] = state
 	s.InternalStack.Push(state)
 }
 
@@ -70,6 +74,7 @@ func (s *Storyboard) Update(dt float64) bool {
 
 	if len(s.Events) == 0 {
 		s.Stack.Pop()
+		return true
 	}
 	deleteIndex := -1
 Loop:

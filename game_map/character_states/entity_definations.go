@@ -27,7 +27,7 @@ func init() {
 		},
 		"sleeper": {
 			Texture: sleepingPng, Width: 32, Height: 32,
-			StartFrame: 13,
+			StartFrame: 12,
 			TileX:      14,
 			TileY:      19,
 		},

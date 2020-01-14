@@ -79,11 +79,10 @@ func (e *Entity) Render(gMap *GameMap, renderer pixel.Target) {
 	position := e.GetTilePositionOnMap(gMap)
 	e.Sprite = pixel.NewSprite(e.Texture, spriteFrame)
 	e.Sprite.Draw(renderer, pixel.IM.Moved(position))
-
 	//Draw children
 	if len(e.Children) > 0 {
 		for _, child := range e.Children {
-			spriteFrame := child.Frames[e.StartFrame]
+			spriteFrame := child.Frames[child.StartFrame]
 			childPos := pixel.V(child.TileX+position.X, child.TileY+position.Y)
 			child.Sprite = pixel.NewSprite(child.Texture, spriteFrame)
 			child.Sprite.Draw(renderer, pixel.IM.Moved(childPos))
