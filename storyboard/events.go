@@ -120,3 +120,14 @@ func MoveNPC(npcId, mapName string, path []string) func(storyboard *Storyboard) 
 		})
 	}
 }
+
+func Say(mapName, npcId, textMessage string, time float64) func(storyboard *Storyboard) *TimedTextboxEvent {
+	return func(storyboard *Storyboard) *TimedTextboxEvent {
+		exploreState := getExploreState(storyboard, mapName)
+		npc := exploreState.Map.NPCbyId[npcId]
+		tileX, tileY := npc.GetFacedTileCoords()
+		posX, posY := exploreState.Map.GetTileIndex(tileX, tileY)
+		tBox := storyboard.InternalStack.PushFitted(posX, posY, textMessage)
+		return TimedTextboxEventCreate(tBox, time)
+	}
+}

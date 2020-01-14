@@ -71,6 +71,7 @@ func setup(win *pixelgl.Window) {
 		storyboard.MoveNPC("guard", "player_room", []string{
 			"up", "up", "up", "left", "left", "left",
 		}),
+		storyboard.Say("player_room", "guard", "You'r coming with me!!", 3),
 		storyboard.Wait(1),
 		storyboard.KillState("player_room"),
 	}

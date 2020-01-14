@@ -93,7 +93,8 @@ func (ss *StateStack) PushFixed(
 	ss.States = append(ss.States, &fixed)
 }
 
-func (ss *StateStack) PushFitted(x, y float64, txt string) {
+func (ss *StateStack) PushFitted(x, y float64, txt string) *Textbox {
 	fitted := TextboxCreateFitted(ss, txt, pixel.V(x, y), false)
 	ss.States = append(ss.States, &fitted)
+	return &fitted
 }
