@@ -127,7 +127,7 @@ func Say(mapName, npcId, textMessage string, time float64) func(storyboard *Stor
 		npc := exploreState.Map.NPCbyId[npcId]
 		tileX, tileY := npc.GetFacedTileCoords()
 		posX, posY := exploreState.Map.GetTileIndex(tileX, tileY)
-		tBox := storyboard.InternalStack.PushFitted(posX, posY, textMessage)
+		tBox := storyboard.InternalStack.PushFitted(posX, posY+npc.Entity.Height, textMessage)
 		return TimedTextboxEventCreate(tBox, time)
 	}
 }

@@ -75,10 +75,12 @@ func (ss StateStack) Render(renderer *pixelgl.Window) {
 	if len(ss.States) == 0 {
 		return
 	}
-	ss.States[ss.getLastIndex()].Render(renderer)
-	//for _, v := range ss.States {
-	//	v.Render(renderer)
-	//}
+	//ss.States[ss.getLastIndex()].Render(renderer) //<-- this would render only 1 stack at a time
+
+	//But we want all of them render together
+	for _, v := range ss.States {
+		v.Render(renderer)
+	}
 }
 
 func (ss *StateStack) PushSelectionMenu(x, y, width, height float64, txt string, choices []string, onSelection func(int, string)) {
