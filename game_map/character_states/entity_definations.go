@@ -45,16 +45,16 @@ func init() {
 		},
 	}
 
-	Characters["hero"] = Hero
+	Characters["hero"] = chanakya
 	Characters["sleeper"] = Sleeper
 	Characters["npc1"] = NPC1
 	Characters["npc2"] = NPC2
 	Characters["guard"] = guard
 }
 
-func Hero(gMap *game_map.GameMap) *game_map.Character {
+func chanakya(gMap *game_map.GameMap) *game_map.Character {
 	var gameCharacter *game_map.Character
-	gameCharacter = game_map.CharacterCreate("Ajinkya",
+	gameCharacter = game_map.CharacterCreate("Chanakya",
 		map[string][]int{
 			"up": {16, 17, 18, 19}, "right": {20, 21, 22, 23}, "down": {24, 25, 26, 27}, "left": {28, 29, 30, 31},
 		},

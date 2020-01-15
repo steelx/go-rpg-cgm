@@ -82,9 +82,10 @@ func (s *MoveState) Enter(dataI interface{}) {
 
 func (s MoveState) Exit() {
 	//check if an ENTER Trigger exists on given tile coords
-	tileX, tileY := s.Map.GetTileIndex(s.Entity.TileX, s.Entity.TileY)
+	//tileX, tileY := s.Map.GetTileIndex(s.Entity.TileX, s.Entity.TileY)
+	tileX, tileY := s.Entity.TileX, s.Entity.TileY
 	if trigger := s.Map.GetTrigger(tileX, tileY); trigger.OnEnter != nil {
-		trigger.OnEnter(s.Entity)
+		trigger.OnEnter(s.Map, s.Entity, tileX, tileY)
 	}
 }
 

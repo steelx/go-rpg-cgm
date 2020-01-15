@@ -83,16 +83,22 @@ func (ss StateStack) Render(renderer *pixelgl.Window) {
 	}
 }
 
-func (ss *StateStack) PushSelectionMenu(x, y, width, height float64, txt string, choices []string, onSelection func(int, string)) {
-	textBoxMenu := TextboxWithMenuCreate(ss, txt, pixel.V(x, y), width, height, choices, onSelection)
+func (ss *StateStack) PushSelectionMenu(x, y, width, height float64, txt string, choices []string, onSelection func(int, string), showColumns bool) {
+	textBoxMenu := TextboxWithMenuCreate(ss, txt, pixel.V(x, y), width, height, choices, onSelection, showColumns)
 	textBoxMenu.AppearTween = animation.TweenCreate(0, 1, 1)
 	ss.States = append(ss.States, textBoxMenu)
 }
 
 func (ss *StateStack) PushFixed(
 	x, y, width, height float64, txt, avatarName string, avatarPng pixel.Picture) {
-	fixed := TextboxCreateFixed(ss, txt, pixel.V(x, y), width, height, "Ajinkya", avatarPng, false)
+	fixed := TextboxCreateFixed(ss, txt, pixel.V(x, y), width, height, avatarName, avatarPng, false)
 	ss.States = append(ss.States, &fixed)
+}
+
+//PushFITMenu PENDING not getting correct height and width
+func (ss *StateStack) PushFITMenu(x, y float64, txt string, choices []string, onSelection func(int, string)) {
+	fitMenu := TextboxFITMenuCreate(ss, x, y, txt, choices, onSelection)
+	ss.States = append(ss.States, fitMenu)
 }
 
 func (ss *StateStack) PushFitted(x, y float64, txt string) *Textbox {

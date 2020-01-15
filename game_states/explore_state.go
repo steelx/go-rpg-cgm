@@ -21,19 +21,19 @@ type ExploreState struct {
 	heroVisible bool
 }
 
-func ExploreStateCreate(stack *gui.StateStack,
-	tilemap *tilepix.Map, collisionLayer int, collisionLayerName string, window *pixelgl.Window) ExploreState {
+func ExploreStateCreate(stack *gui.StateStack, mapInfo game_map.MapInfo, window *pixelgl.Window) ExploreState {
 
 	es := ExploreState{
 		Stack:       stack,
-		MapDef:      tilemap,
+		MapDef:      mapInfo.Tilemap,
 		heroVisible: true,
 	}
 
 	es.win = window
-	es.Map = game_map.MapCreate(es.MapDef, collisionLayer, collisionLayerName)
+	es.Map = game_map.MapCreate(mapInfo)
 
-	es.Hero = character_states.Hero(es.Map)
+	es.Hero = character_states.Characters["hero"](es.Map)
+	es.Map.NPCbyId[es.Hero.Id] = es.Hero
 	//es.Hero.Controller.Change("wait", globals.Direction{0, 0})
 
 	es.startPos = pixel.V(es.Hero.Entity.TileX, es.Hero.Entity.TileY)
@@ -47,11 +47,11 @@ func (es *ExploreState) HideHero() {
 	es.Hero.Entity.TileX = 0
 	es.Hero.Entity.TileY = 0
 }
-func (es *ExploreState) ShowHero() {
+func (es *ExploreState) ShowHero(tileX, tileY float64) {
 	es.heroVisible = true
-	es.Hero.Entity.TileX = es.startPos.X
-	es.Hero.Entity.TileY = es.startPos.Y
-	es.Map.GoToTile(es.startPos.X, es.startPos.Y)
+	es.Hero.Entity.TileX = tileX
+	es.Hero.Entity.TileY = tileY
+	es.Map.GoToTile(es.Hero.Entity.TileX, es.Hero.Entity.TileY)
 }
 
 func (es ExploreState) Enter() {
@@ -86,7 +86,7 @@ func (es ExploreState) Render(win *pixelgl.Window) {
 			return gameCharacters[i].Entity.TileY < gameCharacters[j].Entity.TileY
 		})
 
-		if layer == es.Map.CollisionLayer {
+		if layer == es.Map.MapInfo.CollisionLayer {
 			for _, gCharacter := range gameCharacters {
 				//gCharacter.Entity.TeleportAndDraw(es.Map, canvas) //probably can remove now
 				gCharacter.Entity.Render(es.Map, canvas)
@@ -107,10 +107,11 @@ func (es ExploreState) HandleInput(win *pixelgl.Window) {
 	//use key
 	if win.JustPressed(pixelgl.KeyE) {
 		// which way is the player facing?
-		tileX, tileY := es.Map.GetTileIndex(es.Hero.GetFacedTileCoords())
+		//tileX, tileY := es.Map.GetTileIndex(es.Hero.GetFacedTileCoords())
+		tileX, tileY := es.Hero.GetFacedTileCoords()
 		trigger := es.Map.GetTrigger(tileX, tileY)
 		if trigger.OnUse != nil {
-			trigger.OnUse(es.Hero.Entity)
+			trigger.OnUse(es.Map, es.Hero.Entity, tileX, tileY)
 		}
 	}
 }

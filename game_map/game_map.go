@@ -15,10 +15,8 @@ type GameMap struct {
 	// To track the camera position
 	CamX, CamY float64
 
-	Tilemap            *tilepix.Map
-	CollisionLayer     int
-	CollisionLayerName string
-	sprites            map[string]*pixel.Sprite
+	MapInfo MapInfo
+	sprites map[string]*pixel.Sprite
 
 	mTileSprite   pixel.Sprite
 	Width, Height float64
@@ -27,46 +25,75 @@ type GameMap struct {
 	tilesIndices map[string]int
 	tilesCounter int
 
+	bypassBlockedTile     map[[2]float64]bool
 	TileWidth, TileHeight float64
 	blockingTileGID       tilepix.GID
 	Canvas                *pixelgl.Canvas
 	renderLayer           int
 
-	Triggers map[[2]float64]Trigger
+	Actions      map[string]func(gMap *GameMap, entity *Entity, x, y float64)
+	TriggerTypes map[string]Trigger
+	Triggers     map[[2]float64]Trigger
+
 	Entities []*Entity
 	NPCs     []*Character
 	NPCbyId  map[string]*Character
 }
 
-func MapCreate(tilemap *tilepix.Map, collisionLayer int, collisionLayerName string) *GameMap {
+func MapCreate(mapInfo MapInfo) *GameMap {
 	m := &GameMap{
-		Tilemap:            tilemap,
-		CollisionLayer:     collisionLayer,
-		CollisionLayerName: collisionLayerName,
+		MapInfo:           mapInfo,
+		bypassBlockedTile: make(map[[2]float64]bool),
 	}
 
-	m.Triggers = make(map[[2]float64]Trigger)
 	m.NPCbyId = make(map[string]*Character, 0)
 	m.Entities = make([]*Entity, 0)
 
-	m.Height = float64(tilemap.Height)
-	m.Width = float64(tilemap.Width)
+	m.Height = float64(mapInfo.Tilemap.Height)
+	m.Width = float64(mapInfo.Tilemap.Width)
 
-	m.TileWidth = float64(tilemap.TileWidth)
-	m.TileHeight = float64(tilemap.TileHeight)
+	m.TileWidth = float64(mapInfo.Tilemap.TileWidth)
+	m.TileHeight = float64(mapInfo.Tilemap.TileHeight)
 
 	//Bottom left corner of the map, since pixel starts at 0, 0
 	m.x = m.TileWidth
 	m.y = m.TileHeight
 
-	m.Canvas = pixelgl.NewCanvas(m.Tilemap.Bounds())
+	m.Canvas = pixelgl.NewCanvas(m.MapInfo.Tilemap.Bounds())
 	m.setTiles()
 	m.setBlockingTileInfo()
+	m.createTriggersFromMapInfo()
 	return m
 }
 
+func (m *GameMap) createTriggersFromMapInfo() {
+	m.Actions = make(map[string]func(gMap *GameMap, entity *Entity, x, y float64))
+	for name, def := range m.MapInfo.Actions {
+		//def.Id = RunScript
+		action := RunScript(def.Script)
+		m.Actions[name] = action
+	}
+
+	//Create the Trigger types from the Action def
+	m.TriggerTypes = make(map[string]Trigger)
+	for k, v := range m.MapInfo.TriggerTypes {
+		m.TriggerTypes[k] = Trigger{
+			OnEnter: m.Actions[v.OnEnter],
+			OnExit:  m.Actions[v.OnExit],
+			OnUse:   m.Actions[v.OnUse],
+		}
+	}
+
+	m.Triggers = make(map[[2]float64]Trigger)
+	for _, v := range m.MapInfo.Triggers {
+		//we take Tile XY and set as map x, y cords
+		x, y := m.GetTileIndex(v.X, v.Y)
+		m.Triggers[[2]float64{x, y}] = m.TriggerTypes[v.Id]
+	}
+}
+
 func (m *GameMap) setBlockingTileInfo() {
-	for _, tile := range m.Tilemap.Tilesets {
+	for _, tile := range m.MapInfo.Tilemap.Tilesets {
 		if tile.Name == "collision_px" {
 			m.blockingTileGID = tile.FirstGID
 			break
@@ -88,11 +115,15 @@ func (m GameMap) GetEntityAtPos(x, y float64) *Entity {
 
 //IsBlockingTile check's X, Y cords on collision map layer
 // if ID is not 0, tile exists on X, Y we return true
-func (m GameMap) IsBlockingTile(x, y int) bool {
-	if (x + y*int(m.Width)) <= 0 {
+func (m GameMap) IsBlockingTile(tileX, tileY int) bool {
+	if (tileX + tileY*int(m.Width)) <= 0 {
 		return true //we dont let him go out of map
 	}
-	tile := m.Tilemap.TileLayers[m.CollisionLayer].DecodedTiles[x+y*int(m.Width)]
+
+	if x, y := m.GetTileIndex(float64(tileX), float64(tileY)); m.bypassBlockedTile[[2]float64{x, y}] {
+		return false
+	}
+	tile := m.MapInfo.Tilemap.TileLayers[m.MapInfo.CollisionLayer].DecodedTiles[tileX+(tileY*int(m.Width))]
 	return !tile.IsNil() || tile.ID != 0
 }
 
@@ -103,7 +134,7 @@ func (m *GameMap) setTiles() {
 
 	// Load the sprites
 	sprites := make(map[string]*pixel.Sprite)
-	for _, tileset := range m.Tilemap.Tilesets {
+	for _, tileset := range m.MapInfo.Tilemap.Tilesets {
 		if _, alreadyLoaded := sprites[tileset.Image.Source]; !alreadyLoaded {
 			sprite, pictureData := globals.LoadSprite(tileset.Image.Source)
 			sprites[tileset.Image.Source] = sprite
@@ -131,6 +162,8 @@ func (m *GameMap) Goto(x, y float64) {
 	m.CamY = y
 }
 
+//GetTileIndex will take TileX, TileY and return exact MAP cords
+//e.g. 35, 22 will return cords on map x 400, y 1300
 func (m GameMap) GetTileIndex(x, y float64) (tileX, tileY float64) {
 	y = m.Height - y //make count Y from top (Tiled app starts from top)
 	tileX = m.x + (x * m.TileWidth)
@@ -146,8 +179,7 @@ func (m GameMap) GetTilePositionAtFeet(x, y, charW, charH float64) pixel.Vec {
 }
 
 func (m GameMap) DrawAll(target pixel.Target, clearColour color.Color, mat pixel.Matrix) {
-	//m.Tilemap.DrawAll(Global.Win, color.Transparent, pixel.IM)
-	m.Tilemap.DrawAll(target, clearColour, mat)
+	m.MapInfo.Tilemap.DrawAll(target, clearColour, mat)
 }
 
 //DrawAfter will render the callback function after given layer index
@@ -157,13 +189,13 @@ func (m GameMap) DrawAfter(callback func(canvas *pixelgl.Canvas, layer int)) err
 	target, mat := globals.Global.Win, pixel.IM
 
 	if m.Canvas == nil {
-		m.Canvas = pixelgl.NewCanvas(m.Tilemap.Bounds())
+		m.Canvas = pixelgl.NewCanvas(m.MapInfo.Tilemap.Bounds())
 	}
 	m.Canvas.Clear(color.Transparent)
 
-	for index, l := range m.Tilemap.TileLayers {
+	for index, l := range m.MapInfo.Tilemap.TileLayers {
 		callback(m.Canvas, index)
-		if l.Name == m.CollisionLayerName {
+		if l.Name == m.MapInfo.CollisionLayerName {
 			//we do NOT render the collision layer
 			continue
 		}
@@ -173,7 +205,7 @@ func (m GameMap) DrawAfter(callback func(canvas *pixelgl.Canvas, layer int)) err
 		}
 	}
 
-	for _, il := range m.Tilemap.ImageLayers {
+	for _, il := range m.MapInfo.Tilemap.ImageLayers {
 		// The matrix shift is because images are drawn from the top-left in Tiled.
 		if err := il.Draw(m.Canvas, pixel.IM.Moved(pixel.V(0, m.pixelHeight()))); err != nil {
 			log.WithError(err).Error("Map.DrawAll: could not draw image layer")
@@ -181,21 +213,28 @@ func (m GameMap) DrawAfter(callback func(canvas *pixelgl.Canvas, layer int)) err
 		}
 	}
 
-	m.Canvas.Draw(target, mat.Moved(m.Tilemap.Bounds().Center()))
+	m.Canvas.Draw(target, mat.Moved(m.MapInfo.Tilemap.Bounds().Center()))
 
 	return nil
 }
 
 func (m GameMap) pixelHeight() float64 {
-	return float64(m.Tilemap.Height * m.Tilemap.TileHeight)
+	return float64(m.MapInfo.Tilemap.Height * m.MapInfo.Tilemap.TileHeight)
 }
 
-func (m GameMap) GetTrigger(x, y float64) Trigger {
+func (m GameMap) GetTrigger(tileX, tileY float64) Trigger {
+	x, y := m.GetTileIndex(tileX, tileY)
 	return m.Triggers[[2]float64{x, y}]
 }
-func (m GameMap) SetTrigger(x, y float64, t Trigger) {
-	tileX, tileY := m.GetTileIndex(x, y)
-	m.Triggers[[2]float64{tileX, tileY}] = t
+
+func (m *GameMap) SetTrigger(tileX, tileY float64, t Trigger) {
+	x, y := m.GetTileIndex(tileX, tileY)
+	m.Triggers[[2]float64{x, y}] = t
+}
+
+func (m *GameMap) RemoveTrigger(tileX, tileY float64) {
+	x, y := m.GetTileIndex(tileX, tileY)
+	delete(m.Triggers, [2]float64{x, y})
 }
 
 //AddNPC helps in detecting player if x,y has NPC or not
@@ -203,4 +242,9 @@ func (m *GameMap) AddNPC(npc *Character) {
 	m.NPCbyId[npc.Id] = npc
 	m.NPCs = append(m.NPCs, npc)
 	m.Entities = append(m.Entities, npc.Entity)
+}
+
+//bypassBlockedTile
+func (m *GameMap) WriteTile(x, y float64, collision bool) {
+	m.bypassBlockedTile[[2]float64{x, y}] = !collision
 }
