@@ -4,10 +4,10 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/actions"
+	"github.com/steelx/go-rpg-cgm/game_map"
 	"github.com/steelx/go-rpg-cgm/game_map/character_states"
 	"github.com/steelx/go-rpg-cgm/game_states"
 	"github.com/steelx/go-rpg-cgm/gui"
-	"github.com/steelx/go-rpg-cgm/maps_db"
 	"image/color"
 	"reflect"
 )
@@ -68,10 +68,8 @@ func SubTitleCaptionScreen(id string, txt string, duration float64) func(storybo
 func Scene(mapName string, hideHero bool, win *pixelgl.Window) func(storyboard *Storyboard) *NonBlockEvent {
 
 	return func(storyboard *Storyboard) *NonBlockEvent {
-		gMap, collision, collisionLayerName := maps_db.MapsDB[mapName]()
-		exploreState := game_states.ExploreStateCreate(nil,
-			gMap, collision, collisionLayerName, win,
-		)
+		mapInfo := game_map.MapsDB[mapName]()
+		exploreState := game_states.ExploreStateCreate(nil, mapInfo, win)
 		if hideHero {
 			exploreState.HideHero()
 		}
@@ -137,10 +135,8 @@ func ReplaceScene(mapName string, newMapName string, tileX, tileY float64, hideH
 	return func(storyboard *Storyboard) *NonBlockEvent {
 		storyboard.RemoveState(mapName) //remove previous map (exploreState)
 
-		mapDef, collision, collisionName := maps_db.MapsDB[newMapName]()
-		newExploreState := game_states.ExploreStateCreate(nil,
-			mapDef, collision, collisionName, win,
-		)
+		mapInfo := game_map.MapsDB[newMapName]()
+		newExploreState := game_states.ExploreStateCreate(nil, mapInfo, win)
 
 		if hideHero {
 			newExploreState.HideHero()
@@ -160,6 +156,7 @@ func HandOffToMainStack(mapName string) func(storyboard *Storyboard) *WaitEvent 
 		exploreState := getExploreState(storyboard, mapName)
 		storyboard.Stack.Pop()
 		exploreState.Stack = storyboard.Stack
+
 		storyboard.Stack.Push(exploreState)
 
 		return WaitEventCreate(1)

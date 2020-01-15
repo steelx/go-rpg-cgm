@@ -30,3 +30,10 @@ func ActionAddNPC(gMap *game_map.GameMap, x, y float64) func(char *game_map.Char
 		gMap.GoToTile(x, y)
 	}
 }
+
+func RunScript(gMap *game_map.GameMap, script func(a ...interface{}) func(b ...interface{})) func(trigger func(), entity game_map.Entity) {
+
+	return func(trigger func(), entity game_map.Entity) {
+		script(gMap, trigger, entity)
+	}
+}

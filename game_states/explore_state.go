@@ -21,17 +21,16 @@ type ExploreState struct {
 	heroVisible bool
 }
 
-func ExploreStateCreate(stack *gui.StateStack,
-	tilemap *tilepix.Map, collisionLayer int, collisionLayerName string, window *pixelgl.Window) ExploreState {
+func ExploreStateCreate(stack *gui.StateStack, mapInfo game_map.MapInfo, window *pixelgl.Window) ExploreState {
 
 	es := ExploreState{
 		Stack:       stack,
-		MapDef:      tilemap,
+		MapDef:      mapInfo.Tilemap,
 		heroVisible: true,
 	}
 
 	es.win = window
-	es.Map = game_map.MapCreate(es.MapDef, collisionLayer, collisionLayerName)
+	es.Map = game_map.MapCreate(mapInfo)
 
 	es.Hero = character_states.Characters["hero"](es.Map)
 	es.Map.NPCbyId[es.Hero.Id] = es.Hero
@@ -87,7 +86,7 @@ func (es ExploreState) Render(win *pixelgl.Window) {
 			return gameCharacters[i].Entity.TileY < gameCharacters[j].Entity.TileY
 		})
 
-		if layer == es.Map.CollisionLayer {
+		if layer == es.Map.MapInfo.CollisionLayer {
 			for _, gCharacter := range gameCharacters {
 				//gCharacter.Entity.TeleportAndDraw(es.Map, canvas) //probably can remove now
 				gCharacter.Entity.Render(es.Map, canvas)
