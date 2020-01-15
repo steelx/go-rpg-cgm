@@ -73,9 +73,13 @@ func setup(win *pixelgl.Window) {
 			"up", "up", "up", "left", "left", "left",
 		}),
 		storyboard.Say("player_room", "guard", "You'r coming with me!!", 3),
+		storyboard.BlackScreen("blackscreen"),
+		storyboard.Wait(1),
+		storyboard.KillState("blackscreen"),
 		storyboard.ReplaceScene("player_room", "jail_room", 31, 21, false, win),
 		storyboard.Wait(1),
-		storyboard.Say("jail_room", "Ajinkya", "Where am I...", 2.5),
+		storyboard.Say("jail_room", "Chanakya", "Where am I...", 1.5),
+		storyboard.Say("jail_room", "Chanakya", "Dhananand. I will take revenge", 2.5),
 		storyboard.Wait(4),
 	}
 
