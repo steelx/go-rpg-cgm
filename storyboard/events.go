@@ -132,6 +132,7 @@ func Say(mapName, npcId, textMessage string, time float64) func(storyboard *Stor
 	}
 }
 
+//ReplaceScene will remove mapName and add newMapName with a Hero at given Tile X, Y
 func ReplaceScene(mapName string, newMapName string, tileX, tileY float64, hideHero bool, win *pixelgl.Window) func(storyboard *Storyboard) *NonBlockEvent {
 	return func(storyboard *Storyboard) *NonBlockEvent {
 		storyboard.RemoveState(mapName) //remove previous map (exploreState)
@@ -150,5 +151,17 @@ func ReplaceScene(mapName string, newMapName string, tileX, tileY float64, hideH
 		storyboard.PushState(newMapName, &newExploreState) //ADD new map (exploreState)
 
 		return NonBlockEventCreate(0)
+	}
+}
+
+//HandOffToMainStack will remove the exploreState from Storyboard and push it to main stack
+func HandOffToMainStack(mapName string) func(storyboard *Storyboard) *WaitEvent {
+	return func(storyboard *Storyboard) *WaitEvent {
+		exploreState := getExploreState(storyboard, mapName)
+		storyboard.Stack.Pop()
+		exploreState.Stack = storyboard.Stack
+		storyboard.Stack.Push(exploreState)
+
+		return WaitEventCreate(1)
 	}
 }

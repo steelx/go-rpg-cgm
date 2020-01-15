@@ -80,7 +80,8 @@ func setup(win *pixelgl.Window) {
 		storyboard.Wait(1),
 		storyboard.Say("jail_room", "Chanakya", "Where am I...", 1.5),
 		storyboard.Say("jail_room", "Chanakya", "Dhananand. I will take revenge", 2.5),
-		storyboard.Wait(4),
+		storyboard.Wait(1),
+		storyboard.HandOffToMainStack("jail_room"),
 	}
 
 	var storyboardI = storyboard.Create(stack, win, introScene)
