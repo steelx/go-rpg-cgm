@@ -67,12 +67,16 @@ func setup(win *pixelgl.Window) {
 		storyboard.KillState("subtitle"),
 		storyboard.Scene("player_room", true, win),
 		storyboard.RunActionAddNPC("player_room", "sleeper", 14, 19, 3),
-		storyboard.RunActionAddNPC("player_room", "guard", 19, 22, 0),
+		storyboard.RunActionAddNPC("player_room", "guard", 19, 23, 0),
+		storyboard.Say("player_room", "guard", "..door smashed", 1.5),
 		storyboard.MoveNPC("guard", "player_room", []string{
 			"up", "up", "up", "left", "left", "left",
 		}),
 		storyboard.Say("player_room", "guard", "You'r coming with me!!", 3),
-		storyboard.KillState("player_room"),
+		storyboard.ReplaceScene("player_room", "jail_room", 31, 21, false, win),
+		storyboard.Wait(1),
+		storyboard.Say("jail_room", "Ajinkya", "Where am I...", 2.5),
+		storyboard.Wait(4),
 	}
 
 	var storyboardI = storyboard.Create(stack, win, introScene)

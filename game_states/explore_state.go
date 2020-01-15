@@ -33,7 +33,8 @@ func ExploreStateCreate(stack *gui.StateStack,
 	es.win = window
 	es.Map = game_map.MapCreate(es.MapDef, collisionLayer, collisionLayerName)
 
-	es.Hero = character_states.Hero(es.Map)
+	es.Hero = character_states.Characters["hero"](es.Map)
+	es.Map.NPCbyId[es.Hero.Id] = es.Hero
 	//es.Hero.Controller.Change("wait", globals.Direction{0, 0})
 
 	es.startPos = pixel.V(es.Hero.Entity.TileX, es.Hero.Entity.TileY)
@@ -47,11 +48,11 @@ func (es *ExploreState) HideHero() {
 	es.Hero.Entity.TileX = 0
 	es.Hero.Entity.TileY = 0
 }
-func (es *ExploreState) ShowHero() {
+func (es *ExploreState) ShowHero(tileX, tileY float64) {
 	es.heroVisible = true
-	es.Hero.Entity.TileX = es.startPos.X
-	es.Hero.Entity.TileY = es.startPos.Y
-	es.Map.GoToTile(es.startPos.X, es.startPos.Y)
+	es.Hero.Entity.TileX = tileX
+	es.Hero.Entity.TileY = tileY
+	es.Map.GoToTile(es.Hero.Entity.TileX, es.Hero.Entity.TileY)
 }
 
 func (es ExploreState) Enter() {

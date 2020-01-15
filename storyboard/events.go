@@ -127,7 +127,28 @@ func Say(mapName, npcId, textMessage string, time float64) func(storyboard *Stor
 		npc := exploreState.Map.NPCbyId[npcId]
 		tileX, tileY := npc.GetFacedTileCoords()
 		posX, posY := exploreState.Map.GetTileIndex(tileX, tileY)
-		tBox := storyboard.InternalStack.PushFitted(posX, posY+npc.Entity.Height, textMessage)
+		tBox := storyboard.InternalStack.PushFitted(posX, posY+32, textMessage)
 		return TimedTextboxEventCreate(tBox, time)
+	}
+}
+
+func ReplaceScene(mapName string, newMapName string, tileX, tileY float64, hideHero bool, win *pixelgl.Window) func(storyboard *Storyboard) *NonBlockEvent {
+	return func(storyboard *Storyboard) *NonBlockEvent {
+		storyboard.RemoveState(mapName) //remove previous map (exploreState)
+
+		mapDef, collision, collisionName := maps_db.MapsDB[newMapName]()
+		newExploreState := game_states.ExploreStateCreate(nil,
+			mapDef, collision, collisionName, win,
+		)
+
+		if hideHero {
+			newExploreState.HideHero()
+		} else {
+			newExploreState.ShowHero(tileX, tileY)
+		}
+
+		storyboard.PushState(newMapName, &newExploreState) //ADD new map (exploreState)
+
+		return NonBlockEventCreate(0)
 	}
 }

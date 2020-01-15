@@ -15,14 +15,22 @@ var MapsDB map[string]func() (*tilepix.Map, int, string)
 
 func init() {
 	MapsDB = make(map[string]func() (*tilepix.Map, int, string))
-	MapsDB["player_room"] = sontosHouseMap
+	MapsDB["player_room"] = playerHouseMap
 	MapsDB["small_room"] = smallRoomMap
+	MapsDB["jail_room"] = jailRoomMap
 }
 
 //player render rule is we render them with Collision Layer
-func sontosHouseMap() (gMap *tilepix.Map, collisionLayer int, collisionLayerName string) {
+func playerHouseMap() (gMap *tilepix.Map, collisionLayer int, collisionLayerName string) {
 	collisionLayer, collisionLayerName = 2, "2-collision"
 	gMap, err := tilepix.ReadFile("sontos_house.tmx")
+	logFatalErr(err)
+	return
+}
+
+func jailRoomMap() (gMap *tilepix.Map, collisionLayer int, collisionLayerName string) {
+	collisionLayer, collisionLayerName = 2, "02 collision"
+	gMap, err := tilepix.ReadFile("jail.tmx")
 	logFatalErr(err)
 	return
 }
