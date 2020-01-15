@@ -107,10 +107,11 @@ func (es ExploreState) HandleInput(win *pixelgl.Window) {
 	//use key
 	if win.JustPressed(pixelgl.KeyE) {
 		// which way is the player facing?
-		tileX, tileY := es.Map.GetTileIndex(es.Hero.GetFacedTileCoords())
+		//tileX, tileY := es.Map.GetTileIndex(es.Hero.GetFacedTileCoords())
+		tileX, tileY := es.Hero.GetFacedTileCoords()
 		trigger := es.Map.GetTrigger(tileX, tileY)
 		if trigger.OnUse != nil {
-			trigger.OnUse(es.Hero.Entity)
+			trigger.OnUse(es.Map, es.Hero.Entity, tileX, tileY)
 		}
 	}
 }

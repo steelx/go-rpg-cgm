@@ -37,9 +37,10 @@ func (s *WaitState) Enter(data interface{}) {
 	s.Entity.SetFrame(s.Entity.StartFrame)
 
 	//check if an EXIT Trigger exists on given tile coords
-	tileX, tileY := s.Map.GetTileIndex(s.Entity.TileX, s.Entity.TileY)
+	//tileX, tileY := s.Map.GetTileIndex(s.Entity.TileX, s.Entity.TileY)
+	tileX, tileY := s.Entity.TileX, s.Entity.TileY
 	if trigger := s.Map.GetTrigger(tileX, tileY); trigger.OnExit != nil {
-		trigger.OnExit()
+		trigger.OnExit(s.Map, s.Entity, tileX, tileY)
 	}
 }
 

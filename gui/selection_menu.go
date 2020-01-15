@@ -95,6 +95,13 @@ func (m *SelectionMenu) HideCursor() {
 	m.IsShowCursor = false
 }
 
+func (m SelectionMenu) GetWidth() float64 {
+	return m.width
+}
+func (m SelectionMenu) GetHeight() float64 {
+	return m.height
+}
+
 func (m SelectionMenu) calcTotalHeight() float64 {
 	height := float64(m.displayRows) * m.SpacingY
 	return height - m.SpacingY/2

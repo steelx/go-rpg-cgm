@@ -31,7 +31,10 @@ type GameMap struct {
 	Canvas                *pixelgl.Canvas
 	renderLayer           int
 
-	Triggers map[[2]float64]Trigger
+	Actions      map[string]func(gMap *GameMap, entity *Entity, x, y float64)
+	TriggerTypes map[string]Trigger
+	Triggers     map[[2]float64]Trigger
+
 	Entities []*Entity
 	NPCs     []*Character
 	NPCbyId  map[string]*Character
@@ -43,7 +46,6 @@ func MapCreate(mapInfo MapInfo) *GameMap {
 		bypassBlockedTile: make(map[[2]float64]bool),
 	}
 
-	m.Triggers = make(map[[2]float64]Trigger)
 	m.NPCbyId = make(map[string]*Character, 0)
 	m.Entities = make([]*Entity, 0)
 
@@ -60,7 +62,34 @@ func MapCreate(mapInfo MapInfo) *GameMap {
 	m.Canvas = pixelgl.NewCanvas(m.MapInfo.Tilemap.Bounds())
 	m.setTiles()
 	m.setBlockingTileInfo()
+	m.createTriggersFromMapInfo()
 	return m
+}
+
+func (m *GameMap) createTriggersFromMapInfo() {
+	m.Actions = make(map[string]func(gMap *GameMap, entity *Entity, x, y float64))
+	for name, def := range m.MapInfo.Actions {
+		//def.Id = RunScript
+		action := RunScript(def.Script)
+		m.Actions[name] = action
+	}
+
+	//Create the Trigger types from the Action def
+	m.TriggerTypes = make(map[string]Trigger)
+	for k, v := range m.MapInfo.TriggerTypes {
+		m.TriggerTypes[k] = Trigger{
+			OnEnter: m.Actions[v.OnEnter],
+			OnExit:  m.Actions[v.OnExit],
+			OnUse:   m.Actions[v.OnUse],
+		}
+	}
+
+	m.Triggers = make(map[[2]float64]Trigger)
+	for _, v := range m.MapInfo.Triggers {
+		//we take Tile XY and set as map x, y cords
+		x, y := m.GetTileIndex(v.X, v.Y)
+		m.Triggers[[2]float64{x, y}] = m.TriggerTypes[v.Id]
+	}
 }
 
 func (m *GameMap) setBlockingTileInfo() {
@@ -86,14 +115,15 @@ func (m GameMap) GetEntityAtPos(x, y float64) *Entity {
 
 //IsBlockingTile check's X, Y cords on collision map layer
 // if ID is not 0, tile exists on X, Y we return true
-func (m GameMap) IsBlockingTile(x, y int) bool {
-	if (x + y*int(m.Width)) <= 0 {
+func (m GameMap) IsBlockingTile(tileX, tileY int) bool {
+	if (tileX + tileY*int(m.Width)) <= 0 {
 		return true //we dont let him go out of map
 	}
-	if m.bypassBlockedTile[[2]float64{float64(x), float64(y)}] {
+
+	if x, y := m.GetTileIndex(float64(tileX), float64(tileY)); m.bypassBlockedTile[[2]float64{x, y}] {
 		return false
 	}
-	tile := m.MapInfo.Tilemap.TileLayers[m.MapInfo.CollisionLayer].DecodedTiles[x+y*int(m.Width)]
+	tile := m.MapInfo.Tilemap.TileLayers[m.MapInfo.CollisionLayer].DecodedTiles[tileX+(tileY*int(m.Width))]
 	return !tile.IsNil() || tile.ID != 0
 }
 
@@ -132,6 +162,8 @@ func (m *GameMap) Goto(x, y float64) {
 	m.CamY = y
 }
 
+//GetTileIndex will take TileX, TileY and return exact MAP cords
+//e.g. 35, 22 will return cords on map x 400, y 1300
 func (m GameMap) GetTileIndex(x, y float64) (tileX, tileY float64) {
 	y = m.Height - y //make count Y from top (Tiled app starts from top)
 	tileX = m.x + (x * m.TileWidth)
@@ -147,7 +179,6 @@ func (m GameMap) GetTilePositionAtFeet(x, y, charW, charH float64) pixel.Vec {
 }
 
 func (m GameMap) DrawAll(target pixel.Target, clearColour color.Color, mat pixel.Matrix) {
-	//m.Tilemap.DrawAll(Global.Win, color.Transparent, pixel.IM)
 	m.MapInfo.Tilemap.DrawAll(target, clearColour, mat)
 }
 
@@ -191,7 +222,8 @@ func (m GameMap) pixelHeight() float64 {
 	return float64(m.MapInfo.Tilemap.Height * m.MapInfo.Tilemap.TileHeight)
 }
 
-func (m GameMap) GetTrigger(x, y float64) Trigger {
+func (m GameMap) GetTrigger(tileX, tileY float64) Trigger {
+	x, y := m.GetTileIndex(tileX, tileY)
 	return m.Triggers[[2]float64{x, y}]
 }
 
@@ -200,9 +232,9 @@ func (m *GameMap) SetTrigger(tileX, tileY float64, t Trigger) {
 	m.Triggers[[2]float64{x, y}] = t
 }
 
-func (m *GameMap) RemoveTrigger(x, y float64) {
-	tileX, tileY := m.GetTileIndex(x, y)
-	delete(m.Triggers, [2]float64{tileX, tileY})
+func (m *GameMap) RemoveTrigger(tileX, tileY float64) {
+	x, y := m.GetTileIndex(tileX, tileY)
+	delete(m.Triggers, [2]float64{x, y})
 }
 
 //AddNPC helps in detecting player if x,y has NPC or not
@@ -213,6 +245,6 @@ func (m *GameMap) AddNPC(npc *Character) {
 }
 
 //bypassBlockedTile
-func (m *GameMap) WriteTile(tileX, tileY float64, collision bool) {
-	m.bypassBlockedTile[[2]float64{tileX, tileY}] = !collision
+func (m *GameMap) WriteTile(x, y float64, collision bool) {
+	m.bypassBlockedTile[[2]float64{x, y}] = !collision
 }

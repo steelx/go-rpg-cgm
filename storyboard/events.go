@@ -68,7 +68,7 @@ func SubTitleCaptionScreen(id string, txt string, duration float64) func(storybo
 func Scene(mapName string, hideHero bool, win *pixelgl.Window) func(storyboard *Storyboard) *NonBlockEvent {
 
 	return func(storyboard *Storyboard) *NonBlockEvent {
-		mapInfo := game_map.MapsDB[mapName]()
+		mapInfo := game_map.MapsDB[mapName](storyboard.Stack)
 		exploreState := game_states.ExploreStateCreate(nil, mapInfo, win)
 		if hideHero {
 			exploreState.HideHero()
@@ -135,7 +135,7 @@ func ReplaceScene(mapName string, newMapName string, tileX, tileY float64, hideH
 	return func(storyboard *Storyboard) *NonBlockEvent {
 		storyboard.RemoveState(mapName) //remove previous map (exploreState)
 
-		mapInfo := game_map.MapsDB[newMapName]()
+		mapInfo := game_map.MapsDB[newMapName](storyboard.Stack)
 		newExploreState := game_states.ExploreStateCreate(nil, mapInfo, win)
 
 		if hideHero {

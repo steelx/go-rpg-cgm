@@ -58,7 +58,7 @@ func TextboxNew(stack *StateStack, txt string, size float64, atlas *text.Atlas, 
 }
 
 func TextboxWithMenuCreate(stack *StateStack, textBoxText string, panelPos pixel.Vec, panelWidth, panelHeight float64,
-	choices []string, onSelection func(int, string)) *Textbox {
+	choices []string, onSelection func(int, string), showColumns bool) *Textbox {
 
 	textbox := TextboxCreateFixed(
 		stack,
@@ -71,13 +71,43 @@ func TextboxWithMenuCreate(stack *StateStack, textBoxText string, panelPos pixel
 
 	textBounds := textbox.getTextBound()
 
-	textbox.menu = SelectionMenuCreate(choices, true,
+	textbox.menu = SelectionMenuCreate(choices, showColumns,
 		pixel.V(textbox.Position.X-10, textbox.Position.Y-textBounds.H()-10), func(i int, s string) {
 			onSelection(i, s)
 			textbox.isDead = true
 		}, nil)
 
 	return &textbox
+}
+
+func TextboxFITMenuCreate(stack *StateStack, x, y float64, textBoxText string, choices []string, onSelection func(int, string)) *Textbox {
+	panelPos := pixel.V(x, y)
+	t := TextboxNew(stack, textBoxText, 14, globals.BasicAtlas12, "", nil)
+	t.AppearTween = animation.TweenCreate(1, 1, 1)
+	t.isFixed = false
+
+	t.hasMenu = true
+	if t.hasMenu {
+		t.topPadding = 10
+	}
+	fmt.Println("choices", choices)
+	textBounds := t.getTextBound()
+	menu := SelectionMenuCreate(choices, true,
+		pixel.V(t.Position.X, t.Position.Y-textBounds.H()-10), func(i int, s string) {
+			onSelection(i, s)
+			t.isDead = true
+		}, nil)
+
+	panel := PanelCreate(panelPos, menu.GetWidth(), menu.GetHeight())
+
+	t.menu = menu
+	t.mPanel = panel
+	t.textBounds = panel.mBounds
+
+	t.makeTextColumns()
+	t.buildTextBlocks()
+
+	return &t
 }
 
 func TextboxCreateFixed(stack *StateStack, txt string, panelPos pixel.Vec, panelWidth, panelHeight float64, avatarName string, avatarImg pixel.Picture, hasMenu bool) Textbox {
@@ -150,6 +180,9 @@ func (t *Textbox) makeTextColumns() {
 }
 
 func (t Textbox) getTextBound() pixel.Rect {
+	if t.textBase == nil {
+		t.textBase = text.New(t.Position, t.textAtlas)
+	}
 	return t.textBase.BoundsOf(t.text)
 }
 
