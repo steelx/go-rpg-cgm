@@ -78,8 +78,8 @@ func setup(win *pixelgl.Window) {
 		game_map.KillState("blackscreen"),
 		game_map.ReplaceScene("player_room", "jail_room", 31, 21, false, win),
 		game_map.Wait(1),
-		game_map.Say("jail_room", "Chanakya", "Where am I...", 1.5),
-		game_map.Say("jail_room", "Chanakya", "Dhananand. I will take revenge", 2.5),
+		game_map.Say("jail_room", "hero", "Where am I...", 1.5),
+		game_map.Say("jail_room", "hero", "Dhananand. I will take revenge", 2.5),
 		game_map.Wait(1),
 		game_map.HandOffToMainStack("jail_room"),
 	}

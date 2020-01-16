@@ -80,9 +80,10 @@ func Scene(mapName string, hideHero bool, win *pixelgl.Window) func(storyboard *
 func RunActionAddNPC(mapName, entityDef string, x, y, seconds float64) func(storyboard *Storyboard) *WaitEvent {
 	return func(storyboard *Storyboard) *WaitEvent {
 		exploreState := getExploreState(storyboard, mapName)
-		exploreState.Hero.Entity.SetTilePos(x, y)
-		runFunc := AddNPC(exploreState.Map, x, y)
 		char := Characters[entityDef](exploreState.Map)
+		exploreState.SetFollowCam(true, char)
+
+		runFunc := AddNPC(exploreState.Map, x, y)
 		runFunc(char)
 		return WaitEventCreate(seconds)
 	}
