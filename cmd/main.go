@@ -6,7 +6,6 @@ import (
 	"github.com/steelx/go-rpg-cgm/game_map"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/gui"
-	"github.com/steelx/go-rpg-cgm/storyboard"
 	"time"
 )
 
@@ -57,35 +56,35 @@ func setup(win *pixelgl.Window) {
 	//stack.Push(&exploreState)
 
 	var introScene = []interface{}{
-		//storyboard.BlackScreen("blackscreen"),
-		//storyboard.Wait(1),
-		//storyboard.KillState("blackscreen"),
-		//storyboard.TitleCaptionScreen("title", "Chandragupta Maurya", 3),
-		//storyboard.SubTitleCaptionScreen("subtitle", "A jRPG game in GO", 2),
-		//storyboard.Wait(3),
-		//storyboard.KillState("title"),
-		//storyboard.KillState("subtitle"),
-		storyboard.Scene("player_room", true, win),
-		storyboard.RunActionAddNPC("player_room", "sleeper", 14, 19, 3),
-		storyboard.RunActionAddNPC("player_room", "guard", 19, 23, 0),
-		storyboard.Say("player_room", "guard", "..door smashed", 1.5),
+		game_map.BlackScreen("blackscreen"),
+		game_map.Wait(1),
+		game_map.KillState("blackscreen"),
+		game_map.TitleCaptionScreen("title", "Chandragupta Maurya", 3),
+		game_map.SubTitleCaptionScreen("subtitle", "A jRPG game in GO", 2),
+		game_map.Wait(3),
+		game_map.KillState("title"),
+		game_map.KillState("subtitle"),
+		game_map.Scene("player_room", true, win),
+		game_map.RunActionAddNPC("player_room", "sleeper", 14, 19, 3),
+		game_map.RunActionAddNPC("player_room", "guard", 19, 23, 0),
+		game_map.Say("player_room", "guard", "..door smashed", 1.5),
 		//play sound door_smashed - pending
-		storyboard.MoveNPC("guard", "player_room", []string{
+		game_map.MoveNPC("guard", "player_room", []string{
 			"up", "up", "up", "left", "left", "left",
 		}),
-		storyboard.Say("player_room", "guard", "You'r coming with me!!", 3),
-		storyboard.BlackScreen("blackscreen"),
-		storyboard.Wait(1),
-		storyboard.KillState("blackscreen"),
-		storyboard.ReplaceScene("player_room", "jail_room", 31, 21, false, win),
-		storyboard.Wait(1),
-		storyboard.Say("jail_room", "Chanakya", "Where am I...", 1.5),
-		storyboard.Say("jail_room", "Chanakya", "Dhananand. I will take revenge", 2.5),
-		storyboard.Wait(1),
-		storyboard.HandOffToMainStack("jail_room"),
+		game_map.Say("player_room", "guard", "You'r coming with me!!", 3),
+		game_map.BlackScreen("blackscreen"),
+		game_map.Wait(1),
+		game_map.KillState("blackscreen"),
+		game_map.ReplaceScene("player_room", "jail_room", 31, 21, false, win),
+		game_map.Wait(1),
+		game_map.Say("jail_room", "Chanakya", "Where am I...", 1.5),
+		game_map.Say("jail_room", "Chanakya", "Dhananand. I will take revenge", 2.5),
+		game_map.Wait(1),
+		game_map.HandOffToMainStack("jail_room"),
 	}
 
-	var storyboardI = storyboard.Create(stack, win, introScene)
+	var storyboardI = game_map.Create(stack, win, introScene, false)
 	stack.PushFitted(200, 1300, "storyboardI stack pop out.. :)")
 	stack.Push(storyboardI)
 
@@ -124,13 +123,18 @@ func gameLoop(win *pixelgl.Window) {
 			//stack.Render(win)
 
 			//<-- this would render only 1 stack at a time
-			switch top := stack.States[stack.GetLastIndex()].(type) {
-			case *game_map.InGameMenuState:
-				top.Render(win)
+			if len(stack.States) > 1 {
+				switch top := stack.States[stack.GetLastIndex()].(type) {
+				case *game_map.InGameMenuState:
+					top.Render(win)
 
-			default:
-				stack.Render(win) //else render all
+				default:
+					stack.Render(win) //else render all
+				}
+			} else {
+				stack.Render(win)
 			}
+
 		}
 
 		win.Update()
