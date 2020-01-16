@@ -2,9 +2,9 @@ package game_map
 
 import (
 	"fmt"
-	"github.com/bcvery1/tilepix"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/utilz"
+	"github.com/steelx/tilepix"
 	"log"
 	"reflect"
 )
@@ -26,13 +26,13 @@ type TriggerParam struct {
 }
 
 type MapInfo struct {
-	Tilemap            *tilepix.Map
-	CollisionLayer     int
-	CollisionLayerName string
-	Actions            map[string]MapAction   //"break_wall_script" : { Id = "RunScript", Scripts : []{ CrumbleScript } }
-	TriggerTypes       map[string]TriggerType //"cracked_stone" : { OnUse = "break_wall_script" }
-	Triggers           []TriggerParam         //[]{Id = "cracked_stone", x = 60, y = 11}
-	OnWake             map[string]TriggerParam
+	Tilemap                         *tilepix.Map
+	CollisionLayer                  int
+	CollisionLayerName, HiddenLayer string
+	Actions                         map[string]MapAction   //"break_wall_script" : { Id = "RunScript", Scripts : []{ CrumbleScript } }
+	TriggerTypes                    map[string]TriggerType //"cracked_stone" : { OnUse = "break_wall_script" }
+	Triggers                        []TriggerParam         //[]{Id = "cracked_stone", x = 60, y = 11}
+	OnWake                          map[string]TriggerParam
 }
 
 var MapsDB map[string]func(gStack *gui.StateStack) MapInfo
@@ -105,6 +105,7 @@ func jailRoomMap(gStack *gui.StateStack) MapInfo {
 			//see below Triggers - "cracked_stone"
 			gMap.RemoveTrigger(35, 22)
 			gMap.WriteTile(35, 22, false)
+			gMap.SetHiddenTileVisible(35, 22)
 		}
 		choices := []string{
 			"Push the wall",
@@ -170,6 +171,7 @@ func jailRoomMap(gStack *gui.StateStack) MapInfo {
 		Tilemap:            gMap,
 		CollisionLayer:     2,
 		CollisionLayerName: "02 collision",
+		HiddenLayer:        "01 detail",
 		OnWake: map[string]TriggerParam{
 			"AddNPC": {
 				Id: "prisoner", X: 20, Y: 29,

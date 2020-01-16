@@ -1,12 +1,12 @@
 package game_map
 
 import (
-	"github.com/bcvery1/tilepix"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	log "github.com/sirupsen/logrus"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/utilz"
+	"github.com/steelx/tilepix"
 	"image/color"
 )
 
@@ -26,6 +26,7 @@ type GameMap struct {
 	tilesIndices map[string]int
 	tilesCounter int
 
+	hideDecorationTile    []bool //(tileX)+(tileY * 100)
 	bypassBlockedTile     map[[2]float64]bool
 	TileWidth, TileHeight float64
 	blockingTileGID       tilepix.GID
@@ -37,9 +38,10 @@ type GameMap struct {
 	Triggers       map[[2]float64]Trigger
 	OnWakeTriggers map[string]Trigger
 
-	Entities []*Entity
-	NPCs     []*Character
-	NPCbyId  map[string]*Character
+	Entities     []*Entity
+	NPCs         []*Character
+	NPCbyId      map[string]*Character
+	MarkReRender bool
 }
 
 func MapCreate(mapInfo MapInfo) *GameMap {
@@ -99,6 +101,17 @@ func (m *GameMap) createTriggersFromMapInfo() {
 		addNPC(Characters[v.Id](m))
 	}
 
+	m.hideDecorationTile = make([]bool, m.MapInfo.Tilemap.Width*m.MapInfo.Tilemap.Height)
+
+}
+
+//SetHiddenTileVisible will set hideDecorationTile to true
+// but actually we are setting decoration tile to hide
+//so we can show Background layer tile below
+func (m *GameMap) SetHiddenTileVisible(tileX, tileY int) {
+	//assuming Height * Width are same e.g. 100x100
+	m.MarkReRender = true
+	m.hideDecorationTile[tileX+(tileY*m.MapInfo.Tilemap.Height)] = true
 }
 
 func (m *GameMap) setBlockingTileInfo() {
@@ -187,9 +200,9 @@ func (m GameMap) GetTilePositionAtFeet(x, y, charW, charH float64) pixel.Vec {
 	return pixel.V(x, y)
 }
 
-func (m GameMap) DrawAll(target pixel.Target, clearColour color.Color, mat pixel.Matrix) {
-	m.MapInfo.Tilemap.DrawAll(target, clearColour, mat)
-}
+//func (m GameMap) DrawAll(target pixel.Target, clearColour color.Color, mat pixel.Matrix) {
+//	m.MapInfo.Tilemap.DrawAll(target, clearColour, mat)
+//}
 
 //DrawAfter will render the callback function after given layer index
 // uses pixelgl Canvas instead of Win to render
@@ -208,9 +221,14 @@ func (m GameMap) DrawAfter(callback func(canvas *pixelgl.Canvas, layer int)) err
 			//we do NOT render the collision layer
 			continue
 		}
-		if err := l.Draw(m.Canvas); err != nil {
+
+		//if err := l.Draw(m.Canvas); err != nil {
+		if err := m.lDraw(l, m.Canvas); err != nil {
 			log.WithError(err).Error("GameMap.DrawAfter: could not draw layer")
 			return err
+		}
+		if l.Name == m.MapInfo.HiddenLayer {
+			m.MarkReRender = false
 		}
 	}
 
@@ -223,6 +241,46 @@ func (m GameMap) DrawAfter(callback func(canvas *pixelgl.Canvas, layer int)) err
 	}
 
 	m.Canvas.Draw(target, mat.Moved(m.MapInfo.Tilemap.Bounds().Center()))
+
+	return nil
+}
+func (m *GameMap) lDraw(l *tilepix.TileLayer, target *pixelgl.Canvas) error {
+	// Only draw if the layer is dirty.
+	if l.IsDirty || m.MarkReRender {
+		// Initialise the batch
+		if _, err := l.Batch(); err != nil {
+			log.WithError(err).Error("TileLayer.Draw: could not get batch")
+			return err
+		}
+
+		ts := l.Tileset
+		numRows := ts.Tilecount / ts.Columns
+
+		//(tileX)+(tileY * 100)
+		// Loop through each decoded tile
+		for tileIndex, tile := range l.DecodedTiles {
+			if l.Name == m.MapInfo.HiddenLayer {
+				if m.hideDecorationTile[tileIndex] {
+					//do not render Hidden Layer
+					continue
+				}
+			}
+			// The Y component of the offset is set in Tiled from top down, setting here to negative because we want
+			// from the bottom up.
+			layerOffset := pixel.V(l.OffSetX, -l.OffSetY)
+			tile.Draw(tileIndex, ts.Columns, numRows, ts, l.Batch_, layerOffset)
+		}
+
+		// Batch is drawn to, layer is no longer dirty.
+		l.SetDirty(false)
+	}
+
+	l.Batch_.Draw(target)
+
+	// Reset the dirty flag if the layer is not StaticBool
+	if !l.StaticBool {
+		l.SetDirty(true)
+	}
 
 	return nil
 }

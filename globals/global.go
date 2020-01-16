@@ -1,11 +1,11 @@
 package globals
 
 import (
-	"github.com/bcvery1/tilepix"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
 	"github.com/steelx/go-rpg-cgm/utilz"
+	"github.com/steelx/tilepix"
 )
 
 //=============================================================
