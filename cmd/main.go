@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	"github.com/steelx/go-rpg-cgm/game_states"
+	"github.com/steelx/go-rpg-cgm/game_map"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/storyboard"
@@ -57,14 +57,14 @@ func setup(win *pixelgl.Window) {
 	//stack.Push(&exploreState)
 
 	var introScene = []interface{}{
-		storyboard.BlackScreen("blackscreen"),
-		storyboard.Wait(1),
-		storyboard.KillState("blackscreen"),
-		storyboard.TitleCaptionScreen("title", "Chandragupta Maurya", 3),
-		storyboard.SubTitleCaptionScreen("subtitle", "A jRPG game in GO", 2),
-		storyboard.Wait(3),
-		storyboard.KillState("title"),
-		storyboard.KillState("subtitle"),
+		//storyboard.BlackScreen("blackscreen"),
+		//storyboard.Wait(1),
+		//storyboard.KillState("blackscreen"),
+		//storyboard.TitleCaptionScreen("title", "Chandragupta Maurya", 3),
+		//storyboard.SubTitleCaptionScreen("subtitle", "A jRPG game in GO", 2),
+		//storyboard.Wait(3),
+		//storyboard.KillState("title"),
+		//storyboard.KillState("subtitle"),
 		storyboard.Scene("player_room", true, win),
 		storyboard.RunActionAddNPC("player_room", "sleeper", 14, 19, 3),
 		storyboard.RunActionAddNPC("player_room", "guard", 19, 23, 0),
@@ -95,14 +95,19 @@ func setup(win *pixelgl.Window) {
 //=============================================================
 func gameLoop(win *pixelgl.Window) {
 	last := time.Now()
-
-	//initial map Camera
+	menu := game_map.InGameMenuStateCreate(stack, win)
+	stack.Globals["menu"] = menu
 
 	tick := time.Tick(frameRate)
 	for !win.Closed() {
 
 		if win.JustPressed(pixelgl.KeyQ) {
 			break
+		}
+		//Fullscreen Layout Menu
+		if win.JustPressed(pixelgl.KeyLeftAlt) {
+			//In Game Menu
+			stack.Push(menu)
 		}
 
 		win.Clear(globals.Global.ClearColor)
@@ -115,12 +120,15 @@ func gameLoop(win *pixelgl.Window) {
 
 			//update StateStack
 			stack.Update(dt)
-			stack.Render(win)
+			//stack.Render(win)
 
-			//Fullscreen Layout Menu
-			if win.JustPressed(pixelgl.KeyLeftAlt) {
-				menu := game_states.InGameMenuStateCreate(stack, win)
-				stack.Push(menu)
+			//<-- this would render only 1 stack at a time
+			switch top := stack.States[stack.GetLastIndex()].(type) {
+			case *game_map.InGameMenuState:
+				top.Render(win)
+
+			default:
+				stack.Render(win) //else render all
 			}
 		}
 

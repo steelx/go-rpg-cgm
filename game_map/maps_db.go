@@ -4,6 +4,7 @@ import (
 	"github.com/bcvery1/tilepix"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"log"
+	"reflect"
 )
 
 type MapAction struct {
@@ -58,6 +59,36 @@ func jailRoomMap(gStack *gui.StateStack) MapInfo {
 	gMap, err := tilepix.ReadFile("jail.tmx")
 	logFatalErr(err)
 
+	boneScript := func(gameMap *GameMap, entity *Entity, tileX, tileY float64) {
+		x, y := gameMap.GetTileIndex(tileX, tileY)
+		boneItemId := 4
+		menu_ := gStack.Globals["menu"]
+		menuV := reflect.ValueOf(menu_)
+		menuI := menuV.Interface().(*InGameMenuState)
+		giveBone := func(gMap *GameMap) {
+			//player picked up the bone
+			gStack.Pop() //remove selection menu
+			gStack.PushFitted(x, y, `Found key item: "Calcified bone"`)
+			menuI.World.AddKeyItem(boneItemId)
+		}
+
+		choices := []string{"Hit space to add it to your Inventory"}
+		onSelection := func(index int, c string) {
+			if index == 0 {
+				giveBone(gameMap)
+			}
+		}
+		gStack.PushSelectionMenu(
+			x, y, 400, 70,
+			"The skeleton collapsed into dust.", choices, onSelection, false)
+		//since skeleton occupied 2 tiles on Tiled
+		gameMap.RemoveTrigger(41, 22)
+		gameMap.RemoveTrigger(42, 22)
+		//removed collision from skeleton tile
+		gameMap.WriteTile(41, 22, false)
+		gameMap.WriteTile(42, 22, false)
+	}
+
 	breakWallScript := func(gameMap *GameMap, entity *Entity, tileX, tileY float64) {
 		x, y := gameMap.GetTileIndex(tileX, tileY)
 		onPush := func(gMap *GameMap) {
@@ -90,14 +121,23 @@ func jailRoomMap(gStack *gui.StateStack) MapInfo {
 				Id:     "RunScript",
 				Script: breakWallScript,
 			},
+			"bone_script": {
+				Id:     "RunScript",
+				Script: boneScript,
+			},
 		},
 		TriggerTypes: map[string]TriggerType{
 			"cracked_stone": {
 				OnUse: "break_wall_script",
 			},
+			"calcified_bone": {
+				OnUse: "bone_script",
+			},
 		},
 		Triggers: []TriggerParam{
 			{Id: "cracked_stone", X: 35, Y: 22},
+			{Id: "calcified_bone", X: 41, Y: 22},
+			{Id: "calcified_bone", X: 42, Y: 22},
 		},
 	}
 }

@@ -1,13 +1,12 @@
-package character_states
+package game_map
 
 import (
-	"github.com/steelx/go-rpg-cgm/game_map"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/state_machine"
 )
 
-var Entities = make(map[string]game_map.EntityDefinition)
-var Characters = make(map[string]func(gMap *game_map.GameMap) *game_map.Character)
+var Entities = make(map[string]EntityDefinition)
+var Characters = make(map[string]func(gMap *GameMap) *Character)
 
 func init() {
 
@@ -18,7 +17,7 @@ func init() {
 	globals.PanicIfErr(err)
 
 	//Entities
-	Entities = map[string]game_map.EntityDefinition{
+	Entities = map[string]EntityDefinition{
 		"hero": {
 			Texture: walkCyclePng, Width: 16, Height: 24,
 			StartFrame: 24,
@@ -52,13 +51,13 @@ func init() {
 	Characters["guard"] = guard
 }
 
-func chanakya(gMap *game_map.GameMap) *game_map.Character {
-	var gameCharacter *game_map.Character
-	gameCharacter = game_map.CharacterCreate("Chanakya",
+func chanakya(gMap *GameMap) *Character {
+	var gameCharacter *Character
+	gameCharacter = CharacterCreate("Chanakya",
 		map[string][]int{
 			"up": {16, 17, 18, 19}, "right": {20, 21, 22, 23}, "down": {24, 25, 26, 27}, "left": {28, 29, 30, 31},
 		},
-		game_map.CharacterFacingDirection[2],
+		CharacterFacingDirection[2],
 		Entities["hero"],
 		map[string]func() state_machine.State{
 			"wait": func() state_machine.State {
@@ -73,13 +72,13 @@ func chanakya(gMap *game_map.GameMap) *game_map.Character {
 	return gameCharacter
 }
 
-func Sleeper(gMap *game_map.GameMap) *game_map.Character {
-	var gameCharacter *game_map.Character
-	gameCharacter = game_map.CharacterCreate("Ajinkya",
+func Sleeper(gMap *GameMap) *Character {
+	var gameCharacter *Character
+	gameCharacter = CharacterCreate("Ajinkya",
 		map[string][]int{
 			"left": {13},
 		},
-		game_map.CharacterFacingDirection[3],
+		CharacterFacingDirection[3],
 		Entities["hero"],
 		map[string]func() state_machine.State{
 			"sleep": func() state_machine.State {
@@ -91,11 +90,11 @@ func Sleeper(gMap *game_map.GameMap) *game_map.Character {
 	return gameCharacter
 }
 
-func NPC1(gMap *game_map.GameMap) *game_map.Character {
-	var gameCharacter *game_map.Character
-	gameCharacter = game_map.CharacterCreate("Aghori Baba",
+func NPC1(gMap *GameMap) *Character {
+	var gameCharacter *Character
+	gameCharacter = CharacterCreate("Aghori Baba",
 		nil,
-		game_map.CharacterFacingDirection[2],
+		CharacterFacingDirection[2],
 		Entities["npc1"],
 		map[string]func() state_machine.State{
 			"wait": func() state_machine.State {
@@ -107,13 +106,13 @@ func NPC1(gMap *game_map.GameMap) *game_map.Character {
 	return gameCharacter
 }
 
-func NPC2(gMap *game_map.GameMap) *game_map.Character {
-	var gameCharacter *game_map.Character
-	gameCharacter = game_map.CharacterCreate("Bhadrasaal",
+func NPC2(gMap *GameMap) *Character {
+	var gameCharacter *Character
+	gameCharacter = CharacterCreate("Bhadrasaal",
 		map[string][]int{
 			"up": {48, 49, 50, 51}, "right": {52, 53, 54, 55}, "down": {56, 57, 58, 59}, "left": {60, 61, 62, 63},
 		},
-		game_map.CharacterFacingDirection[2],
+		CharacterFacingDirection[2],
 		Entities["npc2"],
 		map[string]func() state_machine.State{
 			"wait": func() state_machine.State {
@@ -128,13 +127,13 @@ func NPC2(gMap *game_map.GameMap) *game_map.Character {
 	return gameCharacter
 }
 
-func guard(gMap *game_map.GameMap) *game_map.Character {
-	var gameCharacter *game_map.Character
-	gameCharacter = game_map.CharacterCreate("guard",
+func guard(gMap *GameMap) *Character {
+	var gameCharacter *Character
+	gameCharacter = CharacterCreate("guard",
 		map[string][]int{
 			"up": {48, 49, 50, 51}, "right": {52, 53, 54, 55}, "down": {56, 57, 58, 59}, "left": {60, 61, 62, 63},
 		},
-		game_map.CharacterFacingDirection[2],
+		CharacterFacingDirection[2],
 		Entities["npc2"],
 		map[string]func() state_machine.State{
 			"wait": func() state_machine.State {

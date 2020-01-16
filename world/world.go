@@ -18,18 +18,19 @@ type ItemIndex struct {
 	Id, Count int
 }
 
-func WorldCreate() World {
-	w := World{
+func WorldCreate() *World {
+	w := &World{
 		Time:     0,
 		Gold:     0,
 		Items:    make([]ItemIndex, 0),
 		KeyItems: make([]ItemIndex, 0),
 	}
 
-	w.Items = append(w.Items, ItemIndex{Id: 1, Count: 2})
-	w.Items = append(w.Items, ItemIndex{Id: 2, Count: 1})
-	w.Items = append(w.Items, ItemIndex{Id: 3, Count: 1})
-	w.KeyItems = append(w.KeyItems, ItemIndex{Id: 4, Count: 1})
+	//temp user items in inventory
+	//w.Items = append(w.Items, ItemIndex{Id: 1, Count: 2})
+	//w.Items = append(w.Items, ItemIndex{Id: 2, Count: 1})
+	//w.Items = append(w.Items, ItemIndex{Id: 3, Count: 1})
+	//w.KeyItems = append(w.KeyItems, ItemIndex{Id: 4, Count: 1})
 
 	return w
 }

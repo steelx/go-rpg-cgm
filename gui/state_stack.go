@@ -18,13 +18,17 @@ type StackInterface interface {
 //top of the stack and is rendered last.
 //aka Last in First out
 type StateStack struct {
-	States []StackInterface
-	win    *pixelgl.Window
+	States  []StackInterface
+	win     *pixelgl.Window
+	Globals map[string]interface{}
 }
 
 func StateStackCreate(win *pixelgl.Window) *StateStack {
 	//call PushFixed, PushFitted after
-	return &StateStack{win: win}
+	return &StateStack{
+		win:     win,
+		Globals: make(map[string]interface{}),
+	}
 }
 
 func (ss *StateStack) Push(state StackInterface) {
@@ -32,7 +36,7 @@ func (ss *StateStack) Push(state StackInterface) {
 	state.Enter()
 }
 func (ss *StateStack) Pop() *StackInterface {
-	top := ss.States[ss.getLastIndex()]
+	top := ss.States[ss.GetLastIndex()]
 	ss.States = ss.States[:len(ss.States)-1] //remove
 	top.Exit()
 	return &top
@@ -45,23 +49,23 @@ func (ss *StateStack) Update(dt float64) {
 	//The most important state is at the top and it needs updating first.
 	//Each state can return a value, stored in the OK variable. If OK is false
 	//then the loop breaks and no subsequent states are updated.
-	ss.States[ss.getLastIndex()].Update(dt)
+	ss.States[ss.GetLastIndex()].Update(dt)
 
 	//this duplicate is needed, after user interaction,
 	//user does Pop() hence empty check
 	if len(ss.States) == 0 {
 		return
 	}
-	top := ss.States[ss.getLastIndex()]
+	top := ss.States[ss.GetLastIndex()]
 
 	top.HandleInput(ss.win)
 }
 
 func (ss StateStack) Top() *StackInterface {
-	return &ss.States[ss.getLastIndex()]
+	return &ss.States[ss.GetLastIndex()]
 }
 
-func (ss StateStack) getLastIndex() int {
+func (ss StateStack) GetLastIndex() int {
 	if len(ss.States) == 1 {
 		return 0
 	}
@@ -75,7 +79,7 @@ func (ss StateStack) Render(renderer *pixelgl.Window) {
 	if len(ss.States) == 0 {
 		return
 	}
-	//ss.States[ss.getLastIndex()].Render(renderer) //<-- this would render only 1 stack at a time
+	//ss.States[ss.GetLastIndex()].Render(renderer) //<-- this would render only 1 stack at a time
 
 	//But we want all of them render together
 	for _, v := range ss.States {

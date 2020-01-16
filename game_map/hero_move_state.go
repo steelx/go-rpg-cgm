@@ -1,18 +1,17 @@
-package character_states
+package game_map
 
 import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/animation"
-	"github.com/steelx/go-rpg-cgm/game_map"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/state_machine"
 	"reflect"
 )
 
 type MoveState struct {
-	Character  *game_map.Character
-	Map        *game_map.GameMap
-	Entity     *game_map.Entity
+	Character  *Character
+	Map        *GameMap
+	Entity     *Entity
 	Controller *state_machine.StateMachine
 	// ^above common with WaitState
 	TileWidth      float64
@@ -23,7 +22,7 @@ type MoveState struct {
 	Anim           animation.Animation
 }
 
-func MoveStateCreate(character *game_map.Character, gMap *game_map.GameMap) state_machine.State {
+func MoveStateCreate(character *Character, gMap *GameMap) state_machine.State {
 	s := &MoveState{}
 	s.Character = character
 	s.Map = gMap
@@ -46,16 +45,16 @@ func (s *MoveState) Enter(dataI interface{}) {
 	v := reflect.ValueOf(dataI)
 	data := v.Interface().(globals.Direction)
 	if data.X == -1 {
-		frames = s.Character.Anims[game_map.CharacterFacingDirection[3]]
+		frames = s.Character.Anims[CharacterFacingDirection[3]]
 		s.Character.SetFacing(3)
 	} else if data.X == 1 {
-		frames = s.Character.Anims[game_map.CharacterFacingDirection[1]]
+		frames = s.Character.Anims[CharacterFacingDirection[1]]
 		s.Character.SetFacing(1)
 	} else if data.Y == -1 {
-		frames = s.Character.Anims[game_map.CharacterFacingDirection[0]]
+		frames = s.Character.Anims[CharacterFacingDirection[0]]
 		s.Character.SetFacing(0)
 	} else if data.Y == 1 {
-		frames = s.Character.Anims[game_map.CharacterFacingDirection[2]]
+		frames = s.Character.Anims[CharacterFacingDirection[2]]
 		s.Character.SetFacing(2)
 	}
 	s.Anim.SetFrames(frames)

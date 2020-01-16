@@ -1,20 +1,24 @@
-package game_states
+package game_map
 
 import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/state_machine"
+	"github.com/steelx/go-rpg-cgm/world"
 )
 
+//parent
 type InGameMenuState struct {
 	Stack        *gui.StateStack
 	StateMachine *state_machine.StateMachine
+	World        *world.World
 }
 
 func InGameMenuStateCreate(stack *gui.StateStack, win *pixelgl.Window) *InGameMenuState {
 	igm := &InGameMenuState{
 		Stack: stack,
+		World: world.WorldCreate(),
 	}
 
 	igm.StateMachine = state_machine.Create(map[string]func() state_machine.State{
@@ -55,7 +59,7 @@ func (igm InGameMenuState) Render(win *pixelgl.Window) {
 	igm.StateMachine.Render(win)
 
 	//temp camera matrix
-	cam := pixel.IM.Scaled(pixel.V(0, 0), 1.0).Moved(win.Bounds().Center())
+	cam := pixel.IM.Scaled(win.Bounds().Center(), 1.0).Moved(win.Bounds().Center())
 	win.SetMatrix(cam)
 }
 

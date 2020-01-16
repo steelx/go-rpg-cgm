@@ -1,17 +1,16 @@
-package character_states
+package game_map
 
 import (
 	"github.com/faiface/pixel/pixelgl"
-	"github.com/steelx/go-rpg-cgm/game_map"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/state_machine"
 )
 
 type FollowPathState struct {
-	game_map.CharacterStateBase
+	CharacterStateBase
 }
 
-func FollowPathStateCreate(character *game_map.Character, gMap *game_map.GameMap) state_machine.State {
+func FollowPathStateCreate(character *Character, gMap *GameMap) state_machine.State {
 	s := &FollowPathState{}
 	s.Character = character
 	s.Map = gMap

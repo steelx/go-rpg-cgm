@@ -1,20 +1,19 @@
-package character_states
+package game_map
 
 import (
 	"github.com/faiface/pixel/pixelgl"
-	"github.com/steelx/go-rpg-cgm/game_map"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/state_machine"
 )
 
 type NPCStrollWaitState struct {
-	game_map.CharacterStateBase
+	CharacterStateBase
 
 	mFrameResetSpeed, mFrameCount float64
 	mCountDown                    float64
 }
 
-func NPCStrollWaitStateCreate(character *game_map.Character, gMap *game_map.GameMap) state_machine.State {
+func NPCStrollWaitStateCreate(character *Character, gMap *GameMap) state_machine.State {
 	s := &NPCStrollWaitState{}
 	s.Character = character
 	s.Map = gMap

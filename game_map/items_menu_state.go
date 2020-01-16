@@ -1,4 +1,4 @@
-package game_states
+package game_map
 
 import (
 	"fmt"
@@ -22,7 +22,6 @@ type ItemsMenuState struct {
 	ItemMenus               []*gui.SelectionMenu
 	CategoryMenu            *gui.SelectionMenu
 	InCategoryMenu          bool
-	world                   world.World
 	itemIndex, keyItemIndex int
 }
 
@@ -50,27 +49,27 @@ func ItemsMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) ItemsMen
 		layout.CreatePanel("inv"),
 	}
 
-	im.world = world.WorldCreate()
+	//parent.World = world.WorldCreate()
 
 	itemsMenu := gui.SelectionMenuCreate(
-		im.world.GetItemsAsStrings(),
+		parent.World.GetItemsAsStrings(),
 		false,
 		pixel.V(0, 0),
 		func(index int, s string) {
-			fmt.Println(world.ItemsDB[im.world.Items[index].Id].Description)
+			fmt.Println(world.ItemsDB[parent.World.Items[index].Id].Description)
 			im.itemIndex = index
 		},
-		im.world.Items,
+		parent.World.Items,
 	)
 	keyItemsMenu := gui.SelectionMenuCreate(
-		im.world.GetKeyItemsAsStrings(),
+		parent.World.GetKeyItemsAsStrings(),
 		false,
 		pixel.V(0, 0),
 		func(index int, s string) {
-			fmt.Println(im.world.KeyItems[index], im, s)
+			fmt.Println(parent.World.KeyItems[index], im, s)
 			im.keyItemIndex = index
 		},
-		im.world.KeyItems,
+		parent.World.KeyItems,
 	)
 	im.ItemMenus = []*gui.SelectionMenu{&itemsMenu, &keyItemsMenu}
 

@@ -1,22 +1,21 @@
-package character_states
+package game_map
 
 import (
 	"github.com/faiface/pixel/pixelgl"
-	"github.com/steelx/go-rpg-cgm/game_map"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/state_machine"
 )
 
 type WaitState struct {
-	Character  *game_map.Character
-	Map        *game_map.GameMap
-	Entity     *game_map.Entity
+	Character  *Character
+	Map        *GameMap
+	Entity     *Entity
 	Controller *state_machine.StateMachine
 
 	mFrameResetSpeed, FrameCount float64
 }
 
-func WaitStateCreate(character *game_map.Character, gMap *game_map.GameMap) state_machine.State {
+func WaitStateCreate(character *Character, gMap *GameMap) state_machine.State {
 	s := &WaitState{}
 	s.Character = character
 	s.Map = gMap

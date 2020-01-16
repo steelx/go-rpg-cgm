@@ -1,28 +1,27 @@
-package character_states
+package game_map
 
 import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/animation"
-	"github.com/steelx/go-rpg-cgm/game_map"
 	"github.com/steelx/go-rpg-cgm/state_machine"
 )
 
 type SleepState struct {
-	Character           *game_map.Character
-	Map                 *game_map.GameMap
-	Entity, SleepEntity *game_map.Entity
+	Character           *Character
+	Map                 *GameMap
+	Entity, SleepEntity *Entity
 	Controller          *state_machine.StateMachine
 	Anim                animation.Animation
 }
 
-func SleepStateCreate(character *game_map.Character, gMap *game_map.GameMap) state_machine.State {
+func SleepStateCreate(character *Character, gMap *GameMap) state_machine.State {
 	s := &SleepState{
 		Character:   character,
 		Map:         gMap,
 		Entity:      character.Entity,
 		Controller:  character.Controller,
 		Anim:        animation.AnimationCreate([]int{12, 13, 14, 15}, true, 0.3),
-		SleepEntity: game_map.CreateEntity(Entities["sleeper"]),
+		SleepEntity: CreateEntity(Entities["sleeper"]),
 	}
 
 	s.Entity.SetFrame(character.Anims[character.Facing][0]) //13

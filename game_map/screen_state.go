@@ -1,4 +1,4 @@
-package game_states
+package game_map
 
 import (
 	"github.com/faiface/pixel"
