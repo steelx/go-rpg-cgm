@@ -6,6 +6,7 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	log "github.com/sirupsen/logrus"
 	"github.com/steelx/go-rpg-cgm/globals"
+	"github.com/steelx/go-rpg-cgm/utilz"
 	"image/color"
 )
 
@@ -31,9 +32,10 @@ type GameMap struct {
 	Canvas                *pixelgl.Canvas
 	renderLayer           int
 
-	Actions      map[string]func(gMap *GameMap, entity *Entity, x, y float64)
-	TriggerTypes map[string]Trigger
-	Triggers     map[[2]float64]Trigger
+	Actions        map[string]func(gMap *GameMap, entity *Entity, x, y float64)
+	TriggerTypes   map[string]Trigger
+	Triggers       map[[2]float64]Trigger
+	OnWakeTriggers map[string]Trigger
 
 	Entities []*Entity
 	NPCs     []*Character
@@ -90,6 +92,13 @@ func (m *GameMap) createTriggersFromMapInfo() {
 		x, y := m.GetTileIndex(v.X, v.Y)
 		m.Triggers[[2]float64{x, y}] = m.TriggerTypes[v.Id]
 	}
+
+	m.OnWakeTriggers = make(map[string]Trigger)
+	for key, v := range m.MapInfo.OnWake {
+		addNPC := LIST[key](m, v.X, v.Y)
+		addNPC(Characters[v.Id](m))
+	}
+
 }
 
 func (m *GameMap) setBlockingTileInfo() {
@@ -136,7 +145,7 @@ func (m *GameMap) setTiles() {
 	sprites := make(map[string]*pixel.Sprite)
 	for _, tileset := range m.MapInfo.Tilemap.Tilesets {
 		if _, alreadyLoaded := sprites[tileset.Image.Source]; !alreadyLoaded {
-			sprite, pictureData := globals.LoadSprite(tileset.Image.Source)
+			sprite, pictureData := utilz.LoadSprite(tileset.Image.Source)
 			sprites[tileset.Image.Source] = sprite
 			batches = append(batches, pixel.NewBatch(&pixel.TrianglesData{}, pictureData))
 			batchIndices[tileset.Image.Source] = batchCounter
@@ -164,17 +173,17 @@ func (m *GameMap) Goto(x, y float64) {
 
 //GetTileIndex will take TileX, TileY and return exact MAP cords
 //e.g. 35, 22 will return cords on map x 400, y 1300
-func (m GameMap) GetTileIndex(x, y float64) (tileX, tileY float64) {
-	y = m.Height - y //make count Y from top (Tiled app starts from top)
-	tileX = m.x + (x * m.TileWidth)
-	tileY = m.y + (y * m.TileHeight)
+func (m GameMap) GetTileIndex(tileX, tileY float64) (x, y float64) {
+	tileY = m.Height - tileY //make count Y from top (Tiled app starts from top)
+	x = m.x + (tileX * m.TileWidth)
+	y = m.y + (tileY * m.TileHeight)
 	return
 }
 
 func (m GameMap) GetTilePositionAtFeet(x, y, charW, charH float64) pixel.Vec {
 	tileX, tileY := m.GetTileIndex(x, y)
-	x = tileX - charW/2
-	y = tileY - charH/2
+	x = tileX - (charW / 2)
+	y = tileY - (charH / 2) - 5
 	return pixel.V(x, y)
 }
 

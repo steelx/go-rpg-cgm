@@ -1,8 +1,10 @@
 package game_map
 
 import (
+	"fmt"
 	"github.com/bcvery1/tilepix"
 	"github.com/steelx/go-rpg-cgm/gui"
+	"github.com/steelx/go-rpg-cgm/utilz"
 	"log"
 	"reflect"
 )
@@ -30,6 +32,7 @@ type MapInfo struct {
 	Actions            map[string]MapAction   //"break_wall_script" : { Id = "RunScript", Scripts : []{ CrumbleScript } }
 	TriggerTypes       map[string]TriggerType //"cracked_stone" : { OnUse = "break_wall_script" }
 	Triggers           []TriggerParam         //[]{Id = "cracked_stone", x = 60, y = 11}
+	OnWake             map[string]TriggerParam
 }
 
 var MapsDB map[string]func(gStack *gui.StateStack) MapInfo
@@ -59,12 +62,13 @@ func jailRoomMap(gStack *gui.StateStack) MapInfo {
 	gMap, err := tilepix.ReadFile("jail.tmx")
 	logFatalErr(err)
 
+	boneItemId := 4
+	menu_ := gStack.Globals["menu"]
+	menuV := reflect.ValueOf(menu_)
+	menuI := menuV.Interface().(*InGameMenuState)
+
 	boneScript := func(gameMap *GameMap, entity *Entity, tileX, tileY float64) {
 		x, y := gameMap.GetTileIndex(tileX, tileY)
-		boneItemId := 4
-		menu_ := gStack.Globals["menu"]
-		menuV := reflect.ValueOf(menu_)
-		menuI := menuV.Interface().(*InGameMenuState)
 		giveBone := func(gMap *GameMap) {
 			//player picked up the bone
 			gStack.Pop() //remove selection menu
@@ -115,10 +119,63 @@ func jailRoomMap(gStack *gui.StateStack) MapInfo {
 		//gStack.PushFITMenu(x, y, "The wall here is crumbling. Push it?", choices, onSelection)
 	}
 
+	moveGregor := func(gameMap *GameMap, entity *Entity, tileX, tileY float64) {
+		if menuI.World.HasKey(boneItemId) {
+			prisoner, ok := gameMap.NPCbyId["prisoner"]
+			if !ok {
+				fmt.Println("GameMap prisoner not found!")
+				return
+			}
+			//started at 20, 29
+			prisoner.FollowPath(
+				[]string{
+					"up", "up", "up", "up", "up", "up", "up", "up", "up", "up",
+					"right", "right", "right", "right", "right",
+					"down", "down", "down", "down",
+				},
+			)
+			gameMap.RemoveTrigger(tileX, tileY)
+		}
+	}
+
+	avatarPng, err := utilz.LoadPicture("../resources/avatar.png")
+	utilz.PanicIfErr(err)
+
+	talkGregor := func(gameMap *GameMap, entity *Entity, tileX, tileY float64) {
+		prisoner, ok := gameMap.NPCbyId["prisoner"]
+		if !ok {
+			fmt.Println("GameMap prisoner not found!")
+			return
+		}
+
+		if prisoner.Entity.TileX == 25 && prisoner.Entity.TileY == 22 {
+			speech := []string{
+				"You're another black blood aren't you?",
+				"Come the morning, they'll kill you, just like the others.",
+				"If I was you, I'd try and escape.",
+				"Pry the drain open, with that big bone you're holding.",
+			}
+			//prisoner.TalkIndex
+			textMsg := speech[prisoner.TalkIndex]
+
+			x, y := gameMap.GetTileIndex(tileX, tileY)
+			gStack.PushFixed(x, y, 400, 100, textMsg, "Prisoner", avatarPng)
+			prisoner.TalkIndex++
+			if prisoner.TalkIndex >= len(speech) {
+				prisoner.TalkIndex = 0
+			}
+		}
+	}
+
 	return MapInfo{
 		Tilemap:            gMap,
 		CollisionLayer:     2,
 		CollisionLayerName: "02 collision",
+		OnWake: map[string]TriggerParam{
+			"AddNPC": {
+				Id: "prisoner", X: 20, Y: 29,
+			},
+		},
 		Actions: map[string]MapAction{
 			"break_wall_script": {
 				Id:     "RunScript",
@@ -128,6 +185,14 @@ func jailRoomMap(gStack *gui.StateStack) MapInfo {
 				Id:     "RunScript",
 				Script: boneScript,
 			},
+			"move_gregor": {
+				Id:     "RunScript",
+				Script: moveGregor,
+			},
+			"talk_gregor": {
+				Id:     "RunScript",
+				Script: talkGregor,
+			},
 		},
 		TriggerTypes: map[string]TriggerType{
 			"cracked_stone": {
@@ -136,11 +201,19 @@ func jailRoomMap(gStack *gui.StateStack) MapInfo {
 			"calcified_bone": {
 				OnUse: "bone_script",
 			},
+			"gregor_talk_trigger": {
+				OnUse: "talk_gregor",
+			},
+			"gregor_move_trigger": {
+				OnExit: "move_gregor",
+			},
 		},
 		Triggers: []TriggerParam{
 			{Id: "cracked_stone", X: 35, Y: 22},
 			{Id: "calcified_bone", X: 41, Y: 22},
 			{Id: "calcified_bone", X: 42, Y: 22},
+			{Id: "gregor_move_trigger", X: 36, Y: 22},
+			{Id: "gregor_talk_trigger", X: 25, Y: 23},
 		},
 	}
 }

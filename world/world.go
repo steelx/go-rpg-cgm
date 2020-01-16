@@ -159,3 +159,12 @@ func (w World) DrawItem(renderer pixel.Target, x, y float64, itemIdx ItemIndex) 
 	//iconSprite := IconPNGs.Get(itemDef.ItemType)
 	//iconSprite.Draw(renderer, pixel.IM.Moved(pixel.V(x + 6, y)))
 }
+
+func (w *World) HasKey(id int) bool {
+	for _, v := range w.KeyItems {
+		if v.Id == id {
+			return true
+		}
+	}
+	return false
+}

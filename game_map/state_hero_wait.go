@@ -4,6 +4,7 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/state_machine"
+	"github.com/steelx/go-rpg-cgm/utilz"
 )
 
 type WaitState struct {
@@ -62,15 +63,15 @@ func (s *WaitState) Update(dt float64) {
 	}
 
 	if globals.Global.Win.Pressed(pixelgl.KeyLeft) {
-		s.Controller.Change("move", globals.Direction{-1, 0})
+		s.Controller.Change("move", utilz.Direction{-1, 0})
 	}
 	if globals.Global.Win.Pressed(pixelgl.KeyRight) {
-		s.Controller.Change("move", globals.Direction{1, 0})
+		s.Controller.Change("move", utilz.Direction{1, 0})
 	}
 	if globals.Global.Win.Pressed(pixelgl.KeyDown) {
-		s.Controller.Change("move", globals.Direction{0, 1})
+		s.Controller.Change("move", utilz.Direction{0, 1})
 	}
 	if globals.Global.Win.Pressed(pixelgl.KeyUp) {
-		s.Controller.Change("move", globals.Direction{0, -1})
+		s.Controller.Change("move", utilz.Direction{0, -1})
 	}
 }

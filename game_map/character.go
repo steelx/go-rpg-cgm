@@ -20,6 +20,7 @@ type Character struct {
 	DefaultState, PrevDefaultState string                      //"wait"
 	PathIndex                      int
 	Path                           []string //e.g. ["up", "up", "up", "left", "right", "right",]
+	TalkIndex                      int      //used during speech tracking
 }
 
 func CharacterCreate(

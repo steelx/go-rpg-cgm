@@ -7,6 +7,7 @@ import (
 	"github.com/faiface/pixel/text"
 	"github.com/steelx/go-rpg-cgm/animation"
 	"github.com/steelx/go-rpg-cgm/globals"
+	"github.com/steelx/go-rpg-cgm/utilz"
 	"golang.org/x/image/font/basicfont"
 	"math"
 	"strings"
@@ -266,7 +267,7 @@ func (t *Textbox) renderFixed(renderer pixel.Target) {
 	//limit prints
 	eachBlockHeight := math.Abs(t.textBase.BoundsOf(t.text).H())
 	t.textRowLimit = int(math.Ceil(t.Height / eachBlockHeight))
-	lastIndex := globals.MinInt(t.textBlockLimitIndex+t.textRowLimit, len(t.textBlocks))
+	lastIndex := utilz.MinInt(t.textBlockLimitIndex+t.textRowLimit, len(t.textBlocks))
 	firstIndex := t.textBlockLimitIndex
 
 	if t.HasReachedLimit() {
@@ -278,7 +279,7 @@ func (t *Textbox) renderFixed(renderer pixel.Target) {
 
 	for _, line := range readFrom {
 		_, err := fmt.Fprintln(t.textBase, line)
-		globals.PanicIfErr(err)
+		utilz.PanicIfErr(err)
 	}
 
 	t.mPanel.Draw(renderer)

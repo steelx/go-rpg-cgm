@@ -3,7 +3,6 @@ package storyboard
 import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	"github.com/steelx/go-rpg-cgm/actions"
 	"github.com/steelx/go-rpg-cgm/game_map"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"image/color"
@@ -83,7 +82,7 @@ func RunActionAddNPC(mapName, entityDef string, x, y, seconds float64) func(stor
 	return func(storyboard *Storyboard) *WaitEvent {
 		exploreState := getExploreState(storyboard, mapName)
 		exploreState.Hero.Entity.SetTilePos(x, y)
-		runFunc := actions.ActionAddNPC(exploreState.Map, x, y)
+		runFunc := game_map.AddNPC(exploreState.Map, x, y)
 		char := game_map.Characters[entityDef](exploreState.Map)
 		runFunc(char)
 		return WaitEventCreate(seconds)

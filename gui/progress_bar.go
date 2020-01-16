@@ -4,6 +4,7 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/globals"
+	"github.com/steelx/go-rpg-cgm/utilz"
 )
 
 type ProgressBar struct {
@@ -36,7 +37,7 @@ func ProgressBarCreate(stack *StateStack, x, y float64) ProgressBar {
 	// Get UV positions in texture atlas
 	// A table with name fields: left, top, right, bottom
 	pb.halfWidth = bgImg.Bounds().W() / 2
-	pb.foregroundFrames = globals.LoadAsFrames(fgImg, pb.foregroundWidthBlock(), pb.foregroundPng.Bounds().H())
+	pb.foregroundFrames = utilz.LoadAsFrames(fgImg, pb.foregroundWidthBlock(), pb.foregroundPng.Bounds().H())
 
 	pb.SetValue(10)
 

@@ -2,8 +2,8 @@ package game_map
 
 import (
 	"github.com/faiface/pixel/pixelgl"
-	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/state_machine"
+	"github.com/steelx/go-rpg-cgm/utilz"
 )
 
 type FollowPathState struct {
@@ -27,19 +27,19 @@ func (s *FollowPathState) Enter(data interface{}) {
 
 	if s.Character.PathIndex >= len(s.Character.Path) || len(s.Character.Path) == 0 {
 		s.Character.DefaultState = s.Character.PrevDefaultState //we set at Character.FollowPath
-		s.Controller.Change(s.Character.DefaultState, globals.Direction{0, 0})
+		s.Controller.Change(s.Character.DefaultState, utilz.Direction{0, 0})
 		return
 	}
 
 	direction := s.Character.Path[s.Character.PathIndex]
 	if direction == "left" {
-		s.Controller.Change("move", globals.Direction{-1, 0})
+		s.Controller.Change("move", utilz.Direction{-1, 0})
 	} else if direction == "right" {
-		s.Controller.Change("move", globals.Direction{1, 0})
+		s.Controller.Change("move", utilz.Direction{1, 0})
 	} else if direction == "up" {
-		s.Controller.Change("move", globals.Direction{0, -1})
+		s.Controller.Change("move", utilz.Direction{0, -1})
 	} else if direction == "down" {
-		s.Controller.Change("move", globals.Direction{0, 1})
+		s.Controller.Change("move", utilz.Direction{0, 1})
 	}
 }
 

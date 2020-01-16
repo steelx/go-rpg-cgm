@@ -1,8 +1,8 @@
 package game_map
 
 import (
-	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/state_machine"
+	"github.com/steelx/go-rpg-cgm/utilz"
 )
 
 var Entities = make(map[string]EntityDefinition)
@@ -10,11 +10,11 @@ var Characters = make(map[string]func(gMap *GameMap) *Character)
 
 func init() {
 
-	walkCyclePng, err := globals.LoadPicture("../resources/walk_cycle.png")
-	globals.PanicIfErr(err)
+	walkCyclePng, err := utilz.LoadPicture("../resources/walk_cycle.png")
+	utilz.PanicIfErr(err)
 
-	sleepingPng, err := globals.LoadPicture("../resources/sleeping.png")
-	globals.PanicIfErr(err)
+	sleepingPng, err := utilz.LoadPicture("../resources/sleeping.png")
+	utilz.PanicIfErr(err)
 
 	//Entities
 	Entities = map[string]EntityDefinition{
@@ -42,6 +42,12 @@ func init() {
 			TileX:      19,
 			TileY:      24,
 		},
+		"prisoner": {
+			Texture: walkCyclePng, Width: 16, Height: 24,
+			StartFrame: 88,
+			TileX:      19,
+			TileY:      19, //jail map cords
+		},
 	}
 
 	Characters["hero"] = chanakya
@@ -49,6 +55,7 @@ func init() {
 	Characters["npc1"] = NPC1
 	Characters["npc2"] = NPC2
 	Characters["guard"] = guard
+	Characters["prisoner"] = prisoner
 }
 
 func chanakya(gMap *GameMap) *Character {
@@ -68,7 +75,7 @@ func chanakya(gMap *GameMap) *Character {
 			},
 		},
 	)
-	gameCharacter.Controller.Change("wait", globals.Direction{0, 0})
+	gameCharacter.Controller.Change("wait", utilz.Direction{0, 0})
 	return gameCharacter
 }
 
@@ -86,7 +93,7 @@ func Sleeper(gMap *GameMap) *Character {
 			},
 		},
 	)
-	gameCharacter.Controller.Change("sleep", globals.Direction{0, 0})
+	gameCharacter.Controller.Change("sleep", utilz.Direction{0, 0})
 	return gameCharacter
 }
 
@@ -102,7 +109,7 @@ func NPC1(gMap *GameMap) *Character {
 			},
 		},
 	)
-	gameCharacter.Controller.Change("wait", globals.Direction{0, 0})
+	gameCharacter.Controller.Change("wait", utilz.Direction{0, 0})
 	return gameCharacter
 }
 
@@ -123,7 +130,7 @@ func NPC2(gMap *GameMap) *Character {
 			},
 		},
 	)
-	gameCharacter.Controller.Change("wait", globals.Direction{0, 0})
+	gameCharacter.Controller.Change("wait", utilz.Direction{0, 0})
 	return gameCharacter
 }
 
@@ -147,6 +154,30 @@ func guard(gMap *GameMap) *Character {
 			},
 		},
 	)
-	gameCharacter.Controller.Change("wait", globals.Direction{0, 0})
+	gameCharacter.Controller.Change("wait", utilz.Direction{0, 0})
+	return gameCharacter
+}
+
+func prisoner(gMap *GameMap) *Character {
+	var gameCharacter *Character
+	gameCharacter = CharacterCreate("prisoner",
+		map[string][]int{
+			"up": {80, 81, 82, 83}, "right": {84, 85, 86, 87}, "down": {88, 89, 90, 91}, "left": {92, 93, 94, 95},
+		},
+		CharacterFacingDirection[2],
+		Entities["prisoner"],
+		map[string]func() state_machine.State{
+			"wait": func() state_machine.State {
+				return NPCStandStateCreate(gameCharacter, gMap)
+			},
+			"move": func() state_machine.State {
+				return MoveStateCreate(gameCharacter, gMap)
+			},
+			"follow_path": func() state_machine.State {
+				return FollowPathStateCreate(gameCharacter, gMap)
+			},
+		},
+	)
+	gameCharacter.Controller.Change("wait", utilz.Direction{0, 0})
 	return gameCharacter
 }
