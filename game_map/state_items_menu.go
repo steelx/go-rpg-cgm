@@ -124,6 +124,16 @@ func (im ItemsMenuState) Render(win *pixelgl.Window) {
 	im.CategoryMenu.Render(win)
 
 	menu := im.ItemMenus[im.CategoryMenu.GetIndex()]
+	if menu.IsDataSourceEmpty() {
+		descX := im.Layout.Left("mid") + 20
+		descY := im.Layout.MidY("mid")
+		pos = pixel.V(descX, descY)
+		textBase = text.New(pos, text.NewAtlas(basicfont.Face7x13, text.ASCII))
+		fmt.Fprintln(textBase, "You have no items in your inventory. Press ESC to go back")
+		textBase.Draw(win, pixel.IM)
+		return
+	}
+
 	if !im.InCategoryMenu || !im.CategoryMenu.IsShowCursor {
 		//convert interface to world.ItemIndex type
 		selectedItemIdxV := reflect.ValueOf(menu.SelectedItem())
