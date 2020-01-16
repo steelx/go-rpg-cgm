@@ -6,6 +6,7 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
 	"github.com/steelx/go-rpg-cgm/globals"
+	"golang.org/x/image/font/basicfont"
 	"math"
 	"reflect"
 )
@@ -118,8 +119,13 @@ func (m SelectionMenu) calcTotalWidth() float64 {
 	return m.SpacingX * float64(m.columns)
 }
 
+func (m SelectionMenu) IsDataSourceEmpty() bool {
+	return len(m.dataSource) == 0 || m.dataSource == nil
+}
+
 func (m SelectionMenu) renderItem(pos pixel.Vec, item string, renderer pixel.Target) {
-	textBase := text.New(pos, globals.BasicAtlas12)
+	//textBase := text.New(pos, globals.BasicAtlas12)
+	textBase := text.New(pos, text.NewAtlas(basicfont.Face7x13, text.ASCII))
 	if item == "" {
 		fmt.Fprintf(textBase, "--")
 	} else {

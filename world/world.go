@@ -133,7 +133,7 @@ func (w World) GoldAsString() string {
 func (w World) GetItemsAsStrings() []string {
 	var items []string
 	for _, item := range w.Items {
-		items = append(items, fmt.Sprintf("%s, #%d (%v)", ItemsDB[item.Id].Name, item.Id, item.Count))
+		items = append(items, fmt.Sprintf("%s, (%v)", ItemsDB[item.Id].Name, item.Count))
 	}
 	return items
 }
@@ -141,7 +141,7 @@ func (w World) GetItemsAsStrings() []string {
 func (w World) GetKeyItemsAsStrings() []string {
 	var items []string
 	for _, item := range w.KeyItems {
-		items = append(items, fmt.Sprintf("%s, #%d (%v)", ItemsDB[item.Id].Name, item.Id, item.Count))
+		items = append(items, fmt.Sprintf("%s, (%v)", ItemsDB[item.Id].Name, item.Count))
 	}
 	return items
 }
