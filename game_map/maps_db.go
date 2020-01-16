@@ -2,6 +2,7 @@ package game_map
 
 import (
 	"fmt"
+	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/utilz"
 	"github.com/steelx/tilepix"
@@ -167,6 +168,63 @@ func jailRoomMap(gStack *gui.StateStack) MapInfo {
 		}
 	}
 
+	grillOnUse := func(gameMap *GameMap, entity *Entity, tileX, tileY float64) {
+		if !menuI.World.HasKey(boneItemId) {
+			return
+		}
+		x, y := gameMap.GetTileIndex(tileX, tileY)
+		grillOpen := func(gMap *GameMap) {
+			gStack.Pop()
+			gStack.PushFitted(x, y, "The grill opened, and leads a way inside the sewers")
+
+			gMap.RemoveTrigger(32, 15)
+			gMap.RemoveTrigger(33, 15)
+			gMap.WriteTile(32, 15, false)
+			gMap.WriteTile(33, 15, false)
+			gMap.SetHiddenTileVisible(32, 15)
+			gMap.SetHiddenTileVisible(33, 15)
+
+			//now we add new trigger onEnter
+			gMap.AddTrigger("grill_when_open", 32, 15)
+			gMap.AddTrigger("grill_when_open", 33, 15)
+		}
+
+		choices := []string{"Prey open the grill", "Leave it alone"}
+		onSelection := func(index int, c string) {
+			if index == 0 {
+				grillOpen(gameMap)
+			}
+		}
+		gStack.PushSelectionMenu(
+			x, y, 400, 110,
+			"Do you want to dig teh grill?", choices, onSelection, false)
+	}
+
+	grillOnEnter := func(gameMap *GameMap, entity *Entity, tileX, tileY float64) {
+		x, y := gameMap.GetTileIndex(tileX, tileY)
+		grillEnter := func(gMap *GameMap) {
+			gStack.Pop()
+			gMap.RemoveTrigger(32, 15)
+			gMap.RemoveTrigger(33, 15)
+
+			jailBreakCutsceneEvents := []interface{}{
+				Wait(1),
+				BlackScreen("blackscreen"),
+			}
+			jailBreakCutscene := Create(gStack, globals.Global.Win, jailBreakCutsceneEvents, true)
+			gStack.Push(jailBreakCutscene)
+		}
+		choices := []string{"HIT space to enter the Tunnel"}
+		onSelection := func(index int, c string) {
+			if index == 0 {
+				grillEnter(gameMap)
+			}
+		}
+		gStack.PushSelectionMenu(
+			x, y, 400, 70,
+			"There's a tunnel behind the grate", choices, onSelection, false)
+	}
+
 	return MapInfo{
 		Tilemap:            gMap,
 		CollisionLayer:     2,
@@ -194,6 +252,14 @@ func jailRoomMap(gStack *gui.StateStack) MapInfo {
 				Id:     "RunScript",
 				Script: talkGregor,
 			},
+			"grill_on_use": {
+				Id:     "RunScript",
+				Script: grillOnUse,
+			},
+			"grill_on_enter": {
+				Id:     "RunScript",
+				Script: grillOnEnter,
+			},
 		},
 		TriggerTypes: map[string]TriggerType{
 			"cracked_stone": {
@@ -208,6 +274,12 @@ func jailRoomMap(gStack *gui.StateStack) MapInfo {
 			"gregor_move_trigger": {
 				OnExit: "move_gregor",
 			},
+			"grill_when_closed": {
+				OnUse: "grill_on_use",
+			},
+			"grill_when_open": {
+				OnEnter: "grill_on_enter",
+			},
 		},
 		Triggers: []TriggerParam{
 			{Id: "cracked_stone", X: 35, Y: 22},
@@ -216,6 +288,8 @@ func jailRoomMap(gStack *gui.StateStack) MapInfo {
 			{Id: "gregor_move_trigger", X: 36, Y: 22}, //at cracked_stone
 			{Id: "gregor_talk_trigger", X: 25, Y: 23}, //at prisoner door
 			{Id: "gregor_talk_trigger", X: 26, Y: 23}, //at prisoner door
+			{Id: "grill_when_closed", X: 32, Y: 15},   //at grill closed
+			{Id: "grill_when_closed", X: 33, Y: 15},
 		},
 	}
 }

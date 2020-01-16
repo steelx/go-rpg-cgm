@@ -90,9 +90,7 @@ func (m *GameMap) createTriggersFromMapInfo() {
 
 	m.Triggers = make(map[[2]float64]Trigger)
 	for _, v := range m.MapInfo.Triggers {
-		//we take Tile XY and set as map x, y cords
-		x, y := m.GetTileIndex(v.X, v.Y)
-		m.Triggers[[2]float64{x, y}] = m.TriggerTypes[v.Id]
+		m.AddTrigger(v.Id, v.X, v.Y)
 	}
 
 	m.OnWakeTriggers = make(map[string]Trigger)
@@ -103,6 +101,12 @@ func (m *GameMap) createTriggersFromMapInfo() {
 
 	m.hideDecorationTile = make([]bool, m.MapInfo.Tilemap.Width*m.MapInfo.Tilemap.Height)
 
+}
+
+func (m *GameMap) AddTrigger(id string, tileX, tileY float64) {
+	//we take Tile XY and set as map x, y cords
+	x, y := m.GetTileIndex(tileX, tileY)
+	m.Triggers[[2]float64{x, y}] = m.TriggerTypes[id]
 }
 
 //SetHiddenTileVisible will set hideDecorationTile to true
