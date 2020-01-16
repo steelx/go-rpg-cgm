@@ -3,7 +3,7 @@ package game_map
 import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	"github.com/steelx/go-rpg-cgm/globals"
+	"github.com/steelx/go-rpg-cgm/utilz"
 )
 
 var CharacterFacingDirection = [4]string{"up", "right", "down", "left"}
@@ -31,7 +31,7 @@ func CreateEntity(def EntityDefinition) *Entity {
 	e := &Entity{}
 
 	e.Texture = def.Texture
-	e.Frames = globals.LoadAsFrames(def.Texture, def.Width, def.Height)
+	e.Frames = utilz.LoadAsFrames(def.Texture, def.Width, def.Height)
 	e.Sprite = pixel.NewSprite(def.Texture, e.Frames[def.StartFrame])
 	e.Width = def.Width
 	e.Height = def.Height

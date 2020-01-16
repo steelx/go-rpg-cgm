@@ -18,18 +18,19 @@ type ItemIndex struct {
 	Id, Count int
 }
 
-func WorldCreate() World {
-	w := World{
+func WorldCreate() *World {
+	w := &World{
 		Time:     0,
 		Gold:     0,
 		Items:    make([]ItemIndex, 0),
 		KeyItems: make([]ItemIndex, 0),
 	}
 
-	w.Items = append(w.Items, ItemIndex{Id: 1, Count: 2})
-	w.Items = append(w.Items, ItemIndex{Id: 2, Count: 1})
-	w.Items = append(w.Items, ItemIndex{Id: 3, Count: 1})
-	w.KeyItems = append(w.KeyItems, ItemIndex{Id: 4, Count: 1})
+	//temp user items in inventory
+	//w.Items = append(w.Items, ItemIndex{Id: 1, Count: 2})
+	//w.Items = append(w.Items, ItemIndex{Id: 2, Count: 1})
+	//w.Items = append(w.Items, ItemIndex{Id: 3, Count: 1})
+	//w.KeyItems = append(w.KeyItems, ItemIndex{Id: 4, Count: 1})
 
 	return w
 }
@@ -132,7 +133,7 @@ func (w World) GoldAsString() string {
 func (w World) GetItemsAsStrings() []string {
 	var items []string
 	for _, item := range w.Items {
-		items = append(items, fmt.Sprintf("%s, #%d (%v)", ItemsDB[item.Id].Name, item.Id, item.Count))
+		items = append(items, fmt.Sprintf("%s, (%v)", ItemsDB[item.Id].Name, item.Count))
 	}
 	return items
 }
@@ -140,7 +141,7 @@ func (w World) GetItemsAsStrings() []string {
 func (w World) GetKeyItemsAsStrings() []string {
 	var items []string
 	for _, item := range w.KeyItems {
-		items = append(items, fmt.Sprintf("%s, #%d (%v)", ItemsDB[item.Id].Name, item.Id, item.Count))
+		items = append(items, fmt.Sprintf("%s, (%v)", ItemsDB[item.Id].Name, item.Count))
 	}
 	return items
 }
@@ -157,4 +158,13 @@ func (w World) DrawItem(renderer pixel.Target, x, y float64, itemIdx ItemIndex) 
 	//first uncomment icons.go line no. 9
 	//iconSprite := IconPNGs.Get(itemDef.ItemType)
 	//iconSprite.Draw(renderer, pixel.IM.Moved(pixel.V(x + 6, y)))
+}
+
+func (w *World) HasKey(id int) bool {
+	for _, v := range w.KeyItems {
+		if v.Id == id {
+			return true
+		}
+	}
+	return false
 }

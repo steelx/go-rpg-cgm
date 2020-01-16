@@ -1,22 +1,22 @@
-package character_states
+package game_map
 
 import (
 	"github.com/faiface/pixel/pixelgl"
-	"github.com/steelx/go-rpg-cgm/game_map"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/state_machine"
+	"github.com/steelx/go-rpg-cgm/utilz"
 )
 
 type WaitState struct {
-	Character  *game_map.Character
-	Map        *game_map.GameMap
-	Entity     *game_map.Entity
+	Character  *Character
+	Map        *GameMap
+	Entity     *Entity
 	Controller *state_machine.StateMachine
 
 	mFrameResetSpeed, FrameCount float64
 }
 
-func WaitStateCreate(character *game_map.Character, gMap *game_map.GameMap) state_machine.State {
+func WaitStateCreate(character *Character, gMap *GameMap) state_machine.State {
 	s := &WaitState{}
 	s.Character = character
 	s.Map = gMap
@@ -63,15 +63,15 @@ func (s *WaitState) Update(dt float64) {
 	}
 
 	if globals.Global.Win.Pressed(pixelgl.KeyLeft) {
-		s.Controller.Change("move", globals.Direction{-1, 0})
+		s.Controller.Change("move", utilz.Direction{-1, 0})
 	}
 	if globals.Global.Win.Pressed(pixelgl.KeyRight) {
-		s.Controller.Change("move", globals.Direction{1, 0})
+		s.Controller.Change("move", utilz.Direction{1, 0})
 	}
 	if globals.Global.Win.Pressed(pixelgl.KeyDown) {
-		s.Controller.Change("move", globals.Direction{0, 1})
+		s.Controller.Change("move", utilz.Direction{0, 1})
 	}
 	if globals.Global.Win.Pressed(pixelgl.KeyUp) {
-		s.Controller.Change("move", globals.Direction{0, -1})
+		s.Controller.Change("move", utilz.Direction{0, -1})
 	}
 }

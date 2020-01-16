@@ -1,4 +1,4 @@
-package storyboard
+package game_map
 
 import (
 	"github.com/faiface/pixel/pixelgl"

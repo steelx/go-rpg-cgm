@@ -2,7 +2,7 @@ package world
 
 import (
 	"github.com/faiface/pixel"
-	"github.com/steelx/go-rpg-cgm/globals"
+	"github.com/steelx/go-rpg-cgm/utilz"
 )
 
 //var IconPNGs Icons
@@ -42,7 +42,7 @@ func IconsCreate(pic pixel.Picture) Icons {
 		Texture: pic,
 	}
 
-	i.UVs = globals.LoadAsFrames(i.Texture, 18, 18)
+	i.UVs = utilz.LoadAsFrames(i.Texture, 18, 18)
 
 	for k := range i.UVs {
 		sprite := pixel.NewSprite(i.Texture, i.UVs[k])

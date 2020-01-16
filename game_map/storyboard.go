@@ -1,4 +1,4 @@
-package storyboard
+package game_map
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ type Storyboard struct {
 	Events        []interface{} //always keep as last args
 }
 
-func Create(stack *gui.StateStack, win *pixelgl.Window, eventsI interface{}) *Storyboard {
+func Create(stack *gui.StateStack, win *pixelgl.Window, eventsI interface{}, handIn bool) *Storyboard {
 	sb := &Storyboard{
 		Stack:         stack,
 		InternalStack: gui.StateStackCreate(win),
@@ -29,6 +29,12 @@ func Create(stack *gui.StateStack, win *pixelgl.Window, eventsI interface{}) *St
 				sb.Events[i] = events.Index(i).Interface()
 			}
 		}
+	}
+
+	//move an ExploreState from the main stack onto the Storyboard InternalStack
+	if handIn {
+		state := sb.Stack.Pop()
+		sb.PushState("handin", *state)
 	}
 
 	return sb

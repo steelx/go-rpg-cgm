@@ -1,4 +1,4 @@
-package globals
+package utilz
 
 import (
 	"encoding/csv"

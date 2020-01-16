@@ -1,12 +1,10 @@
-package game_states
+package game_map
 
 import (
-	"github.com/bcvery1/tilepix"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	"github.com/steelx/go-rpg-cgm/game_map"
-	"github.com/steelx/go-rpg-cgm/game_map/character_states"
 	"github.com/steelx/go-rpg-cgm/gui"
+	"github.com/steelx/tilepix"
 	"log"
 	"sort"
 )
@@ -14,14 +12,14 @@ import (
 type ExploreState struct {
 	Stack       *gui.StateStack
 	MapDef      *tilepix.Map
-	Map         *game_map.GameMap
-	Hero        *game_map.Character
+	Map         *GameMap
+	Hero        *Character
 	win         *pixelgl.Window
 	startPos    pixel.Vec
 	heroVisible bool
 }
 
-func ExploreStateCreate(stack *gui.StateStack, mapInfo game_map.MapInfo, window *pixelgl.Window) ExploreState {
+func ExploreStateCreate(stack *gui.StateStack, mapInfo MapInfo, window *pixelgl.Window) ExploreState {
 
 	es := ExploreState{
 		Stack:       stack,
@@ -30,9 +28,9 @@ func ExploreStateCreate(stack *gui.StateStack, mapInfo game_map.MapInfo, window 
 	}
 
 	es.win = window
-	es.Map = game_map.MapCreate(mapInfo)
+	es.Map = MapCreate(mapInfo)
 
-	es.Hero = character_states.Characters["hero"](es.Map)
+	es.Hero = Characters["hero"](es.Map)
 	es.Map.NPCbyId[es.Hero.Id] = es.Hero
 	//es.Hero.Controller.Change("wait", globals.Direction{0, 0})
 
@@ -66,7 +64,7 @@ func (es *ExploreState) Update(dt float64) bool {
 	playerPosX, playerPosY := es.Hero.Entity.TileX, es.Hero.Entity.TileY
 	es.Map.GoToTile(playerPosX, playerPosY)
 
-	gameCharacters := append([]*game_map.Character{es.Hero}, es.Map.NPCs...)
+	gameCharacters := append([]*Character{es.Hero}, es.Map.NPCs...)
 	for _, gCharacter := range gameCharacters {
 		gCharacter.Controller.Update(dt)
 	}
@@ -76,10 +74,10 @@ func (es *ExploreState) Update(dt float64) bool {
 func (es ExploreState) Render(win *pixelgl.Window) {
 	//Map & Characters
 	err := es.Map.DrawAfter(func(canvas *pixelgl.Canvas, layer int) {
-		var gameCharacters []*game_map.Character
+		var gameCharacters []*Character
 		gameCharacters = append(gameCharacters, es.Map.NPCs...)
 		if es.heroVisible {
-			gameCharacters = append([]*game_map.Character{es.Hero}, gameCharacters...)
+			gameCharacters = append([]*Character{es.Hero}, gameCharacters...)
 		}
 		//sort players as per visible to screen Y position
 		sort.Slice(gameCharacters[:], func(i, j int) bool {
@@ -116,7 +114,7 @@ func (es ExploreState) HandleInput(win *pixelgl.Window) {
 	}
 }
 
-func (es *ExploreState) AddNPC(NPC *game_map.Character) {
+func (es *ExploreState) AddNPC(NPC *Character) {
 	es.Map.AddNPC(NPC)
 	//NPC.Controller.Change("wait", globals.Direction{0, 0})
 }

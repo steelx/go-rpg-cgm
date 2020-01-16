@@ -1,20 +1,19 @@
-package character_states
+package game_map
 
 import (
 	"github.com/faiface/pixel/pixelgl"
-	"github.com/steelx/go-rpg-cgm/game_map"
-	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/state_machine"
+	"github.com/steelx/go-rpg-cgm/utilz"
 )
 
 type NPCStrollWaitState struct {
-	game_map.CharacterStateBase
+	CharacterStateBase
 
 	mFrameResetSpeed, mFrameCount float64
 	mCountDown                    float64
 }
 
-func NPCStrollWaitStateCreate(character *game_map.Character, gMap *game_map.GameMap) state_machine.State {
+func NPCStrollWaitStateCreate(character *Character, gMap *GameMap) state_machine.State {
 	s := &NPCStrollWaitState{}
 	s.Character = character
 	s.Map = gMap
@@ -23,7 +22,7 @@ func NPCStrollWaitStateCreate(character *game_map.Character, gMap *game_map.Game
 
 	s.mFrameResetSpeed = 0.015
 	s.mFrameCount = 0
-	s.mCountDown = globals.RandFloat(0, 3)
+	s.mCountDown = utilz.RandFloat(0, 3)
 	return s
 }
 
@@ -32,7 +31,7 @@ func NPCStrollWaitStateCreate(character *game_map.Character, gMap *game_map.Game
 
 func (s *NPCStrollWaitState) Enter(data interface{}) {
 	s.mFrameCount = 0
-	s.mCountDown = globals.RandFloat(0, 3)
+	s.mCountDown = utilz.RandFloat(0, 3)
 }
 
 func (s *NPCStrollWaitState) Render(win *pixelgl.Window) {}
@@ -52,18 +51,18 @@ func (s *NPCStrollWaitState) Update(dt float64) {
 
 	s.mCountDown = s.mCountDown - dt
 	if s.mCountDown <= 0 {
-		choice := globals.RandInt(0, 4)
+		choice := utilz.RandInt(0, 4)
 		if choice == 1 {
-			s.Controller.Change("move", globals.Direction{-1, 0})
+			s.Controller.Change("move", utilz.Direction{-1, 0})
 		}
 		if choice == 2 || choice == 0 {
-			s.Controller.Change("move", globals.Direction{1, 0})
+			s.Controller.Change("move", utilz.Direction{1, 0})
 		}
 		if choice == 3 {
-			s.Controller.Change("move", globals.Direction{0, 1})
+			s.Controller.Change("move", utilz.Direction{0, 1})
 		}
 		if choice == 4 {
-			s.Controller.Change("move", globals.Direction{0, -1})
+			s.Controller.Change("move", utilz.Direction{0, -1})
 		}
 	}
 }

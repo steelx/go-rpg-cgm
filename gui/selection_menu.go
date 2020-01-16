@@ -6,6 +6,8 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
 	"github.com/steelx/go-rpg-cgm/globals"
+	"github.com/steelx/go-rpg-cgm/utilz"
+	"golang.org/x/image/font/basicfont"
 	"math"
 	"reflect"
 )
@@ -118,8 +120,13 @@ func (m SelectionMenu) calcTotalWidth() float64 {
 	return m.SpacingX * float64(m.columns)
 }
 
+func (m SelectionMenu) IsDataSourceEmpty() bool {
+	return len(m.dataSource) == 0 || m.dataSource == nil
+}
+
 func (m SelectionMenu) renderItem(pos pixel.Vec, item string, renderer pixel.Target) {
-	textBase := text.New(pos, globals.BasicAtlas12)
+	//textBase := text.New(pos, globals.BasicAtlas12)
+	textBase := text.New(pos, text.NewAtlas(basicfont.Face7x13, text.ASCII))
 	if item == "" {
 		fmt.Fprintf(textBase, "--")
 	} else {
@@ -172,7 +179,7 @@ func (m SelectionMenu) Render(renderer *pixelgl.Window) {
 }
 
 func (m *SelectionMenu) MoveUp() {
-	m.focusY = globals.MaxInt(m.focusY-1, 0)
+	m.focusY = utilz.MaxInt(m.focusY-1, 0)
 	if m.focusY < m.displayStart {
 		m.MoveDisplayUp()
 	}
@@ -180,9 +187,9 @@ func (m *SelectionMenu) MoveUp() {
 
 func (m *SelectionMenu) MoveDown() {
 	if m.columns == 1 {
-		m.focusY = globals.MinInt(m.focusY+1, m.maxRows)
+		m.focusY = utilz.MinInt(m.focusY+1, m.maxRows)
 	} else {
-		m.focusY = globals.MinInt(m.focusY+1, m.displayRows-1)
+		m.focusY = utilz.MinInt(m.focusY+1, m.displayRows-1)
 	}
 
 	if m.focusY >= m.displayStart+m.displayRows {
@@ -191,11 +198,11 @@ func (m *SelectionMenu) MoveDown() {
 }
 
 func (m *SelectionMenu) MoveLeft() {
-	m.focusX = globals.MaxInt(m.focusX-1, 0)
+	m.focusX = utilz.MaxInt(m.focusX-1, 0)
 }
 
 func (m *SelectionMenu) MoveRight() {
-	m.focusX = globals.MinInt(m.focusX+1, m.columns-1)
+	m.focusX = utilz.MinInt(m.focusX+1, m.columns-1)
 }
 
 func (m *SelectionMenu) MoveDisplayUp() {

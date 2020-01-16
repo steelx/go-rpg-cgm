@@ -18,13 +18,17 @@ type StackInterface interface {
 //top of the stack and is rendered last.
 //aka Last in First out
 type StateStack struct {
-	States []StackInterface
-	win    *pixelgl.Window
+	States  []StackInterface
+	win     *pixelgl.Window
+	Globals map[string]interface{}
 }
 
 func StateStackCreate(win *pixelgl.Window) *StateStack {
 	//call PushFixed, PushFitted after
-	return &StateStack{win: win}
+	return &StateStack{
+		win:     win,
+		Globals: make(map[string]interface{}),
+	}
 }
 
 func (ss *StateStack) Push(state StackInterface) {
@@ -32,7 +36,7 @@ func (ss *StateStack) Push(state StackInterface) {
 	state.Enter()
 }
 func (ss *StateStack) Pop() *StackInterface {
-	top := ss.States[ss.getLastIndex()]
+	top := ss.States[ss.GetLastIndex()]
 	ss.States = ss.States[:len(ss.States)-1] //remove
 	top.Exit()
 	return &top
@@ -45,23 +49,23 @@ func (ss *StateStack) Update(dt float64) {
 	//The most important state is at the top and it needs updating first.
 	//Each state can return a value, stored in the OK variable. If OK is false
 	//then the loop breaks and no subsequent states are updated.
-	ss.States[ss.getLastIndex()].Update(dt)
+	ss.States[ss.GetLastIndex()].Update(dt)
 
 	//this duplicate is needed, after user interaction,
 	//user does Pop() hence empty check
 	if len(ss.States) == 0 {
 		return
 	}
-	top := ss.States[ss.getLastIndex()]
+	top := ss.States[ss.GetLastIndex()]
 
 	top.HandleInput(ss.win)
 }
 
 func (ss StateStack) Top() *StackInterface {
-	return &ss.States[ss.getLastIndex()]
+	return &ss.States[ss.GetLastIndex()]
 }
 
-func (ss StateStack) getLastIndex() int {
+func (ss StateStack) GetLastIndex() int {
 	if len(ss.States) == 1 {
 		return 0
 	}
@@ -75,7 +79,7 @@ func (ss StateStack) Render(renderer *pixelgl.Window) {
 	if len(ss.States) == 0 {
 		return
 	}
-	//ss.States[ss.getLastIndex()].Render(renderer) //<-- this would render only 1 stack at a time
+	//ss.States[ss.GetLastIndex()].Render(renderer) //<-- this would render only 1 stack at a time
 
 	//But we want all of them render together
 	for _, v := range ss.States {
@@ -85,12 +89,11 @@ func (ss StateStack) Render(renderer *pixelgl.Window) {
 
 func (ss *StateStack) PushSelectionMenu(x, y, width, height float64, txt string, choices []string, onSelection func(int, string), showColumns bool) {
 	textBoxMenu := TextboxWithMenuCreate(ss, txt, pixel.V(x, y), width, height, choices, onSelection, showColumns)
-	textBoxMenu.AppearTween = animation.TweenCreate(0, 1, 1)
+	textBoxMenu.AppearTween = animation.TweenCreate(0.9, 1, 0.2)
 	ss.States = append(ss.States, textBoxMenu)
 }
 
-func (ss *StateStack) PushFixed(
-	x, y, width, height float64, txt, avatarName string, avatarPng pixel.Picture) {
+func (ss *StateStack) PushFixed(x, y, width, height float64, txt, avatarName string, avatarPng pixel.Picture) {
 	fixed := TextboxCreateFixed(ss, txt, pixel.V(x, y), width, height, avatarName, avatarPng, false)
 	ss.States = append(ss.States, &fixed)
 }
