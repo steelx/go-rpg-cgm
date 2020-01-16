@@ -69,6 +69,7 @@ func jailRoomMap(gStack *gui.StateStack) MapInfo {
 			//player picked up the bone
 			gStack.Pop() //remove selection menu
 			gStack.PushFitted(x, y, `Found key item: "Calcified bone"`)
+			//play sound skeleton_collapsed - pending
 			menuI.World.AddKeyItem(boneItemId)
 		}
 
@@ -95,9 +96,11 @@ func jailRoomMap(gStack *gui.StateStack) MapInfo {
 			// The player's pushing the wall.
 			gStack.Pop() //remove selection menu
 			gStack.PushFitted(x, y, "The wall crumbles.")
+			//play sound wall_crumbles - pending
 
-			gMap.RemoveTrigger(x, y)
-			gMap.WriteTile(x, y, false)
+			//see below Triggers - "cracked_stone"
+			gMap.RemoveTrigger(35, 22)
+			gMap.WriteTile(35, 22, false)
 		}
 		choices := []string{
 			"Push the wall",

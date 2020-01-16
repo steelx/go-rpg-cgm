@@ -232,6 +232,7 @@ func (m *GameMap) SetTrigger(tileX, tileY float64, t Trigger) {
 	m.Triggers[[2]float64{x, y}] = t
 }
 
+//RemoveTrigger accept actual Tiled App coordinates e.g. 35, 22
 func (m *GameMap) RemoveTrigger(tileX, tileY float64) {
 	x, y := m.GetTileIndex(tileX, tileY)
 	delete(m.Triggers, [2]float64{x, y})
@@ -244,7 +245,9 @@ func (m *GameMap) AddNPC(npc *Character) {
 	m.Entities = append(m.Entities, npc.Entity)
 }
 
-//bypassBlockedTile
-func (m *GameMap) WriteTile(x, y float64, collision bool) {
+//WriteTile - accept actual Tiled App coordinates e.g. 35, 22
+//it will bypassBlockedTile (removed collision)
+func (m *GameMap) WriteTile(tileX, tileY float64, collision bool) {
+	x, y := m.GetTileIndex(tileX, tileY)
 	m.bypassBlockedTile[[2]float64{x, y}] = !collision
 }

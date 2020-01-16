@@ -69,6 +69,7 @@ func setup(win *pixelgl.Window) {
 		storyboard.RunActionAddNPC("player_room", "sleeper", 14, 19, 3),
 		storyboard.RunActionAddNPC("player_room", "guard", 19, 23, 0),
 		storyboard.Say("player_room", "guard", "..door smashed", 1.5),
+		//play sound door_smashed - pending
 		storyboard.MoveNPC("guard", "player_room", []string{
 			"up", "up", "up", "left", "left", "left",
 		}),
