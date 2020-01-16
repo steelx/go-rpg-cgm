@@ -151,9 +151,8 @@ func jailRoomMap(gStack *gui.StateStack) MapInfo {
 		if prisoner.Entity.TileX == 25 && prisoner.Entity.TileY == 22 {
 			speech := []string{
 				"You're another black blood aren't you?",
-				"Come the morning, they'll kill you, just like the others.",
-				"If I was you, I'd try and escape.",
-				"Pry the drain open, with that big bone you're holding.",
+				"Tomorrow morning, they'll kill you, just like the others.",
+				"If I was you, I'd try and escape. Pry the drain open, with that big bone you're holding.",
 			}
 			//prisoner.TalkIndex
 			textMsg := speech[prisoner.TalkIndex]
@@ -212,8 +211,9 @@ func jailRoomMap(gStack *gui.StateStack) MapInfo {
 			{Id: "cracked_stone", X: 35, Y: 22},
 			{Id: "calcified_bone", X: 41, Y: 22},
 			{Id: "calcified_bone", X: 42, Y: 22},
-			{Id: "gregor_move_trigger", X: 36, Y: 22},
-			{Id: "gregor_talk_trigger", X: 25, Y: 23},
+			{Id: "gregor_move_trigger", X: 36, Y: 22}, //at cracked_stone
+			{Id: "gregor_talk_trigger", X: 25, Y: 23}, //at prisoner door
+			{Id: "gregor_talk_trigger", X: 26, Y: 23}, //at prisoner door
 		},
 	}
 }

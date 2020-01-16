@@ -93,8 +93,7 @@ func (ss *StateStack) PushSelectionMenu(x, y, width, height float64, txt string,
 	ss.States = append(ss.States, textBoxMenu)
 }
 
-func (ss *StateStack) PushFixed(
-	x, y, width, height float64, txt, avatarName string, avatarPng pixel.Picture) {
+func (ss *StateStack) PushFixed(x, y, width, height float64, txt, avatarName string, avatarPng pixel.Picture) {
 	fixed := TextboxCreateFixed(ss, txt, pixel.V(x, y), width, height, avatarName, avatarPng, false)
 	ss.States = append(ss.States, &fixed)
 }

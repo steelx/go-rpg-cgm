@@ -197,9 +197,9 @@ func (t *Textbox) buildTextBlocks() {
 
 	var tempTxtLine = ""
 	ss := strings.Fields(t.text)
-	for _, word := range ss {
+	for i, word := range ss {
 		tempTxtLine += word + " "
-		if len(tempTxtLine) >= int(splitTextAt) {
+		if len(ss)-1 == i || (len(tempTxtLine) > int(splitTextAt)) {
 			t.textBlocks = append(t.textBlocks, tempTxtLine)
 			tempTxtLine = ""
 		}
