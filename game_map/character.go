@@ -76,7 +76,8 @@ func (ch *Character) SetFacing(dir int) {
 func (ch *Character) FollowPath(path []string) {
 	ch.PathIndex = 0
 	ch.Path = path
-	ch.PrevDefaultState = ch.DefaultState
+	//ch.PrevDefaultState = ch.DefaultState //this is causing problem
+	ch.PrevDefaultState = "wait"
 	ch.DefaultState = "follow_path"
 	ch.Controller.Change("follow_path", nil)
 }

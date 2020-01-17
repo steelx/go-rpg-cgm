@@ -4,6 +4,7 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/gui"
+	"github.com/steelx/go-rpg-cgm/utilz"
 	"image/color"
 	"reflect"
 )
@@ -12,6 +13,7 @@ func Wait(seconds float64) *WaitEvent {
 	return WaitEventCreate(seconds)
 }
 
+//BlackScreen - end to call KillState("blackscreen") once done
 func BlackScreen(id string) func(storyboard *Storyboard) *WaitEvent {
 	return func(storyboard *Storyboard) *WaitEvent {
 		screen := ScreenStateCreate(storyboard.Stack, color.RGBA{R: 255, G: 255, B: 255, A: 1})
@@ -111,7 +113,7 @@ func MoveNPC(npcId, mapName string, path []string) func(storyboard *Storyboard) 
 		npc.FollowPath(path)
 
 		return BlockUntilEventCreate(func() bool {
-			return npc.PathIndex > len(path)
+			return npc.PathIndex >= len(path)
 		})
 	}
 }
@@ -157,5 +159,103 @@ func HandOffToMainStack(mapName string) func(storyboard *Storyboard) *WaitEvent 
 		storyboard.Stack.Push(exploreState)
 
 		return WaitEventCreate(1)
+	}
+}
+
+var fragmentShader = `
+#version 330 core
+
+in vec2  vTexCoords;
+
+out vec4 fragColor;
+
+uniform vec4 uTexBounds;
+uniform sampler2D uTexture;
+
+void main() {
+	// Get our current screen coordinate
+	vec2 t = (vTexCoords - uTexBounds.xy) / uTexBounds.zw;
+
+	// Sum our 3 color channels
+	float sum  = texture(uTexture, t).r;
+	      sum += texture(uTexture, t).g;
+	      sum += texture(uTexture, t).b;
+
+	// Divide by 3, and set the output to the result
+	vec4 color = vec4( sum/3, sum/3, sum/3, 1.0);
+	fragColor = color;
+}
+`
+
+//temp func, pending work
+func FadeOutCharacter(mapName, npcId string, duration float64) func(storyboard *Storyboard) *TweenEvent {
+	pic, _ := utilz.LoadPicture("../resources/universal-lpc-sprite_male_01_walk-3frame.png")
+	frames := utilz.LoadAsFrames(pic, 32, 32)
+	return func(storyboard *Storyboard) *TweenEvent {
+		exploreState := getExploreState(storyboard, mapName)
+		var npc *Character
+		if npcId == "hero" {
+			exploreState.SetFollowCam(false, exploreState.Hero)
+			exploreState.SetManualCam(20, 20)
+			npc = exploreState.Hero
+		} else {
+			npc = exploreState.Map.NPCbyId[npcId]
+		}
+
+		return TweenEventCreate(
+			1, 0, duration,
+			exploreState,
+			func(e *TweenEvent) {
+				npc.Entity.Sprite.Set(pic, frames[1])
+				npc.Entity.SetTilePos(0, 0)
+				npc.Entity.TeleportAndDraw(exploreState.Map, exploreState.Map.Canvas)
+				//exploreState.Map.Canvas.SetFragmentShader(fragmentShader)
+			},
+		)
+	}
+}
+
+func WriteTile(mapName string, tileX, tileY float64, collision bool) func(storyboard *Storyboard) *WaitEvent {
+	return func(storyboard *Storyboard) *WaitEvent {
+		exploreState := getExploreState(storyboard, mapName)
+		exploreState.Map.WriteTile(tileX, tileY, collision)
+
+		return WaitEventCreate(0)
+	}
+}
+func SetHiddenTileVisible(mapName string, tileX, tileY float64) func(storyboard *Storyboard) *WaitEvent {
+	return func(storyboard *Storyboard) *WaitEvent {
+		exploreState := getExploreState(storyboard, mapName)
+		exploreState.Map.SetHiddenTileVisible(int(tileX), int(tileY))
+
+		return WaitEventCreate(0)
+	}
+}
+
+//MoveCamToTile not working as intended. pending
+func MoveCamToTile(stateId string, fromTileX, fromTileY, tileX, tileY, duration float64) func(storyboard *Storyboard) *TweenEvent {
+
+	return func(storyboard *Storyboard) *TweenEvent {
+		exploreState := getExploreState(storyboard, stateId)
+		exploreState.SetFollowCam(false, exploreState.Hero)
+
+		exploreState.ManualCamX = fromTileX
+		exploreState.ManualCamY = fromTileY
+		startX := exploreState.ManualCamX
+		startY := exploreState.ManualCamY
+		endX, endY := tileX, tileY
+		xDistance := endX - startX
+		yDistance := endY - startY
+
+		return TweenEventCreate(
+			0, 1, duration,
+			exploreState,
+			func(e *TweenEvent) {
+				dX := startX + (xDistance * e.Tween.Value())
+				dY := startY + (yDistance * e.Tween.Value())
+				exploreState.ManualCamX = dX
+				exploreState.ManualCamY = dY
+			},
+		)
 	}
 }

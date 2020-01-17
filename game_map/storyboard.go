@@ -50,7 +50,7 @@ func (s *Storyboard) PushState(identifier string, state gui.StackInterface) {
 		//found already
 		return
 	}
-	fmt.Println("Adding", identifier)
+	fmt.Println("Adding InternalStack", identifier)
 	s.States[identifier] = state
 	s.InternalStack.Push(state)
 }

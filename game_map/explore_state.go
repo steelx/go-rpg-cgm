@@ -95,8 +95,6 @@ func (es ExploreState) Exit() {
 
 func (es *ExploreState) Update(dt float64) bool {
 	// Update the camera according to player position
-	//playerPosX, playerPosY := es.Hero.Entity.TileX, es.Hero.Entity.TileY
-	//es.Map.GoToTile(playerPosX, playerPosY)
 	es.UpdateCamera(es.Map)
 
 	gameCharacters := append([]*Character{es.Hero}, es.Map.NPCs...)
