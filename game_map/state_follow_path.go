@@ -7,17 +7,20 @@ import (
 )
 
 type FollowPathState struct {
-	CharacterStateBase
+	Character  *Character
+	Map        GameMap
+	Entity     Entity
+	Controller *state_machine.StateMachine
 }
 
 func FollowPathStateCreate(character *Character, gMap *GameMap) state_machine.State {
-	s := &FollowPathState{}
+	s := FollowPathState{}
 	s.Character = character
-	s.Map = gMap
-	s.Entity = character.Entity
+	s.Map = *gMap
+	s.Entity = *character.Entity
 	s.Controller = character.Controller
 
-	return s
+	return &s
 }
 
 //The StateMachine requires each state to have

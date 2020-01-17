@@ -56,14 +56,14 @@ func setup(win *pixelgl.Window) {
 	//stack.Push(&exploreState)
 
 	var introScene = []interface{}{
-		game_map.BlackScreen("blackscreen"),
-		game_map.Wait(1),
-		game_map.KillState("blackscreen"),
-		game_map.TitleCaptionScreen("title", "Chandragupta Maurya", 3),
-		game_map.SubTitleCaptionScreen("subtitle", "A jRPG game in GO", 2),
-		game_map.Wait(3),
-		game_map.KillState("title"),
-		game_map.KillState("subtitle"),
+		//game_map.BlackScreen("blackscreen"),
+		//game_map.Wait(1),
+		//game_map.KillState("blackscreen"),
+		//game_map.TitleCaptionScreen("title", "Chandragupta Maurya", 3),
+		//game_map.SubTitleCaptionScreen("subtitle", "A jRPG game in GO", 2),
+		//game_map.Wait(3),
+		//game_map.KillState("title"),
+		//game_map.KillState("subtitle"),
 		game_map.Scene("player_room", true, win),
 		game_map.RunActionAddNPC("player_room", "sleeper", 14, 19, 3),
 		game_map.RunActionAddNPC("player_room", "guard", 19, 23, 0),
@@ -78,8 +78,8 @@ func setup(win *pixelgl.Window) {
 		game_map.KillState("blackscreen"),
 		game_map.ReplaceScene("player_room", "jail_room", 31, 21, false, win),
 		game_map.Wait(1),
-		game_map.Say("jail_room", "Chanakya", "Where am I...", 1.5),
-		game_map.Say("jail_room", "Chanakya", "Dhananand. I will take revenge", 2.5),
+		game_map.Say("jail_room", "hero", "Where am I...", 1.5),
+		game_map.Say("jail_room", "hero", "I should stay calm..", 2.5),
 		game_map.Wait(1),
 		game_map.HandOffToMainStack("jail_room"),
 	}

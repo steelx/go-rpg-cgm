@@ -17,27 +17,61 @@ type ExploreState struct {
 	win         *pixelgl.Window
 	startPos    pixel.Vec
 	heroVisible bool
+
+	FollowCam              bool
+	FollowChar             *Character
+	ManualCamX, ManualCamY float64
 }
 
-func ExploreStateCreate(stack *gui.StateStack, mapInfo MapInfo, window *pixelgl.Window) ExploreState {
+func ExploreStateCreate(stack *gui.StateStack, mapInfo MapInfo, win *pixelgl.Window) ExploreState {
 
 	es := ExploreState{
+		win:         win,
 		Stack:       stack,
 		MapDef:      mapInfo.Tilemap,
 		heroVisible: true,
 	}
 
-	es.win = window
 	es.Map = MapCreate(mapInfo)
 
 	es.Hero = Characters["hero"](es.Map)
 	es.Map.NPCbyId[es.Hero.Id] = es.Hero
 	//es.Hero.Controller.Change("wait", globals.Direction{0, 0})
 
+	es.FollowCam = true
+	es.FollowChar = es.Hero
+
 	es.startPos = pixel.V(es.Hero.Entity.TileX, es.Hero.Entity.TileY)
 	es.Map.GoToTile(es.startPos.X, es.startPos.Y)
 
 	return es
+}
+
+func (es *ExploreState) SetManualCam(tileX, tileY float64) {
+	es.ManualCamX, es.ManualCamY = tileX, tileY
+	es.FollowCam = false
+}
+
+func (es *ExploreState) UpdateCamera(gMap *GameMap) {
+	var tileX, tileY float64
+	if es.FollowCam {
+		tileX, tileY = es.FollowChar.Entity.TileX, es.FollowChar.Entity.TileY
+	} else {
+		tileX, tileY = es.ManualCamX, es.ManualCamY
+	}
+
+	gMap.GoToTile(tileX, tileY)
+}
+
+func (es *ExploreState) SetFollowCam(shouldFollow bool, char *Character) {
+	es.FollowCam = shouldFollow
+	es.FollowChar = char
+
+	if !es.FollowCam {
+		x, y := es.FollowChar.Entity.TileX, es.FollowChar.Entity.TileY
+		es.ManualCamX = x
+		es.ManualCamY = y
+	}
 }
 
 func (es *ExploreState) HideHero() {
@@ -61,8 +95,7 @@ func (es ExploreState) Exit() {
 
 func (es *ExploreState) Update(dt float64) bool {
 	// Update the camera according to player position
-	playerPosX, playerPosY := es.Hero.Entity.TileX, es.Hero.Entity.TileY
-	es.Map.GoToTile(playerPosX, playerPosY)
+	es.UpdateCamera(es.Map)
 
 	gameCharacters := append([]*Character{es.Hero}, es.Map.NPCs...)
 	for _, gCharacter := range gameCharacters {

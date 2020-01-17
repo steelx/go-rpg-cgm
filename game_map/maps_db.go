@@ -59,7 +59,7 @@ func playerHouseMap(gStack *gui.StateStack) MapInfo {
 }
 
 func jailRoomMap(gStack *gui.StateStack) MapInfo {
-	//exploreState.Map.WriteTile(35, 22, false)
+
 	gMap, err := tilepix.ReadFile("jail.tmx")
 	logFatalErr(err)
 
@@ -209,7 +209,36 @@ func jailRoomMap(gStack *gui.StateStack) MapInfo {
 
 			jailBreakCutsceneEvents := []interface{}{
 				Wait(1),
+				FadeOutCharacter("handin", "hero", 2),
+				Wait(0),
+				RunActionAddNPC("handin", "guard", 16, 31, 0),
+				MoveNPC("prisoner", "handin", []string{
+					"up", "up", "up", "up",
+					"left", "left", "left", "left", "left",
+					"down", "down", "down", "down", "down", "down",
+				}),
+				MoveCamToTile("handin", 10, 40, 22, 24, 2),
+				Wait(0),
+				MoveNPC("guard", "handin", []string{
+					"right", "right", "right", "right", "right",
+					"up",
+				}),
+				WriteTile("handin", 21, 30, false),     //at jail door
+				SetHiddenTileVisible("handin", 21, 29), //jail door
+				SetHiddenTileVisible("handin", 21, 28), //jail door
+				MoveNPC("guard", "handin", []string{
+					"up", "up", "up", "up", "up", "up",
+				}),
+				Say("handin", "guard", "Has the other prisoner gone?", 2),
+				Say("handin", "prisoner", "Yeah.", 1),
+				Wait(1),
+				Say("handin", "guard", "Hmm", 1),
+				Say("handin", "guard", "Dhananand wants to see you in the Tower", 2),
+				Wait(2),
 				BlackScreen("blackscreen"),
+				Wait(1),
+				KillState("blackscreen"),
+				//HandOffToMainStack("small_room"),
 			}
 			jailBreakCutscene := Create(gStack, globals.Global.Win, jailBreakCutsceneEvents, true)
 			gStack.Push(jailBreakCutscene)

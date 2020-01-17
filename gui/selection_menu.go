@@ -38,7 +38,7 @@ type SelectionMenu struct {
 	DataI                     []interface{}
 }
 
-//TODO: custom renderItem method
+//pending: custom renderItem method
 func SelectionMenuCreate(data []string, showColumns bool, position pixel.Vec, onSelection func(int, string), additionalData interface{}) SelectionMenu {
 	m := SelectionMenu{
 		X:            position.X,

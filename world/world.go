@@ -146,7 +146,7 @@ func (w World) GetKeyItemsAsStrings() []string {
 	return items
 }
 
-//TODO: use inside SelectionMenu renderItem pending
+//pending: use inside SelectionMenu renderItem pending
 func (w World) DrawItem(renderer pixel.Target, x, y float64, itemIdx ItemIndex) {
 	itemDef := ItemsDB[itemIdx.Id]
 

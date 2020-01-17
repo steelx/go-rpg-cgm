@@ -60,7 +60,7 @@ func init() {
 
 func chanakya(gMap *GameMap) *Character {
 	var gameCharacter *Character
-	gameCharacter = CharacterCreate("Chanakya",
+	gameCharacter = CharacterCreate("hero",
 		map[string][]int{
 			"up": {16, 17, 18, 19}, "right": {20, 21, 22, 23}, "down": {24, 25, 26, 27}, "left": {28, 29, 30, 31},
 		},
