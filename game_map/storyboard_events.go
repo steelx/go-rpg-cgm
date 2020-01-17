@@ -4,7 +4,6 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/gui"
-	"github.com/steelx/go-rpg-cgm/utilz"
 	"image/color"
 	"reflect"
 )
@@ -187,10 +186,24 @@ void main() {
 }
 `
 
-//temp func, pending work
+func FadeOutMap(mapName string, duration float64) func(storyboard *Storyboard) *TweenEvent {
+
+	return func(storyboard *Storyboard) *TweenEvent {
+		exploreState := getExploreState(storyboard, mapName)
+
+		return TweenEventCreate(
+			1, 0, duration,
+			exploreState,
+			func(e *TweenEvent) {
+				exploreState.Map.Canvas.SetFragmentShader(fragmentShader)
+			},
+		)
+	}
+}
+
 func FadeOutCharacter(mapName, npcId string, duration float64) func(storyboard *Storyboard) *TweenEvent {
-	pic, _ := utilz.LoadPicture("../resources/universal-lpc-sprite_male_01_walk-3frame.png")
-	frames := utilz.LoadAsFrames(pic, 32, 32)
+	//pic, _ := utilz.LoadPicture("../resources/universal-lpc-sprite_male_01_walk-3frame.png")
+	//frames := utilz.LoadAsFrames(pic, 32, 32)
 	return func(storyboard *Storyboard) *TweenEvent {
 		exploreState := getExploreState(storyboard, mapName)
 		var npc *Character
@@ -206,10 +219,9 @@ func FadeOutCharacter(mapName, npcId string, duration float64) func(storyboard *
 			1, 0, duration,
 			exploreState,
 			func(e *TweenEvent) {
-				npc.Entity.Sprite.Set(pic, frames[1])
+				//npc.Entity.Sprite.Set(pic, frames[1])
 				npc.Entity.SetTilePos(0, 0)
 				npc.Entity.TeleportAndDraw(exploreState.Map, exploreState.Map.Canvas)
-				//exploreState.Map.Canvas.SetFragmentShader(fragmentShader)
 			},
 		)
 	}

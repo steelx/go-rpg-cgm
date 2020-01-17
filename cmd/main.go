@@ -47,14 +47,6 @@ func main() {
 func setup(win *pixelgl.Window) {
 	stack = gui.StateStackCreate(win)
 
-	//player_room, collision, collisionLayerName := maps_db.MapsDB["player_room"]()
-	//exploreState = game_states.ExploreStateCreate(stack, player_room, collision, collisionLayerName, win)
-	//
-	////Add NPCs
-	//exploreState.AddNPC(character_states.NPC1(exploreState.Map))
-	//exploreState.AddNPC(character_states.NPC2(exploreState.Map))
-	//stack.Push(&exploreState)
-
 	var introScene = []interface{}{
 		//game_map.BlackScreen("blackscreen"),
 		//game_map.Wait(1),
