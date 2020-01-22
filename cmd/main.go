@@ -18,6 +18,7 @@ var (
 )
 
 func run() {
+	globals.Global.PrimaryMonitor = pixelgl.PrimaryMonitor()
 	cfg := pixelgl.WindowConfig{
 		Title:       "GP RPG",
 		Bounds:      pixel.R(0, 0, globals.Global.WindowWidth, globals.Global.WindowHeight),
@@ -48,37 +49,38 @@ func setup(win *pixelgl.Window) {
 	stack = gui.StateStackCreate(win)
 
 	var introScene = []interface{}{
-		//game_map.BlackScreen("blackscreen"),
-		//game_map.Wait(1),
-		//game_map.KillState("blackscreen"),
-		//game_map.TitleCaptionScreen("title", "Chandragupta Maurya", 3),
-		//game_map.SubTitleCaptionScreen("subtitle", "A jRPG game in GO", 2),
-		//game_map.Wait(3),
-		//game_map.KillState("title"),
-		//game_map.KillState("subtitle"),
-		game_map.Scene("player_room", true, win),
-		game_map.RunActionAddNPC("player_room", "sleeper", 14, 19, 3),
-		game_map.RunActionAddNPC("player_room", "guard", 19, 23, 0),
-		game_map.Say("player_room", "guard", "..door smashed", 1.5),
-		//play sound door_smashed - pending
-		game_map.MoveNPC("guard", "player_room", []string{
-			"up", "up", "up", "left", "left", "left",
-		}),
-		game_map.Say("player_room", "guard", "You'r coming with me!!", 3),
 		game_map.BlackScreen("blackscreen"),
 		game_map.Wait(1),
 		game_map.KillState("blackscreen"),
-		game_map.ReplaceScene("player_room", "jail_room", 31, 21, false, win),
+		game_map.TitleCaptionScreen("title", "Chandragupta Maurya", 3),
+		game_map.SubTitleCaptionScreen("subtitle", "A jRPG game in GO", 2),
+		game_map.Wait(3),
+		game_map.KillState("title"),
+		game_map.KillState("subtitle"),
+		game_map.Scene("map_player_house", true, win),
+		game_map.RunActionAddNPC("map_player_house", "sleeper", 14, 19, 3),
+		game_map.RunActionAddNPC("map_player_house", "guard", 19, 23, 0),
+		game_map.Say("map_player_house", "guard", "..door smashed", 1.5),
+		//play sound door_smashed - pending
+		game_map.MoveNPC("guard", "map_player_house", []string{
+			"up", "up", "up", "left", "left", "left",
+		}),
+		game_map.Say("map_player_house", "guard", "You'r coming with me!!", 3),
+		game_map.BlackScreen("blackscreen"),
 		game_map.Wait(1),
-		game_map.Say("jail_room", "hero", "Where am I...", 1.5),
-		game_map.Say("jail_room", "hero", "I should stay calm..", 2.5),
+		game_map.KillState("blackscreen"),
+		game_map.ReplaceScene("map_player_house", "map_jail", 31, 21, false, win),
 		game_map.Wait(1),
-		game_map.HandOffToMainStack("jail_room"),
+		game_map.Say("map_jail", "hero", "Where am I...", 1.5),
+		game_map.Say("map_jail", "hero", "I should stay calm..", 2.5),
+		game_map.Wait(1),
+		game_map.HandOffToMainStack("map_jail"),
 	}
 
-	var storyboardI = game_map.Create(stack, win, introScene, false)
+	var storyboardI = game_map.StoryboardCreate(stack, win, introScene, false)
 	stack.PushFitted(200, 1300, "storyboardI stack pop out.. :)")
 	stack.Push(storyboardI)
+	stack.Push(gui.TitleScreenCreate(stack, win))
 
 }
 
@@ -89,6 +91,9 @@ func gameLoop(win *pixelgl.Window) {
 	last := time.Now()
 	menu := game_map.InGameMenuStateCreate(stack, win)
 	stack.Globals["menu"] = menu
+
+	//set fullscreen
+	win.SetMonitor(globals.Global.PrimaryMonitor)
 
 	tick := time.Tick(frameRate)
 	for !win.Closed() {

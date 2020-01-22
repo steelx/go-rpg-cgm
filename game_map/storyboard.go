@@ -14,7 +14,7 @@ type Storyboard struct {
 	Events        []interface{} //always keep as last args
 }
 
-func Create(stack *gui.StateStack, win *pixelgl.Window, eventsI interface{}, handIn bool) *Storyboard {
+func StoryboardCreate(stack *gui.StateStack, win *pixelgl.Window, eventsI interface{}, handIn bool) *Storyboard {
 	sb := &Storyboard{
 		Stack:         stack,
 		InternalStack: gui.StateStackCreate(win),

@@ -210,6 +210,7 @@ func FadeOutCharacter(mapName, npcId string, duration float64) func(storyboard *
 		if npcId == "hero" {
 			exploreState.SetFollowCam(false, exploreState.Hero)
 			exploreState.SetManualCam(20, 20)
+			exploreState.HideHero()
 			npc = exploreState.Hero
 		} else {
 			npc = exploreState.Map.NPCbyId[npcId]
