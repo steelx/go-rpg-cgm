@@ -18,6 +18,7 @@ var (
 )
 
 func run() {
+	globals.Global.PrimaryMonitor = pixelgl.PrimaryMonitor()
 	cfg := pixelgl.WindowConfig{
 		Title:       "GP RPG",
 		Bounds:      pixel.R(0, 0, globals.Global.WindowWidth, globals.Global.WindowHeight),
@@ -79,6 +80,7 @@ func setup(win *pixelgl.Window) {
 	var storyboardI = game_map.StoryboardCreate(stack, win, introScene, false)
 	stack.PushFitted(200, 1300, "storyboardI stack pop out.. :)")
 	stack.Push(storyboardI)
+	stack.Push(gui.TitleScreenCreate(stack, win))
 
 }
 
@@ -89,6 +91,9 @@ func gameLoop(win *pixelgl.Window) {
 	last := time.Now()
 	menu := game_map.InGameMenuStateCreate(stack, win)
 	stack.Globals["menu"] = menu
+
+	//set fullscreen
+	//win.SetMonitor(globals.Global.PrimaryMonitor)
 
 	tick := time.Tick(frameRate)
 	for !win.Closed() {

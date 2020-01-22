@@ -24,6 +24,7 @@ var (
 )
 
 type GlobalVars struct {
+	PrimaryMonitor    *pixelgl.Monitor
 	WindowHeight      float64
 	WindowWidth       float64
 	Vsync             bool
