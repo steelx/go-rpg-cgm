@@ -36,14 +36,14 @@ var MapsDB map[string]func(gStack *gui.StateStack) MapInfo
 
 func init() {
 	MapsDB = make(map[string]func(gStack *gui.StateStack) MapInfo)
-	MapsDB["player_room"] = playerHouseMap
+	MapsDB["map_player_house"] = mapPlayerHouse
 	MapsDB["small_room"] = smallRoomMap
-	MapsDB["jail_room"] = jailRoomMap
+	MapsDB["map_jail"] = mapJail
 	MapsDB["map_sewer"] = mapSewer
 }
 
 //player render rule is we render them with Collision Layer
-func playerHouseMap(gStack *gui.StateStack) MapInfo {
+func mapPlayerHouse(gStack *gui.StateStack) MapInfo {
 	//gStack could be global stack in future
 
 	gMap, err := tilepix.ReadFile("sontos_house.tmx")

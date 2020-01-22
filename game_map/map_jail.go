@@ -9,7 +9,7 @@ import (
 	"reflect"
 )
 
-func jailRoomMap(gStack *gui.StateStack) MapInfo {
+func mapJail(gStack *gui.StateStack) MapInfo {
 
 	gMap, err := tilepix.ReadFile("jail.tmx")
 	logFatalErr(err)
