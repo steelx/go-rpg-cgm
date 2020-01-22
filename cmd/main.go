@@ -48,14 +48,14 @@ func setup(win *pixelgl.Window) {
 	stack = gui.StateStackCreate(win)
 
 	var introScene = []interface{}{
-		//game_map.BlackScreen("blackscreen"),
-		//game_map.Wait(1),
-		//game_map.KillState("blackscreen"),
-		//game_map.TitleCaptionScreen("title", "Chandragupta Maurya", 3),
-		//game_map.SubTitleCaptionScreen("subtitle", "A jRPG game in GO", 2),
-		//game_map.Wait(3),
-		//game_map.KillState("title"),
-		//game_map.KillState("subtitle"),
+		game_map.BlackScreen("blackscreen"),
+		game_map.Wait(1),
+		game_map.KillState("blackscreen"),
+		game_map.TitleCaptionScreen("title", "Chandragupta Maurya", 3),
+		game_map.SubTitleCaptionScreen("subtitle", "A jRPG game in GO", 2),
+		game_map.Wait(3),
+		game_map.KillState("title"),
+		game_map.KillState("subtitle"),
 		game_map.Scene("map_player_house", true, win),
 		game_map.RunActionAddNPC("map_player_house", "sleeper", 14, 19, 3),
 		game_map.RunActionAddNPC("map_player_house", "guard", 19, 23, 0),
@@ -76,7 +76,7 @@ func setup(win *pixelgl.Window) {
 		game_map.HandOffToMainStack("map_jail"),
 	}
 
-	var storyboardI = game_map.Create(stack, win, introScene, false)
+	var storyboardI = game_map.StoryboardCreate(stack, win, introScene, false)
 	stack.PushFitted(200, 1300, "storyboardI stack pop out.. :)")
 	stack.Push(storyboardI)
 

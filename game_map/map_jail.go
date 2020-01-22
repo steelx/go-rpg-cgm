@@ -153,10 +153,10 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 
 	//jail break
 	jailBreakCutsceneEvents := []interface{}{
-		Wait(1),
-		FadeOutCharacter("handin", "hero", 2),
 		Wait(0),
-		MoveCamToTile("handin", 10, 40, 22, 24, 2),
+		FadeOutCharacter("handin", "hero", 2),
+		Wait(1),
+		MoveCamToTile("handin", 32, 15, 16, 31, 2),
 		RunActionAddNPC("handin", "guard", 16, 31, 0),
 		MoveNPC("prisoner", "handin", []string{
 			"up", "up", "up", "up",
@@ -185,7 +185,7 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 		Wait(1),
 		KillState("blackscreen"),
 
-		ReplaceScene("handin", "map_sewer", 30, 20, false, globals.Global.Win),
+		ReplaceScene("handin", "map_sewer", 3, 5, false, globals.Global.Win),
 		HandOffToMainStack("map_sewer"),
 	}
 	grillOnEnter := func(gameMap *GameMap, entity *Entity, tileX, tileY float64) {
@@ -195,7 +195,7 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 			gMap.RemoveTrigger(32, 15)
 			gMap.RemoveTrigger(33, 15)
 
-			jailBreakCutscene := Create(gStack, globals.Global.Win, jailBreakCutsceneEvents, true)
+			jailBreakCutscene := StoryboardCreate(gStack, globals.Global.Win, jailBreakCutsceneEvents, true)
 			gStack.Push(jailBreakCutscene)
 		}
 		choices := []string{"HIT space to enter the Tunnel"}
