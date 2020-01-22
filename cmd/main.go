@@ -93,7 +93,7 @@ func gameLoop(win *pixelgl.Window) {
 	stack.Globals["menu"] = menu
 
 	//set fullscreen
-	//win.SetMonitor(globals.Global.PrimaryMonitor)
+	win.SetMonitor(globals.Global.PrimaryMonitor)
 
 	tick := time.Tick(frameRate)
 	for !win.Closed() {
