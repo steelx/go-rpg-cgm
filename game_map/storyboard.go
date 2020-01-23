@@ -96,6 +96,10 @@ Loop:
 			deleteIndex = k
 			x(s)
 			break Loop
+		case func():
+			deleteIndex = k
+			x()
+			break Loop
 
 		case *WaitEvent:
 			s.Events[k] = x

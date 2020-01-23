@@ -66,7 +66,7 @@ func setup(win *pixelgl.Window) {
 			"up", "up", "up", "left", "left", "left",
 		}),
 		game_map.Say("map_player_house", "guard", "You'r coming with me!!", 3),
-		game_map.PlayBGSoundStop(),
+		game_map.StopBGSound(),
 		game_map.PlaySound("../sound/wagon.mp3", 4),
 		game_map.BlackScreen("blackscreen"),
 		game_map.Wait(3),

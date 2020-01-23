@@ -16,7 +16,7 @@ import (
 )
 
 var queue sound.Queue
-var queueBG sound.QueueBackground
+var queueBG sound.Queue
 var sr beep.SampleRate
 
 func init() {
@@ -292,6 +292,7 @@ func MoveCamToTile(stateId string, fromTileX, fromTileY, tileX, tileY, duration 
 	}
 }
 
+//PlaySound will stop after the given duration
 func PlaySound(pathToSound string, duration float64) func(storyboard *Storyboard) *NonBlockingTimer {
 	f, err := os.Open(pathToSound)
 	logFatalErr(err)
@@ -323,7 +324,8 @@ func PlaySound(pathToSound string, duration float64) func(storyboard *Storyboard
 	}
 }
 
-func PlayBGSound(pathToSound string) func(storyboard *Storyboard) {
+//PlayBGSound will stop after track has finished
+func PlayBGSound(pathToSound string) func() {
 	f, err := os.Open(pathToSound)
 	logFatalErr(err)
 
@@ -332,25 +334,31 @@ func PlayBGSound(pathToSound string) func(storyboard *Storyboard) {
 	logFatalErr(err)
 
 	//load audio into memory
-	buffer := beep.NewBuffer(format)
-	buffer.Append(streamer)
-	streamer.Close()
-	f.Close()
+	//buffer := beep.NewBuffer(format)
+	//buffer.Append(streamer)
+	//streamer.Close()
+	//f.Close()
 
-	return func(storyboard *Storyboard) {
+	return func() {
 		fmt.Println("Playing sound: ", pathToSound)
-		bufferedSound := buffer.Streamer(0, buffer.Len())
+		//bufferedSound := buffer.Streamer(0, buffer.Len())
+
+		// The speaker's sample rate is fixed at 44100. Therefore, we need to
+		// resample the file in case it's in a different sample rate.
+		resampled := beep.Resample(3, format.SampleRate, sr, streamer)
 
 		// And finally, we add the song to the queue.
 		speaker.Lock()
-		queueBG.Add(bufferedSound)
+		queueBG.Add(resampled)
 		speaker.Unlock()
 
 		return
 	}
 }
-func PlayBGSoundStop() func(storyboard *Storyboard) {
-	return func(storyboard *Storyboard) {
+
+//StopBGSound will pop out last queueBG item
+func StopBGSound() func() {
+	return func() {
 		queueBG.Pop()
 	}
 }

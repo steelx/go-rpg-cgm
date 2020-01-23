@@ -6,6 +6,16 @@ import (
 	"log"
 )
 
+var MapsDB map[string]func(gStack *gui.StateStack) MapInfo
+
+func init() {
+	MapsDB = make(map[string]func(gStack *gui.StateStack) MapInfo)
+	MapsDB["map_player_house"] = mapPlayerHouse
+	MapsDB["small_room"] = smallRoomMap
+	MapsDB["map_jail"] = mapJail
+	MapsDB["map_sewer"] = mapSewer
+}
+
 type MapAction struct {
 	Id     string
 	Script func(gameMap *GameMap, entity *Entity, x, y float64)
@@ -30,16 +40,6 @@ type MapInfo struct {
 	TriggerTypes                    map[string]TriggerType //"cracked_stone" : { OnUse = "break_wall_script" }
 	Triggers                        []TriggerParam         //[]{Id = "cracked_stone", x = 60, y = 11}
 	OnWake                          map[string]TriggerParam
-}
-
-var MapsDB map[string]func(gStack *gui.StateStack) MapInfo
-
-func init() {
-	MapsDB = make(map[string]func(gStack *gui.StateStack) MapInfo)
-	MapsDB["map_player_house"] = mapPlayerHouse
-	MapsDB["small_room"] = smallRoomMap
-	MapsDB["map_jail"] = mapJail
-	MapsDB["map_sewer"] = mapSewer
 }
 
 //player render rule is we render them with Collision Layer
