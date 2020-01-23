@@ -2,7 +2,6 @@ package gui
 
 import (
 	"github.com/faiface/pixel"
-	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/utilz"
 	"math"
 )
@@ -19,10 +18,11 @@ type Panel struct {
 //PanelCreate
 func PanelCreate(pos pixel.Vec, width, height float64) Panel {
 	var size float64 = 3
-	texture := globals.PanelPng
+	panelPng, err := utilz.LoadPicture("../resources/simple_panel.png")
+	utilz.PanicIfErr(err)
 	p := Panel{
-		mTexture:  texture,
-		mUVs:      utilz.LoadAsFrames(texture, size, size),
+		mTexture:  panelPng,
+		mUVs:      utilz.LoadAsFrames(panelPng, size, size),
 		mTileSize: size,
 		mBounds: pixel.Rect{
 			Min: pixel.V(pos.X-width/2, pos.Y-height/2),

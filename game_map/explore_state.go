@@ -36,7 +36,6 @@ func ExploreStateCreate(stack *gui.StateStack, mapInfo MapInfo, win *pixelgl.Win
 
 	es.Hero = Characters["hero"](es.Map)
 	es.Map.NPCbyId[es.Hero.Id] = es.Hero
-	//es.Hero.Controller.Change("wait", globals.Direction{0, 0})
 
 	es.FollowCam = true
 	es.FollowChar = es.Hero
@@ -149,5 +148,4 @@ func (es ExploreState) HandleInput(win *pixelgl.Window) {
 
 func (es *ExploreState) AddNPC(NPC *Character) {
 	es.Map.AddNPC(NPC)
-	//NPC.Controller.Change("wait", globals.Direction{0, 0})
 }

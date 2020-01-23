@@ -5,7 +5,6 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
-	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/utilz"
 	"golang.org/x/image/font/basicfont"
 )
@@ -29,7 +28,7 @@ func TitleScreenCreate(stack *StateStack, win *pixelgl.Window) TitleScreen {
 		win:      win,
 	}
 
-	position := globals.Global.Win.Bounds().Center()
+	position := win.Bounds().Center()
 	s.titleSprite = pixel.NewSprite(s.titleImg, s.titleImg.Bounds())
 	s.titlePos = pixel.V(position.X-s.titleImg.Bounds().W()/2, position.Y+s.titleImg.Bounds().H()/2)
 

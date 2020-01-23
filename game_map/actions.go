@@ -11,7 +11,7 @@ func init() {
 	LIST["AddNPC"] = AddNPC_I
 }
 
-//ActionTeleport : *GameMap, globals.Direction => *Entity => ()
+//ActionTeleport : *GameMap, Direction => *Entity => ()
 func ActionTeleport(gMap *GameMap, a ...interface{}) func(entity *Entity) {
 	aVal := reflect.ValueOf(a[0])
 	to := aVal.Interface().(utilz.Direction)

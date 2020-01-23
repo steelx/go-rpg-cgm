@@ -3,7 +3,6 @@ package gui
 import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/utilz"
 )
 
@@ -21,7 +20,11 @@ type ProgressBar struct {
 }
 
 func ProgressBarCreate(stack *StateStack, x, y float64) ProgressBar {
-	bgImg, fgImg := globals.ProgressBarBgPng, globals.ProgressBarFbPng
+	bgImg, err := utilz.LoadPicture("../resources/progressbar_bg.png")
+	utilz.PanicIfErr(err)
+	fgImg, err := utilz.LoadPicture("../resources/progressbar_fg.png")
+	utilz.PanicIfErr(err)
+
 	pb := ProgressBar{
 		Stack:         stack,
 		x:             x,
