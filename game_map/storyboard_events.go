@@ -40,16 +40,6 @@ func BlackScreen(id string) func(storyboard *Storyboard) *WaitEvent {
 	}
 }
 
-//FadeScreen not working properly
-func FadeScreen(id string, start, finish, duration float64) func(storyboard *Storyboard) *WaitEvent {
-	return func(storyboard *Storyboard) *WaitEvent {
-		screen := gui.FadeScreenCreate(storyboard.Stack, uint8(start), uint8(finish), duration)
-		storyboard.PushState(id, &screen)
-
-		return WaitEventCreate(0)
-	}
-}
-
 func TitleCaptionScreen(id string, txt string, duration float64) func(storyboard *Storyboard) *TweenEvent {
 	return func(storyboard *Storyboard) *TweenEvent {
 		captions := gui.CaptionScreenCreate(txt, pixel.V(0, 100), 3)
