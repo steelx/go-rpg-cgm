@@ -53,16 +53,16 @@ func (s *NPCStrollWaitState) Update(dt float64) {
 	if s.mCountDown <= 0 {
 		choice := utilz.RandInt(0, 4)
 		if choice == 1 {
-			s.Controller.Change("move", utilz.Direction{-1, 0})
+			s.Controller.Change("move", Direction{-1, 0})
 		}
 		if choice == 2 || choice == 0 {
-			s.Controller.Change("move", utilz.Direction{1, 0})
+			s.Controller.Change("move", Direction{1, 0})
 		}
 		if choice == 3 {
-			s.Controller.Change("move", utilz.Direction{0, 1})
+			s.Controller.Change("move", Direction{0, 1})
 		}
 		if choice == 4 {
-			s.Controller.Change("move", utilz.Direction{0, -1})
+			s.Controller.Change("move", Direction{0, -1})
 		}
 	}
 }

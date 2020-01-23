@@ -2,7 +2,6 @@ package game_map
 
 import (
 	"fmt"
-	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/utilz"
 	"github.com/steelx/tilepix"
@@ -191,7 +190,7 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 		Wait(1),
 		KillState("blackscreen"),
 
-		ReplaceScene("handin", "map_sewer", 3, 5, false, globals.Global.Win),
+		ReplaceScene("handin", "map_sewer", 3, 5, false, gStack.Win),
 		PlayBGSound("../sound/reveal.mp3"),
 		HandOffToMainStack("map_sewer"),
 	}
@@ -202,7 +201,7 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 			gMap.RemoveTrigger(32, 15)
 			gMap.RemoveTrigger(33, 15)
 
-			jailBreakCutscene := StoryboardCreate(gStack, globals.Global.Win, jailBreakCutsceneEvents, true)
+			jailBreakCutscene := StoryboardCreate(gStack, gStack.Win, jailBreakCutsceneEvents, true)
 			gStack.Push(jailBreakCutscene)
 		}
 		choices := []string{"HIT space to enter the Tunnel"}

@@ -105,7 +105,7 @@ func (es *ExploreState) Update(dt float64) bool {
 
 func (es ExploreState) Render(win *pixelgl.Window) {
 	//Map & Characters
-	err := es.Map.DrawAfter(func(canvas *pixelgl.Canvas, layer int) {
+	err := es.Map.DrawAfter(win, func(canvas *pixelgl.Canvas, layer int) {
 		var gameCharacters []*Character
 		gameCharacters = append(gameCharacters, es.Map.NPCs...)
 		if es.heroVisible {

@@ -1,7 +1,6 @@
 package game_map
 
 import (
-	"github.com/steelx/go-rpg-cgm/utilz"
 	"reflect"
 )
 
@@ -14,7 +13,7 @@ func init() {
 //ActionTeleport : *GameMap, Direction => *Entity => ()
 func ActionTeleport(gMap *GameMap, a ...interface{}) func(entity *Entity) {
 	aVal := reflect.ValueOf(a[0])
-	to := aVal.Interface().(utilz.Direction)
+	to := aVal.Interface().(Direction)
 	return func(entity *Entity) {
 		entity.TileX = to.X
 		entity.TileY = to.Y

@@ -4,7 +4,6 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	log "github.com/sirupsen/logrus"
-	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/utilz"
 	"github.com/steelx/tilepix"
 	"image/color"
@@ -42,6 +41,10 @@ type GameMap struct {
 	NPCs         []*Character
 	NPCbyId      map[string]*Character
 	MarkReRender bool
+}
+
+type Direction struct {
+	X, Y float64
 }
 
 func MapCreate(mapInfo MapInfo) *GameMap {
@@ -210,9 +213,9 @@ func (m GameMap) GetTilePositionAtFeet(x, y, charW, charH float64) pixel.Vec {
 
 //DrawAfter will render the callback function after given layer index
 // uses pixelgl Canvas instead of Win to render
-func (m GameMap) DrawAfter(callback func(canvas *pixelgl.Canvas, layer int)) error {
+func (m GameMap) DrawAfter(target pixel.Target, callback func(canvas *pixelgl.Canvas, layer int)) error {
 	// Draw tiles
-	target, mat := globals.Global.Win, pixel.IM
+	mat := pixel.IM
 
 	if m.Canvas == nil {
 		m.Canvas = pixelgl.NewCanvas(m.MapInfo.Tilemap.Bounds())

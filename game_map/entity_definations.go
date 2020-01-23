@@ -75,7 +75,7 @@ func chanakya(gMap *GameMap) *Character {
 			},
 		},
 	)
-	gameCharacter.Controller.Change("wait", utilz.Direction{0, 0})
+	gameCharacter.Controller.Change("wait", Direction{0, 0})
 	return gameCharacter
 }
 
@@ -93,7 +93,7 @@ func Sleeper(gMap *GameMap) *Character {
 			},
 		},
 	)
-	gameCharacter.Controller.Change("sleep", utilz.Direction{0, 0})
+	gameCharacter.Controller.Change("sleep", Direction{0, 0})
 	return gameCharacter
 }
 
@@ -109,7 +109,7 @@ func NPC1(gMap *GameMap) *Character {
 			},
 		},
 	)
-	gameCharacter.Controller.Change("wait", utilz.Direction{0, 0})
+	gameCharacter.Controller.Change("wait", Direction{0, 0})
 	return gameCharacter
 }
 
@@ -130,7 +130,7 @@ func NPC2(gMap *GameMap) *Character {
 			},
 		},
 	)
-	gameCharacter.Controller.Change("wait", utilz.Direction{0, 0})
+	gameCharacter.Controller.Change("wait", Direction{0, 0})
 	return gameCharacter
 }
 
@@ -154,7 +154,7 @@ func guard(gMap *GameMap) *Character {
 			},
 		},
 	)
-	gameCharacter.Controller.Change("wait", utilz.Direction{0, 0})
+	gameCharacter.Controller.Change("wait", Direction{0, 0})
 	return gameCharacter
 }
 
@@ -178,6 +178,6 @@ func prisoner(gMap *GameMap) *Character {
 			},
 		},
 	)
-	gameCharacter.Controller.Change("wait", utilz.Direction{0, 0})
+	gameCharacter.Controller.Change("wait", Direction{0, 0})
 	return gameCharacter
 }
