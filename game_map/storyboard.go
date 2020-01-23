@@ -93,7 +93,13 @@ Loop:
 
 		switch x := v.(type) {
 		case func(storyboard *Storyboard):
+			deleteIndex = k
 			x(s)
+			break Loop
+		case func():
+			deleteIndex = k
+			x()
+			break Loop
 
 		case *WaitEvent:
 			s.Events[k] = x
@@ -104,6 +110,8 @@ Loop:
 		case *BlockUntilEvent:
 			s.Events[k] = x
 		case *TimedTextboxEvent:
+			s.Events[k] = x
+		case *NonBlockingTimer:
 			s.Events[k] = x
 
 		case func(storyboard *Storyboard) *WaitEvent:
@@ -119,6 +127,9 @@ Loop:
 			s.Events[k] = x(s)
 
 		case func(storyboard *Storyboard) *TimedTextboxEvent:
+			s.Events[k] = x(s)
+
+		case func(storyboard *Storyboard) *NonBlockingTimer:
 			s.Events[k] = x(s)
 
 		default:

@@ -19,13 +19,14 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 	menuV := reflect.ValueOf(menu_)
 	menuI := menuV.Interface().(*InGameMenuState)
 
+	playKeyItemFound := PlayBGSound("../sound/key_item.mp3")
+	playSkeletonDestroyed := PlayBGSound("../sound/skeleton_destroy.mp3")
 	boneScript := func(gameMap *GameMap, entity *Entity, tileX, tileY float64) {
 		x, y := gameMap.GetTileIndex(tileX, tileY)
 		giveBone := func(gMap *GameMap) {
-			//player picked up the bone
+			playKeyItemFound()
 			gStack.Pop() //remove selection menu
 			gStack.PushFitted(x, y, `Found key item: "Calcified bone"`)
-			//play sound skeleton_collapsed - pending
 			menuI.World.AddKeyItem(boneItemId)
 		}
 
@@ -44,15 +45,17 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 		//removed collision from skeleton tile
 		gameMap.WriteTile(41, 22, false)
 		gameMap.WriteTile(42, 22, false)
+		playSkeletonDestroyed()
 	}
 
 	breakWallScript := func(gameMap *GameMap, entity *Entity, tileX, tileY float64) {
 		x, y := gameMap.GetTileIndex(tileX, tileY)
+		playCrumble := PlayBGSound("../sound/crumble.mp3")
 		onPush := func(gMap *GameMap) {
 			// The player's pushing the wall.
 			gStack.Pop() //remove selection menu
 			gStack.PushFitted(x, y, "The wall crumbles.")
-			//play sound wall_crumbles - pending
+			playCrumble()
 
 			//see below Triggers - "cracked_stone"
 			gMap.RemoveTrigger(35, 22)
@@ -123,10 +126,12 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 		if !menuI.World.HasKey(boneItemId) {
 			return
 		}
+		playUnlock := PlayBGSound("../sound/unlock.mp3")
 		x, y := gameMap.GetTileIndex(tileX, tileY)
 		grillOpen := func(gMap *GameMap) {
 			gStack.Pop()
 			gStack.PushFitted(x, y, "The grill opened, and leads a way inside the sewers")
+			playUnlock()
 
 			gMap.RemoveTrigger(32, 15)
 			gMap.RemoveTrigger(33, 15)
@@ -168,7 +173,8 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 			"right", "right", "right", "right", "right",
 			"up",
 		}),
-		WriteTile("handin", 21, 30, false),     //at jail door
+		WriteTile("handin", 21, 30, false), //at jail door
+		PlayBGSound("../sound/unlock.mp3"),
 		SetHiddenTileVisible("handin", 21, 29), //jail door
 		SetHiddenTileVisible("handin", 21, 28), //jail door
 		MoveNPC("guard", "handin", []string{
@@ -186,6 +192,7 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 		KillState("blackscreen"),
 
 		ReplaceScene("handin", "map_sewer", 3, 5, false, globals.Global.Win),
+		PlayBGSound("../sound/reveal.mp3"),
 		HandOffToMainStack("map_sewer"),
 	}
 	grillOnEnter := func(gameMap *GameMap, entity *Entity, tileX, tileY float64) {
