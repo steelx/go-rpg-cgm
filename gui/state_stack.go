@@ -19,14 +19,14 @@ type StackInterface interface {
 //aka Last in First out
 type StateStack struct {
 	States  []StackInterface
-	win     *pixelgl.Window
+	Win     *pixelgl.Window
 	Globals map[string]interface{}
 }
 
 func StateStackCreate(win *pixelgl.Window) *StateStack {
 	//call PushFixed, PushFitted after
 	return &StateStack{
-		win:     win,
+		Win:     win,
 		Globals: make(map[string]interface{}),
 	}
 }
@@ -58,7 +58,7 @@ func (ss *StateStack) Update(dt float64) {
 	}
 	top := ss.States[ss.GetLastIndex()]
 
-	top.HandleInput(ss.win)
+	top.HandleInput(ss.Win)
 }
 
 func (ss StateStack) Top() *StackInterface {

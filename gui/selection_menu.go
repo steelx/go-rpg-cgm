@@ -5,7 +5,6 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
-	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/utilz"
 	"golang.org/x/image/font/basicfont"
 	"math"
@@ -32,7 +31,6 @@ type SelectionMenu struct {
 	IsShowCursor              bool
 	maxRows, displayRows      int //rows might be 30 but only 5 maxRows are displayed at once
 	displayStart              int //index at which we start displaying menu, e.g. out of 30 max 5 are visible from index 6
-	renderer                  pixel.Target
 	textBase                  *text.Text
 	OnSelection               func(int, string) //to be called after selection
 	DataI                     []interface{}
@@ -55,12 +53,11 @@ func SelectionMenuCreate(data []string, showColumns bool, position pixel.Vec, on
 		scale:        1,
 		OnSelection:  onSelection,
 	}
-	m.textBase = text.New(position, globals.BasicAtlas12)
-	m.renderer = globals.Global.Win
+	m.textBase = text.New(position, basicAtlas12)
 	m.displayRows = 4
-	m.cursor = pixel.NewSprite(globals.CursorPng, globals.CursorPng.Bounds())
-	m.cursorWidth = globals.CursorPng.Bounds().W()
-	m.cursorHeight = globals.CursorPng.Bounds().H()
+	m.cursor = pixel.NewSprite(cursorPng, cursorPng.Bounds())
+	m.cursorWidth = cursorPng.Bounds().W()
+	m.cursorHeight = cursorPng.Bounds().H()
 
 	//temp implement correct columns pending
 	if showColumns {
@@ -125,14 +122,14 @@ func (m SelectionMenu) IsDataSourceEmpty() bool {
 }
 
 func (m SelectionMenu) renderItem(pos pixel.Vec, item string, renderer pixel.Target) {
-	//textBase := text.New(pos, globals.BasicAtlas12)
+	//textBase := text.New(pos, basicAtlas12)
 	textBase := text.New(pos, text.NewAtlas(basicfont.Face7x13, text.ASCII))
 	if item == "" {
 		fmt.Fprintf(textBase, "--")
 	} else {
 		fmt.Fprintf(textBase, item)
 	}
-	textBase.Draw(m.renderer, pixel.IM.Scaled(pixel.V(0, 0), m.scale))
+	textBase.Draw(renderer, pixel.IM.Scaled(pixel.V(0, 0), m.scale))
 }
 
 func (m SelectionMenu) Render(renderer *pixelgl.Window) {

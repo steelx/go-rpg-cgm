@@ -8,7 +8,7 @@ import (
 //var IconPNGs Icons
 //
 //func init()  {
-//	inventoryIconsPng, err := globals.LoadPicture("../resources/inventory_icons.png")
+//	inventoryIconsPng, err := LoadPicture("../resources/inventory_icons.png")
 //	if err != nil {
 //		log.Fatal(err)
 //	}

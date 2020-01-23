@@ -7,6 +7,7 @@ import (
 	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/font"
 	"image"
+	"image/color"
 	"image/png"
 	_ "image/png"
 	"io"
@@ -196,4 +197,11 @@ func LoadTTF(path string, size float64) (font.Face, error) {
 		Size:              size,
 		GlyphCacheEntries: 1,
 	}), nil
+}
+
+//HexToColor("#E53935")
+func HexToColor(hex string) color.Color {
+	var r, g, b uint8
+	fmt.Sscanf(hex, "#%2X%2X%2X", &r, &g, &b)
+	return color.RGBA{r, g, b, 255}
 }

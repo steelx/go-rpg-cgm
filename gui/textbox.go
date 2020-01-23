@@ -6,7 +6,6 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
 	"github.com/steelx/go-rpg-cgm/animation"
-	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/utilz"
 	"golang.org/x/image/font/basicfont"
 	"math"
@@ -21,6 +20,23 @@ tBox := TextboxCreateFixed(
 		avatarPng,
 	)
 */
+var (
+	continueCaretPng pixel.Picture
+	cursorPng        pixel.Picture
+	basicAtlas12     *text.Atlas
+)
+
+func init() {
+	var err error
+	continueCaretPng, err = utilz.LoadPicture("../resources/continue_caret.png")
+	utilz.PanicIfErr(err)
+	cursorPng, err = utilz.LoadPicture("../resources/cursor.png")
+	utilz.PanicIfErr(err)
+
+	fontFace12, err := utilz.LoadTTF("../resources/font/joystix.ttf", 12)
+	utilz.PanicIfErr(err)
+	basicAtlas12 = text.NewAtlas(fontFace12, text.ASCII)
+}
 
 type Textbox struct {
 	Stack                       *StateStack
@@ -50,7 +66,7 @@ func TextboxNew(stack *StateStack, txt string, size float64, atlas *text.Atlas, 
 		text:         txt,
 		textScale:    1,
 		size:         size,
-		continueMark: globals.ContinueCaretPng,
+		continueMark: continueCaretPng,
 		avatarName:   avatarName,
 		avatarImg:    avatarImg,
 		textAtlas:    atlas,
@@ -83,7 +99,7 @@ func TextboxWithMenuCreate(stack *StateStack, textBoxText string, panelPos pixel
 
 func TextboxFITMenuCreate(stack *StateStack, x, y float64, textBoxText string, choices []string, onSelection func(int, string)) *Textbox {
 	panelPos := pixel.V(x, y)
-	t := TextboxNew(stack, textBoxText, 14, globals.BasicAtlas12, "", nil)
+	t := TextboxNew(stack, textBoxText, 14, basicAtlas12, "", nil)
 	t.AppearTween = animation.TweenCreate(1, 1, 1)
 	t.isFixed = false
 
@@ -113,7 +129,7 @@ func TextboxFITMenuCreate(stack *StateStack, x, y float64, textBoxText string, c
 
 func TextboxCreateFixed(stack *StateStack, txt string, panelPos pixel.Vec, panelWidth, panelHeight float64, avatarName string, avatarImg pixel.Picture, hasMenu bool) Textbox {
 	panel := PanelCreate(panelPos, panelWidth, panelHeight)
-	t := TextboxNew(stack, txt, 14, globals.BasicAtlas12, avatarName, avatarImg)
+	t := TextboxNew(stack, txt, 14, basicAtlas12, avatarName, avatarImg)
 	t.AppearTween = animation.TweenCreate(1, 0, 1)
 	t.isFixed = true
 	t.mPanel = panel

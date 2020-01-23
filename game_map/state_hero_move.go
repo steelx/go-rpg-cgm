@@ -4,7 +4,6 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/animation"
 	"github.com/steelx/go-rpg-cgm/state_machine"
-	"github.com/steelx/go-rpg-cgm/utilz"
 	"reflect"
 )
 
@@ -33,7 +32,7 @@ func MoveStateCreate(character *Character, gMap *GameMap) state_machine.State {
 	s.MoveY = 0
 	s.Tween = animation.TweenCreate(0, 0, 1)
 	s.MoveSpeed = 0.42
-	s.Anim = animation.AnimationCreate([]int{s.Entity.StartFrame}, true, 0.11)
+	s.Anim = animation.Create([]int{s.Entity.StartFrame}, true, 0.11)
 	return s
 }
 
@@ -43,7 +42,7 @@ func MoveStateCreate(character *Character, gMap *GameMap) state_machine.State {
 func (s *MoveState) Enter(dataI interface{}) {
 	var frames []int
 	v := reflect.ValueOf(dataI)
-	data := v.Interface().(utilz.Direction)
+	data := v.Interface().(Direction)
 	if data.X == -1 {
 		frames = s.Character.Anims[CharacterFacingDirection[3]]
 		s.Character.SetFacing(3)
@@ -74,7 +73,7 @@ func (s *MoveState) Enter(dataI interface{}) {
 		s.MoveX = 0
 		s.MoveY = 0
 		s.Entity.SetFrame(s.Anim.GetFirstFrame())
-		s.Controller.Change("wait", utilz.Direction{0, 0})
+		s.Controller.Change("wait", Direction{0, 0})
 		return
 	}
 }
@@ -102,6 +101,6 @@ func (s *MoveState) Update(dt float64) {
 	s.Entity.TileY = s.PixelY + value*s.MoveY
 
 	if s.Tween.IsFinished() {
-		s.Controller.Change(s.Character.DefaultState, utilz.Direction{0, 0})
+		s.Controller.Change(s.Character.DefaultState, Direction{0, 0})
 	}
 }

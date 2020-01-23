@@ -35,7 +35,7 @@ func mapSewer(gStack *gui.StateStack) MapInfo {
 				{"will be continued...", 1.8},
 				{"press Q to quit", 1},
 			})
-			//gameOverSB := StoryboardCreate(gStack, globals.Global.Win, gameOverEvents, false)
+			//gameOverSB := StoryboardCreate(gStack, gStack.Win, gameOverEvents, false)
 			gStack.Push(gameOver)
 		}
 
