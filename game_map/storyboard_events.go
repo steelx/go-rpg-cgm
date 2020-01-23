@@ -308,6 +308,7 @@ func PlaySound(pathToSound string, duration float64) func(storyboard *Storyboard
 			func(e *NonBlockingTimer) {
 				if e.TimeUp() {
 					queue.Pop()
+					fmt.Println("Removing sound: ", pathToSound)
 				}
 			},
 		)
@@ -330,7 +331,7 @@ func PlayBGSound(pathToSound string) func() {
 	//f.Close()
 
 	return func() {
-		fmt.Println("Playing sound: ", pathToSound)
+		fmt.Println("Playing BG sound: ", pathToSound)
 		//bufferedSound := buffer.Streamer(0, buffer.Len())
 
 		// The speaker's sample rate is fixed at 44100. Therefore, we need to
