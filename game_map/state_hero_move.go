@@ -33,7 +33,7 @@ func MoveStateCreate(character *Character, gMap *GameMap) state_machine.State {
 	s.MoveY = 0
 	s.Tween = animation.TweenCreate(0, 0, 1)
 	s.MoveSpeed = 0.42
-	s.Anim = animation.AnimationCreate([]int{s.Entity.StartFrame}, true, 0.11)
+	s.Anim = animation.Create([]int{s.Entity.StartFrame}, true, 0.11)
 	return s
 }
 

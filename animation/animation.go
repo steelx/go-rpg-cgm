@@ -1,59 +1,59 @@
 package animation
 
 type Animation struct {
-	mFrames []int
-	mIndex  int
-	mSPF    float64
-	mTime   float64
-	mLoop   bool
+	Frames []int
+	Index  int
+	spf    float64
+	time   float64
+	loop   bool
 }
 
 //Animation spf seconds per frame 1.2
-func AnimationCreate(frames []int, loop bool, spf float64) Animation {
+func Create(frames []int, loop bool, spf float64) Animation {
 	return Animation{
-		mFrames: frames,
-		mIndex:  0,
-		mSPF:    spf,
-		mTime:   0,
-		mLoop:   loop,
+		Frames: frames,
+		Index:  0,
+		spf:    spf,
+		time:   0,
+		loop:   loop,
 	}
 }
 
 func (a *Animation) Update(dt float64) {
 	// update the animation strip
-	a.mTime = a.mTime + dt
+	a.time = a.time + dt
 
-	if a.mTime >= a.mSPF {
-		a.mIndex += 1
-		a.mTime = 0
+	if a.time >= a.spf {
+		a.Index += 1
+		a.time = 0
 
 		if a.IsLastFrame() {
-			if a.mLoop {
-				a.mIndex = 0
+			if a.loop {
+				a.Index = 0
 			} else {
-				a.mIndex = len(a.mFrames) - 1
+				a.Index = len(a.Frames) - 1
 			}
 		}
 	}
 }
 
 func (a *Animation) SetFrames(frames []int) {
-	a.mFrames = frames
-	a.mIndex = 0
+	a.Frames = frames
+	a.Index = 0
 }
 
 func (a Animation) Frame() int {
-	return a.mFrames[a.mIndex]
+	return a.Frames[a.Index]
 }
 
 func (a Animation) GetFirstFrame() int {
-	return a.mFrames[0]
+	return a.Frames[0]
 }
 
 func (a Animation) IsLastFrame() bool {
-	return a.mIndex >= len(a.mFrames)
+	return a.Index >= len(a.Frames)
 }
 
 func (a Animation) IsFinished() bool {
-	return a.mLoop == false || a.IsLastFrame()
+	return a.loop == false || a.IsLastFrame()
 }
