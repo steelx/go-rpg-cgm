@@ -1,6 +1,8 @@
 package sound
 
-import "github.com/faiface/beep"
+import (
+	"github.com/faiface/beep"
+)
 
 type Queue struct {
 	streamers []beep.Streamer
@@ -29,7 +31,7 @@ func (q *Queue) Stream(samples [][2]float64) (n int, ok bool) {
 		// If it's drained, we pop it from the queue, thus continuing with
 		// the next streamer.
 		if !ok {
-			q.streamers = q.streamers[1:]
+			q.Pop()
 		}
 		// We update the number of filled samples.
 		filled += n
@@ -39,4 +41,12 @@ func (q *Queue) Stream(samples [][2]float64) (n int, ok bool) {
 
 func (q *Queue) Err() error {
 	return nil
+}
+
+//Pop out first in Queue
+func (q *Queue) Pop() {
+	if len(q.streamers) == 0 {
+		return
+	}
+	q.streamers = q.streamers[1:]
 }

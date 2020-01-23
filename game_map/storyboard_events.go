@@ -290,7 +290,7 @@ func MoveCamToTile(stateId string, fromTileX, fromTileY, tileX, tileY, duration 
 	}
 }
 
-func PlaySound(pathToSound string, duration float64) func(storyboard *Storyboard) {
+func PlaySound(pathToSound string, duration float64) func(storyboard *Storyboard) *NonBlockingTimer {
 	f, err := os.Open(pathToSound)
 	logFatalErr(err)
 
@@ -304,18 +304,27 @@ func PlaySound(pathToSound string, duration float64) func(storyboard *Storyboard
 	//streamer.Close()
 	//f.Close()
 
-	return func(storyboard *Storyboard) {
+	return func(storyboard *Storyboard) *NonBlockingTimer {
 		fmt.Println("Playing sound: ", pathToSound)
 		//sound := buffer.Streamer(0, buffer.Len())
 
 		// The speaker's sample rate is fixed at 44100. Therefore, we need to
 		// resample the file in case it's in a different sample rate.
-		resampled := beep.Resample(4, format.SampleRate, sr, streamer)
+		resampled := beep.Resample(3, format.SampleRate, sr, streamer)
 
 		// And finally, we add the song to the queue.
 		speaker.Lock()
 		queue.Add(resampled)
 		speaker.Unlock()
-		return
+
+		return NonBlockingTimerCreate(
+			duration,
+			func(e *NonBlockingTimer) {
+				fmt.Println(pathToSound, e.TimeUp())
+				if e.TimeUp() {
+					queue.Pop()
+				}
+			},
+		)
 	}
 }
