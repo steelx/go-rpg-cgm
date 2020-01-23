@@ -6,6 +6,7 @@ import (
 	"github.com/steelx/go-rpg-cgm/game_map"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/gui"
+	"github.com/steelx/go-rpg-cgm/utilz"
 	"time"
 )
 
@@ -31,10 +32,10 @@ func run() {
 	}
 	globals.Global.Win = win
 
-	globals.PrintMemoryUsage()
+	utilz.PrintMemoryUsage()
 	// Setup world etc.
 	setup(win)
-	globals.PrintMemoryUsage()
+	utilz.PrintMemoryUsage()
 	gameLoop(win)
 }
 
