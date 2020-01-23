@@ -16,6 +16,7 @@ import (
 )
 
 var queue sound.Queue
+var queueBG sound.QueueBackground
 var sr beep.SampleRate
 
 func init() {
@@ -23,6 +24,7 @@ func init() {
 	err := speaker.Init(sr, sr.N(time.Second/10))
 	logFatalErr(err)
 	speaker.Play(&queue)
+	speaker.Play(&queueBG)
 }
 
 func Wait(seconds float64) *WaitEvent {
@@ -298,15 +300,8 @@ func PlaySound(pathToSound string, duration float64) func(storyboard *Storyboard
 	streamer, format, err := mp3.Decode(f)
 	logFatalErr(err)
 
-	//load audio into memory
-	//buffer := beep.NewBuffer(format)
-	//buffer.Append(streamer)
-	//streamer.Close()
-	//f.Close()
-
 	return func(storyboard *Storyboard) *NonBlockingTimer {
 		fmt.Println("Playing sound: ", pathToSound)
-		//sound := buffer.Streamer(0, buffer.Len())
 
 		// The speaker's sample rate is fixed at 44100. Therefore, we need to
 		// resample the file in case it's in a different sample rate.
@@ -320,11 +315,42 @@ func PlaySound(pathToSound string, duration float64) func(storyboard *Storyboard
 		return NonBlockingTimerCreate(
 			duration,
 			func(e *NonBlockingTimer) {
-				fmt.Println(pathToSound, e.TimeUp())
 				if e.TimeUp() {
 					queue.Pop()
 				}
 			},
 		)
+	}
+}
+
+func PlayBGSound(pathToSound string) func(storyboard *Storyboard) {
+	f, err := os.Open(pathToSound)
+	logFatalErr(err)
+
+	// Decode it.
+	streamer, format, err := mp3.Decode(f)
+	logFatalErr(err)
+
+	//load audio into memory
+	buffer := beep.NewBuffer(format)
+	buffer.Append(streamer)
+	streamer.Close()
+	f.Close()
+
+	return func(storyboard *Storyboard) {
+		fmt.Println("Playing sound: ", pathToSound)
+		bufferedSound := buffer.Streamer(0, buffer.Len())
+
+		// And finally, we add the song to the queue.
+		speaker.Lock()
+		queueBG.Add(bufferedSound)
+		speaker.Unlock()
+
+		return
+	}
+}
+func PlayBGSoundStop() func(storyboard *Storyboard) {
+	return func(storyboard *Storyboard) {
+		queueBG.Pop()
 	}
 }
