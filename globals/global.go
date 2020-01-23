@@ -6,6 +6,7 @@ import (
 	"github.com/faiface/pixel/text"
 	"github.com/steelx/go-rpg-cgm/utilz"
 	"github.com/steelx/tilepix"
+	"image/color"
 )
 
 //=============================================================
@@ -29,7 +30,7 @@ type GlobalVars struct {
 	WindowWidth       float64
 	Vsync             bool
 	Undecorated       bool
-	ClearColor        pixel.RGBA
+	ClearColor        color.Color
 	Win               *pixelgl.Window
 	DeltaTime         float64
 	CollisionLayer    string
@@ -41,7 +42,7 @@ var Global = &GlobalVars{
 	WindowWidth:       800,
 	Vsync:             true,
 	Undecorated:       false,
-	ClearColor:        pixel.RGBA{0.2, 0.2, 0.2, 1.0},
+	ClearColor:        utilz.HexToColor("#12161A"),
 	Win:               &pixelgl.Window{},
 	CollisionLayer:    "collision",
 	CollisionLayerPos: 3,
