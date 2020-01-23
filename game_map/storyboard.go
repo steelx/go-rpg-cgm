@@ -93,7 +93,9 @@ Loop:
 
 		switch x := v.(type) {
 		case func(storyboard *Storyboard):
+			deleteIndex = k
 			x(s)
+			break Loop
 
 		case *WaitEvent:
 			s.Events[k] = x

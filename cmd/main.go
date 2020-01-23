@@ -52,6 +52,7 @@ func setup(win *pixelgl.Window) {
 		game_map.BlackScreen("blackscreen"),
 		game_map.Wait(1),
 		game_map.KillState("blackscreen"),
+		game_map.PlaySound("../sound/reveal.mp3", 1),
 		game_map.TitleCaptionScreen("title", "Chandragupta Maurya", 3),
 		game_map.SubTitleCaptionScreen("subtitle", "A jRPG game in GO", 2),
 		game_map.Wait(3),
@@ -60,12 +61,12 @@ func setup(win *pixelgl.Window) {
 		game_map.Scene("map_player_house", true, win),
 		game_map.RunActionAddNPC("map_player_house", "sleeper", 14, 19, 3),
 		game_map.RunActionAddNPC("map_player_house", "guard", 19, 23, 0),
-		game_map.Say("map_player_house", "guard", "..door smashed", 1.5),
-		//play sound door_smashed - pending
+		game_map.PlaySound("../sound/door_break.mp3", 0.5),
 		game_map.MoveNPC("guard", "map_player_house", []string{
 			"up", "up", "up", "left", "left", "left",
 		}),
 		game_map.Say("map_player_house", "guard", "You'r coming with me!!", 3),
+		game_map.PlaySound("../sound/wagon.mp3", 2),
 		game_map.BlackScreen("blackscreen"),
 		game_map.Wait(1),
 		game_map.KillState("blackscreen"),
@@ -93,7 +94,7 @@ func gameLoop(win *pixelgl.Window) {
 	stack.Globals["menu"] = menu
 
 	//set fullscreen
-	win.SetMonitor(globals.Global.PrimaryMonitor)
+	//win.SetMonitor(globals.Global.PrimaryMonitor)
 
 	tick := time.Tick(frameRate)
 	for !win.Closed() {

@@ -1,12 +1,29 @@
 package game_map
 
 import (
+	"fmt"
+	"github.com/faiface/beep"
+	"github.com/faiface/beep/mp3"
+	"github.com/faiface/beep/speaker"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/gui"
+	"github.com/steelx/go-rpg-cgm/sound"
 	"image/color"
+	"os"
 	"reflect"
+	"time"
 )
+
+var queue sound.Queue
+var sr beep.SampleRate
+
+func init() {
+	sr = beep.SampleRate(44100)
+	err := speaker.Init(sr, sr.N(time.Second/10))
+	logFatalErr(err)
+	speaker.Play(&queue)
+}
 
 func Wait(seconds float64) *WaitEvent {
 	return WaitEventCreate(seconds)
@@ -270,5 +287,35 @@ func MoveCamToTile(stateId string, fromTileX, fromTileY, tileX, tileY, duration 
 				exploreState.ManualCamY = dY
 			},
 		)
+	}
+}
+
+func PlaySound(pathToSound string, duration float64) func(storyboard *Storyboard) {
+	f, err := os.Open(pathToSound)
+	logFatalErr(err)
+
+	// Decode it.
+	streamer, format, err := mp3.Decode(f)
+	logFatalErr(err)
+
+	//load audio into memory
+	//buffer := beep.NewBuffer(format)
+	//buffer.Append(streamer)
+	//streamer.Close()
+	//f.Close()
+
+	return func(storyboard *Storyboard) {
+		fmt.Println("Playing sound: ", pathToSound)
+		//sound := buffer.Streamer(0, buffer.Len())
+
+		// The speaker's sample rate is fixed at 44100. Therefore, we need to
+		// resample the file in case it's in a different sample rate.
+		resampled := beep.Resample(4, format.SampleRate, sr, streamer)
+
+		// And finally, we add the song to the queue.
+		speaker.Lock()
+		queue.Add(resampled)
+		speaker.Unlock()
+		return
 	}
 }
