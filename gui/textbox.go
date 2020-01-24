@@ -166,7 +166,6 @@ func TextboxCreateFitted(stack *StateStack, txt string, panelPos pixel.Vec, hasM
 	tBox.textBase = text.New(textPos, tBox.textAtlas) //reset text position to bounds
 	tBox.mPanel = panel
 
-	tBox.mPanel.RefreshPanelCorners()
 	tBox.makeTextColumns()
 
 	return tBox
