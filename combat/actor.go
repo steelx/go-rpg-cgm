@@ -1,20 +1,5 @@
 package combat
 
-import (
-	"github.com/steelx/go-rpg-cgm/dice"
-)
-
-type GrowthT struct {
-	Fast func() int
-	Med  func() int
-	Slow func() int
-}
-
-var Growth = GrowthT{
-	Fast: dice.Create("3d2"),
-	Med:  dice.Create("1d3"),
-	Slow: dice.Create("1d2"),
-}
 var DefaultStats = BaseStats{
 	HpNow:    300,
 	HpMax:    300,
@@ -49,9 +34,9 @@ var HeroDef = combat.ActorDef{
 		StatGrowth: map[string]func() int{
 			"HpMax":        dice.Create("4d50+100"),
 			"MpMax":        dice.Create("2d50+100"),
-			"Strength":     combat.Growth.Fast,
-			"Speed":        combat.Growth.Fast,
-			"Intelligence": combat.Growth.Med,
+			"Strength":     combat.StatsGrowth.Fast,
+			"Speed":        combat.StatsGrowth.Fast,
+			"Intelligence": combat.StatsGrowth.Med,
 		},
 	}
 */

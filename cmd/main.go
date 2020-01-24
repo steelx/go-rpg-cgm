@@ -48,9 +48,9 @@ func main() {
 		StatGrowth: map[string]func() int{
 			"HpMax":        dice.Create("4d50+100"),
 			"MpMax":        dice.Create("2d50+100"),
-			"Strength":     combat.Growth.Fast,
-			"Speed":        combat.Growth.Fast,
-			"Intelligence": combat.Growth.Med,
+			"Strength":     combat.StatsGrowth.Fast,
+			"Speed":        combat.StatsGrowth.Fast,
+			"Intelligence": combat.StatsGrowth.Med,
 		},
 	}
 
@@ -89,7 +89,7 @@ func main() {
 	fmt.Println("Intelligence", hero.Stats.Get("Intelligence"))
 	fmt.Println("Speed", hero.Stats.Get("Speed"))
 
-	//pixelgl.Run(run)
+	pixelgl.Run(run)
 }
 
 //=============================================================
