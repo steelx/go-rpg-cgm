@@ -1,0 +1,50 @@
+func main() {
+	var HeroDef = combat.ActorDef{
+		Stats: combat.DefaultStats,
+		StatGrowth: map[string]func() int{
+			"HpMax": dice.Create("4d50+100"),
+			"MpMax": dice.Create("2d50+100"),
+			"Strength": combat.Growth.Fast,
+			"Speed": combat.Growth.Fast,
+			"Intelligence": combat.Growth.Med,
+		},
+	}
+
+	PrintLevelUp := func(levelUp combat.LevelUp) {
+		stats := levelUp.BaseStats
+
+		fmt.Printf("HP:+%v MP:+%v \n", stats["HpMax"], stats["MpMax"])
+
+		fmt.Printf("str:+%v spd:+%v int:+%v \n",
+			stats["Strength"],
+			stats["Speed"],
+			stats["Intelligence"])
+		fmt.Println("--^^--")
+	}
+
+	ApplyXP := func(char combat.Actor, xp float64) {
+		char.AddXP(xp)
+		fmt.Println("==XP applied==", char.XP)
+
+		fmt.Println("char.ReadyToLevelUp()", char.ReadyToLevelUp())
+		for char.ReadyToLevelUp() {
+			levelup := char.CreateLevelUp()
+			fmt.Printf("Level Up! (Level %v) \n", char.Level + levelup.Level)
+			char.ApplyLevel(levelup)
+			PrintLevelUp(levelup)
+		}
+	}
+
+	hero := combat.ActorCreate(HeroDef)
+
+	ApplyXP(hero, 10001)
+
+	fmt.Println("FINAL")
+	fmt.Println("HpMax", hero.Stats.Get("HpMax"))
+	fmt.Println("HpMax", hero.Stats.Get("MpMax"))
+	fmt.Println("Intelligence", hero.Stats.Get("Intelligence"))
+	fmt.Println("Speed", hero.Stats.Get("Speed"))
+
+
+	//pixelgl.Run(run)
+}

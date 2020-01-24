@@ -8,11 +8,11 @@ import (
 /*
 example: https://goplay.space/#xJX_ZyzORdZ
 
-heroStats := combat.BaseStats{
-	HpNow           : 300
-	HpMax        : 300
-	MpNow           : 300
-	MpMax        : 300
+heroStats := BaseStats{
+	HpNow:    300,
+	HpMax:    300,
+	MpNow:    300,
+	MpMax:    300,
 	Strength: 10, Speed: 10, Intelligence: 10,
 }
 
@@ -34,6 +34,21 @@ magicSword := combat.Modifier{
 m.AddModifier(magicSword.UniqueId, magicSword.Mod)
 
 fmt.Println("with Mod", m.Get("Strength")) //45 ==> 10 + 5 + (15*2)
+*/
+
+/*
+Character Stats
+	• HP - Health Points.
+	• MP - Magic Points, also used for special abilities.
+	• Strength - How hard the player hits.
+	• Speed - How quickly the player hits. Chance to dodge attacks.
+	• Intelligence - How powerful spells are.
+
+Equipment Stats
+	• Attack - Damage the item does.
+	• Defense - Damage the item deflects.
+	• Magic - The amount of magic power the item gives.
+	• Resist - The amount of magic power the item deflects.
 */
 
 type BaseStats struct {
