@@ -200,8 +200,39 @@ func LoadTTF(path string, size float64) (font.Face, error) {
 }
 
 //HexToColor("#E53935")
-func HexToColor(hex string) color.Color {
-	var r, g, b uint8
-	fmt.Sscanf(hex, "#%2X%2X%2X", &r, &g, &b)
-	return color.RGBA{r, g, b, 255}
+func HexToColor(hex string) (c color.RGBA) {
+	c.A = 0xff
+
+	errInvalidFormat := color.RGBA{255, 255, 255, 255}
+
+	if hex[0] != '#' {
+		return errInvalidFormat
+	}
+
+	hexToByte := func(b byte) byte {
+		switch {
+		case b >= '0' && b <= '9':
+			return b - '0'
+		case b >= 'a' && b <= 'f':
+			return b - 'a' + 10
+		case b >= 'A' && b <= 'F':
+			return b - 'A' + 10
+		}
+
+		return 0
+	}
+
+	switch len(hex) {
+	case 7:
+		c.R = hexToByte(hex[1])<<4 + hexToByte(hex[2])
+		c.G = hexToByte(hex[3])<<4 + hexToByte(hex[4])
+		c.B = hexToByte(hex[5])<<4 + hexToByte(hex[6])
+	case 4:
+		c.R = hexToByte(hex[1]) * 17
+		c.G = hexToByte(hex[2]) * 17
+		c.B = hexToByte(hex[3]) * 17
+	default:
+		return errInvalidFormat
+	}
+	return
 }

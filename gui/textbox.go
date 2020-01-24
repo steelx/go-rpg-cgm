@@ -24,6 +24,7 @@ var (
 	continueCaretPng pixel.Picture
 	cursorPng        pixel.Picture
 	basicAtlas12     *text.Atlas
+	basicAtlasAscii  = text.NewAtlas(basicfont.Face7x13, text.ASCII)
 )
 
 func init() {
@@ -149,8 +150,8 @@ func TextboxCreateFixed(stack *StateStack, txt string, panelPos pixel.Vec, panel
 // height and width gets set automatically
 func TextboxCreateFitted(stack *StateStack, txt string, panelPos pixel.Vec, hasMenu bool) Textbox {
 	const padding = 20.0
-	basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
-	tBox := TextboxNew(stack, txt, 13, basicAtlas, "", nil)
+
+	tBox := TextboxNew(stack, txt, 13, basicAtlasAscii, "", nil)
 	tBox.AppearTween = animation.TweenCreate(0.9, 1, 0.3)
 	tBox.textBase = text.New(panelPos, tBox.textAtlas)
 	tBox.textBase.LineHeight = padding
@@ -166,7 +167,6 @@ func TextboxCreateFitted(stack *StateStack, txt string, panelPos pixel.Vec, hasM
 	tBox.textBase = text.New(textPos, tBox.textAtlas) //reset text position to bounds
 	tBox.mPanel = panel
 
-	tBox.mPanel.RefreshPanelCorners()
 	tBox.makeTextColumns()
 
 	return tBox
@@ -238,13 +238,14 @@ func (t Textbox) drawAvatar(renderer pixel.Target) {
 	avatarSprite := pixel.NewSprite(t.avatarImg, t.avatarImg.Bounds())
 	topLeft := pixel.V(
 		t.mPanel.mBounds.Min.X+(t.avatarImg.Bounds().W()/2)+t.size/2,
-		t.mPanel.mBounds.Max.Y-(t.avatarImg.Bounds().H()/2))
+		t.mPanel.mBounds.Max.Y-(t.avatarImg.Bounds().H()/2)-5)
 
-	titlePos := pixel.V(t.mPanel.mBounds.Min.X+t.size, t.mPanel.mBounds.Min.Y+t.avatarImg.Bounds().H()-t.size/2)
-	title := text.New(titlePos, t.textAtlas)
+	titlePos := pixel.V(t.mPanel.mBounds.Min.X+t.size, t.mPanel.mBounds.Min.Y+t.avatarImg.Bounds().H()-(t.size/2)-2)
+
+	title := text.New(titlePos, basicAtlasAscii)
 	fmt.Fprintln(title, t.avatarName)
 
-	title.Draw(renderer, pixel.IM.Scaled(titlePos, 0.8))
+	title.Draw(renderer, pixel.IM.Scaled(titlePos, 1))
 	avatarSprite.Draw(renderer, pixel.IM.Moved(topLeft).Scaled(topLeft, 0.9))
 }
 func (t Textbox) drawContinueArrow(renderer pixel.Target) {
@@ -254,7 +255,7 @@ func (t Textbox) drawContinueArrow(renderer pixel.Target) {
 		sprite := pixel.NewSprite(t.continueMark, t.continueMark.Bounds())
 		sprite.Draw(renderer, mat.Moved(bottomRight))
 
-		title := text.New(bottomRight, text.NewAtlas(basicfont.Face7x13, text.ASCII))
+		title := text.New(bottomRight, basicAtlasAscii)
 		keyHintTxt, padding := "spacebar", 20.0
 		textPos := bottomRight.Sub(
 			pixel.V(title.BoundsOf(keyHintTxt).W(), -padding),

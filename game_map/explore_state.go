@@ -134,8 +134,8 @@ func (es ExploreState) Render(win *pixelgl.Window) {
 }
 
 func (es ExploreState) HandleInput(win *pixelgl.Window) {
-	//use key
-	if win.JustPressed(pixelgl.KeyE) {
+	//use key KeyE
+	if win.JustPressed(pixelgl.KeySpace) {
 		// which way is the player facing?
 		//tileX, tileY := es.Map.GetTileIndex(es.Hero.GetFacedTileCoords())
 		tileX, tileY := es.Hero.GetFacedTileCoords()
