@@ -1,15 +1,22 @@
 package combat
 
 import (
-	"fmt"
 	"github.com/fatih/structs"
 	"reflect"
 )
 
 /*
-example:
+example: https://goplay.space/#xJX_ZyzORdZ
 
-m := combat.StatsCreate(combat.BaseStats{300, 300, 300, 300, 10, 10, 10})
+heroStats := combat.BaseStats{
+	HpNow           : 300
+	HpMax        : 300
+	MpNow           : 300
+	MpMax        : 300
+	Strength: 10, Speed: 10, Intelligence: 10,
+}
+
+m := combat.StatsCreate(heroStats)
 fmt.Println("Base Strength", m.GetBaseStat("Strength")) //10
 
 magicSword := combat.Modifier{
@@ -30,16 +37,14 @@ fmt.Println("with Mod", m.Get("Strength")) //45 ==> 10 + 5 + (15*2)
 */
 
 type BaseStats struct {
-	Hp           int
-	HpMax        int
-	Mp           int
-	MpMax        int
-	Strength     int
-	Speed        int
-	Intelligence int
+	HpNow, HpMax                   float64
+	MpNow, MpMax                   float64
+	Strength, Speed, Intelligence  float64 //Hero Stats
+	Attack, Defense, Magic, Resist float64 //Equipment Stats
 }
 
 type Modifier struct {
+	Name     string
 	UniqueId int
 	Mod      Mod
 }
@@ -49,13 +54,13 @@ type Mod struct {
 }
 
 type Stats struct {
-	Base      map[string]int
+	Base      map[string]float64
 	Modifiers map[int]Mod
 }
 
 func StatsCreate(stats BaseStats) Stats {
 	s := Stats{
-		Base:      make(map[string]int),
+		Base:      make(map[string]float64),
 		Modifiers: make(map[int]Mod),
 	}
 
@@ -64,7 +69,7 @@ func StatsCreate(stats BaseStats) Stats {
 	typeOfS := v.Type()
 
 	for i := 0; i < v.NumField(); i++ {
-		val := v.Field(i).Interface().(int)
+		val := v.Field(i).Interface().(float64)
 		s.Base[typeOfS.Field(i).Name] = val
 	}
 	return s
@@ -85,26 +90,34 @@ magic_sword := Modifier{
 func (s *Stats) AddModifier(uniqueId int, modifier Mod) {
 	s.Modifiers[uniqueId] = modifier
 }
+func (s *Stats) RemoveModifier(uniqueId int) {
+	delete(s.Modifiers, uniqueId)
+}
 
-//Get id = BaseStats.KEY
-func (s Stats) Get(id string) int {
+//Get id = BaseStats.KEY e.g. Get("Strength")
+func (s Stats) Get(id string) float64 {
 	total := s.Base[id] //10
-	multiplier := 0
+	multiplier := 0.0
 
-	for uniqueId, modifier := range s.Modifiers {
-		fmt.Println("uniqueId", uniqueId)
+	for _, modifier := range s.Modifiers {
 		add := structs.Map(modifier.Add)
-		addVal := reflect.ValueOf(add[id]) //e.g. modifier.Add.Strength if id = Strength
-		total += addVal.Interface().(int)  //+ 5
+		addVal := reflect.ValueOf(add[id])    //e.g. modifier.Add.Strength if id = Strength
+		total += addVal.Interface().(float64) //+ 5
 
 		mult := structs.Map(modifier.Mult)
-		multVal := reflect.ValueOf(mult[id])    //e.g. modifier.Mult.Strength if id = Strength
-		multiplier += multVal.Interface().(int) //+ 2
+		multVal := reflect.ValueOf(mult[id])        //e.g. modifier.Mult.Strength if id = Strength
+		multiplier += multVal.Interface().(float64) //+ 2
 	}
 
 	return total + (total * multiplier) //15 + (15*2) == 45
 }
 
-func (s Stats) GetBaseStat(id string) int {
+func (s Stats) GetBaseStat(id string) float64 {
 	return s.Base[id]
+}
+
+//Set e.g. Set("HpNow", 50)
+//In combat, the HpNow and MpNow stats often change
+func (s *Stats) Set(baseStatId string, val float64) {
+	s.Base[baseStatId] = val
 }
