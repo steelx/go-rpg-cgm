@@ -145,7 +145,7 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 			gMap.AddTrigger("grill_when_open", 33, 15)
 		}
 
-		choices := []string{"Prey open the grill", "Leave it alone"}
+		choices := []string{"Pry open the grill", "Leave it alone"}
 		onSelection := func(index int, c string) {
 			if index == 0 {
 				grillOpen(gameMap)
