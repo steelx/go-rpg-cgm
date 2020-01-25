@@ -154,13 +154,14 @@ func (w World) DrawItem(renderer pixel.Target, x, y float64, itemIdx ItemIndex) 
 	itemDef := ItemsDB[itemIdx.Id]
 
 	basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
-	pos := pixel.V(x+18, y)
+	pos := pixel.V(x+40, y)
 	textBase := text.New(pos, basicAtlas)
-	fmt.Fprintln(textBase, fmt.Sprintf("%-6s (%-6v)", itemDef.Name, itemIdx.Count))
+	fmt.Fprintln(textBase, fmt.Sprintf("%-6s (%v)", itemDef.Name, itemIdx.Count))
+	textBase.Draw(renderer, pixel.IM)
 
 	//first uncomment icons.go line no. 9
 	//iconSprite := IconPNGs.Get(itemDef.ItemType)
-	//iconSprite.Draw(renderer, pixel.IM.Moved(pixel.V(x + 6, y)))
+	//iconSprite.Draw(renderer, pixel.IM.Moved(pos.Add(pixel.V(6, 0))))
 }
 
 func (w *World) HasKey(id int) bool {

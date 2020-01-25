@@ -49,27 +49,39 @@ func ItemsMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) ItemsMen
 		layout.CreatePanel("inv"),
 	}
 
-	//parent.World = world.WorldCreate()
+	renderFunction := func(a ...interface{}) {
+		//DrawItem
+		rendererV := reflect.ValueOf(a[0])
+		renderer := rendererV.Interface().(pixel.Target)
+		xV := reflect.ValueOf(a[1])
+		x := xV.Interface().(float64)
+		yV := reflect.ValueOf(a[2])
+		y := yV.Interface().(float64)
+		itemV := reflect.ValueOf(a[3])
+		item := itemV.Interface().(world.ItemIndex)
+
+		parent.World.DrawItem(renderer, x, y, item)
+	}
 
 	itemsMenu := gui.SelectionMenuCreate(24, 128,
-		parent.World.GetItemsAsStrings(), //parent.World.Items
+		parent.World.Items,
 		false,
 		pixel.V(0, 0),
 		func(index int, s interface{}) {
 			fmt.Println(world.ItemsDB[parent.World.Items[index].Id].Description)
 			im.itemIndex = index
 		},
-		nil,
+		renderFunction,
 	)
 	keyItemsMenu := gui.SelectionMenuCreate(24, 128,
-		parent.World.GetKeyItemsAsStrings(), //parent.World.KeyItems
+		parent.World.KeyItems,
 		false,
 		pixel.V(0, 0),
 		func(index int, s interface{}) {
 			fmt.Println(parent.World.KeyItems[index], im, s)
 			im.keyItemIndex = index
 		},
-		nil,
+		renderFunction,
 	)
 	im.ItemMenus = []*gui.SelectionMenu{&itemsMenu, &keyItemsMenu}
 

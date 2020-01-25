@@ -6,6 +6,7 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
 	"github.com/steelx/go-rpg-cgm/utilz"
+	"github.com/steelx/go-rpg-cgm/world"
 	"golang.org/x/image/font/basicfont"
 	"math"
 	"reflect"
@@ -133,6 +134,9 @@ func (m SelectionMenu) calcTotalWidth() float64 {
 			case ActorSummary:
 				return x.Width
 
+			case world.ItemIndex:
+				return 100
+
 			default:
 				fmt.Println("SelectionMenu:calcTotalWidth :: type unknown")
 			}
@@ -147,14 +151,17 @@ func (m SelectionMenu) IsDataSourceEmpty() bool {
 }
 
 func (m SelectionMenu) renderItem(a ...interface{}) {
-	//pos pixel.Vec, item string, renderer pixel.Target
-	posV := reflect.ValueOf(a[0])
-	pos := posV.Interface().(pixel.Vec)
-	itemV := reflect.ValueOf(a[1])
-	item := itemV.Interface().(string)
-	rendererV := reflect.ValueOf(a[2])
+	//renderer pixel.Target, x, y float64, item string
+	rendererV := reflect.ValueOf(a[0])
 	renderer := rendererV.Interface().(pixel.Target)
+	xV := reflect.ValueOf(a[1])
+	x := xV.Interface().(float64)
+	yV := reflect.ValueOf(a[2])
+	y := yV.Interface().(float64)
+	itemV := reflect.ValueOf(a[3])
+	item := itemV.Interface().(string)
 
+	pos := pixel.V(x, y)
 	//textBase := text.New(pos, basicAtlas12)
 	textBase := text.New(pos, text.NewAtlas(basicfont.Face7x13, text.ASCII))
 	if item == "" {
@@ -186,10 +193,13 @@ func (m SelectionMenu) Render(renderer *pixelgl.Window) {
 			}
 			switch d := v.(type) {
 			case string:
-				m.RenderFunction(pixel.V(x+cursorWidth, y), d, renderer)
+				m.RenderFunction(renderer, x+cursorWidth, y, d)
 			case ActorSummary:
 				//pixel.Target, x, y float64, actorSummary ActorSummary
-				m.RenderFunction(renderer, x, y, v)
+				m.RenderFunction(renderer, x, y, d)
+			case world.ItemIndex:
+				//DrawItem(renderer pixel.Target, x, y float64, itemIdx ItemIndex)
+				m.RenderFunction(renderer, x, y, d)
 			default:
 				fmt.Println("SelectionMenu:Render :: type unknown")
 			}
@@ -207,7 +217,7 @@ func (m SelectionMenu) Render(renderer *pixelgl.Window) {
 				m.cursor.Draw(renderer, mat.Moved(pixel.V(x+cursorHalfWidth, y+cursorHalfHeight/2)))
 			}
 			item := m.DataI[itemIndex]
-			m.RenderFunction(pixel.V(x+cursorWidth, y), item, renderer)
+			m.RenderFunction(renderer, x+cursorWidth, y, item)
 
 			x = x + spacingX
 			itemIndex = itemIndex + 1

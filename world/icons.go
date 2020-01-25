@@ -43,6 +43,7 @@ func IconsCreate(pic pixel.Picture) Icons {
 	}
 
 	i.UVs = utilz.LoadAsFrames(i.Texture, 18, 18)
+	i.Sprites = make([]*pixel.Sprite, len(i.UVs))
 
 	for k := range i.UVs {
 		sprite := pixel.NewSprite(i.Texture, i.UVs[k])
