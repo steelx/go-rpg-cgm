@@ -52,24 +52,24 @@ func ItemsMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) ItemsMen
 	//parent.World = world.WorldCreate()
 
 	itemsMenu := gui.SelectionMenuCreate(24, 128,
-		parent.World.GetItemsAsStrings(),
+		parent.World.GetItemsAsStrings(), //parent.World.Items
 		false,
 		pixel.V(0, 0),
-		func(index int, s string) {
+		func(index int, s interface{}) {
 			fmt.Println(world.ItemsDB[parent.World.Items[index].Id].Description)
 			im.itemIndex = index
 		},
-		parent.World.Items,
+		nil,
 	)
 	keyItemsMenu := gui.SelectionMenuCreate(24, 128,
-		parent.World.GetKeyItemsAsStrings(),
+		parent.World.GetKeyItemsAsStrings(), //parent.World.KeyItems
 		false,
 		pixel.V(0, 0),
-		func(index int, s string) {
+		func(index int, s interface{}) {
 			fmt.Println(parent.World.KeyItems[index], im, s)
 			im.keyItemIndex = index
 		},
-		parent.World.KeyItems,
+		nil,
 	)
 	im.ItemMenus = []*gui.SelectionMenu{&itemsMenu, &keyItemsMenu}
 
@@ -77,9 +77,10 @@ func ItemsMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) ItemsMen
 		[]string{"Use", "Key Items"},
 		true,
 		pixel.V(0, 0),
-		func(index int, s string) {
+		func(index int, s interface{}) {
 			im.OnCategorySelect(index, s)
-		}, nil,
+		},
+		nil,
 	)
 	im.CategoryMenu = &categoryMenu
 
@@ -91,7 +92,7 @@ func ItemsMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) ItemsMen
 	return im
 }
 
-func (im *ItemsMenuState) OnCategorySelect(index int, value string) {
+func (im *ItemsMenuState) OnCategorySelect(index int, value interface{}) {
 	im.CategoryMenu.HideCursor()
 	im.InCategoryMenu = false
 	menu := im.ItemMenus[index]

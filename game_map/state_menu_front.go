@@ -44,7 +44,7 @@ func FrontMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) FrontMen
 		[]string{"Items", "Magic", "Equipment", "Status", "Save"},
 		false,
 		pixel.V(selectionsX, selectionsY),
-		func(i int, str string) {
+		func(i int, str interface{}) {
 			fmt.Println("Menu", i, str)
 			fm.OnMenuClick(i, str)
 		}, nil,
@@ -63,7 +63,7 @@ func FrontMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) FrontMen
 
 	return fm
 }
-func (fm *FrontMenuState) OnMenuClick(index int, str string) {
+func (fm *FrontMenuState) OnMenuClick(index int, str interface{}) {
 	ITEMS := 0
 	if index == ITEMS {
 		fm.StateMachine.Change("items", nil)

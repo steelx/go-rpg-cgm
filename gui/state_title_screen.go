@@ -41,7 +41,7 @@ func TitleScreenCreate(stack *StateStack, win *pixelgl.Window) TitleScreen {
 	return s
 }
 
-func (s *TitleScreen) onSelection(index int, str string) {
+func (s *TitleScreen) onSelection(index int, str interface{}) {
 	if index == 0 {
 		s.Stack.Pop()
 	}

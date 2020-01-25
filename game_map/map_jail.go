@@ -31,7 +31,7 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 		}
 
 		choices := []string{"Hit space to add it to your Inventory"}
-		onSelection := func(index int, c string) {
+		onSelection := func(index int, c interface{}) {
 			if index == 0 {
 				giveBone(gameMap)
 			}
@@ -66,7 +66,7 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 			"Push the wall",
 			"Get back!",
 		}
-		onSelection := func(index int, c string) {
+		onSelection := func(index int, c interface{}) {
 			if index == 0 {
 				onPush(gameMap)
 			}
@@ -147,7 +147,7 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 		}
 
 		choices := []string{"Pry open the grill", "Leave it alone"}
-		onSelection := func(index int, c string) {
+		onSelection := func(index int, c interface{}) {
 			if index == 0 {
 				grillOpen(gameMap)
 			}
@@ -207,7 +207,7 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 			gStack.Push(jailBreakCutscene)
 		}
 		choices := []string{"HIT space to enter the Tunnel"}
-		onSelection := func(index int, c string) {
+		onSelection := func(index int, c interface{}) {
 			if index == 0 {
 				grillEnter(gameMap)
 			}
