@@ -52,7 +52,7 @@ func ActorSummaryCreate(actor combat.Actor, showXP bool) ActorSummary {
 		s.XPBar = ProgressBarCreate(
 			0, 0,
 			actor.XP,
-			actor.NextLevelXP,
+			actor.XP+actor.NextLevelXP,
 			"../resources/progressbar_bg.png",
 			"../resources/progressbar_fg.png",
 		)
