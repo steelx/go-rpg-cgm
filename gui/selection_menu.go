@@ -12,7 +12,7 @@ import (
 )
 
 /* e.g.
-menu2 := gui.SelectionMenuCreate([]string{"Menu 1", "", "Menu 2", "Menu 03", "Menu 04", "Menu 05"}, false, pixel.V(200, 250), func(i int, item string) {
+menu2 := gui.SelectionMenuCreate(24, 128,[]string{"Menu 1", "", "Menu 2", "Menu 03", "Menu 04", "Menu 05"}, false, pixel.V(200, 250), func(i int, item string) {
 		fmt.Println(i, item)
 	})
 */
@@ -37,7 +37,7 @@ type SelectionMenu struct {
 }
 
 //pending: custom renderItem method
-func SelectionMenuCreate(data []string, showColumns bool, position pixel.Vec, onSelection func(int, string), additionalData interface{}) SelectionMenu {
+func SelectionMenuCreate(spacingY, spacingX float64, data []string, showColumns bool, position pixel.Vec, onSelection func(int, string), additionalData interface{}) SelectionMenu {
 	m := SelectionMenu{
 		X:            position.X,
 		Y:            position.Y,
@@ -45,8 +45,8 @@ func SelectionMenuCreate(data []string, showColumns bool, position pixel.Vec, on
 		columns:      1,
 		focusX:       0,
 		focusY:       0,
-		SpacingY:     24,
-		SpacingX:     128,
+		SpacingY:     spacingY,
+		SpacingX:     spacingX,
 		IsShowCursor: true,
 		maxRows:      len(data) - 1,
 		displayStart: 0,

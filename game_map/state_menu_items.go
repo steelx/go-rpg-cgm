@@ -51,7 +51,7 @@ func ItemsMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) ItemsMen
 
 	//parent.World = world.WorldCreate()
 
-	itemsMenu := gui.SelectionMenuCreate(
+	itemsMenu := gui.SelectionMenuCreate(24, 128,
 		parent.World.GetItemsAsStrings(),
 		false,
 		pixel.V(0, 0),
@@ -61,7 +61,7 @@ func ItemsMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) ItemsMen
 		},
 		parent.World.Items,
 	)
-	keyItemsMenu := gui.SelectionMenuCreate(
+	keyItemsMenu := gui.SelectionMenuCreate(24, 128,
 		parent.World.GetKeyItemsAsStrings(),
 		false,
 		pixel.V(0, 0),
@@ -73,7 +73,7 @@ func ItemsMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) ItemsMen
 	)
 	im.ItemMenus = []*gui.SelectionMenu{&itemsMenu, &keyItemsMenu}
 
-	categoryMenu := gui.SelectionMenuCreate(
+	categoryMenu := gui.SelectionMenuCreate(24, 128,
 		[]string{"Use", "Key Items"},
 		true,
 		pixel.V(0, 0),

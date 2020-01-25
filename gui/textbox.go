@@ -89,7 +89,7 @@ func TextboxWithMenuCreate(stack *StateStack, textBoxText string, panelPos pixel
 
 	textBounds := textbox.getTextBound()
 
-	textbox.menu = SelectionMenuCreate(choices, showColumns,
+	textbox.menu = SelectionMenuCreate(24, 128, choices, showColumns,
 		pixel.V(textbox.Position.X-10, textbox.Position.Y-textBounds.H()-10), func(i int, s string) {
 			onSelection(i, s)
 			textbox.isDead = true
@@ -110,7 +110,7 @@ func TextboxFITMenuCreate(stack *StateStack, x, y float64, textBoxText string, c
 	}
 	fmt.Println("choices", choices)
 	textBounds := t.getTextBound()
-	menu := SelectionMenuCreate(choices, true,
+	menu := SelectionMenuCreate(24, 128, choices, true,
 		pixel.V(t.Position.X, t.Position.Y-textBounds.H()-10), func(i int, s string) {
 			onSelection(i, s)
 			t.isDead = true

@@ -17,6 +17,7 @@ type FrontMenuState struct {
 	StateMachine *state_machine.StateMachine
 	TopBarText   string
 	Selections   *gui.SelectionMenu
+	PartyMenu    *gui.SelectionMenu
 	Panels       []gui.Panel
 	win          *pixelgl.Window
 }
@@ -39,7 +40,7 @@ func FrontMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) FrontMen
 	}
 
 	selectionsX, selectionsY := fm.Layout.MidX("menu")-60, fm.Layout.Top("menu")-24
-	selectionMenu := gui.SelectionMenuCreate(
+	selectionMenu := gui.SelectionMenuCreate(32, 128,
 		[]string{"Items", "Magic", "Equipment", "Status", "Save"},
 		false,
 		pixel.V(selectionsX, selectionsY),
@@ -56,6 +57,10 @@ func FrontMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) FrontMen
 		layout.CreatePanel("menu"),
 	}
 
+	//fm.PartyMenu = gui.SelectionMenuCreate(90, 128,
+	//
+	//)
+
 	return fm
 }
 func (fm *FrontMenuState) OnMenuClick(index int, str string) {
@@ -64,6 +69,16 @@ func (fm *FrontMenuState) OnMenuClick(index int, str string) {
 		fm.StateMachine.Change("items", nil)
 		return
 	}
+}
+
+func (fm FrontMenuState) CreatePartySummaries() []ActorSummary {
+	partyMembers := fm.Parent.World.Party.Members
+	var summaryList []ActorSummary
+	for _, actor := range partyMembers {
+		fmt.Println("actor", actor.Name)
+		summaryList = append(summaryList, ActorSummaryCreate(actor, true))
+	}
+	return summaryList
 }
 
 /*
