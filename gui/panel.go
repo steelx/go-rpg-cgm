@@ -41,7 +41,7 @@ func (p *Panel) Draw(renderer pixel.Target) {
 	topLeft, topRight, bottomLeft, bottomRight := p.GetCorners()
 
 	// Middle backing panel
-	p.imd.Color = utilz.HexToColor("#002859")
+	p.imd.Color = utilz.HexToColor("#002D64")
 	p.imd.EndShape = imdraw.RoundEndShape
 	p.imd.Push(
 		bottomLeft.Add(pixel.V(1, 1)),

@@ -11,6 +11,18 @@ import (
 	"reflect"
 )
 
+//var (
+//	cursorPng pixel.Picture
+//	basicAtlasAscii *text.Atlas
+//)
+//
+//func init() {
+//	var err error
+//	cursorPng, err = utilz.LoadPicture("../resources/cursor.png")
+//	utilz.PanicIfErr(err)
+//	basicAtlasAscii = text.NewAtlas(basicfont.Face7x13, text.ASCII)
+//}
+
 /* e.g.
 menu2 := gui.SelectionMenuCreate(24, 128,[]string{"Menu 1", "", "Menu 2", "Menu 03", "Menu 04", "Menu 05"}, false, pixel.V(200, 250), func(i int, item string) {
 		fmt.Println(i, item)
@@ -118,6 +130,9 @@ func (m SelectionMenu) calcTotalWidth() float64 {
 				width := m.textBase.BoundsOf(x).W()
 				maxEntryWidth = math.Max(width, maxEntryWidth)
 
+			case ActorSummary:
+				return x.Width
+
 			default:
 				fmt.Println("SelectionMenu:calcTotalWidth :: type unknown")
 			}
@@ -172,6 +187,9 @@ func (m SelectionMenu) Render(renderer *pixelgl.Window) {
 			switch d := v.(type) {
 			case string:
 				m.RenderFunction(pixel.V(x+cursorWidth, y), d, renderer)
+			case ActorSummary:
+				//pixel.Target, x, y float64, actorSummary ActorSummary
+				m.RenderFunction(renderer, x, y, v)
 			default:
 				fmt.Println("SelectionMenu:Render :: type unknown")
 			}

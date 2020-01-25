@@ -7,21 +7,21 @@ import (
 )
 
 type ProgressBar struct {
-	x, y                      float64
-	Background                *pixel.Sprite
-	Foreground                *pixel.Sprite
-	foregroundFrames          []pixel.Rect
-	foregroundFrame           int
-	scale                     float64
-	foregroundPosition        pixel.Vec
-	foregroundPng             pixel.Picture
-	Value, Maximum, HalfWidth float64
+	x, y                             float64
+	Background                       *pixel.Sprite
+	Foreground                       *pixel.Sprite
+	foregroundFrames                 []pixel.Rect
+	foregroundFrame                  int
+	scale                            float64
+	foregroundPosition               pixel.Vec
+	foregroundPng                    pixel.Picture
+	Value, Maximum, HalfWidth, Width float64
 }
 
-func ProgressBarCreate(x, y float64, value, max float64) ProgressBar {
-	bgImg, err := utilz.LoadPicture("../resources/progressbar_bg.png")
+func ProgressBarCreate(x, y float64, value, max float64, background, foreground string) ProgressBar {
+	bgImg, err := utilz.LoadPicture(background)
 	utilz.PanicIfErr(err)
-	fgImg, err := utilz.LoadPicture("../resources/progressbar_fg.png")
+	fgImg, err := utilz.LoadPicture(foreground)
 	utilz.PanicIfErr(err)
 
 	pb := ProgressBar{
@@ -37,16 +37,17 @@ func ProgressBarCreate(x, y float64, value, max float64) ProgressBar {
 
 	// Get UV positions in texture atlas
 	// A table with name fields: left, top, right, bottom
-	pb.HalfWidth = bgImg.Bounds().W() / 2
+	pb.Width = pb.foregroundPng.Bounds().W()
+	pb.HalfWidth = pb.Width / 2
 	pb.foregroundFrames = utilz.LoadAsFrames(fgImg, pb.foregroundWidthBlock(), pb.foregroundPng.Bounds().H())
 
-	pb.SetValue(10)
+	pb.SetValue(value)
 
 	return pb
 }
 
 func (pb ProgressBar) foregroundWidthBlock() float64 {
-	return pb.foregroundPng.Bounds().W() * pb.scale / 100
+	return pb.Width * pb.scale / 100
 }
 
 func (pb *ProgressBar) SetMax(maxHealth float64) {
@@ -107,14 +108,15 @@ func (pb ProgressBar) GetPosition() (x, y float64) {
 
 func (pb ProgressBar) Render(renderer pixel.Target) {
 	mat := pixel.V(pb.x, pb.y)
-	pb.Background.Draw(renderer, pixel.IM.Moved(mat))
+	if pb.fallsInWhichPercent(pb.Value) < 10 {
+		pb.Background.Draw(renderer, pixel.IM.Moved(mat))
+	}
 
 	fgMat := mat.Sub(pixel.V(pb.HalfWidth, 0))
 	scaleFactor := pb.foregroundWidthBlock()
 	for i := 0; i < pb.foregroundFrame; i++ {
 		px := pixel.NewSprite(pb.foregroundPng, pb.foregroundFrames[i])
-		px.Draw(renderer, pixel.IM.Moved(
-			pixel.V(fgMat.X+(float64(i)*scaleFactor)+pb.scale, fgMat.Y)))
+		px.Draw(renderer, pixel.IM.Moved(pixel.V(fgMat.X+(float64(i)*scaleFactor)+pb.scale, fgMat.Y)))
 	}
 }
 

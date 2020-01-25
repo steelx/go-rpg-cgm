@@ -8,6 +8,7 @@ import (
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/state_machine"
 	"golang.org/x/image/font/basicfont"
+	"reflect"
 )
 
 type FrontMenuState struct {
@@ -57,9 +58,30 @@ func FrontMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) FrontMen
 		layout.CreatePanel("menu"),
 	}
 
-	//fm.PartyMenu = gui.SelectionMenuCreate(90, 128,
-	//
-	//)
+	partyMembersMenu := gui.SelectionMenuCreate(100, 0,
+		fm.CreatePartySummaries(),
+		false,
+		pixel.V(0, 0),
+		func(i int, member interface{}) {
+			fmt.Println("Party Member", i, member)
+		},
+		func(a ...interface{}) {
+			//renderer pixel.Target, x, y float64, actorSummary ActorSummary
+			rendererV := reflect.ValueOf(a[0])
+			renderer := rendererV.Interface().(pixel.Target)
+			xV := reflect.ValueOf(a[1])
+			x := xV.Interface().(float64)
+			yV := reflect.ValueOf(a[2])
+			y := yV.Interface().(float64)
+			actorSummaryV := reflect.ValueOf(a[3])
+			actorSummary := actorSummaryV.Interface().(gui.ActorSummary)
+
+			actorSummary.SetPosition(x, y+35)
+			actorSummary.Render(renderer)
+		},
+	)
+	partyMembersMenu.HideCursor()
+	fm.PartyMenu = &partyMembersMenu
 
 	return fm
 }
@@ -71,12 +93,12 @@ func (fm *FrontMenuState) OnMenuClick(index int, str interface{}) {
 	}
 }
 
-func (fm FrontMenuState) CreatePartySummaries() []ActorSummary {
+func (fm FrontMenuState) CreatePartySummaries() []gui.ActorSummary {
 	partyMembers := fm.Parent.World.Party.Members
-	var summaryList []ActorSummary
+	var summaryList []gui.ActorSummary
 	for _, actor := range partyMembers {
 		fmt.Println("actor", actor.Name)
-		summaryList = append(summaryList, ActorSummaryCreate(actor, true))
+		summaryList = append(summaryList, gui.ActorSummaryCreate(actor, true))
 	}
 	return summaryList
 }
@@ -145,4 +167,10 @@ func (fm FrontMenuState) Render(renderer *pixelgl.Window) {
 	textBase = text.New(pixel.V(goldX+10+getTextW(textBase, "TIME :"), goldY-25), basicAtlas)
 	fmt.Fprintln(textBase, "0")
 	textBase.Draw(renderer, pixel.IM)
+
+	// Party Members
+	partyX := fm.Layout.Left("party") - 16
+	partyY := fm.Layout.Top("party") - 45
+	fm.PartyMenu.SetPosition(partyX, partyY)
+	fm.PartyMenu.Render(renderer)
 }
