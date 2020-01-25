@@ -33,7 +33,7 @@ func TitleScreenCreate(stack *StateStack, win *pixelgl.Window) TitleScreen {
 	s.titlePos = pixel.V(position.X-s.titleImg.Bounds().W()/2, position.Y+s.titleImg.Bounds().H()/2)
 
 	choices := []string{"Play", "Exit"}
-	menu_ := SelectionMenuCreate(
+	menu_ := SelectionMenuCreate(24, 128,
 		choices, false,
 		s.titlePos.Add(pixel.V(0, -s.titleImg.Bounds().H()/2-50)),
 		s.onSelection, nil)
@@ -41,7 +41,7 @@ func TitleScreenCreate(stack *StateStack, win *pixelgl.Window) TitleScreen {
 	return s
 }
 
-func (s *TitleScreen) onSelection(index int, str string) {
+func (s *TitleScreen) onSelection(index int, str interface{}) {
 	if index == 0 {
 		s.Stack.Pop()
 	}

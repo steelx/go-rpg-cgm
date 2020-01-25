@@ -49,37 +49,50 @@ func ItemsMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) ItemsMen
 		layout.CreatePanel("inv"),
 	}
 
-	//parent.World = world.WorldCreate()
+	renderFunction := func(a ...interface{}) {
+		//DrawItem
+		rendererV := reflect.ValueOf(a[0])
+		renderer := rendererV.Interface().(pixel.Target)
+		xV := reflect.ValueOf(a[1])
+		x := xV.Interface().(float64)
+		yV := reflect.ValueOf(a[2])
+		y := yV.Interface().(float64)
+		itemV := reflect.ValueOf(a[3])
+		item := itemV.Interface().(world.ItemIndex)
 
-	itemsMenu := gui.SelectionMenuCreate(
-		parent.World.GetItemsAsStrings(),
+		parent.World.DrawItem(renderer, x, y, item)
+	}
+
+	itemsMenu := gui.SelectionMenuCreate(24, 128,
+		parent.World.Items,
 		false,
 		pixel.V(0, 0),
-		func(index int, s string) {
+		func(index int, s interface{}) {
 			fmt.Println(world.ItemsDB[parent.World.Items[index].Id].Description)
 			im.itemIndex = index
 		},
-		parent.World.Items,
+		renderFunction,
 	)
-	keyItemsMenu := gui.SelectionMenuCreate(
-		parent.World.GetKeyItemsAsStrings(),
+	keyItemsMenu := gui.SelectionMenuCreate(24, 128,
+		parent.World.KeyItems,
 		false,
 		pixel.V(0, 0),
-		func(index int, s string) {
+		func(index int, s interface{}) {
 			fmt.Println(parent.World.KeyItems[index], im, s)
 			im.keyItemIndex = index
 		},
-		parent.World.KeyItems,
+		renderFunction,
 	)
 	im.ItemMenus = []*gui.SelectionMenu{&itemsMenu, &keyItemsMenu}
 
-	categoryMenu := gui.SelectionMenuCreate(
+	categoryMenu := gui.SelectionMenuCreate(24, 128,
 		[]string{"Use", "Key Items"},
 		true,
 		pixel.V(0, 0),
-		func(index int, s string) {
+		func(index int, s interface{}) {
 			im.OnCategorySelect(index, s)
-		}, nil,
+		},
+		nil,
 	)
 	im.CategoryMenu = &categoryMenu
 
@@ -91,7 +104,7 @@ func ItemsMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) ItemsMen
 	return im
 }
 
-func (im *ItemsMenuState) OnCategorySelect(index int, value string) {
+func (im *ItemsMenuState) OnCategorySelect(index int, value interface{}) {
 	im.CategoryMenu.HideCursor()
 	im.InCategoryMenu = false
 	menu := im.ItemMenus[index]

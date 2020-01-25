@@ -76,7 +76,7 @@ func TextboxNew(stack *StateStack, txt string, size float64, atlas *text.Atlas, 
 }
 
 func TextboxWithMenuCreate(stack *StateStack, textBoxText string, panelPos pixel.Vec, panelWidth, panelHeight float64,
-	choices []string, onSelection func(int, string), showColumns bool) *Textbox {
+	choices []string, onSelection func(int, interface{}), showColumns bool) *Textbox {
 
 	textbox := TextboxCreateFixed(
 		stack,
@@ -89,8 +89,8 @@ func TextboxWithMenuCreate(stack *StateStack, textBoxText string, panelPos pixel
 
 	textBounds := textbox.getTextBound()
 
-	textbox.menu = SelectionMenuCreate(choices, showColumns,
-		pixel.V(textbox.Position.X-10, textbox.Position.Y-textBounds.H()-10), func(i int, s string) {
+	textbox.menu = SelectionMenuCreate(24, 128, choices, showColumns,
+		pixel.V(textbox.Position.X-10, textbox.Position.Y-textBounds.H()-10), func(i int, s interface{}) {
 			onSelection(i, s)
 			textbox.isDead = true
 		}, nil)
@@ -98,7 +98,7 @@ func TextboxWithMenuCreate(stack *StateStack, textBoxText string, panelPos pixel
 	return &textbox
 }
 
-func TextboxFITMenuCreate(stack *StateStack, x, y float64, textBoxText string, choices []string, onSelection func(int, string)) *Textbox {
+func TextboxFITMenuCreate(stack *StateStack, x, y float64, textBoxText string, choices []string, onSelection func(int, interface{})) *Textbox {
 	panelPos := pixel.V(x, y)
 	t := TextboxNew(stack, textBoxText, 14, basicAtlas12, "", nil)
 	t.AppearTween = animation.TweenCreate(1, 1, 1)
@@ -110,8 +110,8 @@ func TextboxFITMenuCreate(stack *StateStack, x, y float64, textBoxText string, c
 	}
 	fmt.Println("choices", choices)
 	textBounds := t.getTextBound()
-	menu := SelectionMenuCreate(choices, true,
-		pixel.V(t.Position.X, t.Position.Y-textBounds.H()-10), func(i int, s string) {
+	menu := SelectionMenuCreate(24, 128, choices, true,
+		pixel.V(t.Position.X, t.Position.Y-textBounds.H()-10), func(i int, s interface{}) {
 			onSelection(i, s)
 			t.isDead = true
 		}, nil)

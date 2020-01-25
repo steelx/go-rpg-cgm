@@ -6,23 +6,36 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
 	"github.com/steelx/go-rpg-cgm/utilz"
+	"github.com/steelx/go-rpg-cgm/world"
 	"golang.org/x/image/font/basicfont"
 	"math"
 	"reflect"
 )
 
+//var (
+//	cursorPng pixel.Picture
+//	basicAtlasAscii *text.Atlas
+//)
+//
+//func init() {
+//	var err error
+//	cursorPng, err = utilz.LoadPicture("../resources/cursor.png")
+//	utilz.PanicIfErr(err)
+//	basicAtlasAscii = text.NewAtlas(basicfont.Face7x13, text.ASCII)
+//}
+
 /* e.g.
-menu2 := gui.SelectionMenuCreate([]string{"Menu 1", "", "Menu 2", "Menu 03", "Menu 04", "Menu 05"}, false, pixel.V(200, 250), func(i int, item string) {
+menu2 := gui.SelectionMenuCreate(24, 128,[]string{"Menu 1", "", "Menu 2", "Menu 03", "Menu 04", "Menu 05"}, false, pixel.V(200, 250), func(i int, item string) {
 		fmt.Println(i, item)
 	})
 */
 
 type SelectionMenu struct {
-	X, Y           float64
-	width, height  float64
-	dataSource     []string //The list of items to be displayed. It can’t be empty
-	columns        int      //The number of columns the menu has. This defaults to 1
-	focusX, focusY int      //Indicates which item in the list is currently selected.
+	X, Y          float64
+	width, height float64
+
+	columns        int //The number of columns the menu has. This defaults to 1
+	focusX, focusY int //Indicates which item in the list is currently selected.
 	//focusX tells us which column is selected and focusY which element in that column
 	SpacingY, SpacingX        float64 //space btw each items
 	scale                     float64 //menu scale in size
@@ -32,23 +45,22 @@ type SelectionMenu struct {
 	maxRows, displayRows      int //rows might be 30 but only 5 maxRows are displayed at once
 	displayStart              int //index at which we start displaying menu, e.g. out of 30 max 5 are visible from index 6
 	textBase                  *text.Text
-	OnSelection               func(int, string) //to be called after selection
+	OnSelection               func(int, interface{}) //to be called after selection
 	DataI                     []interface{}
+	RenderFunction            func(a ...interface{})
 }
 
 //pending: custom renderItem method
-func SelectionMenuCreate(data []string, showColumns bool, position pixel.Vec, onSelection func(int, string), additionalData interface{}) SelectionMenu {
+func SelectionMenuCreate(spacingY, spacingX float64, data interface{}, showColumns bool, position pixel.Vec, onSelection func(int, interface{}), renderFunc func(a ...interface{})) SelectionMenu {
 	m := SelectionMenu{
 		X:            position.X,
 		Y:            position.Y,
-		dataSource:   data,
 		columns:      1,
 		focusX:       0,
 		focusY:       0,
-		SpacingY:     24,
-		SpacingX:     128,
+		SpacingY:     spacingY,
+		SpacingX:     spacingX,
 		IsShowCursor: true,
-		maxRows:      len(data) - 1,
 		displayStart: 0,
 		scale:        1,
 		OnSelection:  onSelection,
@@ -59,22 +71,28 @@ func SelectionMenuCreate(data []string, showColumns bool, position pixel.Vec, on
 	m.cursorWidth = cursorPng.Bounds().W()
 	m.cursorHeight = cursorPng.Bounds().H()
 
+	if renderFunc != nil {
+		m.RenderFunction = renderFunc
+	} else {
+		m.RenderFunction = m.renderItem
+	}
+
+	dataI := reflect.ValueOf(data)
+	m.maxRows = dataI.Len() - 1
+
+	if dataI.Len() > 0 {
+		m.DataI = make([]interface{}, dataI.Len())
+		for i := 0; i < dataI.Len(); i++ {
+			m.DataI[i] = dataI.Index(i).Interface()
+		}
+	}
+
 	//temp implement correct columns pending
 	if showColumns {
 		m.columns += m.maxRows / m.displayRows
 		if m.maxRows == 1 {
 			m.columns = 2
 			m.displayRows = 1
-		}
-	}
-
-	if additionalData != nil {
-		dataI := reflect.ValueOf(additionalData)
-		if dataI.Len() > 0 {
-			m.DataI = make([]interface{}, dataI.Len())
-			for i := 0; i < dataI.Len(); i++ {
-				m.DataI[i] = dataI.Index(i).Interface()
-			}
 		}
 	}
 
@@ -108,9 +126,21 @@ func (m SelectionMenu) calcTotalHeight() float64 {
 func (m SelectionMenu) calcTotalWidth() float64 {
 	if m.columns == 1 {
 		maxEntryWidth := 0.0
-		for _, txt := range m.dataSource {
-			width := m.textBase.BoundsOf(txt).W()
-			maxEntryWidth = math.Max(width, maxEntryWidth)
+		for _, v := range m.DataI {
+			switch x := v.(type) {
+			case string:
+				width := m.textBase.BoundsOf(x).W()
+				maxEntryWidth = math.Max(width, maxEntryWidth)
+
+			case ActorSummary:
+				return x.Width
+
+			case world.ItemIndex:
+				return 100
+
+			default:
+				fmt.Println("SelectionMenu:calcTotalWidth :: type unknown")
+			}
 		}
 		return maxEntryWidth + m.cursorWidth
 	}
@@ -118,10 +148,21 @@ func (m SelectionMenu) calcTotalWidth() float64 {
 }
 
 func (m SelectionMenu) IsDataSourceEmpty() bool {
-	return len(m.dataSource) == 0 || m.dataSource == nil
+	return len(m.DataI) == 0 || m.DataI == nil
 }
 
-func (m SelectionMenu) renderItem(pos pixel.Vec, item string, renderer pixel.Target) {
+func (m SelectionMenu) renderItem(a ...interface{}) {
+	//renderer pixel.Target, x, y float64, item string
+	rendererV := reflect.ValueOf(a[0])
+	renderer := rendererV.Interface().(pixel.Target)
+	xV := reflect.ValueOf(a[1])
+	x := xV.Interface().(float64)
+	yV := reflect.ValueOf(a[2])
+	y := yV.Interface().(float64)
+	itemV := reflect.ValueOf(a[3])
+	item := itemV.Interface().(string)
+
+	pos := pixel.V(x, y)
 	//textBase := text.New(pos, basicAtlas12)
 	textBase := text.New(pos, text.NewAtlas(basicfont.Face7x13, text.ASCII))
 	if item == "" {
@@ -147,13 +188,25 @@ func (m SelectionMenu) Render(renderer *pixelgl.Window) {
 
 	//temp single columns not rendering hence
 	if m.columns == 1 {
-		for i := 0; i < len(m.dataSource); i++ {
+		for i, v := range m.DataI {
 			if i == m.focusY && m.IsShowCursor {
 				m.cursor.Draw(renderer, mat.Moved(pixel.V(x+cursorHalfWidth, y+cursorHalfHeight/2)))
 			}
-			m.renderItem(pixel.V(x+cursorWidth, y), m.dataSource[i], renderer)
+			switch d := v.(type) {
+			case string:
+				m.RenderFunction(renderer, x+cursorWidth, y, d)
+			case ActorSummary:
+				//pixel.Target, x, y float64, actorSummary ActorSummary
+				m.RenderFunction(renderer, x, y, d)
+			case world.ItemIndex:
+				//DrawItem(renderer pixel.Target, x, y float64, itemIdx ItemIndex)
+				m.RenderFunction(renderer, x, y, d)
+			default:
+				fmt.Println("SelectionMenu:Render :: type unknown")
+			}
 			y = y - rowHeight
 		}
+
 		return
 	}
 
@@ -164,8 +217,8 @@ func (m SelectionMenu) Render(renderer *pixelgl.Window) {
 			if i == m.focusY && j == m.focusX && m.IsShowCursor {
 				m.cursor.Draw(renderer, mat.Moved(pixel.V(x+cursorHalfWidth, y+cursorHalfHeight/2)))
 			}
-			item := m.dataSource[itemIndex]
-			m.renderItem(pixel.V(x+cursorWidth, y), item, renderer)
+			item := m.DataI[itemIndex]
+			m.RenderFunction(renderer, x+cursorWidth, y, item)
 
 			x = x + spacingX
 			itemIndex = itemIndex + 1
@@ -222,7 +275,7 @@ func (m SelectionMenu) GetIndex() int {
 
 func (m SelectionMenu) OnClick() {
 	index := m.GetIndex()
-	m.OnSelection(index, m.dataSource[index])
+	m.OnSelection(index, m.DataI[index])
 }
 
 func (m *SelectionMenu) HandleInput(window *pixelgl.Window) {

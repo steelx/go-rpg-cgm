@@ -144,6 +144,10 @@ func (es ExploreState) HandleInput(win *pixelgl.Window) {
 			trigger.OnUse(es.Map, es.Hero.Entity, tileX, tileY)
 		}
 	}
+	if win.JustPressed(pixelgl.KeyLeftAlt) {
+		menu := InGameMenuStateCreate(es.Stack, win)
+		es.Stack.Push(menu)
+	}
 }
 
 func (es *ExploreState) AddNPC(NPC *Character) {

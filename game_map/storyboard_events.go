@@ -75,7 +75,7 @@ func Scene(mapName string, hideHero bool, win *pixelgl.Window) func(storyboard *
 
 	return func(storyboard *Storyboard) *NonBlockEvent {
 		mapInfo := MapsDB[mapName](storyboard.Stack)
-		exploreState := ExploreStateCreate(nil, mapInfo, win)
+		exploreState := ExploreStateCreate(storyboard.Stack, mapInfo, win)
 		if hideHero {
 			exploreState.HideHero()
 		}
@@ -143,7 +143,7 @@ func ReplaceScene(mapName string, newMapName string, tileX, tileY float64, hideH
 		storyboard.RemoveState(mapName) //remove previous map (exploreState)
 
 		mapInfo := MapsDB[newMapName](storyboard.Stack)
-		newExploreState := ExploreStateCreate(nil, mapInfo, win)
+		newExploreState := ExploreStateCreate(storyboard.Stack, mapInfo, win)
 
 		if hideHero {
 			newExploreState.HideHero()

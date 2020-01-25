@@ -7,48 +7,47 @@ import (
 )
 
 type ProgressBar struct {
-	Stack                     *StateStack
-	x, y                      float64
-	Background                *pixel.Sprite
-	Foreground                *pixel.Sprite
-	foregroundFrames          []pixel.Rect
-	foregroundFrame           int
-	scale                     float64
-	foregroundPosition        pixel.Vec
-	foregroundPng             pixel.Picture
-	Value, Maximum, halfWidth float64
+	x, y                             float64
+	Background                       *pixel.Sprite
+	Foreground                       *pixel.Sprite
+	foregroundFrames                 []pixel.Rect
+	foregroundFrame                  int
+	scale                            float64
+	foregroundPosition               pixel.Vec
+	foregroundPng                    pixel.Picture
+	Value, Maximum, HalfWidth, Width float64
 }
 
-func ProgressBarCreate(stack *StateStack, x, y float64) ProgressBar {
-	bgImg, err := utilz.LoadPicture("../resources/progressbar_bg.png")
+func ProgressBarCreate(x, y float64, value, max float64, background, foreground string) ProgressBar {
+	bgImg, err := utilz.LoadPicture(background)
 	utilz.PanicIfErr(err)
-	fgImg, err := utilz.LoadPicture("../resources/progressbar_fg.png")
+	fgImg, err := utilz.LoadPicture(foreground)
 	utilz.PanicIfErr(err)
 
 	pb := ProgressBar{
-		Stack:         stack,
 		x:             x,
 		y:             y,
 		foregroundPng: fgImg,
 		Background:    pixel.NewSprite(bgImg, bgImg.Bounds()),
 		Foreground:    pixel.NewSprite(fgImg, fgImg.Bounds()),
 		scale:         10,
-		Value:         0,
-		Maximum:       100,
+		Value:         value,
+		Maximum:       max,
 	}
 
 	// Get UV positions in texture atlas
 	// A table with name fields: left, top, right, bottom
-	pb.halfWidth = bgImg.Bounds().W() / 2
+	pb.Width = pb.foregroundPng.Bounds().W()
+	pb.HalfWidth = pb.Width / 2
 	pb.foregroundFrames = utilz.LoadAsFrames(fgImg, pb.foregroundWidthBlock(), pb.foregroundPng.Bounds().H())
 
-	pb.SetValue(10)
+	pb.SetValue(value)
 
 	return pb
 }
 
 func (pb ProgressBar) foregroundWidthBlock() float64 {
-	return pb.foregroundPng.Bounds().W() * pb.scale / 100
+	return pb.Width * pb.scale / 100
 }
 
 func (pb *ProgressBar) SetMax(maxHealth float64) {
@@ -107,16 +106,17 @@ func (pb ProgressBar) GetPosition() (x, y float64) {
 	return pb.x, pb.y
 }
 
-func (pb ProgressBar) Render(renderer *pixelgl.Window) {
+func (pb ProgressBar) Render(renderer pixel.Target) {
 	mat := pixel.V(pb.x, pb.y)
-	pb.Background.Draw(renderer, pixel.IM.Moved(mat))
+	if pb.fallsInWhichPercent(pb.Value) < 10 {
+		pb.Background.Draw(renderer, pixel.IM.Moved(mat))
+	}
 
-	fgMat := mat.Sub(pixel.V(pb.halfWidth, 0))
+	fgMat := mat.Sub(pixel.V(pb.HalfWidth, 0))
 	scaleFactor := pb.foregroundWidthBlock()
 	for i := 0; i < pb.foregroundFrame; i++ {
 		px := pixel.NewSprite(pb.foregroundPng, pb.foregroundFrames[i])
-		px.Draw(renderer, pixel.IM.Moved(
-			pixel.V(fgMat.X+(float64(i)*scaleFactor)+pb.scale, fgMat.Y)))
+		px.Draw(renderer, pixel.IM.Moved(pixel.V(fgMat.X+(float64(i)*scaleFactor)+pb.scale, fgMat.Y)))
 	}
 }
 
@@ -124,9 +124,6 @@ func (pb ProgressBar) Render(renderer *pixelgl.Window) {
 TO MATCH StackInterface below
 */
 func (pb ProgressBar) HandleInput(win *pixelgl.Window) {
-	if win.JustPressed(pixelgl.KeySpace) {
-		pb.Stack.Pop()
-	}
 }
 func (pb ProgressBar) Enter() {}
 func (pb ProgressBar) Exit()  {}

@@ -7,6 +7,7 @@ require (
 	github.com/bykof/stateful v0.0.7 // indirect
 	github.com/faiface/beep v1.0.2
 	github.com/faiface/pixel v0.8.1-0.20190416082708-9aca3bfe7af3
+	github.com/fatih/structs v1.1.0
 	github.com/gdamore/tcell v1.3.0 // indirect
 	github.com/go-gl/glfw v0.0.0-20191125211704-12ad95a8df72 // indirect
 	github.com/go-gl/mathgl v0.0.0-20190713194549-592312d8590a // indirect

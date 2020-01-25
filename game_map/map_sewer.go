@@ -40,7 +40,7 @@ func mapSewer(gStack *gui.StateStack) MapInfo {
 		}
 
 		choices := []string{"Hit space to exit"}
-		onSelection := func(index int, c string) {
+		onSelection := func(index int, c interface{}) {
 			if index == 0 {
 				endEnter(gameMap)
 			}

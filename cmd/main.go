@@ -3,10 +3,12 @@ package main
 import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
+	"github.com/steelx/go-rpg-cgm/combat"
 	"github.com/steelx/go-rpg-cgm/game_map"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/utilz"
+	"github.com/steelx/go-rpg-cgm/world"
 	"time"
 )
 
@@ -56,7 +58,6 @@ func setup(win *pixelgl.Window) {
 		game_map.PlayBGSound("../sound/rain.mp3"),
 		game_map.TitleCaptionScreen("title", "Chandragupta Maurya", 3),
 		game_map.SubTitleCaptionScreen("subtitle", "A jRPG game in GO", 2),
-		//game_map.Wait(2),
 		game_map.KillState("title"),
 		game_map.KillState("subtitle"),
 		game_map.Scene("map_player_house", true, win),
@@ -92,8 +93,12 @@ func setup(win *pixelgl.Window) {
 //=============================================================
 func gameLoop(win *pixelgl.Window) {
 	last := time.Now()
-	menu := game_map.InGameMenuStateCreate(stack, win)
-	stack.Globals["menu"] = menu
+	gWorld := world.WorldCreate()
+	gWorld.Party.Add(combat.ActorCreate(combat.HeroDef))
+	gWorld.Party.Add(combat.ActorCreate(combat.MageDef))
+	gWorld.Party.Add(combat.ActorCreate(combat.ThiefDef))
+
+	stack.Globals["world"] = gWorld
 
 	//set fullscreen
 	//win.SetMonitor(globals.Global.PrimaryMonitor)
@@ -103,11 +108,6 @@ func gameLoop(win *pixelgl.Window) {
 
 		if win.JustPressed(pixelgl.KeyQ) {
 			break
-		}
-		//Fullscreen Layout Menu
-		if win.JustPressed(pixelgl.KeyLeftAlt) {
-			//In Game Menu
-			stack.Push(menu)
 		}
 
 		win.Clear(globals.Global.ClearColor)
@@ -120,6 +120,7 @@ func gameLoop(win *pixelgl.Window) {
 
 			//update StateStack
 			stack.Update(dt)
+			gWorld.Update(dt)
 			//stack.Render(win)
 
 			//<-- this would render only 1 stack at a time

@@ -6,6 +6,7 @@ import (
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/state_machine"
 	"github.com/steelx/go-rpg-cgm/world"
+	"reflect"
 )
 
 //parent
@@ -16,9 +17,10 @@ type InGameMenuState struct {
 }
 
 func InGameMenuStateCreate(stack *gui.StateStack, win *pixelgl.Window) *InGameMenuState {
+	worldV := reflect.ValueOf(stack.Globals["world"])
 	igm := &InGameMenuState{
 		Stack: stack,
-		World: world.WorldCreate(),
+		World: worldV.Interface().(*world.World),
 	}
 
 	igm.StateMachine = state_machine.Create(map[string]func() state_machine.State{
