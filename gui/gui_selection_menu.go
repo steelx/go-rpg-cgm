@@ -71,15 +71,6 @@ func SelectionMenuCreate(spacingY, spacingX float64, data interface{}, showColum
 	m.cursorWidth = cursorPng.Bounds().W()
 	m.cursorHeight = cursorPng.Bounds().H()
 
-	//temp implement correct columns pending
-	if showColumns {
-		m.columns += m.maxRows / m.displayRows
-		if m.maxRows == 1 {
-			m.columns = 2
-			m.displayRows = 1
-		}
-	}
-
 	if renderFunc != nil {
 		m.RenderFunction = renderFunc
 	} else {
@@ -88,10 +79,20 @@ func SelectionMenuCreate(spacingY, spacingX float64, data interface{}, showColum
 
 	dataI := reflect.ValueOf(data)
 	m.maxRows = dataI.Len() - 1
+
 	if dataI.Len() > 0 {
 		m.DataI = make([]interface{}, dataI.Len())
 		for i := 0; i < dataI.Len(); i++ {
 			m.DataI[i] = dataI.Index(i).Interface()
+		}
+	}
+
+	//temp implement correct columns pending
+	if showColumns {
+		m.columns += m.maxRows / m.displayRows
+		if m.maxRows == 1 {
+			m.columns = 2
+			m.displayRows = 1
 		}
 	}
 

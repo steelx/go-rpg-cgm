@@ -58,7 +58,6 @@ func setup(win *pixelgl.Window) {
 		game_map.PlayBGSound("../sound/rain.mp3"),
 		game_map.TitleCaptionScreen("title", "Chandragupta Maurya", 3),
 		game_map.SubTitleCaptionScreen("subtitle", "A jRPG game in GO", 2),
-		//game_map.Wait(2),
 		game_map.KillState("title"),
 		game_map.KillState("subtitle"),
 		game_map.Scene("map_player_house", true, win),
