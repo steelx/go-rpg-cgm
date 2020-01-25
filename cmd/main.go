@@ -1,15 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	"github.com/steelx/go-rpg-cgm/combat"
-	"github.com/steelx/go-rpg-cgm/dice"
 	"github.com/steelx/go-rpg-cgm/game_map"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/utilz"
+	"github.com/steelx/go-rpg-cgm/world"
 	"time"
 )
 
@@ -43,52 +41,6 @@ func run() {
 }
 
 func main() {
-	var HeroDef = combat.ActorDef{
-		Stats: combat.DefaultStats,
-		StatGrowth: map[string]func() int{
-			"HpMax":        dice.Create("4d50+100"),
-			"MpMax":        dice.Create("2d50+100"),
-			"Strength":     combat.StatsGrowth.Fast,
-			"Speed":        combat.StatsGrowth.Fast,
-			"Intelligence": combat.StatsGrowth.Med,
-		},
-	}
-
-	PrintLevelUp := func(levelUp combat.LevelUp) {
-		stats := levelUp.BaseStats
-
-		fmt.Printf("HP:+%v MP:+%v \n", stats["HpMax"], stats["MpMax"])
-
-		fmt.Printf("str:+%v spd:+%v int:+%v \n",
-			stats["Strength"],
-			stats["Speed"],
-			stats["Intelligence"])
-		fmt.Println("--^^--")
-	}
-
-	ApplyXP := func(char combat.Actor, xp float64) {
-		char.AddXP(xp)
-		fmt.Println("==XP applied==", char.XP)
-
-		fmt.Println("char.ReadyToLevelUp()", char.ReadyToLevelUp())
-		for char.ReadyToLevelUp() {
-			levelup := char.CreateLevelUp()
-			fmt.Printf("Level Up! (Level %v) \n", char.Level+levelup.Level)
-			char.ApplyLevel(levelup)
-			PrintLevelUp(levelup)
-		}
-	}
-
-	hero := combat.ActorCreate(HeroDef)
-
-	ApplyXP(hero, 10001)
-
-	fmt.Println("FINAL")
-	fmt.Println("HpMax", hero.Stats.Get("HpMax"))
-	fmt.Println("HpMax", hero.Stats.Get("MpMax"))
-	fmt.Println("Intelligence", hero.Stats.Get("Intelligence"))
-	fmt.Println("Speed", hero.Stats.Get("Speed"))
-
 	pixelgl.Run(run)
 }
 
@@ -141,8 +93,8 @@ func setup(win *pixelgl.Window) {
 //=============================================================
 func gameLoop(win *pixelgl.Window) {
 	last := time.Now()
-	menu := game_map.InGameMenuStateCreate(stack, win)
-	stack.Globals["menu"] = menu
+	gWorld := world.WorldCreate()
+	stack.Globals["world"] = gWorld
 
 	//set fullscreen
 	//win.SetMonitor(globals.Global.PrimaryMonitor)
@@ -152,11 +104,6 @@ func gameLoop(win *pixelgl.Window) {
 
 		if win.JustPressed(pixelgl.KeyQ) {
 			break
-		}
-		//Fullscreen Layout Menu
-		if win.JustPressed(pixelgl.KeyLeftAlt) {
-			//In Game Menu
-			stack.Push(menu)
 		}
 
 		win.Clear(globals.Global.ClearColor)
@@ -169,6 +116,7 @@ func gameLoop(win *pixelgl.Window) {
 
 			//update StateStack
 			stack.Update(dt)
+			gWorld.Update(dt)
 			//stack.Render(win)
 
 			//<-- this would render only 1 stack at a time

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/utilz"
+	"github.com/steelx/go-rpg-cgm/world"
 	"github.com/steelx/tilepix"
 	"reflect"
 )
@@ -14,9 +15,9 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 	logFatalErr(err)
 
 	boneItemId := 4
-	menu_ := gStack.Globals["menu"]
-	menuV := reflect.ValueOf(menu_)
-	menuI := menuV.Interface().(*InGameMenuState)
+
+	worldV := reflect.ValueOf(gStack.Globals["world"])
+	worldI := worldV.Interface().(*world.World)
 
 	playKeyItemFound := PlayBGSound("../sound/key_item.mp3")
 	playSkeletonDestroyed := PlayBGSound("../sound/skeleton_destroy.mp3")
@@ -26,7 +27,7 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 			playKeyItemFound()
 			gStack.Pop() //remove selection menu
 			gStack.PushFitted(x, y, `Found key item: "Calcified bone"`)
-			menuI.World.AddKeyItem(boneItemId)
+			worldI.AddKeyItem(boneItemId)
 		}
 
 		choices := []string{"Hit space to add it to your Inventory"}
@@ -75,7 +76,7 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 	}
 
 	moveGregor := func(gameMap *GameMap, entity *Entity, tileX, tileY float64) {
-		if menuI.World.HasKey(boneItemId) {
+		if worldI.HasKey(boneItemId) {
 			prisoner, ok := gameMap.NPCbyId["prisoner"]
 			if !ok {
 				fmt.Println("GameMap prisoner not found!")
@@ -123,7 +124,7 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 
 	playUnlock := PlayBGSound("../sound/unlock.mp3")
 	grillOnUse := func(gameMap *GameMap, entity *Entity, tileX, tileY float64) {
-		if !menuI.World.HasKey(boneItemId) {
+		if !worldI.HasKey(boneItemId) {
 			return
 		}
 

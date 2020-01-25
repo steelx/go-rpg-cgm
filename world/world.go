@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/text"
+	"github.com/steelx/go-rpg-cgm/combat"
 	"golang.org/x/image/font/basicfont"
 	"log"
 	"math"
@@ -12,6 +13,7 @@ import (
 type World struct {
 	Time, Gold      float64
 	Items, KeyItems []ItemIndex
+	Party           *combat.Party
 }
 
 type ItemIndex struct {
@@ -24,6 +26,7 @@ func WorldCreate() *World {
 		Gold:     0,
 		Items:    make([]ItemIndex, 0),
 		KeyItems: make([]ItemIndex, 0),
+		Party:    combat.PartyCreate(),
 	}
 
 	//temp user items in inventory
