@@ -11,8 +11,8 @@ func NextLevel(level int) float64 {
 	return math.Round(baseXP*float64(level^exponent) + 0.8*float64(level^2) + float64(2*level))
 }
 
-func NextLevel_(level int) float64 {
-	exponent := 2
-	baseXP := 1000.0
-	return math.Floor(baseXP * float64(level^exponent))
-}
+//func NextLevel_(level int) float64 {
+//	exponent := 2
+//	baseXP := 1000.0
+//	return math.Floor(baseXP * float64(level^exponent))
+//}

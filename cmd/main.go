@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
+	"github.com/steelx/go-rpg-cgm/combat"
 	"github.com/steelx/go-rpg-cgm/game_map"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/gui"
@@ -94,6 +95,10 @@ func setup(win *pixelgl.Window) {
 func gameLoop(win *pixelgl.Window) {
 	last := time.Now()
 	gWorld := world.WorldCreate()
+	gWorld.Party.Add(combat.ActorCreate(combat.HeroDef))
+	gWorld.Party.Add(combat.ActorCreate(combat.MageDef))
+	gWorld.Party.Add(combat.ActorCreate(combat.ThiefDef))
+
 	stack.Globals["world"] = gWorld
 
 	//set fullscreen

@@ -1,5 +1,10 @@
 package combat
 
+import (
+	"github.com/faiface/pixel"
+	"github.com/steelx/go-rpg-cgm/utilz"
+)
+
 var DefaultStats = BaseStats{
 	HpNow:    300,
 	HpMax:    300,
@@ -8,24 +13,19 @@ var DefaultStats = BaseStats{
 	Strength: 10, Speed: 10, Intelligence: 10,
 }
 
+// Actor is any creature or character that participates in combat
+// and therefore requires stats, equipment, etc
 type Actor struct {
+	Id, Name   string
 	Stats      Stats
 	StatGrowth map[string]func() int
 
+	PortraitTexture pixel.Picture
+	Portrait        *pixel.Sprite
 	Level           int
 	XP, NextLevelXP float64
-	Def             ActorDef
-}
-
-type ActorDef struct {
-	Stats      BaseStats
-	StatGrowth map[string]func() int
-}
-
-type LevelUp struct {
-	XP        float64
-	Level     int
-	BaseStats map[string]float64
+	Actions         []string
+	Equipment       Equipment
 }
 
 /* example: ActorCreate(HeroDef)
@@ -42,12 +42,19 @@ var HeroDef = combat.ActorDef{
 */
 // ActorCreate
 func ActorCreate(def ActorDef) Actor {
+	actorAvatar, err := utilz.LoadPicture(def.Portrait)
+	utilz.PanicIfErr(err)
+
 	a := Actor{
-		Def:        def,
-		StatGrowth: def.StatGrowth,
-		Stats:      StatsCreate(def.Stats),
-		XP:         0,
-		Level:      1,
+		Id:              def.Id,
+		Name:            def.Name,
+		StatGrowth:      def.StatGrowth,
+		Stats:           StatsCreate(def.Stats),
+		XP:              0,
+		Level:           1,
+		PortraitTexture: actorAvatar,
+		Portrait:        pixel.NewSprite(actorAvatar, actorAvatar.Bounds()),
+		Actions:         def.Actions,
 	}
 
 	a.NextLevelXP = NextLevel(a.Level)
@@ -94,4 +101,26 @@ func (a *Actor) ApplyLevel(levelUp LevelUp) {
 
 	//Pending feature
 	// Unlock any special abilities etc.
+}
+
+type ActorDef struct {
+	Id         string //must match entityDef
+	Stats      BaseStats
+	StatGrowth map[string]func() int
+	Portrait   string
+	Name       string
+	Actions    []string
+}
+
+type LevelUp struct {
+	XP        float64
+	Level     int
+	BaseStats map[string]float64
+}
+
+type Equipment struct {
+	Weapon  string
+	Armor   string
+	Access1 string
+	Access2 string
 }
