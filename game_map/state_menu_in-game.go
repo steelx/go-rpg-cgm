@@ -9,6 +9,15 @@ import (
 	"reflect"
 )
 
+//igm.StateMachine
+const (
+	frontmenu int = iota
+	items
+	magic
+	equip
+	status
+)
+
 //parent
 type InGameMenuState struct {
 	Stack        *gui.StateStack
@@ -40,7 +49,7 @@ func InGameMenuStateCreate(stack *gui.StateStack, win *pixelgl.Window) *InGameMe
 		},
 		"status": func() state_machine.State {
 			//return StatusMenuStateCreate(this)
-			return state_machine.Create(map[string]func() state_machine.State{})
+			return StatusMenuStateCreate(igm, win)
 		},
 	})
 

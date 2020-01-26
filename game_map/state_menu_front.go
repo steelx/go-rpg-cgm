@@ -12,18 +12,19 @@ import (
 )
 
 type FrontMenuState struct {
-	Parent       *InGameMenuState
-	Layout       gui.Layout
-	Stack        *gui.StateStack
-	StateMachine *state_machine.StateMachine
-	TopBarText   string
-	Selections   *gui.SelectionMenu
-	PartyMenu    *gui.SelectionMenu
-	Panels       []gui.Panel
-	win          *pixelgl.Window
+	Parent                     *InGameMenuState
+	Layout                     gui.Layout
+	Stack                      *gui.StateStack
+	StateMachine               *state_machine.StateMachine
+	TopBarText, PrevTopBarText string
+	Selections                 *gui.SelectionMenu
+	PartyMenu                  *gui.SelectionMenu
+	Panels                     []gui.Panel
+	win                        *pixelgl.Window
+	InPartyMenu                bool
 }
 
-func FrontMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) FrontMenuState {
+func FrontMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *FrontMenuState {
 
 	layout := gui.LayoutCreate(0, 0, win)
 	layout.Contract("screen", 0, 0)
@@ -31,24 +32,23 @@ func FrontMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) FrontMen
 	layout.SplitVert("bottom", "left", "party", 0.726, 2)
 	layout.SplitHorz("left", "menu", "gold", 0.7, 2)
 
-	fm := FrontMenuState{
+	fm := &FrontMenuState{
 		win:          win,
 		Parent:       parent,
 		Stack:        parent.Stack,
 		StateMachine: parent.StateMachine,
 		Layout:       layout,
-		TopBarText:   "Current Map Name",
+		TopBarText:   "Game Paused",
 	}
+	fm.PrevTopBarText = fm.TopBarText
 
 	selectionsX, selectionsY := fm.Layout.MidX("menu")-60, fm.Layout.Top("menu")-24
 	selectionMenu := gui.SelectionMenuCreate(32, 128,
-		[]string{"Items", "Magic", "Equipment", "Status", "Save"},
+		[]string{"Party members", "Items"},
 		false,
 		pixel.V(selectionsX, selectionsY),
-		func(i int, str interface{}) {
-			fmt.Println("Menu", i, str)
-			fm.OnMenuClick(i, str)
-		}, nil,
+		fm.OnMenuClick,
+		nil,
 	)
 	fm.Selections = &selectionMenu
 	fm.Panels = []gui.Panel{
@@ -62,9 +62,7 @@ func FrontMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) FrontMen
 		fm.CreatePartySummaries(),
 		false,
 		pixel.V(0, 0),
-		func(i int, member interface{}) {
-			fmt.Println("Party Member", i, member)
-		},
+		fm.OnPartyMemberChosen,
 		func(a ...interface{}) {
 			//renderer pixel.Target, x, y float64, actorSummary ActorSummary
 			rendererV := reflect.ValueOf(a[0])
@@ -85,12 +83,27 @@ func FrontMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) FrontMen
 
 	return fm
 }
+func (fm *FrontMenuState) OnPartyMemberChosen(index int, actorSummaryI interface{}) {
+	actorSummaryV := reflect.ValueOf(actorSummaryI)
+	actorSummary := actorSummaryV.Interface().(gui.ActorSummary)
+
+	fm.StateMachine.Change("status", actorSummary.Actor)
+}
+
 func (fm *FrontMenuState) OnMenuClick(index int, str interface{}) {
-	ITEMS := 0
-	if index == ITEMS {
+	if index == items {
 		fm.StateMachine.Change("items", nil)
 		return
 	}
+
+	if index == frontmenu {
+		fm.InPartyMenu = true
+		fm.Selections.HideCursor()
+		fm.PartyMenu.ShowCursor()
+		fm.PrevTopBarText = fm.TopBarText
+		fm.TopBarText = "Choose a party member"
+	}
+
 }
 
 func (fm FrontMenuState) CreatePartySummaries() []gui.ActorSummary {
@@ -103,6 +116,13 @@ func (fm FrontMenuState) CreatePartySummaries() []gui.ActorSummary {
 	return summaryList
 }
 
+func (fm *FrontMenuState) goBackToFrontMenu() {
+	fm.InPartyMenu = false
+	fm.TopBarText = fm.PrevTopBarText
+	fm.PartyMenu.HideCursor()
+	fm.Selections.ShowCursor()
+}
+
 /*
    StateMachine :: State impl below
 */
@@ -112,17 +132,20 @@ func (fm FrontMenuState) Enter(data interface{}) {
 func (fm FrontMenuState) Exit() {
 }
 
-func (fm FrontMenuState) Update(dt float64) {
-	fm.Selections.HandleInput(fm.win)
+func (fm *FrontMenuState) Update(dt float64) {
 
-	if fm.win.JustPressed(pixelgl.KeyBackspace) || fm.win.JustPressed(pixelgl.KeyEscape) {
+	if fm.InPartyMenu {
+		fm.PartyMenu.HandleInput(fm.win)
+		if fm.win.JustPressed(pixelgl.KeyEscape) {
+			fm.goBackToFrontMenu()
+		}
+		return
+	}
+
+	fm.Selections.HandleInput(fm.win)
+	if fm.win.JustPressed(pixelgl.KeyEscape) {
 		fm.Stack.Pop()
 	}
-}
-
-//get text Width
-func getTextW(textBase *text.Text, txt string) float64 {
-	return textBase.BoundsOf(txt).W()
 }
 
 func (fm FrontMenuState) Render(renderer *pixelgl.Window) {
@@ -173,4 +196,9 @@ func (fm FrontMenuState) Render(renderer *pixelgl.Window) {
 	partyY := fm.Layout.Top("party") - 45
 	fm.PartyMenu.SetPosition(partyX, partyY)
 	fm.PartyMenu.Render(renderer)
+}
+
+//get text Width
+func getTextW(textBase *text.Text, txt string) float64 {
+	return textBase.BoundsOf(txt).W()
 }

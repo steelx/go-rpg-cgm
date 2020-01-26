@@ -25,7 +25,7 @@ type ItemsMenuState struct {
 	itemIndex, keyItemIndex int
 }
 
-func ItemsMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) ItemsMenuState {
+func ItemsMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *ItemsMenuState {
 
 	layout := gui.LayoutCreate(0, 0, win)
 	layout.Contract("screen", 118, 40)
@@ -33,7 +33,7 @@ func ItemsMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) ItemsMen
 	layout.SplitVert("top", "title", "category", 0.6, 2)
 	layout.SplitHorz("bottom", "mid", "inv", 0.14, 2)
 
-	im := ItemsMenuState{
+	im := &ItemsMenuState{
 		win:            win,
 		parent:         parent,
 		Stack:          parent.Stack,
