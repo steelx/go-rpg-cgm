@@ -87,7 +87,7 @@ func (fm *FrontMenuState) OnPartyMemberChosen(index int, actorSummaryI interface
 	actorSummaryV := reflect.ValueOf(actorSummaryI)
 	actorSummary := actorSummaryV.Interface().(gui.ActorSummary)
 
-	fm.StateMachine.Change("status", actorSummary.Actor)
+	fm.StateMachine.Change("status", actorSummary)
 }
 
 func (fm *FrontMenuState) OnMenuClick(index int, str interface{}) {

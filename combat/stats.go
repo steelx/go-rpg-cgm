@@ -2,6 +2,7 @@ package combat
 
 import (
 	"github.com/fatih/structs"
+	"log"
 	"reflect"
 )
 
@@ -54,8 +55,8 @@ Equipment Stats
 type BaseStats struct {
 	HpNow, HpMax                   float64
 	MpNow, MpMax                   float64
-	Strength, Speed, Intelligence  float64 //Hero Stats
-	Attack, Defense, Magic, Resist float64 //Equipment Stats
+	Strength, Speed, Intelligence  float64 //ActorStats
+	Attack, Defense, Magic, Resist float64 //ItemStats
 }
 
 type Modifier struct {
@@ -111,7 +112,10 @@ func (s *Stats) RemoveModifier(uniqueId int) {
 
 //Get id = BaseStats.KEY e.g. Get("Strength")
 func (s Stats) Get(id string) float64 {
-	total := s.Base[id] //10
+	total, ok := s.Base[id] //10
+	if !ok {
+		log.Fatal("stats.go: BaseStats key not found: ", id)
+	}
 	multiplier := 0.0
 
 	for _, modifier := range s.Modifiers {

@@ -5,6 +5,7 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
+	"github.com/steelx/go-rpg-cgm/combat"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/state_machine"
 	"github.com/steelx/go-rpg-cgm/world"
@@ -58,7 +59,7 @@ func ItemsMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *ItemsMe
 		yV := reflect.ValueOf(a[2])
 		y := yV.Interface().(float64)
 		itemV := reflect.ValueOf(a[3])
-		item := itemV.Interface().(world.ItemIndex)
+		item := itemV.Interface().(combat.ItemIndex)
 
 		parent.World.DrawItem(renderer, x, y, item)
 	}
@@ -144,7 +145,7 @@ func (im ItemsMenuState) Render(win *pixelgl.Window) {
 	if !im.InCategoryMenu || !im.CategoryMenu.IsShowCursor {
 		//convert interface to world.ItemIndex type
 		selectedItemIdxV := reflect.ValueOf(menu.SelectedItem())
-		selectedItemIdx := selectedItemIdxV.Interface().(world.ItemIndex)
+		selectedItemIdx := selectedItemIdxV.Interface().(combat.ItemIndex)
 		itemDef := world.ItemsDB[selectedItemIdx.Id]
 
 		//render description
