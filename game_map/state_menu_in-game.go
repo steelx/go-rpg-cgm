@@ -22,14 +22,14 @@ const (
 type InGameMenuState struct {
 	Stack        *gui.StateStack
 	StateMachine *state_machine.StateMachine
-	World        *combat.World
+	World        *combat.WorldExtended
 }
 
 func InGameMenuStateCreate(stack *gui.StateStack, win *pixelgl.Window) *InGameMenuState {
 	worldV := reflect.ValueOf(stack.Globals["world"])
 	igm := &InGameMenuState{
 		Stack: stack,
-		World: worldV.Interface().(*combat.World),
+		World: worldV.Interface().(*combat.WorldExtended),
 	}
 
 	igm.StateMachine = state_machine.Create(map[string]func() state_machine.State{

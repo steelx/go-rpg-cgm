@@ -1,10 +1,9 @@
-package combat
+package world
 
 import (
 	"fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/text"
-	"github.com/steelx/go-rpg-cgm/world"
 	"golang.org/x/image/font/basicfont"
 	"log"
 	"math"
@@ -13,20 +12,18 @@ import (
 type World struct {
 	Time, Gold      float64
 	Items, KeyItems []ItemIndex
-	Party           *Party
 }
 
 type ItemIndex struct {
 	Id, Count int
 }
 
-func WorldCreate() *World {
+func Create() *World {
 	w := &World{
 		Time:     0,
 		Gold:     0,
 		Items:    make([]ItemIndex, 0),
 		KeyItems: make([]ItemIndex, 0),
-		Party:    PartyCreate(),
 	}
 
 	//temp user items in inventory
@@ -39,7 +36,7 @@ func WorldCreate() *World {
 }
 
 func (w *World) AddItem(itemId, count int) {
-	if _, ok := world.ItemsDB[itemId]; !ok {
+	if _, ok := ItemsDB[itemId]; !ok {
 		log.Fatal(fmt.Sprintf("Item ID {%v} does not exists in DB", itemId))
 	}
 
@@ -59,7 +56,7 @@ func (w *World) AddItem(itemId, count int) {
 }
 
 func (w *World) RemoveItem(itemId, count int) {
-	if _, ok := world.ItemsDB[itemId]; !ok {
+	if _, ok := ItemsDB[itemId]; !ok {
 		log.Fatal(fmt.Sprintf("Item ID {%v} does not exists in DB", itemId))
 	}
 
@@ -136,7 +133,7 @@ func (w World) GoldAsString() string {
 func (w World) GetItemsAsStrings() []string {
 	var items []string
 	for _, item := range w.Items {
-		items = append(items, fmt.Sprintf("%s, (%v)", world.ItemsDB[item.Id].Name, item.Count))
+		items = append(items, fmt.Sprintf("%s, (%v)", ItemsDB[item.Id].Name, item.Count))
 	}
 	return items
 }
@@ -144,14 +141,14 @@ func (w World) GetItemsAsStrings() []string {
 func (w World) GetKeyItemsAsStrings() []string {
 	var items []string
 	for _, item := range w.KeyItems {
-		items = append(items, fmt.Sprintf("%s, (%v)", world.ItemsDB[item.Id].Name, item.Count))
+		items = append(items, fmt.Sprintf("%s, (%v)", ItemsDB[item.Id].Name, item.Count))
 	}
 	return items
 }
 
 //pending: use inside SelectionMenu renderItem pending
 func (w World) DrawItem(renderer pixel.Target, x, y float64, itemIdx ItemIndex) {
-	itemDef := world.ItemsDB[itemIdx.Id]
+	itemDef := ItemsDB[itemIdx.Id]
 
 	basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
 	pos := pixel.V(x+40, y)

@@ -5,8 +5,8 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
-	"github.com/steelx/go-rpg-cgm/combat"
 	"github.com/steelx/go-rpg-cgm/utilz"
+	"github.com/steelx/go-rpg-cgm/world"
 	"golang.org/x/image/font/basicfont"
 	"math"
 	"reflect"
@@ -137,7 +137,7 @@ func (m SelectionMenu) calcTotalWidth() float64 {
 			case ActorSummary:
 				return x.Width
 
-			case combat.ItemIndex:
+			case world.ItemIndex:
 				return 100
 
 			default:

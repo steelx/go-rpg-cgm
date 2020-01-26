@@ -17,7 +17,7 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 	boneItemId := 4
 
 	worldV := reflect.ValueOf(gStack.Globals["world"])
-	worldI := worldV.Interface().(*combat.World)
+	worldI := worldV.Interface().(*combat.WorldExtended)
 
 	playKeyItemFound := PlayBGSound("../sound/key_item.mp3")
 	playSkeletonDestroyed := PlayBGSound("../sound/skeleton_destroy.mp3")
