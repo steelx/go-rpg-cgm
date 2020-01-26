@@ -28,7 +28,11 @@ var HeroDef = ActorDef{
 	Name:             "Chandragupta",
 	Portrait:         "../resources/avatar_hero.png",
 	Actions:          []string{attack, item},
-	ActiveEquipSlots: []int{3, 1, 2}, //ItemsDB ID
+	ActiveEquipSlots: []int{0, 1, 2, 3},
+	//ItemsDB ID
+	Equipment: Equipment{
+		Weapon: 3,
+	},
 }
 
 var MageDef = ActorDef{

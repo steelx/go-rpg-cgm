@@ -110,7 +110,6 @@ func (fm FrontMenuState) CreatePartySummaries() []gui.ActorSummary {
 	partyMembers := fm.Parent.World.Party.Members
 	var summaryList []gui.ActorSummary
 	for _, actor := range partyMembers {
-		fmt.Println("actor", actor.Name)
 		summaryList = append(summaryList, gui.ActorSummaryCreate(actor, true))
 	}
 	return summaryList

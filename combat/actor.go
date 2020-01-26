@@ -61,7 +61,12 @@ func ActorCreate(def ActorDef) Actor {
 		Portrait:         pixel.NewSprite(actorAvatar, actorAvatar.Bounds()),
 		Actions:          def.Actions,
 		ActiveEquipSlots: def.ActiveEquipSlots,
-		Equipment:        equipment,
+		Equipment: map[string]int{
+			"Weapon":  def.Weapon,
+			"Armor":   def.Armor,
+			"Access1": def.Access1,
+			"Access2": def.Access2,
+		},
 	}
 
 	a.NextLevelXP = NextLevel(a.Level)
@@ -69,14 +74,7 @@ func ActorCreate(def ActorDef) Actor {
 }
 
 func (a *Actor) RenderEquipment(renderer pixel.Target, x, y float64, index int) {
-	x = x + 100
-
 	label := ActorLabels.EquipSlotLabels[index]
-	basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
-	pos := pixel.V(x, y)
-	textBase := text.New(pos, basicAtlas)
-	fmt.Fprintln(textBase, label)
-	textBase.Draw(renderer, pixel.IM)
 
 	equipmentText := "none"
 	if index < len(a.Equipment) {
@@ -86,9 +84,10 @@ func (a *Actor) RenderEquipment(renderer pixel.Target, x, y float64, index int) 
 		equipmentText = item.Name
 	}
 
-	pos = pixel.V(x+15, y)
-	textBase = text.New(pos, basicAtlas)
-	fmt.Fprintln(textBase, equipmentText)
+	basicAtlasAscii := text.NewAtlas(basicfont.Face7x13, text.ASCII)
+	pos := pixel.V(x, y)
+	textBase := text.New(pos, basicAtlasAscii)
+	fmt.Fprintln(textBase, fmt.Sprintf("%-12s: %v", label, equipmentText))
 	textBase.Draw(renderer, pixel.IM)
 }
 
@@ -142,10 +141,19 @@ type ActorDef struct {
 	Name             string
 	Actions          []string
 	ActiveEquipSlots []int
+	Equipment
 }
 
 type LevelUp struct {
 	XP        float64
 	Level     int
 	BaseStats map[string]float64
+}
+
+//Must match to ItemsDB ID
+type Equipment struct {
+	Weapon,
+	Armor,
+	Access1,
+	Access2 int
 }

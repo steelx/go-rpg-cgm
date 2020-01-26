@@ -31,7 +31,7 @@ func init() {
 	// e.g. ItemsDB[0] & empty = 0
 	ItemsDB[0] = Item{
 		ItemType:    empty,
-		Name:        "",
+		Name:        "empty",
 		Description: "",
 		Special:     false,
 		Stats: ItemStats{

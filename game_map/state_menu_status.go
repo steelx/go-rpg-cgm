@@ -14,15 +14,18 @@ import (
 )
 
 type StatusMenuState struct {
-	parent                     *InGameMenuState
-	win                        *pixelgl.Window
-	Layout                     gui.Layout
-	Stack                      *gui.StateStack
-	StateMachine               *state_machine.StateMachine
-	TopBarText, PrevTopBarText string
-	EquipMenu, Actions         *gui.SelectionMenu
-	Panels                     []gui.Panel
-	ActorSummary               gui.ActorSummary
+	parent       *InGameMenuState
+	win          *pixelgl.Window
+	Layout       gui.Layout
+	Stack        *gui.StateStack
+	StateMachine *state_machine.StateMachine
+	TopBarText,
+	PrevTopBarText string
+	EquipMenu,
+	Actions *gui.SelectionMenu
+	Panels       []gui.Panel
+	ActorSummary gui.ActorSummary
+	spacingY     float64
 }
 
 func StatusMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *StatusMenuState {
@@ -49,7 +52,8 @@ func (s *StatusMenuState) Enter(actorSumI interface{}) {
 	actorSumV := reflect.ValueOf(actorSumI)
 	s.ActorSummary = actorSumV.Interface().(gui.ActorSummary)
 
-	equipmentMenu := gui.SelectionMenuCreate(26, 40,
+	s.spacingY = 26
+	equipmentMenu := gui.SelectionMenuCreate(s.spacingY, 40,
 		s.ActorSummary.Actor.ActiveEquipSlots,
 		false,
 		pixel.V(0, 0),
@@ -71,7 +75,7 @@ func (s *StatusMenuState) Enter(actorSumI interface{}) {
 	s.EquipMenu = &equipmentMenu
 	s.EquipMenu.HideCursor()
 
-	actionsMenu := gui.SelectionMenuCreate(18, 40,
+	actionsMenu := gui.SelectionMenuCreate(30, 0,
 		s.ActorSummary.Actor.Actions,
 		false,
 		pixel.V(0, 0),
@@ -89,45 +93,63 @@ func (s StatusMenuState) Render(renderer *pixelgl.Window) {
 		v.Draw(renderer)
 	}
 
-	basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
+	basicAtlasAscii := text.NewAtlas(basicfont.Face7x13, text.ASCII)
 
+	titleTxt := "Status"
 	titleX := s.Layout.MidX("title")
 	titleY := s.Layout.MidY("title")
-	pos := pixel.V(titleX, titleY)
-	textBase := text.New(pos, basicAtlas)
-	fmt.Fprintln(textBase, "Status")
+	textBase := text.New(pixel.V(0, 0), basicAtlasAscii)
+	pos := pixel.V(titleX-textBase.BoundsOf(titleTxt).W()/2, titleY)
+
+	textBase = text.New(pos, basicAtlasAscii)
+	fmt.Fprintln(textBase, titleTxt)
 	textBase.Draw(renderer, pixel.IM)
 
 	left := s.Layout.Left("bottom") + 10
+	right := s.Layout.Right("bottom") - 10
+	midX := s.Layout.MidX("bottom")
+	bottom := s.Layout.Bottom("bottom") - 10
 	top := s.Layout.Top("bottom") - 10
 	s.ActorSummary.SetPosition(left, top)
 	s.ActorSummary.Render(renderer)
 
-	xp := fmt.Sprintf("XP: %v/%v \n", s.ActorSummary.Actor.XP, s.ActorSummary.Actor.NextLevelXP)
-	pos = pixel.V(left+240, top-58)
-	textBase = text.New(pos, basicAtlas)
+	xp := fmt.Sprintf("XP: %v/%v", s.ActorSummary.Actor.XP, s.ActorSummary.Actor.NextLevelXP)
+	pos = pixel.V(left+380, top-25)
+	textBase = text.New(pos, basicAtlasAscii)
 	fmt.Fprintln(textBase, xp)
 	textBase.Draw(renderer, pixel.IM)
 
-	s.EquipMenu.SetPosition(-10, -64)
+	// Equipments - Bottom Right
+	equipMenuLeft := midX
+	pos = pixel.V(equipMenuLeft-25, s.spacingY)
+	textBase = text.New(pos, basicAtlasAscii)
+	fmt.Fprintln(textBase, "Equipments ->")
+	textBase.Draw(renderer, pixel.IM)
+	s.EquipMenu.SetPosition(equipMenuLeft, 0)
 	s.EquipMenu.Render(renderer)
 
-	//stats
-	stats := s.ActorSummary.Actor.Stats
-	x := left + 106
+	// BaseStats - Bottom Left
+	x := left + 50
 	y := 0.0
+	pos = pixel.V(x-25, y+s.spacingY)
+	textBase = text.New(pos, basicAtlasAscii)
+	fmt.Fprintln(textBase, "Stats ->")
+	textBase.Draw(renderer, pixel.IM)
 
+	stats := s.ActorSummary.Actor.Stats
+
+	spaceY := s.spacingY
 	for k, v := range combat.ActorLabels.ActorStats {
 		label := combat.ActorLabels.ActorStatLabels[k]
 		s.DrawStat(renderer, x, y, label, stats.Get(v))
-		y -= 16
+		y -= spaceY
 	}
 
-	y -= 16
+	y -= spaceY
 	for k, v := range combat.ActorLabels.ItemStats {
 		label := combat.ActorLabels.ItemStatLabels[k]
 		s.DrawStat(renderer, x, y, label, stats.Get(v))
-		y -= 16
+		y -= spaceY
 	}
 
 	// this should be a panel
@@ -143,7 +165,8 @@ func (s StatusMenuState) Render(renderer *pixelgl.Window) {
 	box.AppearTween = animation.TweenCreate(1, 1, 0)
 	box.Render(renderer)
 
-	s.Actions.SetPosition(x-14, y-10)
+	// attack / item
+	s.Actions.SetPosition(right-200, bottom+100)
 	s.Actions.Render(renderer)
 }
 
@@ -166,6 +189,6 @@ func (s StatusMenuState) DrawStat(renderer pixel.Target, x, y float64, label str
 	basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
 	pos := pixel.V(x, y)
 	textBase := text.New(pos, basicAtlas)
-	fmt.Fprintln(textBase, fmt.Sprintf("%-6s (%v)", label, value))
+	fmt.Fprintln(textBase, fmt.Sprintf("%-14s: %v", label, value))
 	textBase.Draw(renderer, pixel.IM)
 }

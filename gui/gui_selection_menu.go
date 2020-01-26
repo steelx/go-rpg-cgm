@@ -50,7 +50,6 @@ type SelectionMenu struct {
 	RenderFunction            func(a ...interface{})
 }
 
-//pending: custom renderItem method
 func SelectionMenuCreate(spacingY, spacingX float64, data interface{}, showColumns bool, position pixel.Vec, onSelection func(int, interface{}), renderFunc func(a ...interface{})) SelectionMenu {
 	m := SelectionMenu{
 		X:            position.X,

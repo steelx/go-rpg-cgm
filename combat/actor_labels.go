@@ -15,10 +15,10 @@ type ActionLabels struct {
 
 var ActorLabels = ActorLabel{
 	EquipSlotLabels: []string{
-		`Weapon    :`,
-		`Armor     :`,
-		`Accessory :`,
-		`Accessory :`,
+		`Weapon `,
+		`Armor `,
+		`Accessory 1 `,
+		`Accessory 2 `,
 	},
 	EquipSlotId: []string{
 		"Weapon",
@@ -39,26 +39,18 @@ var ActorLabels = ActorLabel{
 		"Resist",
 	},
 	ActorStatLabels: []string{
-		`Strength     :`,
-		`Speed        :`,
-		`Intelligence :`,
+		`Strength `,
+		`Speed `,
+		`Intelligence `,
 	},
 	ItemStatLabels: []string{
-		`Attack  :`,
-		`Defense :`,
-		`Magic   :`,
-		`Resist  :`,
+		`Attack `,
+		`Defense `,
+		`Magic `,
+		`Resist `,
 	},
 	ActionLabels: ActionLabels{
 		Attack: "Attack",
 		Item:   "Item",
 	},
-}
-
-//maps to EquipSlotId
-var equipment = map[string]int{
-	"Weapon":  0,
-	"Armor":   1,
-	"Access1": 2,
-	"Access2": 3,
 }
