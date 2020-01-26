@@ -167,7 +167,7 @@ func (im ItemsMenuState) Exit() {
 
 }
 
-func (im ItemsMenuState) Update(dt float64) {
+func (im *ItemsMenuState) Update(dt float64) {
 
 	if im.InCategoryMenu && im.CategoryMenu.IsShowCursor {
 		if im.win.JustReleased(pixelgl.KeyBackspace) || im.win.JustReleased(pixelgl.KeyEscape) {
