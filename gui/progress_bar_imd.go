@@ -58,7 +58,6 @@ func (pb ProgressBarIMD) GetPercentWidth() float64 {
 }
 
 func (pb ProgressBarIMD) Render(renderer pixel.Target) {
-	imd := imdraw.New(nil)
 	imd.Clear()
 
 	leftPos := pixel.V(pb.x, pb.y)

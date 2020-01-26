@@ -9,8 +9,9 @@ import (
 type Panel struct {
 	mBounds                 pixel.Rect
 	mTileSize, mCenterScale float64
-	imd                     *imdraw.IMDraw
 }
+
+var imd = imdraw.New(nil)
 
 //PanelCreate
 func PanelCreate(pos pixel.Vec, width, height float64) Panel {
@@ -21,7 +22,6 @@ func PanelCreate(pos pixel.Vec, width, height float64) Panel {
 			Min: pixel.V(pos.X-width/2, pos.Y-height/2),
 			Max: pixel.V(pos.X+width/2, pos.Y+height/2),
 		},
-		imd: imdraw.New(nil),
 	}
 
 	return p
@@ -37,28 +37,28 @@ func (p Panel) GetCorners() (topLeft pixel.Vec, topRight pixel.Vec, bottomLeft p
 }
 
 func (p *Panel) Draw(renderer pixel.Target) {
-	p.imd.Clear()
+	imd.Clear()
 	topLeft, topRight, bottomLeft, bottomRight := p.GetCorners()
 
 	// Middle backing panel
-	p.imd.Color = utilz.HexToColor("#002D64")
-	p.imd.EndShape = imdraw.RoundEndShape
-	p.imd.Push(
+	imd.Color = utilz.HexToColor("#002D64")
+	imd.EndShape = imdraw.RoundEndShape
+	imd.Push(
 		bottomLeft.Add(pixel.V(1, 1)),
 		topLeft.Add(pixel.V(1, -1)),
 		bottomRight.Add(pixel.V(-1, 1)),
 		topRight.Add(pixel.V(-1, -1)),
 	)
-	p.imd.Rectangle(0)
+	imd.Rectangle(0)
 
 	// Align the corner tiles, Rectangle above
-	p.imd.Color = utilz.HexToColor("#D9AO66")
-	p.imd.EndShape = imdraw.RoundEndShape
-	p.imd.Push(topLeft)
-	p.imd.Push(topRight)
-	p.imd.Push(bottomLeft)
-	p.imd.Push(bottomRight)
-	p.imd.Rectangle(1)
+	imd.Color = utilz.HexToColor("#D9AO66")
+	imd.EndShape = imdraw.RoundEndShape
+	imd.Push(topLeft)
+	imd.Push(topRight)
+	imd.Push(bottomLeft)
+	imd.Push(bottomRight)
+	imd.Rectangle(1)
 
-	p.imd.Draw(renderer)
+	imd.Draw(renderer)
 }
