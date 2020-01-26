@@ -2,9 +2,9 @@ package game_map
 
 import (
 	"fmt"
+	"github.com/steelx/go-rpg-cgm/combat"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/utilz"
-	"github.com/steelx/go-rpg-cgm/world"
 	"github.com/steelx/tilepix"
 	"reflect"
 )
@@ -17,7 +17,7 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 	boneItemId := 4
 
 	worldV := reflect.ValueOf(gStack.Globals["world"])
-	worldI := worldV.Interface().(*world.World)
+	worldI := worldV.Interface().(*combat.World)
 
 	playKeyItemFound := PlayBGSound("../sound/key_item.mp3")
 	playSkeletonDestroyed := PlayBGSound("../sound/skeleton_destroy.mp3")

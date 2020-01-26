@@ -8,7 +8,6 @@ import (
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/utilz"
-	"github.com/steelx/go-rpg-cgm/world"
 	"time"
 )
 
@@ -52,14 +51,14 @@ func setup(win *pixelgl.Window) {
 	stack = gui.StateStackCreate(win)
 
 	var introScene = []interface{}{
-		game_map.BlackScreen("blackscreen"),
-		game_map.Wait(1),
-		game_map.KillState("blackscreen"),
-		game_map.PlayBGSound("../sound/rain.mp3"),
-		game_map.TitleCaptionScreen("title", "Chandragupta Maurya", 3),
-		game_map.SubTitleCaptionScreen("subtitle", "A jRPG game in GO", 2),
-		game_map.KillState("title"),
-		game_map.KillState("subtitle"),
+		//game_map.BlackScreen("blackscreen"),
+		//game_map.Wait(1),
+		//game_map.KillState("blackscreen"),
+		//game_map.PlayBGSound("../sound/rain.mp3"),
+		//game_map.TitleCaptionScreen("title", "Chandragupta Maurya", 3),
+		//game_map.SubTitleCaptionScreen("subtitle", "A jRPG game in GO", 2),
+		//game_map.KillState("title"),
+		//game_map.KillState("subtitle"),
 		game_map.Scene("map_player_house", true, win),
 		game_map.RunActionAddNPC("map_player_house", "sleeper", 14, 19, 3),
 		game_map.RunActionAddNPC("map_player_house", "guard", 19, 23, 0),
@@ -93,7 +92,7 @@ func setup(win *pixelgl.Window) {
 //=============================================================
 func gameLoop(win *pixelgl.Window) {
 	last := time.Now()
-	gWorld := world.WorldCreate()
+	gWorld := combat.WorldCreate()
 	gWorld.Party.Add(combat.ActorCreate(combat.HeroDef))
 	gWorld.Party.Add(combat.ActorCreate(combat.MageDef))
 	gWorld.Party.Add(combat.ActorCreate(combat.ThiefDef))

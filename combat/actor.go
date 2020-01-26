@@ -1,8 +1,12 @@
 package combat
 
 import (
+	"fmt"
 	"github.com/faiface/pixel"
+	"github.com/faiface/pixel/text"
 	"github.com/steelx/go-rpg-cgm/utilz"
+	"github.com/steelx/go-rpg-cgm/world"
+	"golang.org/x/image/font/basicfont"
 )
 
 var DefaultStats = BaseStats{
@@ -20,12 +24,13 @@ type Actor struct {
 	Stats      Stats
 	StatGrowth map[string]func() int
 
-	PortraitTexture pixel.Picture
-	Portrait        *pixel.Sprite
-	Level           int
-	XP, NextLevelXP float64
-	Actions         []string
-	Equipment       Equipment
+	PortraitTexture  pixel.Picture
+	Portrait         *pixel.Sprite
+	Level            int
+	XP, NextLevelXP  float64
+	Actions          []string
+	ActiveEquipSlots []int
+	Equipment        map[string]int
 }
 
 /* example: ActorCreate(HeroDef)
@@ -46,19 +51,44 @@ func ActorCreate(def ActorDef) Actor {
 	utilz.PanicIfErr(err)
 
 	a := Actor{
-		Id:              def.Id,
-		Name:            def.Name,
-		StatGrowth:      def.StatGrowth,
-		Stats:           StatsCreate(def.Stats),
-		XP:              0,
-		Level:           1,
-		PortraitTexture: actorAvatar,
-		Portrait:        pixel.NewSprite(actorAvatar, actorAvatar.Bounds()),
-		Actions:         def.Actions,
+		Id:               def.Id,
+		Name:             def.Name,
+		StatGrowth:       def.StatGrowth,
+		Stats:            StatsCreate(def.Stats),
+		XP:               0,
+		Level:            1,
+		PortraitTexture:  actorAvatar,
+		Portrait:         pixel.NewSprite(actorAvatar, actorAvatar.Bounds()),
+		Actions:          def.Actions,
+		ActiveEquipSlots: def.ActiveEquipSlots,
+		Equipment: map[string]int{
+			"Weapon":  def.Weapon,
+			"Armor":   def.Armor,
+			"Access1": def.Access1,
+			"Access2": def.Access2,
+		},
 	}
 
 	a.NextLevelXP = NextLevel(a.Level)
 	return a
+}
+
+func (a *Actor) RenderEquipment(renderer pixel.Target, x, y float64, index int) {
+	label := ActorLabels.EquipSlotLabels[index]
+
+	equipmentText := "none"
+	if index < len(a.Equipment) {
+		slotId := ActorLabels.EquipSlotId[index]
+		itemId := a.Equipment[slotId]
+		item := world.ItemsDB[itemId]
+		equipmentText = item.Name
+	}
+
+	basicAtlasAscii := text.NewAtlas(basicfont.Face7x13, text.ASCII)
+	pos := pixel.V(x, y)
+	textBase := text.New(pos, basicAtlasAscii)
+	fmt.Fprintln(textBase, fmt.Sprintf("%-12s: %v", label, equipmentText))
+	textBase.Draw(renderer, pixel.IM)
 }
 
 func (a Actor) ReadyToLevelUp() bool {
@@ -104,12 +134,14 @@ func (a *Actor) ApplyLevel(levelUp LevelUp) {
 }
 
 type ActorDef struct {
-	Id         string //must match entityDef
-	Stats      BaseStats
-	StatGrowth map[string]func() int
-	Portrait   string
-	Name       string
-	Actions    []string
+	Id               string //must match entityDef
+	Stats            BaseStats
+	StatGrowth       map[string]func() int
+	Portrait         string
+	Name             string
+	Actions          []string
+	ActiveEquipSlots []int
+	Equipment
 }
 
 type LevelUp struct {
@@ -118,9 +150,10 @@ type LevelUp struct {
 	BaseStats map[string]float64
 }
 
+//Must match to ItemsDB ID
 type Equipment struct {
-	Weapon  string
-	Armor   string
-	Access1 string
-	Access2 string
+	Weapon,
+	Armor,
+	Access1,
+	Access2 int
 }

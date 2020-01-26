@@ -5,8 +5,8 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
+	"github.com/steelx/go-rpg-cgm/combat"
 	"github.com/steelx/go-rpg-cgm/utilz"
-	"github.com/steelx/go-rpg-cgm/world"
 	"golang.org/x/image/font/basicfont"
 	"math"
 	"reflect"
@@ -50,7 +50,6 @@ type SelectionMenu struct {
 	RenderFunction            func(a ...interface{})
 }
 
-//pending: custom renderItem method
 func SelectionMenuCreate(spacingY, spacingX float64, data interface{}, showColumns bool, position pixel.Vec, onSelection func(int, interface{}), renderFunc func(a ...interface{})) SelectionMenu {
 	m := SelectionMenu{
 		X:            position.X,
@@ -132,10 +131,13 @@ func (m SelectionMenu) calcTotalWidth() float64 {
 				width := m.textBase.BoundsOf(x).W()
 				maxEntryWidth = math.Max(width, maxEntryWidth)
 
+			case int:
+				return 50
+
 			case ActorSummary:
 				return x.Width
 
-			case world.ItemIndex:
+			case combat.ItemIndex:
 				return 100
 
 			default:
@@ -195,14 +197,10 @@ func (m SelectionMenu) Render(renderer *pixelgl.Window) {
 			switch d := v.(type) {
 			case string:
 				m.RenderFunction(renderer, x+cursorWidth, y, d)
-			case ActorSummary:
-				//pixel.Target, x, y float64, actorSummary ActorSummary
-				m.RenderFunction(renderer, x, y, d)
-			case world.ItemIndex:
-				//DrawItem(renderer pixel.Target, x, y float64, itemIdx ItemIndex)
-				m.RenderFunction(renderer, x, y, d)
+
 			default:
-				fmt.Println("SelectionMenu:Render :: type unknown")
+				m.RenderFunction(renderer, x, y, d)
+				//fmt.Println("SelectionMenu:Render :: type unknown")
 			}
 			y = y - rowHeight
 		}

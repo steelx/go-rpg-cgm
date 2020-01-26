@@ -25,9 +25,14 @@ var HeroDef = ActorDef{
 		"Speed":        StatsGrowth.Fast,
 		"Intelligence": StatsGrowth.Med,
 	},
-	Name:     "Chandragupta",
-	Portrait: "../resources/avatar_hero.png",
-	Actions:  []string{attack, item},
+	Name:             "Chandragupta",
+	Portrait:         "../resources/avatar_hero.png",
+	Actions:          []string{attack, item},
+	ActiveEquipSlots: []int{0, 1, 2, 3},
+	//ItemsDB ID
+	Equipment: Equipment{
+		Weapon: 3,
+	},
 }
 
 var MageDef = ActorDef{
@@ -46,9 +51,10 @@ var MageDef = ActorDef{
 		"Speed":        StatsGrowth.Med,
 		"Intelligence": StatsGrowth.Fast,
 	},
-	Name:     "Mrignayani",
-	Portrait: "../resources/avatar_mage.png",
-	Actions:  []string{attack, item},
+	Name:             "Mrignayani",
+	Portrait:         "../resources/avatar_mage.png",
+	Actions:          []string{attack, item},
+	ActiveEquipSlots: []int{1, 2, 3}, //ItemsDB ID
 }
 
 var ThiefDef = ActorDef{
@@ -67,7 +73,8 @@ var ThiefDef = ActorDef{
 		"Speed":        StatsGrowth.Med,
 		"Intelligence": StatsGrowth.Med,
 	},
-	Name:     "Shashank",
-	Portrait: "../resources/avatar_thief.png",
-	Actions:  []string{attack, item},
+	Name:             "Shashank",
+	Portrait:         "../resources/avatar_thief.png",
+	Actions:          []string{attack, item},
+	ActiveEquipSlots: []int{1, 2, 3}, //ItemsDB ID
 }

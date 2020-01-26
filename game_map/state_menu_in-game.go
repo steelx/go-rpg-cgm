@@ -3,24 +3,33 @@ package game_map
 import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
+	"github.com/steelx/go-rpg-cgm/combat"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/state_machine"
-	"github.com/steelx/go-rpg-cgm/world"
 	"reflect"
+)
+
+//igm.StateMachine
+const (
+	frontmenu int = iota
+	items
+	magic
+	equip
+	status
 )
 
 //parent
 type InGameMenuState struct {
 	Stack        *gui.StateStack
 	StateMachine *state_machine.StateMachine
-	World        *world.World
+	World        *combat.World
 }
 
 func InGameMenuStateCreate(stack *gui.StateStack, win *pixelgl.Window) *InGameMenuState {
 	worldV := reflect.ValueOf(stack.Globals["world"])
 	igm := &InGameMenuState{
 		Stack: stack,
-		World: worldV.Interface().(*world.World),
+		World: worldV.Interface().(*combat.World),
 	}
 
 	igm.StateMachine = state_machine.Create(map[string]func() state_machine.State{
@@ -40,7 +49,7 @@ func InGameMenuStateCreate(stack *gui.StateStack, win *pixelgl.Window) *InGameMe
 		},
 		"status": func() state_machine.State {
 			//return StatusMenuStateCreate(this)
-			return state_machine.Create(map[string]func() state_machine.State{})
+			return StatusMenuStateCreate(igm, win)
 		},
 	})
 
