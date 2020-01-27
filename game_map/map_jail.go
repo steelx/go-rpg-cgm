@@ -162,6 +162,7 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 		Wait(0),
 		FadeOutCharacter("handin", "hero", 2),
 		Wait(1),
+
 		MoveCamToTile("handin", 32, 15, 16, 31, 2),
 		RunActionAddNPC("handin", "guard", 16, 31, 0),
 		MoveNPC("prisoner", "handin", []string{
@@ -222,9 +223,9 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 		CollisionLayer:     2,
 		CollisionLayerName: "02 collision",
 		HiddenLayer:        "01 detail",
-		OnWake: map[string]TriggerParam{
+		OnWake: map[string][]TriggerParam{
 			"AddNPC": {
-				Id: "prisoner", X: 20, Y: 29,
+				{Id: "prisoner", X: 20, Y: 29},
 			},
 		},
 		Actions: map[string]MapAction{

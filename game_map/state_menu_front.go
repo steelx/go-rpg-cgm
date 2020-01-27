@@ -44,7 +44,7 @@ func FrontMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *FrontMe
 
 	selectionsX, selectionsY := fm.Layout.MidX("menu")-60, fm.Layout.Top("menu")-24
 	selectionMenu := gui.SelectionMenuCreate(32, 128,
-		[]string{"Party members", "Items"},
+		[]string{"Status", "Items"},
 		false,
 		pixel.V(selectionsX, selectionsY),
 		fm.OnMenuClick,

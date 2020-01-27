@@ -19,38 +19,59 @@ func init() {
 	//Entities
 	Entities = map[string]EntityDefinition{
 		"hero": {
-			Texture: walkCyclePng, Width: 16, Height: 24,
+			Texture: walkCyclePng,
+			Width:   16, Height: 24,
 			StartFrame: 24,
 			TileX:      20,
 			TileY:      20,
 		},
+		"thief": {
+			Texture: walkCyclePng,
+			Width:   16, Height: 24,
+			StartFrame: 104,
+			TileX:      11,
+			TileY:      3,
+		},
+		"mage": {
+			Texture: walkCyclePng,
+			Width:   16, Height: 24,
+			StartFrame: 120,
+			TileX:      11,
+			TileY:      3,
+		},
 		"sleeper": {
-			Texture: sleepingPng, Width: 32, Height: 32,
+			Texture: sleepingPng,
+			Width:   32, Height: 32,
 			StartFrame: 12,
 			TileX:      14,
 			TileY:      19,
 		},
 		"npc1": {
-			Texture: walkCyclePng, Width: 16, Height: 24,
+			Texture: walkCyclePng,
+			Width:   16, Height: 24,
 			StartFrame: 46,
 			TileX:      24,
 			TileY:      19,
 		},
 		"npc2": {
-			Texture: walkCyclePng, Width: 16, Height: 24,
+			Texture: walkCyclePng,
+			Width:   16, Height: 24,
 			StartFrame: 56,
 			TileX:      19,
 			TileY:      24,
 		},
 		"prisoner": {
-			Texture: walkCyclePng, Width: 16, Height: 24,
+			Texture: walkCyclePng,
+			Width:   16, Height: 24,
 			StartFrame: 88,
 			TileX:      19,
 			TileY:      19, //jail map cords
 		},
 	}
 
-	Characters["hero"] = chanakya
+	Characters["hero"] = hero
+	Characters["thief"] = thief
+	Characters["mage"] = mage
 	Characters["sleeper"] = Sleeper
 	Characters["npc1"] = NPC1
 	Characters["npc2"] = NPC2
@@ -58,7 +79,7 @@ func init() {
 	Characters["prisoner"] = prisoner
 }
 
-func chanakya(gMap *GameMap) *Character {
+func hero(gMap *GameMap) *Character {
 	var gameCharacter *Character
 	gameCharacter = CharacterCreate("hero",
 		map[string][]int{
@@ -69,6 +90,48 @@ func chanakya(gMap *GameMap) *Character {
 		map[string]func() state_machine.State{
 			"wait": func() state_machine.State {
 				return WaitStateCreate(gameCharacter, gMap)
+			},
+			"move": func() state_machine.State {
+				return MoveStateCreate(gameCharacter, gMap)
+			},
+		},
+	)
+	gameCharacter.Controller.Change("wait", Direction{0, 0})
+	return gameCharacter
+}
+
+func thief(gMap *GameMap) *Character {
+	var gameCharacter *Character
+	gameCharacter = CharacterCreate("thief",
+		map[string][]int{
+			"up": {96, 97, 98, 99}, "right": {100, 101, 102, 103}, "down": {104, 105, 106, 107}, "left": {108, 109, 110, 111},
+		},
+		CharacterFacingDirection[2],
+		Entities["thief"],
+		map[string]func() state_machine.State{
+			"wait": func() state_machine.State {
+				return NPCStandStateCreate(gameCharacter, gMap)
+			},
+			"move": func() state_machine.State {
+				return MoveStateCreate(gameCharacter, gMap)
+			},
+		},
+	)
+	gameCharacter.Controller.Change("wait", Direction{0, 0})
+	return gameCharacter
+}
+
+func mage(gMap *GameMap) *Character {
+	var gameCharacter *Character
+	gameCharacter = CharacterCreate("mage",
+		map[string][]int{
+			"up": {112, 113, 114, 115}, "right": {116, 117, 118, 119}, "down": {120, 121, 122, 123}, "left": {124, 125, 126, 127},
+		},
+		CharacterFacingDirection[2],
+		Entities["mage"],
+		map[string]func() state_machine.State{
+			"wait": func() state_machine.State {
+				return NPCStandStateCreate(gameCharacter, gMap)
 			},
 			"move": func() state_machine.State {
 				return MoveStateCreate(gameCharacter, gMap)

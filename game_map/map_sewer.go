@@ -11,32 +11,27 @@ func mapSewer(gStack *gui.StateStack) MapInfo {
 	logFatalErr(err)
 	//end game 39, 4-5-6
 
-	//gameOverEvents := []interface{}{
-	//	Wait(1),
-	//	TitleCaptionScreen("title", "Game Over", 3),
-	//	SubTitleCaptionScreen("subtitle", "picture abhi baki hain mere dost...", 2),
-	//	Wait(3),
-	//	KillState("title"),
-	//	KillState("subtitle"),
-	//	BlackScreen("blackscreen"),
-	//	Wait(1),
-	//	KillState("blackscreen"),
-	//}
+	loadArenaMapEvents := []interface{}{
+		Wait(1),
+		FadeOutCharacter("handin", "hero", 2),
+
+		BlackScreen("blackscreen"),
+		Wait(1),
+		KillState("blackscreen"),
+
+		ReplaceScene("handin", "map_arena", 9, 7, false, gStack.Win),
+		PlayBGSound("../sound/reveal.mp3"),
+		HandOffToMainStack("map_arena"),
+	}
 
 	endOnEnter := func(gameMap *GameMap, entity *Entity, tileX, tileY float64) {
 		x, y := gameMap.GetTileIndex(tileX, tileY)
 
 		endEnter := func(gMap *GameMap) {
 			gStack.Pop() //remove SelectionMenu
-			gStack.Pop() //remove map Sewer
 
-			gameOver := GameOverStateCreate(gStack, []gui.CaptionStyle{
-				{"Game Over", 3},
-				{"will be continued...", 1.8},
-				{"press Q to quit", 1},
-			})
-			//gameOverSB := StoryboardCreate(gStack, gStack.Win, gameOverEvents, false)
-			gStack.Push(gameOver)
+			loadArenaMap := StoryboardCreate(gStack, gStack.Win, loadArenaMapEvents, true)
+			gStack.Push(loadArenaMap)
 		}
 
 		choices := []string{"Hit space to exit"}

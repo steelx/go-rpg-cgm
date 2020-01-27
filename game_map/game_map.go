@@ -97,9 +97,11 @@ func (m *GameMap) createTriggersFromMapInfo() {
 	}
 
 	m.OnWakeTriggers = make(map[string]Trigger)
-	for key, v := range m.MapInfo.OnWake {
-		addNPC := LIST[key](m, v.X, v.Y)
-		addNPC(Characters[v.Id](m))
+	for key, arr := range m.MapInfo.OnWake {
+		for _, v := range arr {
+			addNPC := LIST[key](m, v.X, v.Y)
+			addNPC(Characters[v.Id](m))
+		}
 	}
 
 	m.hideDecorationTile = make([]bool, m.MapInfo.Tilemap.Width*m.MapInfo.Tilemap.Height)
@@ -317,6 +319,26 @@ func (m *GameMap) AddNPC(npc *Character) {
 	m.NPCbyId[npc.Id] = npc
 	m.NPCs = append(m.NPCs, npc)
 	m.Entities = append(m.Entities, npc.Entity)
+}
+
+func (m *GameMap) RemoveNPC(tileX, tileY float64) bool {
+	for i, char := range m.NPCs {
+		if char.Entity.TileX == tileX && char.Entity.TileY == tileY {
+			m.NPCs[0], m.NPCs[i] = m.NPCs[i], m.NPCs[0]
+			m.NPCs = m.NPCs[1:]
+			return true
+		}
+	}
+	return false
+}
+
+func (m *GameMap) GetNPC(tileX, tileY float64) *Character {
+	for _, char := range m.NPCs {
+		if char.Entity.TileX == tileX && char.Entity.TileY == tileY {
+			return char
+		}
+	}
+	return nil
 }
 
 //WriteTile - accept actual Tiled App coordinates e.g. 35, 22
