@@ -9,6 +9,12 @@ const (
 	item   = "item"
 )
 
+var PartyMembersDefinitions = map[string]ActorDef{
+	"hero":  HeroDef,
+	"mage":  MageDef,
+	"thief": ThiefDef,
+}
+
 var HeroDef = ActorDef{
 	Id: "hero",
 	Stats: BaseStats{
