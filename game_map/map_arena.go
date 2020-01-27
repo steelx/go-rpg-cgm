@@ -15,9 +15,16 @@ func mapArena(gStack *gui.StateStack) MapInfo {
 		CollisionLayer:     2,
 		CollisionLayerName: "02 collision",
 		HiddenLayer:        "",
-		Actions:            nil,
-		TriggerTypes:       nil,
-		Triggers:           nil,
-		OnWake:             nil,
+
+		OnWake: map[string][]TriggerParam{
+			"AddNPC": {
+				{Id: "mage", X: 36, Y: 12},
+				{Id: "thief", X: 37, Y: 10},
+			},
+		},
+
+		Actions:      nil,
+		TriggerTypes: nil,
+		Triggers:     nil,
 	}
 }

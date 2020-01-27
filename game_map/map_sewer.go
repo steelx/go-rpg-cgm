@@ -14,7 +14,6 @@ func mapSewer(gStack *gui.StateStack) MapInfo {
 	loadArenaMapEvents := []interface{}{
 		Wait(1),
 		FadeOutCharacter("handin", "hero", 2),
-		FadeOutMap("handin", 2),
 
 		BlackScreen("blackscreen"),
 		Wait(1),

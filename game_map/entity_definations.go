@@ -28,14 +28,14 @@ func init() {
 		"thief": {
 			Texture: walkCyclePng,
 			Width:   16, Height: 24,
-			StartFrame: 41,
+			StartFrame: 104,
 			TileX:      11,
 			TileY:      3,
 		},
 		"mage": {
 			Texture: walkCyclePng,
 			Width:   16, Height: 24,
-			StartFrame: 25,
+			StartFrame: 120,
 			TileX:      11,
 			TileY:      3,
 		},
@@ -104,7 +104,7 @@ func thief(gMap *GameMap) *Character {
 	var gameCharacter *Character
 	gameCharacter = CharacterCreate("thief",
 		map[string][]int{
-			"up": {16, 17, 18, 19}, "right": {20, 21, 22, 23}, "down": {24, 25, 26, 27}, "left": {28, 29, 30, 31},
+			"up": {96, 97, 98, 99}, "right": {100, 101, 102, 103}, "down": {104, 105, 106, 107}, "left": {108, 109, 110, 111},
 		},
 		CharacterFacingDirection[2],
 		Entities["thief"],
@@ -125,7 +125,7 @@ func mage(gMap *GameMap) *Character {
 	var gameCharacter *Character
 	gameCharacter = CharacterCreate("mage",
 		map[string][]int{
-			"up": {16, 17, 18, 19}, "right": {20, 21, 22, 23}, "down": {24, 25, 26, 27}, "left": {28, 29, 30, 31},
+			"up": {112, 113, 114, 115}, "right": {116, 117, 118, 119}, "down": {120, 121, 122, 123}, "left": {124, 125, 126, 127},
 		},
 		CharacterFacingDirection[2],
 		Entities["mage"],

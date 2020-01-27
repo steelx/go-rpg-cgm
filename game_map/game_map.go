@@ -97,9 +97,11 @@ func (m *GameMap) createTriggersFromMapInfo() {
 	}
 
 	m.OnWakeTriggers = make(map[string]Trigger)
-	for key, v := range m.MapInfo.OnWake {
-		addNPC := LIST[key](m, v.X, v.Y)
-		addNPC(Characters[v.Id](m))
+	for key, arr := range m.MapInfo.OnWake {
+		for _, v := range arr {
+			addNPC := LIST[key](m, v.X, v.Y)
+			addNPC(Characters[v.Id](m))
+		}
 	}
 
 	m.hideDecorationTile = make([]bool, m.MapInfo.Tilemap.Width*m.MapInfo.Tilemap.Height)

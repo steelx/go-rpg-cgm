@@ -40,7 +40,7 @@ type MapInfo struct {
 	Actions                         map[string]MapAction   //"break_wall_script" : { Id = "RunScript", Scripts : []{ CrumbleScript } }
 	TriggerTypes                    map[string]TriggerType //"cracked_stone" : { OnUse = "break_wall_script" }
 	Triggers                        []TriggerParam         //[]{Id = "cracked_stone", x = 60, y = 11}
-	OnWake                          map[string]TriggerParam
+	OnWake                          map[string][]TriggerParam
 }
 
 //player render rule is we render them with Collision Layer
