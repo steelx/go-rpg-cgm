@@ -1,4 +1,4 @@
-package combat
+package world
 
 var magicHat = Modifier{
 	UniqueId: 1,

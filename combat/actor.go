@@ -9,19 +9,11 @@ import (
 	"golang.org/x/image/font/basicfont"
 )
 
-var DefaultStats = BaseStats{
-	HpNow:    300,
-	HpMax:    300,
-	MpNow:    300,
-	MpMax:    300,
-	Strength: 10, Speed: 10, Intelligence: 10,
-}
-
 // Actor is any creature or character that participates in combat
 // and therefore requires stats, equipment, etc
 type Actor struct {
 	Id, Name   string
-	Stats      Stats
+	Stats      world.Stats
 	StatGrowth map[string]func() int
 
 	PortraitTexture  pixel.Picture
@@ -54,7 +46,7 @@ func ActorCreate(def ActorDef) Actor {
 		Id:               def.Id,
 		Name:             def.Name,
 		StatGrowth:       def.StatGrowth,
-		Stats:            StatsCreate(def.Stats),
+		Stats:            world.StatsCreate(def.Stats),
 		XP:               0,
 		Level:            1,
 		PortraitTexture:  actorAvatar,
@@ -135,7 +127,7 @@ func (a *Actor) ApplyLevel(levelUp LevelUp) {
 
 type ActorDef struct {
 	Id               string //must match entityDef
-	Stats            BaseStats
+	Stats            world.BaseStats
 	StatGrowth       map[string]func() int
 	Portrait         string
 	Name             string

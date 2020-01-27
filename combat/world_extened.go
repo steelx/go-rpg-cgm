@@ -15,5 +15,6 @@ func WorldExtendedCreate() *WorldExtended {
 	w.Gold = 0
 	w.Items = make([]world.ItemIndex, 0)
 	w.KeyItems = make([]world.ItemIndex, 0)
+	w.Icons = world.IconsCreate()
 	return w
 }

@@ -1,4 +1,4 @@
-package combat
+package world
 
 import (
 	"github.com/fatih/structs"
