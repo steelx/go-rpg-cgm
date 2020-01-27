@@ -14,6 +14,7 @@ func init() {
 	MapsDB["small_room"] = smallRoomMap
 	MapsDB["map_jail"] = mapJail
 	MapsDB["map_sewer"] = mapSewer
+	MapsDB["map_arena"] = mapArena
 }
 
 type MapAction struct {
