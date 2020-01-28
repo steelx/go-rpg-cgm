@@ -23,6 +23,7 @@ type Actor struct {
 	Actions          []string
 	ActiveEquipSlots []int
 	Equipment        map[string]int
+	worldRef         *WorldExtended
 }
 
 /* example: ActorCreate(HeroDef)
@@ -125,12 +126,12 @@ func (a *Actor) ApplyLevel(levelUp LevelUp) {
 	// Unlock any special abilities etc.
 }
 
-func (a *Actor) Equip(equipSlotId string, item world.Item, gWorld *WorldExtended) {
+func (a *Actor) Equip(equipSlotId string, item world.Item) {
 	prevItem, ok := a.Equipment[equipSlotId]
 	if ok {
 		delete(a.Equipment, equipSlotId)
 		a.Stats.RemoveModifier(prevItem)
-		gWorld.AddItem(prevItem, 1) //return back to World
+		a.worldRef.AddItem(prevItem, 1) //return back to World
 	}
 
 	//UnEquip
@@ -138,13 +139,13 @@ func (a *Actor) Equip(equipSlotId string, item world.Item, gWorld *WorldExtended
 		return
 	}
 
-	gWorld.RemoveItem(item.Id, 1) //remove from World
+	a.worldRef.RemoveItem(item.Id, 1) //remove from World
 	a.Equipment[equipSlotId] = item.Id
 
 	modifier := item.Stats
 	a.Stats.AddModifier(item.Id, modifier)
 }
 
-func (a *Actor) UnEquip(equipSlotId string, gWorld *WorldExtended) {
-	a.Equip(equipSlotId, world.Item{Id: -1}, gWorld)
+func (a *Actor) UnEquip(equipSlotId string) {
+	a.Equip(equipSlotId, world.Item{Id: -1})
 }

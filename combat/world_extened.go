@@ -8,9 +8,8 @@ type WorldExtended struct {
 }
 
 func WorldExtendedCreate() *WorldExtended {
-	w := &WorldExtended{
-		Party: PartyCreate(),
-	}
+	w := &WorldExtended{}
+	w.Party = PartyCreate(w)
 	w.Time = 0
 	w.Gold = 0
 	w.Items = make([]world.ItemIndex, 0)
