@@ -37,9 +37,9 @@ var HeroDef = ActorDef{
 	Actions:          []string{attack, item},
 	ActiveEquipSlots: []world.ItemType{world.Weapon, world.Armor, world.Accessory, world.Accessory},
 	//ItemsDB Item.Id
-	Equipment: Equipment{
-		Weapon: 3,
-	},
+	//Equipment: Equipment{
+	//	Weapon: 3,
+	//},
 }
 
 var MageDef = ActorDef{

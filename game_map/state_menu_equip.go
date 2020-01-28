@@ -112,8 +112,8 @@ func (e EquipMenuState) Render(renderer *pixelgl.Window) {
 	e.actorSummary.Render(renderer)
 
 	// Slots selection
-	equipX := e.Layout.MidX("top") - 20
-	equipY := e.Layout.Top("top") - titleHeight - 10
+	equipX := e.Layout.MidX("top") + 40
+	equipY := e.Layout.Top("top") - titleHeight - 20
 	e.SlotMenu.SetPosition(equipX, equipY)
 	e.SlotMenu.Render(renderer)
 
@@ -177,12 +177,13 @@ func (e *EquipMenuState) RefreshFilteredMenus() {
 	// Get a list of filters by slot type
 	// Items will be sorted into these lists
 	slotCount := len(e.actorSummary.Actor.ActiveEquipSlots)
-	filterList := make([]FilterList, slotCount)
+	filterList := make([]*FilterList, slotCount)
 
 	for i := 0; i < slotCount; i++ {
 		slotType := e.actorSummary.Actor.ActiveEquipSlots[i]
-		filterList[i] = FilterList{
+		filterList[i] = &FilterList{
 			slotType: slotType,
+			list:     make([]world.ItemIndex, 0),
 		}
 	}
 
@@ -211,7 +212,7 @@ func (e *EquipMenuState) RefreshFilteredMenus() {
 
 }
 
-func (e EquipMenuState) OnDoEquip(index int, itemIdxI interface{}) {
+func (e *EquipMenuState) OnDoEquip(index int, itemIdxI interface{}) {
 	itemIdxV := reflect.ValueOf(itemIdxI)
 	itemIdx := itemIdxV.Interface().(world.ItemIndex)
 	item := e.parent.World.Get(itemIdx)
@@ -249,14 +250,16 @@ func (e EquipMenuState) GetSelectedSlot() string {
 func (e *EquipMenuState) GetSelectedItem() int {
 	if e.inList {
 		menu := e.FilterMenus[e.menuIndex]
-		itemIndexI := menu.SelectedItem()
-		itemIndexV := reflect.ValueOf(itemIndexI)
-		itemIndex := itemIndexV.Interface().(world.ItemIndex)
-		return itemIndex.Id
-	} else {
-		slot := e.GetSelectedSlot()
-		return e.actorSummary.Actor.Equipped[slot]
+		if menu.DataI != nil {
+			itemIndexI := menu.SelectedItem()
+			itemIndexV := reflect.ValueOf(itemIndexI)
+			itemIndex := itemIndexV.Interface().(world.ItemIndex)
+			return itemIndex.Id
+		}
 	}
+
+	slot := e.GetSelectedSlot()
+	return e.actorSummary.Actor.Equipped[slot]
 }
 
 func (e *EquipMenuState) DrawStat(renderer pixel.Target, x, y float64, label, statId string, diff float64) {
@@ -281,7 +284,7 @@ func (e *EquipMenuState) DrawStat(renderer pixel.Target, x, y float64, label, st
 
 	if diff > 0 {
 		e.betterStatsIcon.Draw(renderer, pixel.IM.Moved(pixel.V(x+80, y)))
-	} else {
+	} else if diff < 0 {
 		e.badStatsIcon.Draw(renderer, pixel.IM.Moved(pixel.V(x+80, y)))
 	}
 
