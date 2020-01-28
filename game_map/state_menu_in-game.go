@@ -11,12 +11,16 @@ import (
 
 //igm.StateMachine
 const (
-	frontmenu int = iota
+	status int = iota
 	items
-	magic
 	equip
-	status
 )
+
+var frontMenuOrder = []string{
+	"Status",
+	"Items",
+	"Equipment",
+}
 
 //parent
 type InGameMenuState struct {
@@ -36,18 +40,17 @@ func InGameMenuStateCreate(stack *gui.StateStack, win *pixelgl.Window) *InGameMe
 		"frontmenu": func() state_machine.State {
 			return FrontMenuStateCreate(igm, win)
 		},
-		"items": func() state_machine.State {
+		frontMenuOrder[items]: func() state_machine.State {
 			return ItemsMenuStateCreate(igm, win)
 		},
 		"magic": func() state_machine.State {
 			//return MagicMenuStateCreate(this)
 			return state_machine.Create(map[string]func() state_machine.State{})
 		},
-		"equip": func() state_machine.State {
-			//return EquipMenuStateCreate(this)
-			return state_machine.Create(map[string]func() state_machine.State{})
+		frontMenuOrder[equip]: func() state_machine.State {
+			return EquipMenuStateCreate(igm, win)
 		},
-		"status": func() state_machine.State {
+		frontMenuOrder[status]: func() state_machine.State {
 			//return StatusMenuStateCreate(this)
 			return StatusMenuStateCreate(igm, win)
 		},
