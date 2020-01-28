@@ -7,6 +7,7 @@ import (
 	"golang.org/x/image/font/basicfont"
 	"log"
 	"math"
+	"reflect"
 )
 
 type World struct {
@@ -149,8 +150,17 @@ func (w World) GetKeyItemsAsStrings() []string {
 	return items
 }
 
-//pending: use inside SelectionMenu renderItem pending
-func (w World) DrawItem(renderer pixel.Target, x, y float64, itemIdx ItemIndex) {
+func (w World) DrawItem(a ...interface{}) {
+	//renderer pixel.Target, x, y float64, itemIdx ItemIndex
+	rendererV := reflect.ValueOf(a[0])
+	renderer := rendererV.Interface().(pixel.Target)
+	xV := reflect.ValueOf(a[1])
+	x := xV.Interface().(float64)
+	yV := reflect.ValueOf(a[2])
+	y := yV.Interface().(float64)
+	itemIdxV := reflect.ValueOf(a[3])
+	itemIdx := itemIdxV.Interface().(ItemIndex)
+
 	itemDef := ItemsDB[itemIdx.Id]
 	iconsSize := 16.0
 
@@ -172,4 +182,7 @@ func (w *World) HasKey(id int) bool {
 		}
 	}
 	return false
+}
+func (w *World) Get(idx ItemIndex) Item {
+	return ItemsDB[idx.Id]
 }

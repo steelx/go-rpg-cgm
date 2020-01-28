@@ -142,6 +142,7 @@ func (m SelectionMenu) calcTotalWidth() float64 {
 
 			default:
 				fmt.Println("SelectionMenu:calcTotalWidth :: type unknown")
+				return 100
 			}
 		}
 		return maxEntryWidth + m.cursorWidth

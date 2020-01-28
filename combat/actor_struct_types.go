@@ -9,7 +9,7 @@ type ActorDef struct {
 	Portrait         string
 	Name             string
 	Actions          []string
-	ActiveEquipSlots []int
+	ActiveEquipSlots []world.ItemType
 	Equipment
 }
 
@@ -24,5 +24,5 @@ type Equipment struct {
 	Weapon,
 	Armor,
 	Access1,
-	Access2 int
+	Access2 int //ItemsDB.Id
 }

@@ -89,6 +89,10 @@ func (s ActorSummary) GetCursorPosition() pixel.Vec {
 	return pixel.V(s.X, s.Y-40)
 }
 
+func (s *ActorSummary) HideXP() {
+	s.ShowXP = false
+}
+
 func (s *ActorSummary) Render(renderer pixel.Target) {
 	actor := s.Actor
 
