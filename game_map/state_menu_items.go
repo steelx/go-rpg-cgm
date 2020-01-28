@@ -13,16 +13,15 @@ import (
 )
 
 type ItemsMenuState struct {
-	win                     *pixelgl.Window
-	parent                  *InGameMenuState
-	Layout                  gui.Layout
-	Stack                   *gui.StateStack
-	StateMachine            *state_machine.StateMachine
-	Panels                  []gui.Panel
-	ItemMenus               []*gui.SelectionMenu
-	CategoryMenu            *gui.SelectionMenu
-	InCategoryMenu          bool
-	itemIndex, keyItemIndex int
+	win            *pixelgl.Window
+	parent         *InGameMenuState
+	Layout         gui.Layout
+	Stack          *gui.StateStack
+	StateMachine   *state_machine.StateMachine
+	Panels         []gui.Panel
+	ItemMenus      []*gui.SelectionMenu
+	CategoryMenu   *gui.SelectionMenu
+	InCategoryMenu bool
 }
 
 func ItemsMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *ItemsMenuState {
@@ -68,8 +67,7 @@ func ItemsMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *ItemsMe
 		false,
 		pixel.V(0, 0),
 		func(index int, s interface{}) {
-			fmt.Println(world.ItemsDB[parent.World.Items[index].Id].Description)
-			im.itemIndex = index
+			//Items menu screen selection
 		},
 		renderFunction,
 	)
@@ -78,8 +76,7 @@ func ItemsMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *ItemsMe
 		false,
 		pixel.V(0, 0),
 		func(index int, s interface{}) {
-			fmt.Println(parent.World.KeyItems[index], im, s)
-			im.keyItemIndex = index
+			//Items menu screen selection
 		},
 		renderFunction,
 	)

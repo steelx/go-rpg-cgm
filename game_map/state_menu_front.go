@@ -94,7 +94,7 @@ func (fm *FrontMenuState) OnPartyMemberChosen(actorIndex int, actorSummaryI inte
 
 func (fm *FrontMenuState) OnMenuClick(index int, str interface{}) {
 	if index == items {
-		fm.StateMachine.Change("items", nil)
+		fm.StateMachine.Change(frontMenuOrder[items], nil)
 		return
 	}
 
