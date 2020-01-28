@@ -43,14 +43,14 @@ func FrontMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *FrontMe
 	fm.PrevTopBarText = fm.TopBarText
 
 	selectionsX, selectionsY := fm.Layout.MidX("menu")-60, fm.Layout.Top("menu")-24
-	selectionMenu := gui.SelectionMenuCreate(32, 128,
-		[]string{"Status", "Items"},
+	frontMenuSelection := gui.SelectionMenuCreate(32, 128,
+		frontMenuOrder,
 		false,
 		pixel.V(selectionsX, selectionsY),
 		fm.OnMenuClick,
 		nil,
 	)
-	fm.Selections = &selectionMenu
+	fm.Selections = &frontMenuSelection
 	fm.Panels = []gui.Panel{
 		layout.CreatePanel("gold"),
 		layout.CreatePanel("top"),
@@ -83,25 +83,28 @@ func FrontMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *FrontMe
 
 	return fm
 }
-func (fm *FrontMenuState) OnPartyMemberChosen(index int, actorSummaryI interface{}) {
+func (fm *FrontMenuState) OnPartyMemberChosen(actorIndex int, actorSummaryI interface{}) {
 	actorSummaryV := reflect.ValueOf(actorSummaryI)
 	actorSummary := actorSummaryV.Interface().(gui.ActorSummary)
 
-	fm.StateMachine.Change("status", actorSummary)
+	frontMenuIndex := fm.Selections.GetIndex()
+	stateId := frontMenuOrder[frontMenuIndex]
+	fm.StateMachine.Change(stateId, actorSummary)
 }
 
 func (fm *FrontMenuState) OnMenuClick(index int, str interface{}) {
 	if index == items {
-		fm.StateMachine.Change("items", nil)
+		fm.StateMachine.Change(frontMenuOrder[items], nil)
 		return
 	}
 
-	if index == frontmenu {
+	if index == status || index == equip {
 		fm.InPartyMenu = true
 		fm.Selections.HideCursor()
 		fm.PartyMenu.ShowCursor()
 		fm.PrevTopBarText = fm.TopBarText
 		fm.TopBarText = "Choose a party member"
+		return
 	}
 
 }
@@ -110,7 +113,7 @@ func (fm FrontMenuState) CreatePartySummaries() []gui.ActorSummary {
 	partyMembers := fm.Parent.World.Party.Members
 	var summaryList []gui.ActorSummary
 	for _, actor := range partyMembers {
-		summaryList = append(summaryList, gui.ActorSummaryCreate(actor, true))
+		summaryList = append(summaryList, gui.ActorSummaryCreate(*actor, true))
 	}
 	return summaryList
 }

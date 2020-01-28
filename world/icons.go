@@ -5,54 +5,62 @@ import (
 	"github.com/steelx/go-rpg-cgm/utilz"
 )
 
-//var IconPNGs Icons
-//
-//func init()  {
-//	inventoryIconsPng, err := LoadPicture("../resources/inventory_icons.png")
-//	if err != nil {
-//		log.Fatal(err)
-//	}
-//
-//	IconPNGs = IconsCreate(inventoryIconsPng)
-//}
-
-type IconDefs int
-
-const (
-	UsableICO IconDefs = iota
-	AccessoryICO
-	WeaponICO
-	ArmorICO
-	UpArrowICO
-	OwnArrowICO
-)
-
-func (d IconDefs) String() string {
-	return [...]string{"UsableICO", "AccessoryICO", "WeaponICO", "ArmorICO", "UpArrowICO", "DownArrowICO"}[d]
+type IconDefs struct {
+	Usable,
+	Accessory,
+	Weapon,
+	Sword,
+	Dagger,
+	Stave,
+	Armor,
+	Plate,
+	Leather,
+	Robe,
+	UpArrow,
+	DownArrow int
 }
 
 type Icons struct {
-	Texture pixel.Picture
-	UVs     []pixel.Rect
-	Sprites []*pixel.Sprite
+	Texture  pixel.Picture
+	UVs      []pixel.Rect
+	Sprites  []*pixel.Sprite
+	IconDefs IconDefs
 }
 
-func IconsCreate(pic pixel.Picture) Icons {
-	i := Icons{
-		Texture: pic,
+func IconsCreate() Icons {
+	inventoryIconsPng, err := utilz.LoadPicture("../resources/inventory_icons.png")
+	utilz.PanicIfErr(err)
+	//488
+	ico := Icons{
+		Texture: inventoryIconsPng,
+		IconDefs: IconDefs{
+			Usable:    1,
+			Accessory: 2,
+			Weapon:    3,
+			Sword:     4,
+			Dagger:    5,
+			Stave:     6,
+			Armor:     7,
+			Plate:     8,
+			Leather:   9,
+			Robe:      10,
+			UpArrow:   11,
+			DownArrow: 12,
+		},
 	}
 
-	i.UVs = utilz.LoadAsFrames(i.Texture, 18, 18)
-	i.Sprites = make([]*pixel.Sprite, len(i.UVs))
+	ico.UVs = utilz.LoadAsFramesFromTop(ico.Texture, 18, 18)
+	ico.Sprites = make([]*pixel.Sprite, len(ico.UVs))
 
-	for k := range i.UVs {
-		sprite := pixel.NewSprite(i.Texture, i.UVs[k])
-		i.Sprites[k] = sprite
+	for k := range ico.UVs {
+		sprite := pixel.NewSprite(ico.Texture, ico.UVs[k])
+		ico.Sprites[k] = sprite
 	}
 
-	return i
+	return ico
 }
 
-func (i Icons) Get(d ItemType) *pixel.Sprite {
-	return i.Sprites[d]
+//Get accepts ItemType int e.g. weapon = 3
+func (i Icons) Get(d int) *pixel.Sprite {
+	return i.Sprites[d-1]
 }

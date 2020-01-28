@@ -12,6 +12,8 @@ import (
 type World struct {
 	Time, Gold      float64
 	Items, KeyItems []ItemIndex
+	//Party check world_extended.go
+	Icons Icons
 }
 
 type ItemIndex struct {
@@ -24,6 +26,7 @@ func Create() *World {
 		Gold:     0,
 		Items:    make([]ItemIndex, 0),
 		KeyItems: make([]ItemIndex, 0),
+		Icons:    IconsCreate(),
 	}
 
 	//temp user items in inventory
@@ -151,14 +154,14 @@ func (w World) DrawItem(renderer pixel.Target, x, y float64, itemIdx ItemIndex) 
 	itemDef := ItemsDB[itemIdx.Id]
 
 	basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
-	pos := pixel.V(x+40, y)
-	textBase := text.New(pos, basicAtlas)
+	pos1 := pixel.V(x+40, y+(18/2))
+	pos2 := pixel.V(x+40+18, y)
+	textBase := text.New(pos2, basicAtlas)
 	fmt.Fprintln(textBase, fmt.Sprintf("%-6s (%v)", itemDef.Name, itemIdx.Count))
 	textBase.Draw(renderer, pixel.IM)
 
-	//first uncomment icons.go line no. 9
-	//iconSprite := IconPNGs.Get(itemDef.ItemType)
-	//iconSprite.Draw(renderer, pixel.IM.Moved(pos.Add(pixel.V(6, 0))))
+	iconSprite := w.Icons.Get(itemIdx.Id)
+	iconSprite.Draw(renderer, pixel.IM.Moved(pos1))
 }
 
 func (w *World) HasKey(id int) bool {

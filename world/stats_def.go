@@ -1,4 +1,4 @@
-package combat
+package world
 
 import "github.com/steelx/go-rpg-cgm/dice"
 

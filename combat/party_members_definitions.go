@@ -2,6 +2,7 @@ package combat
 
 import (
 	"github.com/steelx/go-rpg-cgm/dice"
+	"github.com/steelx/go-rpg-cgm/world"
 )
 
 const (
@@ -17,7 +18,7 @@ var PartyMembersDefinitions = map[string]ActorDef{
 
 var HeroDef = ActorDef{
 	Id: "hero",
-	Stats: BaseStats{
+	Stats: world.BaseStats{
 		HpNow:    300,
 		HpMax:    300,
 		MpNow:    300,
@@ -27,9 +28,9 @@ var HeroDef = ActorDef{
 	StatGrowth: map[string]func() int{
 		"HpMax":        dice.Create("4d50+100"),
 		"MpMax":        dice.Create("2d50+100"),
-		"Strength":     StatsGrowth.Fast,
-		"Speed":        StatsGrowth.Fast,
-		"Intelligence": StatsGrowth.Med,
+		"Strength":     world.StatsGrowth.Fast,
+		"Speed":        world.StatsGrowth.Fast,
+		"Intelligence": world.StatsGrowth.Med,
 	},
 	Name:             "Chandragupta",
 	Portrait:         "../resources/avatar_hero.png",
@@ -43,7 +44,7 @@ var HeroDef = ActorDef{
 
 var MageDef = ActorDef{
 	Id: "mage",
-	Stats: BaseStats{
+	Stats: world.BaseStats{
 		HpNow:    200,
 		HpMax:    200,
 		MpNow:    280,
@@ -53,9 +54,9 @@ var MageDef = ActorDef{
 	StatGrowth: map[string]func() int{
 		"HpMax":        dice.Create("3d40+100"),
 		"MpMax":        dice.Create("4d50+100"),
-		"Strength":     StatsGrowth.Med,
-		"Speed":        StatsGrowth.Med,
-		"Intelligence": StatsGrowth.Fast,
+		"Strength":     world.StatsGrowth.Med,
+		"Speed":        world.StatsGrowth.Med,
+		"Intelligence": world.StatsGrowth.Fast,
 	},
 	Name:             "Mrignayani",
 	Portrait:         "../resources/avatar_mage.png",
@@ -65,7 +66,7 @@ var MageDef = ActorDef{
 
 var ThiefDef = ActorDef{
 	Id: "thief",
-	Stats: BaseStats{
+	Stats: world.BaseStats{
 		HpNow:    280,
 		HpMax:    280,
 		MpNow:    150,
@@ -75,9 +76,9 @@ var ThiefDef = ActorDef{
 	StatGrowth: map[string]func() int{
 		"HpMax":        dice.Create("3d40+100"),
 		"MpMax":        dice.Create("4d50+100"),
-		"Strength":     StatsGrowth.Med,
-		"Speed":        StatsGrowth.Med,
-		"Intelligence": StatsGrowth.Med,
+		"Strength":     world.StatsGrowth.Med,
+		"Speed":        world.StatsGrowth.Med,
+		"Intelligence": world.StatsGrowth.Med,
 	},
 	Name:             "Shashank",
 	Portrait:         "../resources/avatar_thief.png",

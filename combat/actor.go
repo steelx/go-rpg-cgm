@@ -9,19 +9,11 @@ import (
 	"golang.org/x/image/font/basicfont"
 )
 
-var DefaultStats = BaseStats{
-	HpNow:    300,
-	HpMax:    300,
-	MpNow:    300,
-	MpMax:    300,
-	Strength: 10, Speed: 10, Intelligence: 10,
-}
-
 // Actor is any creature or character that participates in combat
 // and therefore requires stats, equipment, etc
 type Actor struct {
 	Id, Name   string
-	Stats      Stats
+	Stats      world.Stats
 	StatGrowth map[string]func() int
 
 	PortraitTexture  pixel.Picture
@@ -31,6 +23,7 @@ type Actor struct {
 	Actions          []string
 	ActiveEquipSlots []int
 	Equipment        map[string]int
+	worldRef         *WorldExtended
 }
 
 /* example: ActorCreate(HeroDef)
@@ -54,7 +47,7 @@ func ActorCreate(def ActorDef) Actor {
 		Id:               def.Id,
 		Name:             def.Name,
 		StatGrowth:       def.StatGrowth,
-		Stats:            StatsCreate(def.Stats),
+		Stats:            world.StatsCreate(def.Stats),
 		XP:               0,
 		Level:            1,
 		PortraitTexture:  actorAvatar,
@@ -133,27 +126,79 @@ func (a *Actor) ApplyLevel(levelUp LevelUp) {
 	// Unlock any special abilities etc.
 }
 
-type ActorDef struct {
-	Id               string //must match entityDef
-	Stats            BaseStats
-	StatGrowth       map[string]func() int
-	Portrait         string
-	Name             string
-	Actions          []string
-	ActiveEquipSlots []int
-	Equipment
+func (a *Actor) Equip(equipSlotId string, item world.Item) {
+	prevItemId, ok := a.Equipment[equipSlotId]
+	if ok {
+		delete(a.Equipment, equipSlotId)
+		a.Stats.RemoveModifier(prevItemId)
+		a.worldRef.AddItem(prevItemId, 1) //return back to World
+	}
+
+	//UnEquip
+	if item.Id == -1 {
+		return
+	}
+
+	a.worldRef.RemoveItem(item.Id, 1) //remove from World
+	a.Equipment[equipSlotId] = item.Id
+
+	modifier := item.Stats
+	a.Stats.AddModifier(item.Id, modifier)
 }
 
-type LevelUp struct {
-	XP        float64
-	Level     int
-	BaseStats map[string]float64
+func (a *Actor) UnEquip(equipSlotId string) {
+	a.Equip(equipSlotId, world.Item{Id: -1})
 }
 
-//Must match to ItemsDB ID
-type Equipment struct {
-	Weapon,
-	Armor,
-	Access1,
-	Access2 int
+func (a Actor) createStatNameList() (statsIDs []string) {
+	for _, v := range ActorLabels.ActorStats {
+		statsIDs = append(statsIDs, v)
+	}
+
+	for _, v := range ActorLabels.ItemStats {
+		statsIDs = append(statsIDs, v)
+	}
+
+	statsIDs = append(statsIDs, "HpMax")
+	statsIDs = append(statsIDs, "MpMax")
+
+	return
+}
+
+// PredictStats
+//compare Equipped Item Stats with given Item
+// returns -> BaseStats after comparison
+func (a Actor) PredictStats(equipSlotId string, item world.Item) map[string]float64 {
+	statsIDs := a.createStatNameList()
+
+	currentStats := make(map[string]float64)
+	for _, key := range statsIDs {
+		currentStats[key] = a.Stats.Get(key)
+	}
+
+	// Replace item
+	prevItemId, ok := a.Equipment[equipSlotId]
+	if ok {
+		a.Stats.RemoveModifier(prevItemId)
+	}
+	a.Stats.AddModifier(item.Id, item.Stats)
+
+	// Get values for modified stats
+	modifiedStats := make(map[string]float64)
+	for _, key := range statsIDs {
+		modifiedStats[key] = a.Stats.Get(key)
+	}
+
+	diffStats := make(map[string]float64)
+	for _, key := range statsIDs {
+		diffStats[key] = modifiedStats[key] - currentStats[key]
+	}
+
+	// Undo replace item
+	a.Stats.RemoveModifier(item.Id)
+	if ok {
+		a.Stats.AddModifier(prevItemId, world.ItemsDB[prevItemId].Stats)
+	}
+
+	return diffStats
 }

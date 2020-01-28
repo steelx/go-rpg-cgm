@@ -12,6 +12,7 @@ import (
 	_ "image/png"
 	"io"
 	"io/ioutil"
+	"math"
 	"math/rand"
 	"os"
 	"strconv"
@@ -56,6 +57,20 @@ func LoadAsFrames(imgSprite pixel.Picture, w, h float64) []pixel.Rect {
 	var spriteFrames []pixel.Rect
 
 	for y := imgSprite.Bounds().Min.Y; y < imgSprite.Bounds().Max.Y; y += h {
+		for x := imgSprite.Bounds().Min.X; x < imgSprite.Bounds().Max.X; x += w {
+			spriteFrames = append(spriteFrames, pixel.R(x, y, x+w, y+h))
+		}
+	}
+	//e.g. pixel.NewSprite(imgSprite, spriteFrames[frameIndex])
+	return spriteFrames
+}
+
+func LoadAsFramesFromTop(imgSprite pixel.Picture, w, h float64) []pixel.Rect {
+	var spriteFrames []pixel.Rect
+
+	minY := math.Floor(imgSprite.Bounds().Min.Y)
+	maxY := math.Floor(imgSprite.Bounds().Max.Y)
+	for y := maxY - h; y >= minY; y -= h {
 		for x := imgSprite.Bounds().Min.X; x < imgSprite.Bounds().Max.X; x += w {
 			spriteFrames = append(spriteFrames, pixel.R(x, y, x+w, y+h))
 		}

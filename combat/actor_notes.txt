@@ -48,3 +48,26 @@ func main() {
 
 	//pixelgl.Run(run)
 }
+
+
+
+//Diff stats
+
+gWorld := combat.WorldExtendedCreate()
+gWorld.Party.Add(combat.ActorCreate(combat.HeroDef))
+
+//Test Actor Equip -> Menu -> Status screen
+boneBladeItem := world.ItemsDB[1]
+treeBranchItem := world.ItemsDB[5]
+gWorld.AddItem(boneBladeItem.Id, 1)
+hero := gWorld.Party.Members[combat.HeroDef.Id]
+hero.Equip("Weapon", boneBladeItem)
+
+diffStats := hero.PredictStats("Weapon", treeBranchItem)
+
+fmt.Println("diffStats [KEY] : VALUE")
+for k, v := range diffStats {
+    fmt.Println(k, v)
+}
+
+//Diff stats END
