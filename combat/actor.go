@@ -125,27 +125,26 @@ func (a *Actor) ApplyLevel(levelUp LevelUp) {
 	// Unlock any special abilities etc.
 }
 
-type ActorDef struct {
-	Id               string //must match entityDef
-	Stats            world.BaseStats
-	StatGrowth       map[string]func() int
-	Portrait         string
-	Name             string
-	Actions          []string
-	ActiveEquipSlots []int
-	Equipment
+func (a *Actor) Equip(equipSlotId string, item world.Item, gWorld *WorldExtended) {
+	prevItem, ok := a.Equipment[equipSlotId]
+	if ok {
+		delete(a.Equipment, equipSlotId)
+		a.Stats.RemoveModifier(prevItem)
+		gWorld.AddItem(prevItem, 1) //return back to World
+	}
+
+	//UnEquip
+	if item.Id == -1 {
+		return
+	}
+
+	gWorld.RemoveItem(item.Id, 1) //remove from World
+	a.Equipment[equipSlotId] = item.Id
+
+	modifier := item.Stats
+	a.Stats.AddModifier(item.Id, modifier)
 }
 
-type LevelUp struct {
-	XP        float64
-	Level     int
-	BaseStats map[string]float64
-}
-
-//Must match to ItemsDB ID
-type Equipment struct {
-	Weapon,
-	Armor,
-	Access1,
-	Access2 int
+func (a *Actor) UnEquip(equipSlotId string, gWorld *WorldExtended) {
+	a.Equip(equipSlotId, world.Item{Id: -1}, gWorld)
 }

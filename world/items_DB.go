@@ -5,6 +5,7 @@ package world
 //• Weapon - an item that can be equipped
 // and has properties related to inflicting damage.
 type Item struct {
+	Id                int
 	ItemType          ItemType
 	Name, Description string
 	Special           bool
@@ -58,6 +59,7 @@ var ItemsDB = make(map[int]Item)
 func init() {
 
 	ItemsDB[0] = Item{
+		Id:          0,
 		ItemType:    Empty,
 		Name:        "empty",
 		Description: "",
@@ -77,6 +79,7 @@ func init() {
 	}
 
 	ItemsDB[1] = Item{
+		Id:           1,
 		ItemType:     Weapon,
 		Name:         "Bone Blade",
 		Description:  "A wicked sword made from bone.",
@@ -89,6 +92,7 @@ func init() {
 	}
 
 	ItemsDB[2] = Item{
+		Id:           2,
 		ItemType:     Armor,
 		Name:         "Bone Armor",
 		Description:  "Armor made from plates of blackened bone.",
@@ -102,6 +106,7 @@ func init() {
 	}
 
 	ItemsDB[3] = Item{
+		Id:          3,
 		ItemType:    Accessory,
 		Name:        "Ring of Titan",
 		Description: "Grants the strength of the Titan.",
@@ -113,12 +118,14 @@ func init() {
 	}
 
 	ItemsDB[4] = Item{
+		Id:          4,
 		ItemType:    Usable,
 		Name:        "Old Bone",
 		Description: "A human leg bone, open's a hidden room",
 	}
 
 	ItemsDB[5] = Item{
+		Id:           5,
 		ItemType:     Weapon,
 		Name:         "World Tree Branch",
 		Description:  "A hard wood branch.",
@@ -132,6 +139,7 @@ func init() {
 	}
 
 	ItemsDB[6] = Item{
+		Id:           6,
 		ItemType:     Armor,
 		Name:         "Dragon's Cloak",
 		Description:  "A cloak of dragon scales.",
@@ -145,6 +153,7 @@ func init() {
 	}
 
 	ItemsDB[7] = Item{
+		Id:          7,
 		ItemType:    Accessory,
 		Name:        "Singer's Stone",
 		Description: "The stone's song resists magical attacks.",
@@ -156,6 +165,7 @@ func init() {
 	}
 
 	ItemsDB[8] = Item{
+		Id:           8,
 		ItemType:     Weapon,
 		Name:         "Black Dagger",
 		Description:  "A dagger made out of an unknown material.",
@@ -168,6 +178,7 @@ func init() {
 	}
 
 	ItemsDB[9] = Item{
+		Id:           9,
 		ItemType:     Armor,
 		Name:         "Footpad Leathers",
 		Description:  "Light Armor for silent movement.",
@@ -180,6 +191,7 @@ func init() {
 	}
 
 	ItemsDB[10] = Item{
+		Id:          10,
 		ItemType:    Accessory,
 		Name:        "Swift Boots",
 		Description: "Increases speed by 25%",
@@ -191,6 +203,7 @@ func init() {
 	}
 
 	ItemsDB[11] = Item{
+		Id:          11,
 		ItemType:    Usable,
 		Name:        "Heal Potion",
 		Description: "Heal a small amount of HP.",

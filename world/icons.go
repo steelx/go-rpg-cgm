@@ -30,7 +30,7 @@ type Icons struct {
 func IconsCreate() Icons {
 	inventoryIconsPng, err := utilz.LoadPicture("../resources/inventory_icons.png")
 	utilz.PanicIfErr(err)
-
+	//488
 	ico := Icons{
 		Texture: inventoryIconsPng,
 		IconDefs: IconDefs{
