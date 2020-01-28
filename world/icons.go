@@ -20,6 +20,12 @@ type IconDefs struct {
 	DownArrow int
 }
 
+var IconsDB Icons
+
+func init() {
+	IconsDB = IconsCreate()
+}
+
 type Icons struct {
 	Texture  pixel.Picture
 	UVs      []pixel.Rect

@@ -26,7 +26,7 @@ func Create() *World {
 		Gold:     0,
 		Items:    make([]ItemIndex, 0),
 		KeyItems: make([]ItemIndex, 0),
-		Icons:    IconsCreate(),
+		Icons:    IconsDB,
 	}
 
 	//temp user items in inventory
