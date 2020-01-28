@@ -152,15 +152,16 @@ func (w World) GetKeyItemsAsStrings() []string {
 //pending: use inside SelectionMenu renderItem pending
 func (w World) DrawItem(renderer pixel.Target, x, y float64, itemIdx ItemIndex) {
 	itemDef := ItemsDB[itemIdx.Id]
+	iconsSize := 16.0
 
 	basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
-	pos1 := pixel.V(x+40, y+(18/2))
-	pos2 := pixel.V(x+40+18, y)
+	pos1 := pixel.V(x+40, y+(iconsSize/2))
+	pos2 := pixel.V(x+40+iconsSize, y)
 	textBase := text.New(pos2, basicAtlas)
 	fmt.Fprintln(textBase, fmt.Sprintf("%-6s (%v)", itemDef.Name, itemIdx.Count))
 	textBase.Draw(renderer, pixel.IM)
 
-	iconSprite := w.Icons.Get(itemIdx.Id)
+	iconSprite := w.Icons.Get(itemDef.ItemType)
 	iconSprite.Draw(renderer, pixel.IM.Moved(pos1))
 }
 

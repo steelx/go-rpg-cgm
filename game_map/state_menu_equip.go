@@ -1,10 +1,20 @@
 package game_map
 
-import "github.com/faiface/pixel/pixelgl"
+import (
+	"github.com/faiface/pixel/pixelgl"
+	"github.com/steelx/go-rpg-cgm/gui"
+)
 
 type EquipMenuState struct {
 	parent *InGameMenuState
 	win    *pixelgl.Window
+
+	TopBarText,
+	PrevTopBarText string
+	Selections *gui.SelectionMenu
+	PartyMenu  *gui.SelectionMenu
+	Panels     []gui.Panel
+	Layout     gui.Layout
 }
 
 func EquipMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *EquipMenuState {
