@@ -118,19 +118,14 @@ func gameLoop(win *pixelgl.Window) {
 			//update StateStack
 			stack.Update(dt)
 			gWorld.Update(dt)
-			//stack.Render(win)
 
 			//<-- this would render only 1 stack at a time
-			if len(stack.States) > 1 {
-				switch top := stack.States[stack.GetLastIndex()].(type) {
-				case *game_map.InGameMenuState:
-					top.Render(win)
+			switch top := stack.States[stack.GetLastIndex()].(type) {
+			case *game_map.InGameMenuState:
+				top.Render(win)
 
-				default:
-					stack.Render(win) //else render all
-				}
-			} else {
-				stack.Render(win)
+			default:
+				stack.Render(win) //else render all
 			}
 
 		}
