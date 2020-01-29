@@ -16,6 +16,9 @@ func init() {
 	sleepingPng, err := utilz.LoadPicture("../resources/sleeping.png")
 	utilz.PanicIfErr(err)
 
+	chestPng, err := utilz.LoadPicture("../resources/chest.png")
+	utilz.PanicIfErr(err)
+
 	//Entities
 	Entities = map[string]EntityDefinition{
 		"hero": {
@@ -67,6 +70,13 @@ func init() {
 			TileX:      19,
 			TileY:      19, //jail map cords
 		},
+		"chest": {
+			Texture: chestPng,
+			Width:   16, Height: 16,
+			StartFrame: 0,
+			TileX:      20,
+			TileY:      20,
+		},
 	}
 
 	Characters["hero"] = hero
@@ -77,6 +87,7 @@ func init() {
 	Characters["npc2"] = NPC2
 	Characters["guard"] = guard
 	Characters["prisoner"] = prisoner
+	Characters["chest"] = chest
 }
 
 func hero(gMap *GameMap) *Character {
@@ -238,6 +249,25 @@ func prisoner(gMap *GameMap) *Character {
 			},
 			"follow_path": func() state_machine.State {
 				return FollowPathStateCreate(gameCharacter, gMap)
+			},
+		},
+	)
+	gameCharacter.Controller.Change("wait", Direction{0, 0})
+	return gameCharacter
+}
+
+func chest(gMap *GameMap) *Character {
+	var gameCharacter *Character
+	gameCharacter = CharacterCreate(
+		"chest",
+		map[string][]int{
+			"down": {0, 1},
+		},
+		CharacterFacingDirection[2],
+		Entities["chest"],
+		map[string]func() state_machine.State{
+			"wait": func() state_machine.State {
+				return NPCStandStateCreate(gameCharacter, gMap)
 			},
 		},
 	)

@@ -99,8 +99,8 @@ func (m *GameMap) createTriggersFromMapInfo() {
 	m.OnWakeTriggers = make(map[string]Trigger)
 	for key, arr := range m.MapInfo.OnWake {
 		for _, v := range arr {
-			addNPC := LIST[key](m, v.X, v.Y)
-			addNPC(Characters[v.Id](m))
+			addAction := LIST[key](m, v.X, v.Y)
+			addAction(Characters[v.Id](m))
 		}
 	}
 
