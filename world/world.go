@@ -171,7 +171,7 @@ func (w World) DrawItem(a ...interface{}) {
 	fmt.Fprintln(textBase, fmt.Sprintf("%-6s (%v)", itemDef.Name, itemIdx.Count))
 	textBase.Draw(renderer, pixel.IM)
 
-	iconSprite := w.Icons.Get(itemDef.ItemType)
+	iconSprite := w.Icons.Get(itemDef.Icon)
 	iconSprite.Draw(renderer, pixel.IM.Moved(pos1))
 }
 

@@ -52,7 +52,7 @@ func IconsCreate() Icons {
 	return ico
 }
 
-//Get accepts ItemType int e.g. weapon = 3
-func (i Icons) Get(d ItemType) *pixel.Sprite {
+//Get accepts Item.Icon int e.g. 3
+func (i Icons) Get(d int) *pixel.Sprite {
 	return i.Sprites[d]
 }

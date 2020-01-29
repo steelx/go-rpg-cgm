@@ -24,7 +24,7 @@ type EquipMenuState struct {
 	Panels                        []gui.Panel
 	Layout                        gui.Layout
 	betterStatsIcon, badStatsIcon *pixel.Sprite
-	inList                        bool
+	inInventoryList               bool
 	equipment                     map[string]int
 	menuIndex                     int
 	actorSummary                  gui.ActorSummary
@@ -75,7 +75,7 @@ func (e *EquipMenuState) Enter(actorSummaryI interface{}) {
 	e.RefreshFilteredMenus()
 	e.menuIndex = 0
 
-	slotMenu := gui.SelectionMenuCreate(26, 0,
+	slotMenu := gui.SelectionMenuCreate(26, 80,
 		e.actorSummary.Actor.ActiveEquipSlots,
 		false,
 		pixel.V(0, 0),
@@ -152,19 +152,18 @@ func (e EquipMenuState) Exit() {
 }
 
 func (e *EquipMenuState) Update(dt float64) {
-	if e.inList {
+	if e.inInventoryList {
 		menu := e.FilterMenus[e.menuIndex]
+		menu.ShowCursor()
 		menu.HandleInput(e.win)
 		if e.win.JustReleased(pixelgl.KeyEscape) {
 			e.FocusSlotMenu()
 		}
 
 	} else {
-		prevEquipIndex := e.SlotMenu.GetIndex()
 		e.SlotMenu.HandleInput(e.win)
-		if prevEquipIndex == e.SlotMenu.GetIndex() {
-			e.OnEquipMenuChanged()
-		}
+		e.OnEquipMenuChanged()
+
 		if e.win.JustPressed(pixelgl.KeyEscape) {
 			e.parent.StateMachine.Change("frontmenu", nil)
 			return
@@ -199,7 +198,7 @@ func (e *EquipMenuState) RefreshFilteredMenus() {
 	}
 
 	for _, f := range filterList {
-		menu := gui.SelectionMenuCreate(26, 256,
+		menu := gui.SelectionMenuCreate(20, 60,
 			f.list,
 			false,
 			pixel.V(0, 0),
@@ -223,18 +222,21 @@ func (e *EquipMenuState) OnDoEquip(index int, itemIdxI interface{}) {
 	e.FocusSlotMenu()
 }
 
+//FocusSlotMenu - show Cursor on Item Slots (Top Right)
 func (e *EquipMenuState) FocusSlotMenu() {
-	e.inList = false
+	e.inInventoryList = false
 	e.SlotMenu.ShowCursor()
 	e.menuIndex = e.SlotMenu.GetIndex()
 	e.FilterMenus[e.menuIndex].HideCursor()
 }
 
+//OnSelectMenu get trigger when user selects a Item Slot &
+// then cursor should be visible in Inventory List (Bottom Right)
 func (e *EquipMenuState) OnSelectMenu(i int, wItemTypeI interface{}) {
-	e.inList = true
+	e.inInventoryList = true
 	e.SlotMenu.HideCursor()
-	e.menuIndex = e.SlotMenu.GetIndex()
-	e.FilterMenus[e.menuIndex].ShowCursor()
+	//e.menuIndex = e.SlotMenu.GetIndex()
+	//e.FilterMenus[e.menuIndex].ShowCursor()
 }
 
 func (e *EquipMenuState) OnEquipMenuChanged() {
@@ -247,7 +249,7 @@ func (e EquipMenuState) GetSelectedSlot() string {
 }
 
 func (e *EquipMenuState) GetSelectedItem() int {
-	if e.inList {
+	if e.inInventoryList {
 		menu := e.FilterMenus[e.menuIndex]
 		if menu.DataI != nil {
 			itemIndexI := menu.SelectedItem()
