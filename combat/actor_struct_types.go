@@ -9,7 +9,7 @@ type ActorDef struct {
 	Portrait         string
 	Name             string
 	Actions          []string
-	ActiveEquipSlots []world.ItemType
+	ActiveEquipSlots []int
 	Equipment
 }
 

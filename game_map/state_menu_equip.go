@@ -179,8 +179,9 @@ func (e *EquipMenuState) RefreshFilteredMenus() {
 	slotCount := len(e.actorSummary.Actor.ActiveEquipSlots)
 	filterList := make([]*FilterList, slotCount)
 
-	for i := 0; i < slotCount; i++ {
-		slotType := e.actorSummary.Actor.ActiveEquipSlots[i]
+	for i, slot := range e.actorSummary.Actor.ActiveEquipSlots {
+		slotType := e.actorSummary.Actor.GetItemTypeBySlotPos(slot)
+
 		filterList[i] = &FilterList{
 			slotType: slotType,
 			list:     make([]world.ItemIndex, 0),

@@ -22,7 +22,7 @@ type Actor struct {
 	Level            int
 	XP, NextLevelXP  float64
 	Actions          []string
-	ActiveEquipSlots []world.ItemType
+	ActiveEquipSlots []int
 	Equipped         map[string]int //int is ItemsDB Id
 	worldRef         *WorldExtended
 }
@@ -64,9 +64,9 @@ func (a *Actor) RenderEquipment(args ...interface{}) {
 	yV := reflect.ValueOf(args[2])
 	y := yV.Interface().(float64)
 	itemV := reflect.ValueOf(args[3])
-	itemTypeInt := itemV.Interface().(world.ItemType)
+	slot := itemV.Interface().(int)
 
-	label := a.GetEquipSlotIdByItemType(itemTypeInt)
+	label := ActorLabels.EquipSlotId[slot]
 
 	itemId := a.Equipped[label]
 	item := world.ItemsDB[itemId]
@@ -124,6 +124,21 @@ func (a *Actor) ApplyLevel(levelUp LevelUp) {
 //GetEquipSlotIdByItemType takes in Item Type INT return Type string e.g. Weapon
 func (a Actor) GetEquipSlotIdByItemType(itemT world.ItemType) string {
 	return ActorLabels.EquipSlotTypes[itemT]
+}
+
+func (a Actor) GetItemTypeBySlotPos(slot int) world.ItemType {
+	switch slot {
+	case 0:
+		return world.Weapon
+	case 1:
+		return world.Armor
+	case 2:
+		return world.Accessory
+	case 3:
+		return world.Accessory
+	}
+
+	return 0
 }
 
 func (a *Actor) Equip(equipSlotId string, item world.Item) {
