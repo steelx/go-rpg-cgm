@@ -84,6 +84,7 @@ func (e *EquipMenuState) Enter(actorSummaryI interface{}) {
 	)
 
 	e.SlotMenu = &slotMenu
+	e.SlotMenu.OffsetCursorPosition(-20, 0)
 
 }
 
@@ -91,7 +92,7 @@ func (e EquipMenuState) Render(renderer *pixelgl.Window) {
 	for _, v := range e.Panels {
 		v.Draw(renderer)
 	}
-	var topMargin, leftMargin float64 = 25, 20
+	var topMargin, leftMargin float64 = 26, 20
 	basicAtlasAscii := text.NewAtlas(basicfont.Face7x13, text.ASCII)
 
 	// Title
@@ -136,7 +137,7 @@ func (e EquipMenuState) Render(renderer *pixelgl.Window) {
 	statLabels := e.actorSummary.Actor.CreateStatLabelList()
 	for k, v := range statList {
 		e.DrawStat(renderer, x, y, statLabels[k], v, diffs[v])
-		y = y - 15
+		y = y - 18
 	}
 
 	// Description panel
@@ -202,7 +203,7 @@ func (e *EquipMenuState) RefreshFilteredMenus() {
 
 	e.FilterMenus = make([]*gui.SelectionMenu, len(filterList))
 	for index, f := range filterList {
-		menu := gui.SelectionMenuCreate(20, 60,
+		menu := gui.SelectionMenuCreate(26, 80,
 			f.list,
 			false,
 			pixel.V(0, 0),
