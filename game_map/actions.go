@@ -4,10 +4,11 @@ import (
 	"reflect"
 )
 
-var LIST = make(map[string]func(gMap *GameMap, a ...interface{}) func(b interface{}))
+var LIST = make(map[string]func(gMap *GameMap, a ...interface{}) func(b ...interface{}))
 
 func init() {
-	LIST["AddNPC"] = AddNPC_I
+	LIST["AddNPC"] = addNPC_I
+	LIST["AddChest"] = addChest_I
 }
 
 //ActionTeleport : *GameMap, Direction => *Entity => ()
@@ -30,16 +31,30 @@ func AddNPC(gMap *GameMap, x, y float64) func(char *Character) {
 }
 
 //len a MUST BE 2
-func AddNPC_I(gMap *GameMap, a ...interface{}) func(b interface{}) {
+func addNPC_I(gMap *GameMap, a ...interface{}) func(b ...interface{}) {
 	a0 := reflect.ValueOf(a[0])
 	a1 := reflect.ValueOf(a[1])
 	x := a0.Interface().(float64)
 	y := a1.Interface().(float64)
-	return func(b interface{}) {
-		bVal := reflect.ValueOf(b)
+	return func(b ...interface{}) {
+		bVal := reflect.ValueOf(b[0])
 		char := bVal.Interface().(*Character)
 		char.Entity.SetTilePos(x, y)
 		gMap.AddNPC(char)
 		gMap.GoToTile(x, y)
+	}
+}
+
+func addChest_I(gMap *GameMap, a ...interface{}) func(b ...interface{}) {
+	a0 := reflect.ValueOf(a[0])
+	a1 := reflect.ValueOf(a[1])
+	tileX := a0.Interface().(float64)
+	tileY := a1.Interface().(float64)
+	return func(b ...interface{}) {
+		// Add Chest on map
+		b0 := reflect.ValueOf(b[0])
+		char := b0.Interface().(*Character)
+		char.Entity.SetTilePos(tileX, tileY)
+		gMap.AddNPC(char)
 	}
 }
