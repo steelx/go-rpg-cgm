@@ -24,5 +24,5 @@ type Equipment struct {
 	Weapon,
 	Armor,
 	Access1,
-	Access2 int
+	Access2 int //ItemsDB.Id
 }

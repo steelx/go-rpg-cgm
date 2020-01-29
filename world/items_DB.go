@@ -12,6 +12,7 @@ type Item struct {
 	Stats             Mod
 	Restrictions      []string //e.g. {"hero","mage",}
 	Use               UseAction
+	Icon              int
 }
 
 type Action int
@@ -63,6 +64,7 @@ func init() {
 		ItemType:    Empty,
 		Name:        "empty",
 		Description: "",
+		Icon:        0,
 		Special:     false,
 		Stats: Mod{
 			Add: BaseStats{
@@ -83,6 +85,7 @@ func init() {
 		ItemType:     Weapon,
 		Name:         "Bone Blade",
 		Description:  "A wicked sword made from bone.",
+		Icon:         5,
 		Restrictions: []string{"hero"},
 		Stats: Mod{
 			Add: BaseStats{
@@ -96,6 +99,7 @@ func init() {
 		ItemType:     Armor,
 		Name:         "Bone Armor",
 		Description:  "Armor made from plates of blackened bone.",
+		Icon:         7,
 		Restrictions: []string{"hero"},
 		Stats: Mod{
 			Add: BaseStats{
@@ -110,6 +114,7 @@ func init() {
 		ItemType:    Accessory,
 		Name:        "Ring of Titan",
 		Description: "Grants the strength of the Titan.",
+		Icon:        2,
 		Stats: Mod{
 			Add: BaseStats{
 				Strength: 10,
@@ -121,7 +126,8 @@ func init() {
 		Id:          4,
 		ItemType:    Usable,
 		Name:        "Old Bone",
-		Description: "A human leg bone, open's a hidden room",
+		Description: "A human Calcified bone, good for digging up",
+		Icon:        5,
 	}
 
 	ItemsDB[5] = Item{
@@ -129,6 +135,7 @@ func init() {
 		ItemType:     Weapon,
 		Name:         "World Tree Branch",
 		Description:  "A hard wood branch.",
+		Icon:         6,
 		Restrictions: []string{"mage"},
 		Stats: Mod{
 			Add: BaseStats{
@@ -143,7 +150,8 @@ func init() {
 		ItemType:     Armor,
 		Name:         "Dragon's Cloak",
 		Description:  "A cloak of dragon scales.",
-		Restrictions: []string{"mage"},
+		Icon:         8,
+		Restrictions: []string{"mage", "hero"},
 		Stats: Mod{
 			Add: BaseStats{
 				Defense: 3,
@@ -157,6 +165,7 @@ func init() {
 		ItemType:    Accessory,
 		Name:        "Singer's Stone",
 		Description: "The stone's song resists magical attacks.",
+		Icon:        1,
 		Stats: Mod{
 			Add: BaseStats{
 				Resist: 10,
@@ -169,6 +178,7 @@ func init() {
 		ItemType:     Weapon,
 		Name:         "Black Dagger",
 		Description:  "A dagger made out of an unknown material.",
+		Icon:         5,
 		Restrictions: []string{"thief"},
 		Stats: Mod{
 			Add: BaseStats{
@@ -182,6 +192,7 @@ func init() {
 		ItemType:     Armor,
 		Name:         "Footpad Leathers",
 		Description:  "Light Armor for silent movement.",
+		Icon:         7,
 		Restrictions: []string{"thief"},
 		Stats: Mod{
 			Add: BaseStats{
@@ -195,6 +206,7 @@ func init() {
 		ItemType:    Accessory,
 		Name:        "Swift Boots",
 		Description: "Increases speed by 25%",
+		Icon:        9,
 		Stats: Mod{
 			Mult: BaseStats{
 				Speed: 0.25,
@@ -207,6 +219,7 @@ func init() {
 		ItemType:    Usable,
 		Name:        "Heal Potion",
 		Description: "Heal a small amount of HP.",
+		Icon:        1,
 		Use: UseAction{
 			Action:        Revive,
 			Target:        Any,

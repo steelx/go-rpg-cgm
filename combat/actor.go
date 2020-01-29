@@ -7,6 +7,7 @@ import (
 	"github.com/steelx/go-rpg-cgm/utilz"
 	"github.com/steelx/go-rpg-cgm/world"
 	"golang.org/x/image/font/basicfont"
+	"reflect"
 )
 
 // Actor is any creature or character that participates in combat
@@ -22,22 +23,10 @@ type Actor struct {
 	XP, NextLevelXP  float64
 	Actions          []string
 	ActiveEquipSlots []int
-	Equipment        map[string]int
+	Equipped         map[string]int //int is ItemsDB Id
 	worldRef         *WorldExtended
 }
 
-/* example: ActorCreate(HeroDef)
-var HeroDef = combat.ActorDef{
-		Stats: combat.DefaultStats,
-		StatGrowth: map[string]func() int{
-			"HpMax":        dice.Create("4d50+100"),
-			"MpMax":        dice.Create("2d50+100"),
-			"Strength":     combat.StatsGrowth.Fast,
-			"Speed":        combat.StatsGrowth.Fast,
-			"Intelligence": combat.StatsGrowth.Med,
-		},
-	}
-*/
 // ActorCreate
 func ActorCreate(def ActorDef) Actor {
 	actorAvatar, err := utilz.LoadPicture(def.Portrait)
@@ -54,11 +43,11 @@ func ActorCreate(def ActorDef) Actor {
 		Portrait:         pixel.NewSprite(actorAvatar, actorAvatar.Bounds()),
 		Actions:          def.Actions,
 		ActiveEquipSlots: def.ActiveEquipSlots,
-		Equipment: map[string]int{
-			"Weapon":  def.Weapon,
-			"Armor":   def.Armor,
-			"Access1": def.Access1,
-			"Access2": def.Access2,
+		Equipped: map[string]int{
+			ActorLabels.EquipSlotId[0]: def.Weapon,
+			ActorLabels.EquipSlotId[1]: def.Armor,
+			ActorLabels.EquipSlotId[2]: def.Access1,
+			ActorLabels.EquipSlotId[3]: def.Access2,
 		},
 	}
 
@@ -66,16 +55,22 @@ func ActorCreate(def ActorDef) Actor {
 	return a
 }
 
-func (a *Actor) RenderEquipment(renderer pixel.Target, x, y float64, index int) {
-	label := ActorLabels.EquipSlotLabels[index]
+func (a *Actor) RenderEquipment(args ...interface{}) {
+	//renderer pixel.Target, x, y float64, index int
+	rendererV := reflect.ValueOf(args[0])
+	renderer := rendererV.Interface().(pixel.Target)
+	xV := reflect.ValueOf(args[1])
+	x := xV.Interface().(float64)
+	yV := reflect.ValueOf(args[2])
+	y := yV.Interface().(float64)
+	itemV := reflect.ValueOf(args[3])
+	slot := itemV.Interface().(int)
 
-	equipmentText := "none"
-	if index < len(a.Equipment) {
-		slotId := ActorLabels.EquipSlotId[index]
-		itemId := a.Equipment[slotId]
-		item := world.ItemsDB[itemId]
-		equipmentText = item.Name
-	}
+	label := ActorLabels.EquipSlotId[slot]
+
+	itemId := a.Equipped[label]
+	item := world.ItemsDB[itemId]
+	equipmentText := item.Name
 
 	basicAtlasAscii := text.NewAtlas(basicfont.Face7x13, text.ASCII)
 	pos := pixel.V(x, y)
@@ -126,10 +121,30 @@ func (a *Actor) ApplyLevel(levelUp LevelUp) {
 	// Unlock any special abilities etc.
 }
 
+//GetEquipSlotIdByItemType takes in Item Type INT return Type string e.g. Weapon
+func (a Actor) GetEquipSlotIdByItemType(itemT world.ItemType) string {
+	return ActorLabels.EquipSlotTypes[itemT]
+}
+
+func (a Actor) GetItemTypeBySlotPos(slot int) world.ItemType {
+	switch slot {
+	case 0:
+		return world.Weapon
+	case 1:
+		return world.Armor
+	case 2:
+		return world.Accessory
+	case 3:
+		return world.Accessory
+	}
+
+	return 0
+}
+
 func (a *Actor) Equip(equipSlotId string, item world.Item) {
-	prevItemId, ok := a.Equipment[equipSlotId]
-	if ok {
-		delete(a.Equipment, equipSlotId)
+	prevItemId, ok := a.Equipped[equipSlotId]
+	if ok && prevItemId != 0 {
+		delete(a.Equipped, equipSlotId)
 		a.Stats.RemoveModifier(prevItemId)
 		a.worldRef.AddItem(prevItemId, 1) //return back to World
 	}
@@ -140,7 +155,7 @@ func (a *Actor) Equip(equipSlotId string, item world.Item) {
 	}
 
 	a.worldRef.RemoveItem(item.Id, 1) //remove from World
-	a.Equipment[equipSlotId] = item.Id
+	a.Equipped[equipSlotId] = item.Id
 
 	modifier := item.Stats
 	a.Stats.AddModifier(item.Id, modifier)
@@ -150,7 +165,7 @@ func (a *Actor) UnEquip(equipSlotId string) {
 	a.Equip(equipSlotId, world.Item{Id: -1})
 }
 
-func (a Actor) createStatNameList() (statsIDs []string) {
+func (a Actor) CreateStatNameList() (statsIDs []string) {
 	for _, v := range ActorLabels.ActorStats {
 		statsIDs = append(statsIDs, v)
 	}
@@ -165,11 +180,26 @@ func (a Actor) createStatNameList() (statsIDs []string) {
 	return
 }
 
+func (a Actor) CreateStatLabelList() (statsLabels []string) {
+	for _, v := range ActorLabels.ActorStatLabels {
+		statsLabels = append(statsLabels, v)
+	}
+
+	for _, v := range ActorLabels.ItemStatLabels {
+		statsLabels = append(statsLabels, v)
+	}
+
+	statsLabels = append(statsLabels, "HP:")
+	statsLabels = append(statsLabels, "MP:")
+
+	return
+}
+
 // PredictStats
 //compare Equipped Item Stats with given Item
 // returns -> BaseStats after comparison
 func (a Actor) PredictStats(equipSlotId string, item world.Item) map[string]float64 {
-	statsIDs := a.createStatNameList()
+	statsIDs := a.CreateStatNameList()
 
 	currentStats := make(map[string]float64)
 	for _, key := range statsIDs {
@@ -177,7 +207,7 @@ func (a Actor) PredictStats(equipSlotId string, item world.Item) map[string]floa
 	}
 
 	// Replace item
-	prevItemId, ok := a.Equipment[equipSlotId]
+	prevItemId, ok := a.Equipped[equipSlotId]
 	if ok {
 		a.Stats.RemoveModifier(prevItemId)
 	}
@@ -201,4 +231,18 @@ func (a Actor) PredictStats(equipSlotId string, item world.Item) map[string]floa
 	}
 
 	return diffStats
+}
+
+func (a Actor) CanUse(item world.Item) bool {
+	if len(item.Restrictions) == 0 {
+		return true
+	}
+
+	for _, v := range item.Restrictions {
+		if v == a.Id {
+			return true
+		}
+	}
+
+	return false
 }

@@ -1,5 +1,7 @@
 package combat
 
+import "github.com/steelx/go-rpg-cgm/world"
+
 type ActorLabel struct {
 	EquipSlotLabels []string
 	EquipSlotId     []string
@@ -8,6 +10,7 @@ type ActorLabel struct {
 	ActorStatLabels []string
 	ItemStatLabels  []string
 	ActionLabels    ActionLabels
+	EquipSlotTypes  map[world.ItemType]string
 }
 type ActionLabels struct {
 	Attack, Item string
@@ -23,8 +26,13 @@ var ActorLabels = ActorLabel{
 	EquipSlotId: []string{
 		"Weapon",
 		"Armor",
-		"Access1",
-		"Access2",
+		"Accessory1",
+		"Accessory2",
+	},
+	EquipSlotTypes: map[world.ItemType]string{
+		world.Weapon:    "Weapon",
+		world.Armor:     "Armor",
+		world.Accessory: "Accessory",
 	},
 	//BaseStats stats.go
 	ActorStats: []string{

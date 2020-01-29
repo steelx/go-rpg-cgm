@@ -20,6 +20,12 @@ type IconDefs struct {
 	DownArrow int
 }
 
+var IconsDB Icons
+
+func init() {
+	IconsDB = IconsCreate()
+}
+
 type Icons struct {
 	Texture  pixel.Picture
 	UVs      []pixel.Rect
@@ -33,23 +39,9 @@ func IconsCreate() Icons {
 	//488
 	ico := Icons{
 		Texture: inventoryIconsPng,
-		IconDefs: IconDefs{
-			Usable:    1,
-			Accessory: 2,
-			Weapon:    3,
-			Sword:     4,
-			Dagger:    5,
-			Stave:     6,
-			Armor:     7,
-			Plate:     8,
-			Leather:   9,
-			Robe:      10,
-			UpArrow:   11,
-			DownArrow: 12,
-		},
 	}
 
-	ico.UVs = utilz.LoadAsFramesFromTop(ico.Texture, 18, 18)
+	ico.UVs = utilz.LoadAsFramesFromTop(ico.Texture, 16, 16)
 	ico.Sprites = make([]*pixel.Sprite, len(ico.UVs))
 
 	for k := range ico.UVs {
@@ -60,7 +52,7 @@ func IconsCreate() Icons {
 	return ico
 }
 
-//Get accepts ItemType int e.g. weapon = 3
+//Get accepts Item.Icon int e.g. 3
 func (i Icons) Get(d int) *pixel.Sprite {
-	return i.Sprites[d-1]
+	return i.Sprites[d]
 }

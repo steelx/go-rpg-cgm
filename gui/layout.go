@@ -16,6 +16,10 @@ type PanelDef struct {
 	width, height float64
 }
 
+func (p PanelDef) GetSize() (width, height float64) {
+	return p.width, p.height
+}
+
 //centerPos would Player TileX, TileY
 func LayoutCreate(x, y float64, win *pixelgl.Window) Layout {
 	l := Layout{

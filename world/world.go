@@ -7,6 +7,7 @@ import (
 	"golang.org/x/image/font/basicfont"
 	"log"
 	"math"
+	"reflect"
 )
 
 type World struct {
@@ -26,7 +27,7 @@ func Create() *World {
 		Gold:     0,
 		Items:    make([]ItemIndex, 0),
 		KeyItems: make([]ItemIndex, 0),
-		Icons:    IconsCreate(),
+		Icons:    IconsDB,
 	}
 
 	//temp user items in inventory
@@ -63,7 +64,7 @@ func (w *World) RemoveItem(itemId, count int) {
 		log.Fatal(fmt.Sprintf("Item ID {%v} does not exists in DB", itemId))
 	}
 
-	for i := len(w.Items) - 1; i <= 0; i-- {
+	for i := len(w.Items) - 1; i >= 0; i-- {
 		//Does it already exist in World
 		if w.Items[i].Id == itemId {
 			w.Items[i].Count -= count
@@ -71,6 +72,7 @@ func (w *World) RemoveItem(itemId, count int) {
 
 		if w.Items[i].Count <= 0 {
 			w.removeItemFromArray(i)
+			return
 		}
 	}
 }
@@ -81,7 +83,7 @@ func (w *World) removeItemFromArray(index int) {
 		return
 	}
 	w.Items[index], w.Items[0] = w.Items[0], w.Items[index]
-	w.Items = w.Items[1 : len(w.Items)-1]
+	w.Items = w.Items[1:]
 }
 
 func (w World) hasKeyItem(itemId int) bool {
@@ -149,18 +151,28 @@ func (w World) GetKeyItemsAsStrings() []string {
 	return items
 }
 
-//pending: use inside SelectionMenu renderItem pending
-func (w World) DrawItem(renderer pixel.Target, x, y float64, itemIdx ItemIndex) {
+func (w World) DrawItem(a ...interface{}) {
+	//renderer pixel.Target, x, y float64, itemIdx ItemIndex
+	rendererV := reflect.ValueOf(a[0])
+	renderer := rendererV.Interface().(pixel.Target)
+	xV := reflect.ValueOf(a[1])
+	x := xV.Interface().(float64)
+	yV := reflect.ValueOf(a[2])
+	y := yV.Interface().(float64)
+	itemIdxV := reflect.ValueOf(a[3])
+	itemIdx := itemIdxV.Interface().(ItemIndex)
+
 	itemDef := ItemsDB[itemIdx.Id]
+	iconsSize := 16.0
 
 	basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
-	pos1 := pixel.V(x+40, y+(18/2))
-	pos2 := pixel.V(x+40+18, y)
+	pos1 := pixel.V(x+40, y+(iconsSize/2))
+	pos2 := pixel.V(x+40+iconsSize, y)
 	textBase := text.New(pos2, basicAtlas)
 	fmt.Fprintln(textBase, fmt.Sprintf("%-6s (%v)", itemDef.Name, itemIdx.Count))
 	textBase.Draw(renderer, pixel.IM)
 
-	iconSprite := w.Icons.Get(itemIdx.Id)
+	iconSprite := w.Icons.Get(itemDef.Icon)
 	iconSprite.Draw(renderer, pixel.IM.Moved(pos1))
 }
 
@@ -171,4 +183,7 @@ func (w *World) HasKey(id int) bool {
 		}
 	}
 	return false
+}
+func (w *World) Get(idx ItemIndex) Item {
+	return ItemsDB[idx.Id]
 }

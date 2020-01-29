@@ -6,7 +6,6 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
 	"github.com/steelx/go-rpg-cgm/utilz"
-	"github.com/steelx/go-rpg-cgm/world"
 	"golang.org/x/image/font/basicfont"
 	"math"
 	"reflect"
@@ -40,6 +39,8 @@ type SelectionMenu struct {
 	SpacingY, SpacingX        float64 //space btw each items
 	scale                     float64 //menu scale in size
 	cursor                    *pixel.Sprite
+	useCursorPos              bool
+	cursorPosOffset           pixel.Vec
 	cursorWidth, cursorHeight float64
 	IsShowCursor              bool
 	maxRows, displayRows      int //rows might be 30 but only 5 maxRows are displayed at once
@@ -104,6 +105,10 @@ func (m *SelectionMenu) SetPosition(x, y float64) {
 	m.X = x
 	m.Y = y
 }
+func (m *SelectionMenu) OffsetCursorPosition(x, y float64) {
+	m.useCursorPos = true
+	m.cursorPosOffset = pixel.V(x, y)
+}
 func (m *SelectionMenu) ShowCursor() {
 	m.IsShowCursor = true
 }
@@ -131,17 +136,12 @@ func (m SelectionMenu) calcTotalWidth() float64 {
 				width := m.textBase.BoundsOf(x).W()
 				maxEntryWidth = math.Max(width, maxEntryWidth)
 
-			case int:
-				return 50
-
 			case ActorSummary:
-				return x.Width
-
-			case world.ItemIndex:
-				return 100
+				maxEntryWidth = x.Width
 
 			default:
-				fmt.Println("SelectionMenu:calcTotalWidth :: type unknown")
+				//fmt.Println("SelectionMenu:calcTotalWidth :: type unknown")
+				maxEntryWidth = 100
 			}
 		}
 		return maxEntryWidth + m.cursorWidth
@@ -191,9 +191,14 @@ func (m SelectionMenu) Render(renderer *pixelgl.Window) {
 	//temp single columns not rendering hence
 	if m.columns == 1 {
 		for i, v := range m.DataI {
-			if i == m.focusY && m.IsShowCursor {
-				m.cursor.Draw(renderer, mat.Moved(pixel.V(x+cursorHalfWidth, y+cursorHalfHeight/2)))
+			cursorPos := pixel.V(x+cursorHalfWidth, y+(cursorHalfHeight/2))
+			if m.useCursorPos {
+				cursorPos = pixel.V(x+m.cursorPosOffset.X, y+(cursorHalfHeight/2))
 			}
+			if i == m.focusY && m.IsShowCursor {
+				m.cursor.Draw(renderer, mat.Moved(cursorPos))
+			}
+
 			switch d := v.(type) {
 			case string:
 				m.RenderFunction(renderer, x+cursorWidth, y, d)
@@ -212,8 +217,12 @@ func (m SelectionMenu) Render(renderer *pixelgl.Window) {
 	itemIndex := displayStart * m.columns
 	for i := displayStart; i < displayEnd; i++ {
 		for j := 0; j < m.columns; j++ {
+			cursorPos := pixel.V(x+cursorHalfWidth, y+(cursorHalfHeight/2))
+			if m.useCursorPos {
+				cursorPos = pixel.V(x+m.cursorPosOffset.X, y+(cursorHalfHeight/2))
+			}
 			if i == m.focusY && j == m.focusX && m.IsShowCursor {
-				m.cursor.Draw(renderer, mat.Moved(pixel.V(x+cursorHalfWidth, y+cursorHalfHeight/2)))
+				m.cursor.Draw(renderer, mat.Moved(cursorPos))
 			}
 			item := m.DataI[itemIndex]
 			m.RenderFunction(renderer, x+cursorWidth, y, item)

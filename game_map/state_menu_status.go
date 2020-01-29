@@ -60,17 +60,7 @@ func (s *StatusMenuState) Enter(actorSumI interface{}) {
 		func(i int, equipId interface{}) {
 			fmt.Println(i, equipId)
 		},
-		func(a ...interface{}) {
-			rendererV := reflect.ValueOf(a[0])
-			renderer := rendererV.Interface().(pixel.Target)
-			xV := reflect.ValueOf(a[1])
-			x := xV.Interface().(float64)
-			yV := reflect.ValueOf(a[2])
-			y := yV.Interface().(float64)
-			itemV := reflect.ValueOf(a[3])
-			equipId := itemV.Interface().(int)
-			s.ActorSummary.Actor.RenderEquipment(renderer, x, y, equipId)
-		},
+		s.ActorSummary.Actor.RenderEquipment,
 	)
 	s.EquipMenu = &equipmentMenu
 	s.EquipMenu.HideCursor()

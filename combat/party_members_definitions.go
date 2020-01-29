@@ -36,10 +36,6 @@ var HeroDef = ActorDef{
 	Portrait:         "../resources/avatar_hero.png",
 	Actions:          []string{attack, item},
 	ActiveEquipSlots: []int{0, 1, 2, 3},
-	//ItemsDB ID
-	Equipment: Equipment{
-		Weapon: 3,
-	},
 }
 
 var MageDef = ActorDef{
@@ -61,7 +57,7 @@ var MageDef = ActorDef{
 	Name:             "Mrignayani",
 	Portrait:         "../resources/avatar_mage.png",
 	Actions:          []string{attack, item},
-	ActiveEquipSlots: []int{1, 2, 3}, //ItemsDB ID
+	ActiveEquipSlots: []int{1, 2, 3}, //mage dont get Attack slot
 }
 
 var ThiefDef = ActorDef{
@@ -83,5 +79,5 @@ var ThiefDef = ActorDef{
 	Name:             "Shashank",
 	Portrait:         "../resources/avatar_thief.png",
 	Actions:          []string{attack, item},
-	ActiveEquipSlots: []int{1, 2, 3}, //ItemsDB ID
+	ActiveEquipSlots: []int{0, 1, 2, 3},
 }
