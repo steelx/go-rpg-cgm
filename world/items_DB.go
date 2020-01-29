@@ -126,7 +126,7 @@ func init() {
 		Id:          4,
 		ItemType:    Usable,
 		Name:        "Old Bone",
-		Description: "A human leg bone, open's a hidden room",
+		Description: "A human Calcified bone, good for digging up",
 		Icon:        5,
 	}
 

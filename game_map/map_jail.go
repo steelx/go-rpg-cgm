@@ -14,7 +14,7 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 	gMap, err := tilepix.ReadFile("jail.tmx")
 	logFatalErr(err)
 
-	boneItemId := 1
+	boneItemId := 4
 
 	worldV := reflect.ValueOf(gStack.Globals["world"])
 	worldI := worldV.Interface().(*combat.WorldExtended)
