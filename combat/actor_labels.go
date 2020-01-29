@@ -26,8 +26,8 @@ var ActorLabels = ActorLabel{
 	EquipSlotId: []string{
 		"Weapon",
 		"Armor",
-		"Accessory",
-		"Accessory",
+		"Accessory1",
+		"Accessory2",
 	},
 	EquipSlotTypes: map[world.ItemType]string{
 		world.Weapon:    "Weapon",

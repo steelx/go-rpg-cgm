@@ -64,7 +64,7 @@ func (w *World) RemoveItem(itemId, count int) {
 		log.Fatal(fmt.Sprintf("Item ID {%v} does not exists in DB", itemId))
 	}
 
-	for i := len(w.Items) - 1; i <= 0; i-- {
+	for i := len(w.Items) - 1; i >= 0; i-- {
 		//Does it already exist in World
 		if w.Items[i].Id == itemId {
 			w.Items[i].Count -= count
@@ -72,6 +72,7 @@ func (w *World) RemoveItem(itemId, count int) {
 
 		if w.Items[i].Count <= 0 {
 			w.removeItemFromArray(i)
+			return
 		}
 	}
 }
@@ -82,7 +83,7 @@ func (w *World) removeItemFromArray(index int) {
 		return
 	}
 	w.Items[index], w.Items[0] = w.Items[0], w.Items[index]
-	w.Items = w.Items[1 : len(w.Items)-1]
+	w.Items = w.Items[1:]
 }
 
 func (w World) hasKeyItem(itemId int) bool {

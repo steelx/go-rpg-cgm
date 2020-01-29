@@ -124,7 +124,7 @@ func (e EquipMenuState) Render(renderer *pixelgl.Window) {
 	menu.Render(renderer)
 
 	// Char stat panel - Bottom Left
-	slot := e.GetSelectedSlot()
+	slot := e.GetSelectedSlot() //Accessory2
 	itemId := e.GetSelectedItem()
 
 	item := world.ItemsDB[itemId]
@@ -154,8 +154,10 @@ func (e EquipMenuState) Exit() {
 func (e *EquipMenuState) Update(dt float64) {
 	if e.inInventoryList {
 		menu := e.FilterMenus[e.menuIndex]
-		menu.ShowCursor()
-		menu.HandleInput(e.win)
+		if !menu.IsDataSourceEmpty() {
+			menu.ShowCursor()
+			menu.HandleInput(e.win)
+		}
 		if e.win.JustReleased(pixelgl.KeyEscape) {
 			e.FocusSlotMenu()
 		}
@@ -197,7 +199,8 @@ func (e *EquipMenuState) RefreshFilteredMenus() {
 		}
 	}
 
-	for _, f := range filterList {
+	e.FilterMenus = make([]*gui.SelectionMenu, len(filterList))
+	for index, f := range filterList {
 		menu := gui.SelectionMenuCreate(20, 60,
 			f.list,
 			false,
@@ -205,7 +208,7 @@ func (e *EquipMenuState) RefreshFilteredMenus() {
 			e.OnDoEquip,
 			e.parent.World.DrawItem,
 		)
-		e.FilterMenus = append(e.FilterMenus, &menu)
+		e.FilterMenus[index] = &menu
 	}
 
 }
@@ -214,9 +217,9 @@ func (e *EquipMenuState) OnDoEquip(index int, itemIdxI interface{}) {
 	itemIdxV := reflect.ValueOf(itemIdxI)
 	itemIdx := itemIdxV.Interface().(world.ItemIndex)
 	item := e.parent.World.Get(itemIdx)
-	fmt.Println("item", item)
-	equipSlotId := e.actorSummary.Actor.GetEquipSlotIdByItemType(item.ItemType)
-	e.actorSummary.Actor.Equip(equipSlotId, item)
+
+	//equipSlotId := e.actorSummary.Actor.GetEquipSlotIdByItemType(item.ItemType)
+	e.actorSummary.Actor.Equip(e.GetSelectedSlot(), item)
 
 	e.RefreshFilteredMenus()
 	e.FocusSlotMenu()
@@ -243,6 +246,8 @@ func (e *EquipMenuState) OnEquipMenuChanged() {
 	e.menuIndex = e.SlotMenu.GetIndex()
 	e.FilterMenus[e.menuIndex].HideCursor()
 }
+
+//GetSelectedSlot takes index e.g. 3, returns "Accessory2"
 func (e EquipMenuState) GetSelectedSlot() string {
 	i := e.SlotMenu.GetIndex()
 	return combat.ActorLabels.EquipSlotId[i]

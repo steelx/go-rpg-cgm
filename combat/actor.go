@@ -27,18 +27,6 @@ type Actor struct {
 	worldRef         *WorldExtended
 }
 
-/* example: ActorCreate(HeroDef)
-var HeroDef = combat.ActorDef{
-		Stats: combat.DefaultStats,
-		StatGrowth: map[string]func() int{
-			"HpMax":        dice.Create("4d50+100"),
-			"MpMax":        dice.Create("2d50+100"),
-			"Strength":     combat.StatsGrowth.Fast,
-			"Speed":        combat.StatsGrowth.Fast,
-			"Intelligence": combat.StatsGrowth.Med,
-		},
-	}
-*/
 // ActorCreate
 func ActorCreate(def ActorDef) Actor {
 	actorAvatar, err := utilz.LoadPicture(def.Portrait)
@@ -56,10 +44,10 @@ func ActorCreate(def ActorDef) Actor {
 		Actions:          def.Actions,
 		ActiveEquipSlots: def.ActiveEquipSlots,
 		Equipped: map[string]int{
-			"Weapon":  def.Weapon,
-			"Armor":   def.Armor,
-			"Access1": def.Access1,
-			"Access2": def.Access2,
+			ActorLabels.EquipSlotId[0]: def.Weapon,
+			ActorLabels.EquipSlotId[1]: def.Armor,
+			ActorLabels.EquipSlotId[2]: def.Access1,
+			ActorLabels.EquipSlotId[3]: def.Access2,
 		},
 	}
 
@@ -140,7 +128,7 @@ func (a Actor) GetEquipSlotIdByItemType(itemT world.ItemType) string {
 
 func (a *Actor) Equip(equipSlotId string, item world.Item) {
 	prevItemId, ok := a.Equipped[equipSlotId]
-	if ok {
+	if ok && prevItemId != 0 {
 		delete(a.Equipped, equipSlotId)
 		a.Stats.RemoveModifier(prevItemId)
 		a.worldRef.AddItem(prevItemId, 1) //return back to World
