@@ -143,7 +143,7 @@ func init() {
 		ItemType:     Armor,
 		Name:         "Dragon's Cloak",
 		Description:  "A cloak of dragon scales.",
-		Restrictions: []string{"mage"},
+		Restrictions: []string{"mage", "hero"},
 		Stats: Mod{
 			Add: BaseStats{
 				Defense: 3,

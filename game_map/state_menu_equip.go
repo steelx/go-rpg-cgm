@@ -91,7 +91,7 @@ func (e EquipMenuState) Render(renderer *pixelgl.Window) {
 	for _, v := range e.Panels {
 		v.Draw(renderer)
 	}
-
+	var topMargin, leftMargin float64 = 25, 20
 	basicAtlasAscii := text.NewAtlas(basicfont.Face7x13, text.ASCII)
 
 	// Title
@@ -102,47 +102,46 @@ func (e EquipMenuState) Render(renderer *pixelgl.Window) {
 	fmt.Fprintln(textBase, frontMenuOrder[equip])
 	textBase.Draw(renderer, pixel.IM)
 
-	// Char summary
+	// Char summary - Top Left
 	_, titleHeight := e.Layout.Panels["title"].GetSize()
 	avatarX := e.Layout.Left("top")
 	avatarY := e.Layout.Top("top")
-	avatarX = avatarX + 10
 	avatarY = avatarY - titleHeight - 10
 	e.actorSummary.SetPosition(avatarX, avatarY)
 	e.actorSummary.Render(renderer)
 
-	// Slots selection
-	equipX := e.Layout.MidX("top") + 40
-	equipY := e.Layout.Top("top") - titleHeight - 20
+	// Slots selection - Top Right
+	equipX := e.Layout.MidX("top") + leftMargin
+	equipY := e.Layout.Top("top") - titleHeight - leftMargin
 	e.SlotMenu.SetPosition(equipX, equipY)
 	e.SlotMenu.Render(renderer)
 
-	// Inventory list
+	// Inventory list - Bottom Right
 	listX := e.Layout.Left("list") + 6
-	listY := e.Layout.Top("list") - 20
+	listY := e.Layout.Top("list") - topMargin
 	menu := e.FilterMenus[e.menuIndex]
 	menu.SetPosition(listX, listY)
 	menu.Render(renderer)
 
-	// Char stat panel
+	// Char stat panel - Bottom Left
 	slot := e.GetSelectedSlot()
 	itemId := e.GetSelectedItem()
 
 	item := world.ItemsDB[itemId]
 	diffs := e.actorSummary.Actor.PredictStats(slot, item)
-	x := e.Layout.MidX("stats") - 10
-	y := e.Layout.Top("stats") - 14
+	x := e.Layout.Left("stats") + leftMargin
+	y := e.Layout.Top("stats") - topMargin
 
 	statList := e.actorSummary.Actor.CreateStatNameList()
 	statLabels := e.actorSummary.Actor.CreateStatLabelList()
 	for k, v := range statList {
 		e.DrawStat(renderer, x, y, statLabels[k], v, diffs[v])
-		y = y - 14
+		y = y - 15
 	}
 
 	// Description panel
-	descX := e.Layout.Left("desc") + 10
-	descY := e.Layout.MidY("desc")
+	descX := e.Layout.Left("desc") + leftMargin
+	descY := e.Layout.MidY("desc") - 5
 	pos = pixel.V(descX, descY)
 	textBase = text.New(pos, basicAtlasAscii)
 	fmt.Fprintln(textBase, item.Description)
@@ -263,29 +262,28 @@ func (e *EquipMenuState) GetSelectedItem() int {
 }
 
 func (e *EquipMenuState) DrawStat(renderer pixel.Target, x, y float64, label, statId string, diff float64) {
-	basicAtlasAscii := text.NewAtlas(basicfont.Face7x13, text.ASCII)
-
 	pos := pixel.V(x, y)
+	basicAtlasAscii := text.NewAtlas(basicfont.Face7x13, text.ASCII)
 	textBase := text.New(pos, basicAtlasAscii)
-	fmt.Fprintln(textBase, label)
-	textBase.Draw(renderer, pixel.IM)
 
 	current := e.actorSummary.Actor.Stats.Get(statId)
-	pos = pixel.V(x+15, y)
-	textBase = text.New(pos, basicAtlasAscii)
-	fmt.Fprintln(textBase, current)
-	textBase.Draw(renderer, pixel.IM)
-
 	changed := current + diff
-	pos = pixel.V(x+60, y)
-	textBase = text.New(pos, basicAtlasAscii)
-	fmt.Fprintln(textBase, changed)
+
+	var textFormatted string
+	if changed == current {
+		textFormatted = fmt.Sprintf(`%-14s: %-4v`, label, current)
+	} else {
+		textFormatted = fmt.Sprintf(`%-14s: %-4v -> %+4v`, label, current, changed)
+	}
+	fmt.Fprintln(textBase, textFormatted)
 	textBase.Draw(renderer, pixel.IM)
 
+	textWidth := textBase.BoundsOf(textFormatted).W() + 20
+	pos = pixel.V(x+textWidth, y+4)
 	if diff > 0 {
-		e.betterStatsIcon.Draw(renderer, pixel.IM.Moved(pixel.V(x+80, y)))
+		e.betterStatsIcon.Draw(renderer, pixel.IM.Moved(pos))
 	} else if diff < 0 {
-		e.badStatsIcon.Draw(renderer, pixel.IM.Moved(pixel.V(x+80, y)))
+		e.badStatsIcon.Draw(renderer, pixel.IM.Moved(pos))
 	}
 
 }
