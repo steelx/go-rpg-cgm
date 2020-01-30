@@ -1,18 +1,17 @@
-package gui
+package combat
 
 import (
 	"fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/text"
-	"github.com/steelx/go-rpg-cgm/combat"
-	"golang.org/x/image/font/basicfont"
+	"github.com/steelx/go-rpg-cgm/gui"
 )
 
 type ActorSummary struct {
 	X, Y, Width  float64
-	Actor        combat.Actor
-	HPBar, MPBar ProgressBarIMD
-	XPBar        ProgressBar
+	Actor        Actor
+	HPBar, MPBar gui.ProgressBarIMD
+	XPBar        gui.ProgressBar
 	ShowXP       bool
 	AvatarTextPadding,
 	LabelRightPadding,
@@ -21,11 +20,11 @@ type ActorSummary struct {
 	TextPaddingY float64
 }
 
-func ActorSummaryCreate(actor combat.Actor, showXP bool) ActorSummary {
+func ActorSummaryCreate(actor Actor, showXP bool) ActorSummary {
 
 	s := ActorSummary{
 		X: 0, Y: 0, Width: 380, Actor: actor, ShowXP: showXP,
-		HPBar: ProgressBarIMDCreate(
+		HPBar: gui.ProgressBarIMDCreate(
 			0, 0,
 			actor.Stats.Get("HpNow"),
 			actor.Stats.Get("HpMax"),
@@ -33,7 +32,7 @@ func ActorSummaryCreate(actor combat.Actor, showXP bool) ActorSummary {
 			"#15FF00",
 			3, 100,
 		),
-		MPBar: ProgressBarIMDCreate(
+		MPBar: gui.ProgressBarIMDCreate(
 			0, 0,
 			actor.Stats.Get("MpNow"),
 			actor.Stats.Get("MpMax"),
@@ -49,7 +48,7 @@ func ActorSummaryCreate(actor combat.Actor, showXP bool) ActorSummary {
 	}
 
 	if s.ShowXP {
-		s.XPBar = ProgressBarCreate(
+		s.XPBar = gui.ProgressBarCreate(
 			0, 0,
 			actor.XP,
 			actor.XP+actor.NextLevelXP,
@@ -104,13 +103,11 @@ func (s *ActorSummary) Render(renderer pixel.Target) {
 	avatarY := s.Y - avatarH/2
 	avatar.Draw(renderer, pixel.IM.Moved(pixel.V(avatarX, avatarY)))
 
-	basicAtlasAscii := text.NewAtlas(basicfont.Face7x13, text.ASCII)
-
 	// Position basic stats to the left of the avatar
 	textX := avatarX + avatarW/2 + s.AvatarTextPadding
 	textY := s.Y - s.TextPaddingY
 	pos := pixel.V(textX, textY)
-	textBase := text.New(pos, basicAtlas12)
+	textBase := text.New(pos, gui.BasicAtlas12)
 	fmt.Fprintln(textBase, actor.Name)
 	textBase.Draw(renderer, pixel.IM)
 
@@ -119,19 +116,19 @@ func (s *ActorSummary) Render(renderer pixel.Target) {
 	textY = textY - 20
 	statsStartY := textY
 	pos = pixel.V(textX, textY)
-	textBase = text.New(pos, basicAtlasAscii)
+	textBase = text.New(pos, gui.BasicAtlasAscii)
 	fmt.Fprintln(textBase, "LV")
 	textBase.Draw(renderer, pixel.IM)
 
 	textY = textY - s.VerticalPadding
 	pos = pixel.V(textX, textY)
-	textBase = text.New(pos, basicAtlasAscii)
+	textBase = text.New(pos, gui.BasicAtlasAscii)
 	fmt.Fprintln(textBase, "HP")
 	textBase.Draw(renderer, pixel.IM)
 
 	textY = textY - s.VerticalPadding
 	pos = pixel.V(textX, textY)
-	textBase = text.New(pos, basicAtlasAscii)
+	textBase = text.New(pos, gui.BasicAtlasAscii)
 	fmt.Fprintln(textBase, "MP")
 	textBase.Draw(renderer, pixel.IM)
 
@@ -140,7 +137,7 @@ func (s *ActorSummary) Render(renderer pixel.Target) {
 	textX = textX + s.LabelValuePadding
 	level := actor.Level
 	pos = pixel.V(textX, textY)
-	textBase = text.New(pos, basicAtlasAscii)
+	textBase = text.New(pos, gui.BasicAtlasAscii)
 	fmt.Fprintln(textBase, level)
 	textBase.Draw(renderer, pixel.IM)
 
@@ -154,13 +151,13 @@ func (s *ActorSummary) Render(renderer pixel.Target) {
 
 	textY = textY - s.VerticalPadding
 	pos = pixel.V(textX, textY)
-	textBase = text.New(pos, basicAtlasAscii)
+	textBase = text.New(pos, gui.BasicAtlasAscii)
 	fmt.Fprintln(textBase, hpTxt)
 	textBase.Draw(renderer, pixel.IM)
 
 	textY = textY - s.VerticalPadding
 	pos = pixel.V(textX, textY)
-	textBase = text.New(pos, basicAtlasAscii)
+	textBase = text.New(pos, gui.BasicAtlasAscii)
 	fmt.Fprintln(textBase, mpTxt)
 	textBase.Draw(renderer, pixel.IM)
 
@@ -173,7 +170,7 @@ func (s *ActorSummary) Render(renderer pixel.Target) {
 		left := boxRight + s.XPBar.HalfWidth
 
 		pos = pixel.V(left, textY)
-		textBase = text.New(pos, basicAtlasAscii)
+		textBase = text.New(pos, gui.BasicAtlasAscii)
 		fmt.Fprintln(textBase, "Next Level")
 		textBase.Draw(renderer, pixel.IM)
 	}
