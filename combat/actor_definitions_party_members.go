@@ -17,13 +17,15 @@ var PartyMembersDefinitions = map[string]ActorDef{
 }
 
 var HeroDef = ActorDef{
-	Id: "hero",
+	Id:       "hero",
+	IsPlayer: true,
 	Stats: world.BaseStats{
-		HpNow:    300,
+		HpNow:    50,
 		HpMax:    300,
 		MpNow:    300,
 		MpMax:    300,
-		Strength: 10, Speed: 10, Intelligence: 10,
+		Strength: 10, Speed: 20, Intelligence: 10,
+		Attack: 10,
 	},
 	StatGrowth: map[string]func() int{
 		"HpMax":        dice.Create("4d50+100"),
@@ -39,7 +41,8 @@ var HeroDef = ActorDef{
 }
 
 var MageDef = ActorDef{
-	Id: "mage",
+	Id:       "mage",
+	IsPlayer: true,
 	Stats: world.BaseStats{
 		HpNow:    200,
 		HpMax:    200,
@@ -61,7 +64,8 @@ var MageDef = ActorDef{
 }
 
 var ThiefDef = ActorDef{
-	Id: "thief",
+	Id:       "thief",
+	IsPlayer: true,
 	Stats: world.BaseStats{
 		HpNow:    280,
 		HpMax:    280,

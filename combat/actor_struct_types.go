@@ -10,6 +10,7 @@ type ActorDef struct {
 	Name             string
 	Actions          []string
 	ActiveEquipSlots []int
+	IsPlayer         bool
 	Equipment
 }
 

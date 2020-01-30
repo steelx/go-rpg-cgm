@@ -97,6 +97,12 @@ func gameLoop(win *pixelgl.Window) {
 
 	stack.Globals["world"] = gWorld
 
+	//Test EventQueue
+	player1 := combat.ActorCreate(combat.HeroDef)
+	enemy1 := combat.ActorCreate(combat.GoblinDef)
+
+	gCombatScene := combat.SceneCreate([]*combat.Actor{&player1}, []*combat.Actor{&enemy1})
+
 	//set fullscreen
 	//win.SetMonitor(globals.Global.PrimaryMonitor)
 
@@ -118,6 +124,7 @@ func gameLoop(win *pixelgl.Window) {
 			//update StateStack
 			stack.Update(dt)
 			gWorld.Update(dt)
+			gCombatScene.Update()
 
 			//<-- this would render only 1 stack at a time
 			switch top := stack.States[stack.GetLastIndex()].(type) {
