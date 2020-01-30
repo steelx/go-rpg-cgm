@@ -5,6 +5,7 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
+	"github.com/steelx/go-rpg-cgm/combat"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/state_machine"
 	"golang.org/x/image/font/basicfont"
@@ -43,7 +44,7 @@ func FrontMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *FrontMe
 	fm.PrevTopBarText = fm.TopBarText
 
 	selectionsX, selectionsY := fm.Layout.MidX("menu")-60, fm.Layout.Top("menu")-24
-	frontMenuSelection := gui.SelectionMenuCreate(32, 128,
+	frontMenuSelection := gui.SelectionMenuCreate(32, 128, 0,
 		frontMenuOrder,
 		false,
 		pixel.V(selectionsX, selectionsY),
@@ -58,7 +59,7 @@ func FrontMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *FrontMe
 		layout.CreatePanel("menu"),
 	}
 
-	partyMembersMenu := gui.SelectionMenuCreate(100, 0,
+	partyMembersMenu := gui.SelectionMenuCreate(100, 0, 380,
 		fm.CreatePartySummaries(),
 		false,
 		pixel.V(0, 0),
@@ -72,7 +73,7 @@ func FrontMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *FrontMe
 			yV := reflect.ValueOf(a[2])
 			y := yV.Interface().(float64)
 			actorSummaryV := reflect.ValueOf(a[3])
-			actorSummary := actorSummaryV.Interface().(gui.ActorSummary)
+			actorSummary := actorSummaryV.Interface().(combat.ActorSummary)
 
 			actorSummary.SetPosition(x, y+35)
 			actorSummary.Render(renderer)
@@ -85,7 +86,7 @@ func FrontMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *FrontMe
 }
 func (fm *FrontMenuState) OnPartyMemberChosen(actorIndex int, actorSummaryI interface{}) {
 	actorSummaryV := reflect.ValueOf(actorSummaryI)
-	actorSummary := actorSummaryV.Interface().(gui.ActorSummary)
+	actorSummary := actorSummaryV.Interface().(combat.ActorSummary)
 
 	frontMenuIndex := fm.Selections.GetIndex()
 	stateId := frontMenuOrder[frontMenuIndex]
@@ -109,11 +110,11 @@ func (fm *FrontMenuState) OnMenuClick(index int, str interface{}) {
 
 }
 
-func (fm FrontMenuState) CreatePartySummaries() []gui.ActorSummary {
+func (fm FrontMenuState) CreatePartySummaries() []combat.ActorSummary {
 	partyMembers := fm.Parent.World.Party.Members
-	var summaryList []gui.ActorSummary
+	var summaryList []combat.ActorSummary
 	for _, actor := range partyMembers {
-		summaryList = append(summaryList, gui.ActorSummaryCreate(*actor, true))
+		summaryList = append(summaryList, combat.ActorSummaryCreate(*actor, true))
 	}
 	return summaryList
 }

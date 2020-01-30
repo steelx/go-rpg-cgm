@@ -23,8 +23,8 @@ tBox := TextboxCreateFixed(
 var (
 	continueCaretPng pixel.Picture
 	cursorPng        pixel.Picture
-	basicAtlas12     *text.Atlas
-	basicAtlasAscii  = text.NewAtlas(basicfont.Face7x13, text.ASCII)
+	BasicAtlas12     *text.Atlas
+	BasicAtlasAscii  = text.NewAtlas(basicfont.Face7x13, text.ASCII)
 )
 
 func init() {
@@ -36,7 +36,7 @@ func init() {
 
 	fontFace12, err := utilz.LoadTTF("../resources/font/joystix.ttf", 12)
 	utilz.PanicIfErr(err)
-	basicAtlas12 = text.NewAtlas(fontFace12, text.ASCII)
+	BasicAtlas12 = text.NewAtlas(fontFace12, text.ASCII)
 }
 
 type Textbox struct {
@@ -89,7 +89,8 @@ func TextboxWithMenuCreate(stack *StateStack, textBoxText string, panelPos pixel
 
 	textBounds := textbox.getTextBound()
 
-	textbox.menu = SelectionMenuCreate(24, 128, choices, showColumns,
+	textbox.menu = SelectionMenuCreate(24, 128, 0,
+		choices, showColumns,
 		pixel.V(textbox.Position.X-10, textbox.Position.Y-textBounds.H()-10), func(i int, s interface{}) {
 			onSelection(i, s)
 			textbox.isDead = true
@@ -100,7 +101,7 @@ func TextboxWithMenuCreate(stack *StateStack, textBoxText string, panelPos pixel
 
 func TextboxFITMenuCreate(stack *StateStack, x, y float64, textBoxText string, choices []string, onSelection func(int, interface{})) *Textbox {
 	panelPos := pixel.V(x, y)
-	t := TextboxNew(stack, textBoxText, 14, basicAtlas12, "", nil)
+	t := TextboxNew(stack, textBoxText, 14, BasicAtlas12, "", nil)
 	t.AppearTween = animation.TweenCreate(1, 1, 1)
 	t.isFixed = false
 
@@ -110,7 +111,8 @@ func TextboxFITMenuCreate(stack *StateStack, x, y float64, textBoxText string, c
 	}
 	fmt.Println("choices", choices)
 	textBounds := t.getTextBound()
-	menu := SelectionMenuCreate(24, 128, choices, true,
+	menu := SelectionMenuCreate(24, 128, 0,
+		choices, true,
 		pixel.V(t.Position.X, t.Position.Y-textBounds.H()-10), func(i int, s interface{}) {
 			onSelection(i, s)
 			t.isDead = true
@@ -130,7 +132,7 @@ func TextboxFITMenuCreate(stack *StateStack, x, y float64, textBoxText string, c
 
 func TextboxCreateFixed(stack *StateStack, txt string, panelPos pixel.Vec, panelWidth, panelHeight float64, avatarName string, avatarImg pixel.Picture, hasMenu bool) Textbox {
 	panel := PanelCreate(panelPos, panelWidth, panelHeight)
-	t := TextboxNew(stack, txt, 14, basicAtlas12, avatarName, avatarImg)
+	t := TextboxNew(stack, txt, 14, BasicAtlas12, avatarName, avatarImg)
 	t.AppearTween = animation.TweenCreate(1, 0, 1)
 	t.isFixed = true
 	t.mPanel = panel
@@ -151,7 +153,7 @@ func TextboxCreateFixed(stack *StateStack, txt string, panelPos pixel.Vec, panel
 func TextboxCreateFitted(stack *StateStack, txt string, panelPos pixel.Vec, hasMenu bool) Textbox {
 	const padding = 20.0
 
-	tBox := TextboxNew(stack, txt, 13, basicAtlasAscii, "", nil)
+	tBox := TextboxNew(stack, txt, 13, BasicAtlasAscii, "", nil)
 	tBox.AppearTween = animation.TweenCreate(0.9, 1, 0.3)
 	tBox.textBase = text.New(panelPos, tBox.textAtlas)
 	tBox.textBase.LineHeight = padding
@@ -242,7 +244,7 @@ func (t Textbox) drawAvatar(renderer pixel.Target) {
 
 	titlePos := pixel.V(t.mPanel.mBounds.Min.X+t.size, t.mPanel.mBounds.Min.Y+t.avatarImg.Bounds().H()-(t.size/2)-2)
 
-	title := text.New(titlePos, basicAtlasAscii)
+	title := text.New(titlePos, BasicAtlasAscii)
 	fmt.Fprintln(title, t.avatarName)
 
 	title.Draw(renderer, pixel.IM.Scaled(titlePos, 1))
@@ -255,7 +257,7 @@ func (t Textbox) drawContinueArrow(renderer pixel.Target) {
 		sprite := pixel.NewSprite(t.continueMark, t.continueMark.Bounds())
 		sprite.Draw(renderer, mat.Moved(bottomRight))
 
-		title := text.New(bottomRight, basicAtlasAscii)
+		title := text.New(bottomRight, BasicAtlasAscii)
 		keyHintTxt, padding := "spacebar", 20.0
 		textPos := bottomRight.Sub(
 			pixel.V(title.BoundsOf(keyHintTxt).W(), -padding),

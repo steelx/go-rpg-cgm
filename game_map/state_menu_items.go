@@ -48,7 +48,7 @@ func ItemsMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *ItemsMe
 		layout.CreatePanel("inv"),
 	}
 
-	itemsMenu := gui.SelectionMenuCreate(24, 128,
+	itemsMenu := gui.SelectionMenuCreate(24, 128, 100,
 		parent.World.Items,
 		false,
 		pixel.V(0, 0),
@@ -57,7 +57,7 @@ func ItemsMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *ItemsMe
 		},
 		parent.World.DrawItem,
 	)
-	keyItemsMenu := gui.SelectionMenuCreate(24, 128,
+	keyItemsMenu := gui.SelectionMenuCreate(24, 128, 100,
 		parent.World.KeyItems,
 		false,
 		pixel.V(0, 0),
@@ -68,7 +68,7 @@ func ItemsMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *ItemsMe
 	)
 	im.ItemMenus = []*gui.SelectionMenu{&itemsMenu, &keyItemsMenu}
 
-	categoryMenu := gui.SelectionMenuCreate(24, 128,
+	categoryMenu := gui.SelectionMenuCreate(24, 128, 0,
 		[]string{"Use", "Key Items"},
 		true,
 		pixel.V(0, 0),

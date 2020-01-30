@@ -13,14 +13,14 @@ import (
 
 //var (
 //	cursorPng pixel.Picture
-//	basicAtlasAscii *text.Atlas
+//	BasicAtlasAscii *text.Atlas
 //)
 //
 //func init() {
 //	var err error
 //	cursorPng, err = utilz.LoadPicture("../resources/cursor.png")
 //	utilz.PanicIfErr(err)
-//	basicAtlasAscii = text.NewAtlas(basicfont.Face7x13, text.ASCII)
+//	BasicAtlasAscii = text.NewAtlas(basicfont.Face7x13, text.ASCII)
 //}
 
 /* e.g.
@@ -51,7 +51,8 @@ type SelectionMenu struct {
 	RenderFunction            func(a ...interface{})
 }
 
-func SelectionMenuCreate(spacingY, spacingX float64, data interface{}, showColumns bool, position pixel.Vec, onSelection func(int, interface{}), renderFunc func(a ...interface{})) SelectionMenu {
+func SelectionMenuCreate(spacingY, spacingX, xWidth float64, data interface{}, showColumns bool, position pixel.Vec, onSelection func(int, interface{}), renderFunc func(a ...interface{})) SelectionMenu {
+	//xWidth should be passed if Data is not []string
 	m := SelectionMenu{
 		X:            position.X,
 		Y:            position.Y,
@@ -65,7 +66,7 @@ func SelectionMenuCreate(spacingY, spacingX float64, data interface{}, showColum
 		scale:        1,
 		OnSelection:  onSelection,
 	}
-	m.textBase = text.New(position, basicAtlas12)
+	m.textBase = text.New(position, BasicAtlas12)
 	m.displayRows = 4
 	m.cursor = pixel.NewSprite(cursorPng, cursorPng.Bounds())
 	m.cursorWidth = cursorPng.Bounds().W()
@@ -96,7 +97,7 @@ func SelectionMenuCreate(spacingY, spacingX float64, data interface{}, showColum
 		}
 	}
 
-	m.width = m.calcTotalWidth()
+	m.width = m.calcTotalWidth(xWidth)
 	m.height = m.calcTotalHeight()
 	return m
 }
@@ -127,7 +128,7 @@ func (m SelectionMenu) calcTotalHeight() float64 {
 	height := float64(m.displayRows) * m.SpacingY
 	return height - m.SpacingY/2
 }
-func (m SelectionMenu) calcTotalWidth() float64 {
+func (m SelectionMenu) calcTotalWidth(xWidth float64) float64 {
 	if m.columns == 1 {
 		maxEntryWidth := 0.0
 		for _, v := range m.DataI {
@@ -136,12 +137,9 @@ func (m SelectionMenu) calcTotalWidth() float64 {
 				width := m.textBase.BoundsOf(x).W()
 				maxEntryWidth = math.Max(width, maxEntryWidth)
 
-			case ActorSummary:
-				maxEntryWidth = x.Width
-
 			default:
 				//fmt.Println("SelectionMenu:calcTotalWidth :: type unknown")
-				maxEntryWidth = 100
+				maxEntryWidth = xWidth
 			}
 		}
 		return maxEntryWidth + m.cursorWidth
@@ -165,7 +163,7 @@ func (m SelectionMenu) renderItem(a ...interface{}) {
 	item := itemV.Interface().(string)
 
 	pos := pixel.V(x, y)
-	//textBase := text.New(pos, basicAtlas12)
+	//textBase := text.New(pos, BasicAtlas12)
 	textBase := text.New(pos, text.NewAtlas(basicfont.Face7x13, text.ASCII))
 	if item == "" {
 		fmt.Fprintf(textBase, "--")

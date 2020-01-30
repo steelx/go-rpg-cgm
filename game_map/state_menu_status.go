@@ -24,7 +24,7 @@ type StatusMenuState struct {
 	EquipMenu,
 	Actions *gui.SelectionMenu
 	Panels       []gui.Panel
-	ActorSummary gui.ActorSummary
+	ActorSummary combat.ActorSummary
 	spacingY     float64
 }
 
@@ -50,10 +50,10 @@ func StatusMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *Status
 // StateMachine impl below //
 func (s *StatusMenuState) Enter(actorSumI interface{}) {
 	actorSumV := reflect.ValueOf(actorSumI)
-	s.ActorSummary = actorSumV.Interface().(gui.ActorSummary)
+	s.ActorSummary = actorSumV.Interface().(combat.ActorSummary)
 
 	s.spacingY = 26
-	equipmentMenu := gui.SelectionMenuCreate(s.spacingY, 40,
+	equipmentMenu := gui.SelectionMenuCreate(s.spacingY, 40, 100,
 		s.ActorSummary.Actor.ActiveEquipSlots,
 		false,
 		pixel.V(0, 0),
@@ -65,7 +65,7 @@ func (s *StatusMenuState) Enter(actorSumI interface{}) {
 	s.EquipMenu = &equipmentMenu
 	s.EquipMenu.HideCursor()
 
-	actionsMenu := gui.SelectionMenuCreate(30, 0,
+	actionsMenu := gui.SelectionMenuCreate(30, 0, 0,
 		s.ActorSummary.Actor.Actions,
 		false,
 		pixel.V(0, 0),

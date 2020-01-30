@@ -27,7 +27,7 @@ type EquipMenuState struct {
 	inInventoryList               bool
 	equipment                     map[string]int
 	menuIndex                     int
-	actorSummary                  gui.ActorSummary
+	actorSummary                  combat.ActorSummary
 	FilterMenus                   []*gui.SelectionMenu
 	SlotMenu                      *gui.SelectionMenu
 }
@@ -67,7 +67,7 @@ func EquipMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *EquipMe
 
 func (e *EquipMenuState) Enter(actorSummaryI interface{}) {
 	actorSummaryV := reflect.ValueOf(actorSummaryI)
-	actorSummary := actorSummaryV.Interface().(gui.ActorSummary)
+	actorSummary := actorSummaryV.Interface().(combat.ActorSummary)
 	e.actorSummary = actorSummary
 	e.actorSummary.HideXP()
 	e.equipment = actorSummary.Actor.Equipped
@@ -75,7 +75,7 @@ func (e *EquipMenuState) Enter(actorSummaryI interface{}) {
 	e.RefreshFilteredMenus()
 	e.menuIndex = 0
 
-	slotMenu := gui.SelectionMenuCreate(26, 80,
+	slotMenu := gui.SelectionMenuCreate(26, 80, 100,
 		e.actorSummary.Actor.ActiveEquipSlots,
 		false,
 		pixel.V(0, 0),
@@ -203,7 +203,7 @@ func (e *EquipMenuState) RefreshFilteredMenus() {
 
 	e.FilterMenus = make([]*gui.SelectionMenu, len(filterList))
 	for index, f := range filterList {
-		menu := gui.SelectionMenuCreate(26, 80,
+		menu := gui.SelectionMenuCreate(26, 80, 100,
 			f.list,
 			false,
 			pixel.V(0, 0),
