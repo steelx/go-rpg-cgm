@@ -4,6 +4,7 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/animation"
 	"github.com/steelx/go-rpg-cgm/state_machine"
+	"reflect"
 )
 
 type SleepState struct {
@@ -14,7 +15,13 @@ type SleepState struct {
 	Anim                animation.Animation
 }
 
-func SleepStateCreate(character *Character, gMap *GameMap) state_machine.State {
+//character *Character, gMap *GameMap
+func SleepStateCreate(args ...interface{}) state_machine.State {
+	charV := reflect.ValueOf(args[0])
+	character := charV.Interface().(*Character)
+	gMapV := reflect.ValueOf(args[1])
+	gMap := gMapV.Interface().(*GameMap)
+
 	s := &SleepState{
 		Character:   character,
 		Map:         gMap,

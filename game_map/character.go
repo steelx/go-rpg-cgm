@@ -30,7 +30,7 @@ func CharacterCreate(
 		Facing:       def.FacingDirection,
 		Entity:       CreateEntity(def.EntityDef),
 		Controller:   state_machine.Create(controllerStates),
-		DefaultState: "wait",
+		DefaultState: def.DefaultState,
 	}
 
 	//AnimUp, AnimRight, AnimDown, AnimLeft []int

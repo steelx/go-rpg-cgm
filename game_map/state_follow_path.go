@@ -3,6 +3,7 @@ package game_map
 import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/state_machine"
+	"reflect"
 )
 
 type FollowPathState struct {
@@ -12,7 +13,12 @@ type FollowPathState struct {
 	Controller *state_machine.StateMachine
 }
 
-func FollowPathStateCreate(character *Character, gMap *GameMap) state_machine.State {
+func FollowPathStateCreate(args ...interface{}) state_machine.State {
+	charV := reflect.ValueOf(args[0])
+	character := charV.Interface().(*Character)
+	gMapV := reflect.ValueOf(args[1])
+	gMap := gMapV.Interface().(*GameMap)
+
 	s := FollowPathState{}
 	s.Character = character
 	s.Map = *gMap

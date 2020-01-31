@@ -22,6 +22,7 @@ type Entity struct {
 	Texture       pixel.Picture
 	Height, Width float64
 	TileX, TileY  float64
+	X, Y          float64 //used with Combat background image
 	StartFrame    int
 	Frames        []pixel.Rect
 	Children      map[string]*Entity
@@ -73,10 +74,15 @@ func (e Entity) GetTilePositionOnMap(gMap *GameMap) (vec pixel.Vec) {
 }
 
 //Render will render self + any effects on entity e.g. SleepEntity
-func (e *Entity) Render(gMap *GameMap, renderer pixel.Target) {
+func (e *Entity) Render(gMap *GameMap, renderer pixel.Target, pos pixel.Vec) {
 	//Draw self first
 	spriteFrame := e.Frames[e.StartFrame]
-	position := e.GetTilePositionOnMap(gMap)
+	position := pixel.ZV
+	if gMap != nil {
+		position = e.GetTilePositionOnMap(gMap)
+	} else {
+		position = pos
+	}
 	e.Sprite = pixel.NewSprite(e.Texture, spriteFrame)
 	e.Sprite.Draw(renderer, pixel.IM.Moved(position))
 	//Draw children

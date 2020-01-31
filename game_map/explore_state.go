@@ -119,7 +119,7 @@ func (es ExploreState) Render(win *pixelgl.Window) {
 		if layer == es.Map.MapInfo.CollisionLayer {
 			for _, gCharacter := range gameCharacters {
 				//gCharacter.Entity.TeleportAndDraw(es.Map, canvas) //probably can remove now
-				gCharacter.Entity.Render(es.Map, canvas)
+				gCharacter.Entity.Render(es.Map, canvas, pixel.ZV)
 			}
 		}
 	})

@@ -1,6 +1,9 @@
 package game_map
 
-import "github.com/steelx/go-rpg-cgm/utilz"
+import (
+	"github.com/steelx/go-rpg-cgm/state_machine"
+	"github.com/steelx/go-rpg-cgm/utilz"
+)
 
 func init() {
 	walkCyclePng, err := utilz.LoadPicture("../resources/walk_cycle.png")
@@ -18,6 +21,8 @@ func init() {
 	utilz.PanicIfErr(err)
 	combatThiefPng, err := utilz.LoadPicture("../resources/combat_thief.png")
 	utilz.PanicIfErr(err)
+	goblinPng, err := utilz.LoadPicture("../resources/goblin.png")
+	utilz.PanicIfErr(err)
 
 	//Entities
 	Entities = map[string]EntityDefinition{
@@ -27,17 +32,17 @@ func init() {
 		"combat_hero": {
 			Texture: combatHeroPng,
 			Width:   64, Height: 64,
-			StartFrame: 37,
+			StartFrame: 10,
 		},
 		"combat_mage": {
 			Texture: combatMagePng,
 			Width:   64, Height: 64,
-			StartFrame: 37,
+			StartFrame: 10,
 		},
 		"combat_thief": {
 			Texture: combatThiefPng,
 			Width:   64, Height: 64,
-			StartFrame: 37,
+			StartFrame: 10,
 		},
 		"hero": {
 			Texture: walkCyclePng,
@@ -59,6 +64,11 @@ func init() {
 			StartFrame: 120,
 			TileX:      11,
 			TileY:      3,
+		},
+		"goblin": {
+			Texture: goblinPng,
+			Width:   32, Height: 32,
+			StartFrame: 0,
 		},
 		"sleeper": {
 			Texture: sleepingPng,
@@ -107,9 +117,14 @@ func init() {
 				"down":    {24, 25, 26, 27},
 				"left":    {28, 29, 30, 31},
 			},
-			FacingDirection: CharacterFacingDirection[2],
-			EntityDef:       Entities["hero"],
-			CombatEntityDef: Entities["combat_hero"],
+			FacingDirection:    CharacterFacingDirection[2],
+			EntityDef:          Entities["hero"],
+			CombatEntityDef:    Entities["combat_hero"],
+			DefaultState:       "wait",
+			DefaultCombatState: "CSStandBy",
+			CombatStates: map[string]func(args ...interface{}) state_machine.State{
+				"CSStandBy": CSStandByCreate,
+			},
 		},
 		"thief": {
 			Id: "thief",
@@ -120,6 +135,7 @@ func init() {
 			FacingDirection: CharacterFacingDirection[2],
 			EntityDef:       Entities["thief"],
 			CombatEntityDef: Entities["combat_thief"],
+			DefaultState:    "wait",
 		},
 		"mage": {
 			Id: "mage",
@@ -130,6 +146,7 @@ func init() {
 			FacingDirection: CharacterFacingDirection[2],
 			EntityDef:       Entities["mage"],
 			CombatEntityDef: Entities["combat_mage"],
+			DefaultState:    "wait",
 		},
 		"sleeper": {
 			Id: "sleeper",
@@ -139,12 +156,14 @@ func init() {
 			FacingDirection: CharacterFacingDirection[3],
 			EntityDef:       Entities["hero"],
 			CombatEntityDef: Entities["empty"],
+			DefaultState:    "wait",
 		},
 		"npc1": {
 			Id:              "npc1",
 			FacingDirection: CharacterFacingDirection[2],
 			EntityDef:       Entities["npc1"],
 			CombatEntityDef: Entities["empty"],
+			DefaultState:    "wait",
 		},
 		"npc2": {
 			Id: "npc2",
@@ -154,6 +173,7 @@ func init() {
 			FacingDirection: CharacterFacingDirection[2],
 			EntityDef:       Entities["npc2"],
 			CombatEntityDef: Entities["empty"],
+			DefaultState:    "wait",
 		},
 		"guard": {
 			Id: "guard",
@@ -163,6 +183,7 @@ func init() {
 			FacingDirection: CharacterFacingDirection[2],
 			EntityDef:       Entities["npc2"],
 			CombatEntityDef: Entities["empty"],
+			DefaultState:    "wait",
 		},
 		"prisoner": {
 			Id: "prisoner",
@@ -172,6 +193,7 @@ func init() {
 			FacingDirection: CharacterFacingDirection[2],
 			EntityDef:       Entities["prisoner"],
 			CombatEntityDef: Entities["empty"],
+			DefaultState:    "wait",
 		},
 		"chest": {
 			Id: "chest",
@@ -181,6 +203,16 @@ func init() {
 			FacingDirection: CharacterFacingDirection[2],
 			EntityDef:       Entities["chest"],
 			CombatEntityDef: Entities["empty"],
+		},
+		"goblin": {
+			Id:                 "goblin",
+			FacingDirection:    CharacterFacingDirection[2],
+			EntityDef:          Entities["goblin"],
+			DefaultState:       "wait",
+			DefaultCombatState: "cs_npc_stand",
+			CombatStates: map[string]func(args ...interface{}) state_machine.State{
+				"cs_npc_stand": NPCStandCombatStateCreate,
+			},
 		},
 	}
 }

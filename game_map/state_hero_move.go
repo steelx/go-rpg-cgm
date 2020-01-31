@@ -21,7 +21,13 @@ type MoveState struct {
 	Anim           animation.Animation
 }
 
-func MoveStateCreate(character *Character, gMap *GameMap) state_machine.State {
+//character *Character, gMap *GameMap
+func MoveStateCreate(args ...interface{}) state_machine.State {
+	charV := reflect.ValueOf(args[0])
+	character := charV.Interface().(*Character)
+	gMapV := reflect.ValueOf(args[1])
+	gMap := gMapV.Interface().(*GameMap)
+
 	s := &MoveState{}
 	s.Character = character
 	s.Map = gMap

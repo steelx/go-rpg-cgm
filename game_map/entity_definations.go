@@ -25,13 +25,16 @@ type CharacterDefinition struct {
 	Animations                 map[string][]int
 	FacingDirection            string
 	EntityDef, CombatEntityDef EntityDefinition
+	CombatStates               map[string]func(args ...interface{}) state_machine.State
+	DefaultCombatState,
+	DefaultState string
 }
 
 func hero(gMap *GameMap) *Character {
-	//character := CharacterDefinitions["hero"]
+	charDef := CharacterDefinitions["hero"]
 	var gameCharacter *Character
 	gameCharacter = CharacterCreate(
-		CharacterDefinitions["hero"],
+		charDef,
 		map[string]func() state_machine.State{
 			"wait": func() state_machine.State {
 				return WaitStateCreate(gameCharacter, gMap)
@@ -46,9 +49,10 @@ func hero(gMap *GameMap) *Character {
 }
 
 func thief(gMap *GameMap) *Character {
+	charDef := CharacterDefinitions["thief"]
 	var gameCharacter *Character
 	gameCharacter = CharacterCreate(
-		CharacterDefinitions["thief"],
+		charDef,
 		map[string]func() state_machine.State{
 			"wait": func() state_machine.State {
 				return NPCStandStateCreate(gameCharacter, gMap)
@@ -63,9 +67,10 @@ func thief(gMap *GameMap) *Character {
 }
 
 func mage(gMap *GameMap) *Character {
+	charDef := CharacterDefinitions["mage"]
 	var gameCharacter *Character
 	gameCharacter = CharacterCreate(
-		CharacterDefinitions["mage"],
+		charDef,
 		map[string]func() state_machine.State{
 			"wait": func() state_machine.State {
 				return NPCStandStateCreate(gameCharacter, gMap)
@@ -80,9 +85,10 @@ func mage(gMap *GameMap) *Character {
 }
 
 func Sleeper(gMap *GameMap) *Character {
+	charDef := CharacterDefinitions["sleeper"]
 	var gameCharacter *Character
 	gameCharacter = CharacterCreate(
-		CharacterDefinitions["sleeper"],
+		charDef,
 		map[string]func() state_machine.State{
 			"sleep": func() state_machine.State {
 				return SleepStateCreate(gameCharacter, gMap)
@@ -94,9 +100,10 @@ func Sleeper(gMap *GameMap) *Character {
 }
 
 func NPC1(gMap *GameMap) *Character {
+	charDef := CharacterDefinitions["npc1"]
 	var gameCharacter *Character
 	gameCharacter = CharacterCreate(
-		CharacterDefinitions["npc1"],
+		charDef,
 		map[string]func() state_machine.State{
 			"wait": func() state_machine.State {
 				return NPCStandStateCreate(gameCharacter, gMap)
@@ -108,9 +115,10 @@ func NPC1(gMap *GameMap) *Character {
 }
 
 func NPC2(gMap *GameMap) *Character {
+	charDef := CharacterDefinitions["npc2"]
 	var gameCharacter *Character
 	gameCharacter = CharacterCreate(
-		CharacterDefinitions["npc2"],
+		charDef,
 		map[string]func() state_machine.State{
 			"wait": func() state_machine.State {
 				return NPCStrollWaitStateCreate(gameCharacter, gMap)
@@ -125,9 +133,10 @@ func NPC2(gMap *GameMap) *Character {
 }
 
 func guard(gMap *GameMap) *Character {
+	charDef := CharacterDefinitions["guard"]
 	var gameCharacter *Character
 	gameCharacter = CharacterCreate(
-		CharacterDefinitions["guard"],
+		charDef,
 		map[string]func() state_machine.State{
 			"wait": func() state_machine.State {
 				return NPCStandStateCreate(gameCharacter, gMap)
@@ -145,9 +154,10 @@ func guard(gMap *GameMap) *Character {
 }
 
 func prisoner(gMap *GameMap) *Character {
+	charDef := CharacterDefinitions["prisoner"]
 	var gameCharacter *Character
 	gameCharacter = CharacterCreate(
-		CharacterDefinitions["prisoner"],
+		charDef,
 		map[string]func() state_machine.State{
 			"wait": func() state_machine.State {
 				return NPCStandStateCreate(gameCharacter, gMap)
@@ -165,9 +175,10 @@ func prisoner(gMap *GameMap) *Character {
 }
 
 func chest(gMap *GameMap) *Character {
+	charDef := CharacterDefinitions["chest"]
 	var gameCharacter *Character
 	gameCharacter = CharacterCreate(
-		CharacterDefinitions["chest"],
+		charDef,
 		map[string]func() state_machine.State{
 			"wait": func() state_machine.State {
 				return NPCStandStateCreate(gameCharacter, gMap)

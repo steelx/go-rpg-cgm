@@ -4,6 +4,7 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/state_machine"
+	"reflect"
 )
 
 type WaitState struct {
@@ -15,7 +16,13 @@ type WaitState struct {
 	mFrameResetSpeed, FrameCount float64
 }
 
-func WaitStateCreate(character *Character, gMap *GameMap) state_machine.State {
+//character *Character, gMap *GameMap
+func WaitStateCreate(args ...interface{}) state_machine.State {
+	charV := reflect.ValueOf(args[0])
+	character := charV.Interface().(*Character)
+	gMapV := reflect.ValueOf(args[1])
+	gMap := gMapV.Interface().(*GameMap)
+
 	s := &WaitState{}
 	s.Character = character
 	s.Map = gMap
