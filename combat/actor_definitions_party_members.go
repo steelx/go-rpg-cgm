@@ -60,7 +60,7 @@ var MageDef = ActorDef{
 	Name:             "Mrignayani",
 	Portrait:         "../resources/avatar_mage.png",
 	Actions:          []string{attack, item},
-	ActiveEquipSlots: []int{1, 2, 3}, //mage dont get Attack slot
+	ActiveEquipSlots: []int{0, 1, 2, 3}, //mage if no attack slot, Access goes to Attack slot(fix pending)
 }
 
 var ThiefDef = ActorDef{
