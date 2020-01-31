@@ -20,11 +20,11 @@ var HeroDef = ActorDef{
 	Id:       "hero",
 	IsPlayer: true,
 	Stats: world.BaseStats{
-		HpNow:    50,
+		HpNow:    300,
 		HpMax:    300,
 		MpNow:    300,
 		MpMax:    300,
-		Strength: 10, Speed: 20, Intelligence: 10,
+		Strength: 10, Speed: 10, Intelligence: 10,
 		Attack: 10,
 	},
 	StatGrowth: map[string]func() int{

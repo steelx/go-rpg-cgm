@@ -9,7 +9,7 @@ var GoblinDef = ActorDef{
 	Id:       "goblin",
 	IsPlayer: false,
 	Stats: world.BaseStats{
-		HpNow:    50,
+		HpNow:    300,
 		HpMax:    300,
 		MpNow:    300,
 		MpMax:    300,

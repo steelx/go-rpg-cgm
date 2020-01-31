@@ -24,11 +24,11 @@ type Character struct {
 }
 
 func CharacterCreate(
-	id string, animations map[string][]int, facingDirection string, charDef EntityDefinition, controllerStates map[string]func() state_machine.State) *Character {
+	def CharacterDefinition, controllerStates map[string]func() state_machine.State) *Character {
 	player := &Character{
-		Id:           id,
-		Facing:       facingDirection,
-		Entity:       CreateEntity(charDef),
+		Id:           def.Id,
+		Facing:       def.FacingDirection,
+		Entity:       CreateEntity(def.EntityDef),
 		Controller:   state_machine.Create(controllerStates),
 		DefaultState: "wait",
 	}
@@ -36,16 +36,16 @@ func CharacterCreate(
 	//AnimUp, AnimRight, AnimDown, AnimLeft []int
 	player.Anims = make(map[string][]int, 0)
 
-	if anim, ok := animations["left"]; ok {
+	if anim, ok := def.Animations["left"]; ok {
 		player.Anims["left"] = anim
 	}
-	if anim, ok := animations["right"]; ok {
+	if anim, ok := def.Animations["right"]; ok {
 		player.Anims["right"] = anim
 	}
-	if anim, ok := animations["up"]; ok {
+	if anim, ok := def.Animations["up"]; ok {
 		player.Anims["up"] = anim
 	}
-	if anim, ok := animations["down"]; ok {
+	if anim, ok := def.Animations["down"]; ok {
 		player.Anims["down"] = anim
 	}
 
