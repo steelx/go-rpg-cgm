@@ -3,8 +3,9 @@ package combat
 import "fmt"
 
 type Scene struct {
-	PartyActors, EnemyActors []*Actor
-	EventQueue               *EventQueue
+	PartyActors,
+	EnemyActors []*Actor
+	EventQueue *EventQueue
 }
 
 func SceneCreate(partyMembers []*Actor, enemies []*Actor) *Scene {
@@ -18,13 +19,12 @@ func SceneCreate(partyMembers []*Actor, enemies []*Actor) *Scene {
 	return s
 }
 
-func (s Scene) Update() {
+func (s *Scene) Update() {
 	s.EventQueue.Update()
 
 	if s.IsPartyDefeated() || s.IsEnemyDefeated() {
 		//END GAME DETECTED
-		//s.EventQueue.Clear() could be used
-		s.EventQueue.Queue = make([]Event, 0)
+		s.EventQueue.Clear()
 		return
 	}
 
@@ -37,7 +37,7 @@ func (s *Scene) AddTurns(actors []*Actor) {
 	for _, v := range actors {
 		if !s.EventQueue.ActorHasEvent(v) {
 			event := CETurnCreate(s, v)
-			tp := event.TimePoints(*s.EventQueue)
+			tp := event.TimePoints(s.EventQueue)
 			s.EventQueue.Add(event, tp)
 		}
 	}

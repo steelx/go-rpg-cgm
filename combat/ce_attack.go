@@ -12,11 +12,10 @@ type CEAttack struct {
 
 func CEAttackCreate(scene *Scene, owner, target *Actor) *CEAttack {
 	return &CEAttack{
-		Scene:     scene,
-		countDown: 0,
-		owner:     owner,
-		Target:    target,
-		name:      fmt.Sprintf("CEAttack(_, %s -> %s)", owner.Name, target.Name),
+		Scene:  scene,
+		owner:  owner,
+		Target: target,
+		name:   fmt.Sprintf("CEAttack(_, %s -> %s)", owner.Name, target.Name),
 	}
 }
 
@@ -28,7 +27,7 @@ func (c CEAttack) CountDown() float64 {
 	return c.countDown
 }
 
-func (c CEAttack) CountDownSet(t float64) {
+func (c *CEAttack) CountDownSet(t float64) {
 	c.countDown = t
 }
 
@@ -43,7 +42,7 @@ func (c CEAttack) IsFinished() bool {
 	return true
 }
 
-func (c CEAttack) Execute(queue *EventQueue) {
+func (c *CEAttack) Execute(queue *EventQueue) {
 	target := c.Target
 	targetHP := target.Stats.Get("HpNow")
 	// has Already killed!
@@ -60,7 +59,7 @@ func (c CEAttack) Execute(queue *EventQueue) {
 	fmt.Println(dmgMsg)
 
 	if targetHP <= 0 {
-		msg := fmt.Sprintf("%s is killed by %s", target.Name, c.owner.Name)
+		msg := fmt.Sprintf("%s is killed by %s [%v]", target.Name, c.owner.Name, c.owner.Stats.Get("HpNow"))
 		fmt.Println(msg)
 		c.Scene.OnDead(target)
 	}

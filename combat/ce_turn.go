@@ -26,7 +26,7 @@ func (c CETurn) CountDown() float64 {
 	return c.countDown
 }
 
-func (c CETurn) CountDownSet(t float64) {
+func (c *CETurn) CountDownSet(t float64) {
 	c.countDown = t
 }
 
@@ -43,7 +43,7 @@ func (c CETurn) IsFinished() bool {
 }
 
 func (c *CETurn) Execute(queue *EventQueue) {
-	target := c.Scene.GetTarget(c.Owner())
+	target := c.Scene.GetTarget(c.owner)
 	msg := fmt.Sprintf("%s decides to attack %s", c.owner.Name, target.Name)
 	fmt.Println(msg)
 
@@ -52,7 +52,7 @@ func (c *CETurn) Execute(queue *EventQueue) {
 	queue.Add(event, tp)
 }
 
-func (c CETurn) TimePoints(queue EventQueue) float64 {
+func (c CETurn) TimePoints(queue *EventQueue) float64 {
 	speed := c.Owner().Stats.Get("Speed")
 	return queue.SpeedToTimePoints(speed)
 }
