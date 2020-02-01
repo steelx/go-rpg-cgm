@@ -115,8 +115,8 @@ func init() {
 				"right": {20, 21, 22, 23},
 				"down":  {24, 25, 26, 27},
 				"left":  {28, 29, 30, 31},
-				//CS_Standby: {15, 16, 17, 18, 19},
-				CS_Standby: {25, 26, 27, 28},
+
+				CS_Standby: {15, 16, 17, 18, 19},
 				CS_Move:    {25, 26, 27, 28, 29},
 				CS_Prone:   {5, 6},
 				CS_Attack: {
@@ -149,7 +149,7 @@ func init() {
 				"down":  {104, 105, 106, 107},
 				"left":  {108, 109, 110, 111},
 
-				CS_Standby: {25, 26, 27, 28},
+				CS_Standby: {15, 16, 17, 18, 19},
 				CS_Move:    {25, 26, 27, 28, 29},
 				CS_Prone:   {5, 6},
 				CS_Attack: {
