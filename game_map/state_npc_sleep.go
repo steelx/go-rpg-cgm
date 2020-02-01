@@ -16,7 +16,7 @@ type SleepState struct {
 }
 
 //character *Character, gMap *GameMap
-func SleepStateCreate(args ...interface{}) state_machine.State {
+func SleepStateCreate(args ...interface{}) *SleepState {
 	charV := reflect.ValueOf(args[0])
 	character := charV.Interface().(*Character)
 	gMapV := reflect.ValueOf(args[1])
@@ -38,7 +38,7 @@ func SleepStateCreate(args ...interface{}) state_machine.State {
 //The StateMachine requires each state to have
 // four functions: Enter, Exit, Render and Update
 
-func (s *SleepState) Enter(data interface{}) {
+func (s *SleepState) Enter(data ...interface{}) {
 	s.Entity.AddChild("snore", s.SleepEntity)
 }
 

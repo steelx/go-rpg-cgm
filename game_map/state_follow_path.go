@@ -31,7 +31,7 @@ func FollowPathStateCreate(args ...interface{}) state_machine.State {
 //The StateMachine requires each state to have
 // four functions: Enter, Exit, Render and Update
 
-func (s *FollowPathState) Enter(data interface{}) {
+func (s *FollowPathState) Enter(data ...interface{}) {
 
 	if s.Character.PathIndex >= len(s.Character.Path) || len(s.Character.Path) == 0 {
 		s.Character.DefaultState = s.Character.PrevDefaultState //we set at Character.FollowPath

@@ -65,8 +65,8 @@ func EquipMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *EquipMe
 	return e
 }
 
-func (e *EquipMenuState) Enter(actorSummaryI interface{}) {
-	actorSummaryV := reflect.ValueOf(actorSummaryI)
+func (e *EquipMenuState) Enter(data ...interface{}) {
+	actorSummaryV := reflect.ValueOf(data[0])
 	actorSummary := actorSummaryV.Interface().(combat.ActorSummary)
 	e.actorSummary = actorSummary
 	e.actorSummary.HideXP()

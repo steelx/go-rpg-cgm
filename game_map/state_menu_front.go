@@ -129,7 +129,7 @@ func (fm *FrontMenuState) goBackToFrontMenu() {
 /*
    StateMachine :: State impl below
 */
-func (fm FrontMenuState) Enter(data interface{}) {
+func (fm FrontMenuState) Enter(data ...interface{}) {
 }
 
 func (fm FrontMenuState) Exit() {

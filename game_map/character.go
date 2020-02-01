@@ -81,3 +81,11 @@ func (ch *Character) FollowPath(path []string) {
 	ch.DefaultState = "follow_path"
 	ch.Controller.Change("follow_path", nil)
 }
+
+func (ch *Character) GetCombatAnim(id string) []int {
+	if _, ok := ch.Anims[id]; ok {
+		return ch.Anims[id]
+	} else {
+		return []int{ch.Entity.StartFrame}
+	}
+}

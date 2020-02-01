@@ -30,7 +30,7 @@ Controller :
 // gStateMachine:Change("MainGame")
 //
 type State interface {
-	Enter(data interface{})
+	Enter(data ...interface{})
 	Render(win *pixelgl.Window)
 	Exit()
 	Update(dt float64)
@@ -67,7 +67,7 @@ func (m *StateMachine) Render(win *pixelgl.Window) {
 	m.current.Render(win)
 }
 
-func (m *StateMachine) Enter(data interface{}) {
+func (m *StateMachine) Enter(data ...interface{}) {
 }
 func (m *StateMachine) Exit() {
 }
