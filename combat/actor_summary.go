@@ -31,6 +31,7 @@ func ActorSummaryCreate(actor Actor, showXP bool) ActorSummary {
 			"#FF001E",
 			"#15FF00",
 			3, 100,
+			nil,
 		),
 		MPBar: gui.ProgressBarIMDCreate(
 			0, 0,
@@ -39,6 +40,7 @@ func ActorSummaryCreate(actor Actor, showXP bool) ActorSummary {
 			"#A48B2C",
 			"#00E7DA",
 			3, 100,
+			nil,
 		),
 		AvatarTextPadding: 14,
 		LabelRightPadding: 12,

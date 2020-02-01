@@ -22,8 +22,8 @@ var HeroDef = ActorDef{
 	Stats: world.BaseStats{
 		HpNow:    300,
 		HpMax:    300,
-		MpNow:    300,
-		MpMax:    300,
+		MpNow:    200,
+		MpMax:    200,
 		Strength: 10, Speed: 10, Intelligence: 10,
 		Attack: 10,
 	},
@@ -67,11 +67,12 @@ var ThiefDef = ActorDef{
 	Id:       "thief",
 	IsPlayer: true,
 	Stats: world.BaseStats{
-		HpNow:    280,
-		HpMax:    280,
+		HpNow:    200,
+		HpMax:    200,
 		MpNow:    150,
 		MpMax:    150,
 		Strength: 10, Speed: 15, Intelligence: 10,
+		Attack: 8,
 	},
 	StatGrowth: map[string]func() int{
 		"HpMax":        dice.Create("3d40+100"),

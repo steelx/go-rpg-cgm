@@ -16,9 +16,10 @@ type ProgressBarIMD struct {
 	backgroundPosition pixel.Vec
 	Value, Maximum, HalfWidth,
 	Height, Width float64
+	parentImd *imdraw.IMDraw
 }
 
-func ProgressBarIMDCreate(x, y float64, value, max float64, background, foreground string, height, width float64) ProgressBarIMD {
+func ProgressBarIMDCreate(x, y float64, value, max float64, background, foreground string, height, width float64, parentImd *imdraw.IMDraw) ProgressBarIMD {
 
 	pb := ProgressBarIMD{
 		x:          x,
@@ -29,6 +30,7 @@ func ProgressBarIMDCreate(x, y float64, value, max float64, background, foregrou
 		Maximum:    max,
 		Width:      width,
 		Height:     height,
+		parentImd:  parentImd,
 	}
 
 	pb.HalfWidth = pb.Width / 2
@@ -58,17 +60,22 @@ func (pb ProgressBarIMD) GetPercentWidth() float64 {
 }
 
 func (pb ProgressBarIMD) Render(renderer pixel.Target) {
-	imd.Clear()
+	imd_ := imd
+	if pb.parentImd != nil {
+		imd_ = pb.parentImd
+	}
+
+	imd_.Clear()
 
 	leftPos := pixel.V(pb.x, pb.y)
-	imd.Color = pb.Background
-	imd.Push(leftPos, leftPos.Add(pixel.V(pb.Width, pb.Height)))
+	imd_.Color = pb.Background
+	imd_.Push(leftPos, leftPos.Add(pixel.V(pb.Width, pb.Height)))
 
-	imd.Color = pb.Foreground
-	imd.Push(leftPos, leftPos.Add(pixel.V(pb.GetPercentWidth(), pb.Height)))
-	imd.EndShape = imdraw.RoundEndShape
-	imd.Rectangle(0)
-	imd.Draw(renderer)
+	imd_.Color = pb.Foreground
+	imd_.Push(leftPos, leftPos.Add(pixel.V(pb.GetPercentWidth(), pb.Height)))
+	imd_.EndShape = imdraw.RoundEndShape
+	imd_.Rectangle(0)
+	imd_.Draw(renderer)
 }
 
 /*
