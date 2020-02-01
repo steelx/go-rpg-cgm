@@ -11,16 +11,17 @@ import (
 
 //CS -> CombatState
 const (
-	CS_Standby = "cs_standby"  // The character is waiting to be told what action to do by the player or AI
-	CS_Prone   = "cs_prone"    // The character is waiting and ready to perform a given combat action
-	CS_Attack  = "cs_attack"   // The character will run an attack animation and attack an enemy
-	CS_Cast    = "cs_cast"     // The character will run a cast-spell animation and a special effect will play
-	CS_Use     = "cs_use"      // The character uses some item with a use-item animation
-	CS_Hurt    = "cd_hurt"     // The character takes some damage. Animation and numbers
-	CS_Die     = "cs_die"      // The character dies and the sprite is changed to the death sprite
-	CS_Move    = "cs_move"     // The character moves toward or away from the enemy, in order to perform an action
-	CS_Victory = "cs_victory"  // The character dances around and combat ends
-	CS_RunAnim = "cs_run_anim" // plays common animations states
+	CS_NPC_Stand = "cs_npc_stand"
+	CS_Standby   = "cs_standby"  // The character is waiting to be told what action to do by the player or AI
+	CS_Prone     = "cs_prone"    // The character is waiting and ready to perform a given combat action
+	CS_Attack    = "cs_attack"   // The character will run an attack animation and attack an enemy
+	CS_Cast      = "cs_cast"     // The character will run a cast-spell animation and a special effect will play
+	CS_Use       = "cs_use"      // The character uses some item with a use-item animation
+	CS_Hurt      = "cd_hurt"     // The character takes some damage. Animation and numbers
+	CS_Die       = "cs_die"      // The character dies and the sprite is changed to the death sprite
+	CS_Move      = "cs_move"     // The character moves toward or away from the enemy, in order to perform an action
+	CS_Victory   = "cs_victory"  // The character dances around and combat ends
+	CS_RunAnim   = "cs_run_anim" // plays common animations states
 )
 
 type CombatState struct {
@@ -50,8 +51,8 @@ func CombatStateCreate(state *gui.StateStack, win *pixelgl.Window, def CombatDef
 			party:   def.Actors.Party,
 			enemies: def.Actors.Enemies,
 		},
-		Characters:   make(map[string][]*Character),
-		ActorCharMap: make(map[string]*Character),
+		Characters: make(map[string][]*Character),
+		//ActorCharMap: make(map[string]*Character),
 	}
 
 	c.Layout = combatLayout
@@ -68,6 +69,13 @@ func (c *CombatState) Exit() {
 }
 
 func (c *CombatState) Update(dt float64) bool {
+	for _, v := range c.Characters[party] {
+		v.Controller.Update(dt)
+	}
+	for _, v := range c.Characters[enemies] {
+		v.Controller.Update(dt)
+	}
+
 	return true
 }
 
@@ -94,7 +102,6 @@ func (c *CombatState) CreateCombatCharacters(key string) {
 	actorsList := c.Actors[key]
 	layout := c.Layout[key][len(actorsList)-1]
 
-	var charactersList []*Character
 	for k, v := range actorsList {
 		charDef := CharacterDefinitions[v.Id]
 
@@ -114,8 +121,7 @@ func (c *CombatState) CreateCombatCharacters(key string) {
 			charStates,
 		)
 
-		charactersList = append(charactersList, char)
-		c.ActorCharMap[v.Id] = char
+		//c.ActorCharMap[v.Id] = char
 
 		pos := layout[k]
 
@@ -123,15 +129,15 @@ func (c *CombatState) CreateCombatCharacters(key string) {
 		// Need scaling to the screen size.
 		x := pos.X * c.win.Bounds().W()
 		y := pos.Y * c.win.Bounds().H()
-		//char.Entity.Sprite:SetPosition(x, y)
+
 		char.Entity.X = x
 		char.Entity.Y = y
 
 		// Change to standby because it's combat time
-		char.Controller.Change(charDef.DefaultCombatState, nil)
+		anim := CS_Standby
+		char.Controller.Change(CS_Standby, anim)
 
+		c.Characters[key] = append(c.Characters[key], char)
 	}
-
-	c.Characters[key] = charactersList
 
 }

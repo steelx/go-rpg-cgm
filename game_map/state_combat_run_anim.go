@@ -33,11 +33,10 @@ func CSRunAnimCreate(args ...interface{}) state_machine.State {
 
 func (s *CSRunAnim) Enter(data ...interface{}) {
 	animV := reflect.ValueOf(data[0])
-	loopV := reflect.ValueOf(data[1])
-	spfV := reflect.ValueOf(data[2])
-	animId, loop, spf := animV.Interface().(string), loopV.Interface().(bool), spfV.Interface().(float64)
-	s.AnimId = animId
-	frames := s.Character.GetCombatAnim(animId)
+	loop, spf := true, 0.12
+	s.AnimId = animV.Interface().(string)
+
+	frames := s.Character.GetCombatAnim(s.AnimId)
 	s.Anim = animation.Create(frames, loop, spf)
 }
 

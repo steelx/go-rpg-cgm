@@ -25,22 +25,15 @@ type Character struct {
 
 func CharacterCreate(
 	def CharacterDefinition, controllerStates map[string]func() state_machine.State) *Character {
-	player := &Character{
+
+	return &Character{
 		Id:           def.Id,
 		Facing:       def.FacingDirection,
 		Entity:       CreateEntity(def.EntityDef),
 		Controller:   state_machine.Create(controllerStates),
 		DefaultState: def.DefaultState,
+		Anims:        def.Animations,
 	}
-
-	//AnimUp, AnimRight, AnimDown, AnimLeft []int
-	player.Anims = make(map[string][]int, 0)
-
-	for k := range def.Animations {
-		player.Anims[k] = def.Animations[k]
-	}
-
-	return player
 }
 
 func (ch Character) GetFacedTileCoords() (x, y float64) {
@@ -74,9 +67,10 @@ func (ch *Character) FollowPath(path []string) {
 }
 
 func (ch *Character) GetCombatAnim(id string) []int {
-	if _, ok := ch.Anims[id]; ok {
-		return ch.Anims[id]
-	} else {
-		return []int{ch.Entity.StartFrame}
+
+	if anims, ok := ch.Anims[id]; ok {
+		return anims
 	}
+
+	return []int{ch.Entity.StartFrame}
 }

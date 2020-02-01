@@ -2,6 +2,7 @@ package game_map
 
 import (
 	"github.com/faiface/pixel/pixelgl"
+	"github.com/steelx/go-rpg-cgm/state_machine"
 	"reflect"
 )
 
@@ -13,7 +14,7 @@ type CSHurt struct {
 }
 
 //char *Character, cs *CombatState
-func CSHurtCreate(args ...interface{}) *CSHurt {
+func CSHurtCreate(args ...interface{}) state_machine.State {
 	charV := reflect.ValueOf(args[0])
 	char := charV.Interface().(*Character)
 	csV := reflect.ValueOf(args[1])

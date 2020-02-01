@@ -27,15 +27,17 @@ func CSStandByCreate(args ...interface{}) state_machine.State {
 		Character:   char,
 		CombatState: cs,
 		Entity:      char.Entity,
+		Anim:        animation.Create([]int{char.Entity.StartFrame}, true, 0.12),
 	}
 }
 
 func (s *CSStandBy) Enter(data ...interface{}) {
 	frames := s.Character.GetCombatAnim(s.Name)
-	s.Anim = animation.Create(frames, true, 0.12)
+	s.Anim.SetFrames(frames)
 }
 
 func (s *CSStandBy) Render(win *pixelgl.Window) {
+	//The *CombatState will do the render for us
 }
 
 func (s *CSStandBy) Exit() {

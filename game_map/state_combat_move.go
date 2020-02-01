@@ -27,10 +27,13 @@ func CSMoveCreate(args ...interface{}) state_machine.State {
 		Character:   char,
 		CombatState: cs,
 		Entity:      char.Entity,
+		Anim:        animation.Create([]int{char.Entity.StartFrame}, true, 0.12),
 	}
 }
 
 func (s *CSMove) Enter(data ...interface{}) {
+	frames := s.Character.GetCombatAnim(s.Name)
+	s.Anim.SetFrames(frames)
 }
 
 func (s *CSMove) Exit() {
