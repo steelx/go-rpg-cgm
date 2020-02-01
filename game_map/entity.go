@@ -9,7 +9,7 @@ import (
 var CharacterFacingDirection = [4]string{"up", "right", "down", "left"}
 
 type EntityDefinition struct {
-	Texture       pixel.Picture
+	Texture       string
 	Width, Height float64
 	StartFrame    int
 	TileX, TileY  float64
@@ -29,11 +29,13 @@ type Entity struct {
 }
 
 func CreateEntity(def EntityDefinition) *Entity {
+	pngImg, err := utilz.LoadPicture(def.Texture)
+	utilz.PanicIfErr(err)
 	e := &Entity{}
 
-	e.Texture = def.Texture
-	e.Frames = utilz.LoadAsFrames(def.Texture, def.Width, def.Height)
-	e.Sprite = pixel.NewSprite(def.Texture, e.Frames[def.StartFrame])
+	e.Texture = pngImg
+	e.Frames = utilz.LoadAsFrames(pngImg, def.Width, def.Height)
+	e.Sprite = pixel.NewSprite(pngImg, e.Frames[def.StartFrame])
 	e.Width = def.Width
 	e.Height = def.Height
 	e.TileX = def.TileX

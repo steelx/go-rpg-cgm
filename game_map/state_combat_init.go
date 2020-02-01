@@ -105,7 +105,7 @@ func (c *CombatState) CreateCombatCharacters(key string) {
 	for k, v := range actorsList {
 		charDef := CharacterDefinitions[v.Id]
 
-		if charDef.CombatEntityDef.Texture != nil {
+		if charDef.CombatEntityDef.Texture != "" {
 			charDef.EntityDef = charDef.CombatEntityDef
 		}
 
