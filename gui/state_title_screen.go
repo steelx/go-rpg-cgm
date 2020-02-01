@@ -18,11 +18,11 @@ type TitleScreen struct {
 	win         *pixelgl.Window
 }
 
-func TitleScreenCreate(stack *StateStack, win *pixelgl.Window) TitleScreen {
+func TitleScreenCreate(stack *StateStack, win *pixelgl.Window) *TitleScreen {
 	titleImg, err := utilz.LoadPicture("../resources/title_screen.png")
 	utilz.PanicIfErr(err)
 
-	s := TitleScreen{
+	s := &TitleScreen{
 		Stack:    stack,
 		titleImg: titleImg,
 		win:      win,

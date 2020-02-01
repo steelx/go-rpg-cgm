@@ -30,7 +30,7 @@ Controller :
 // gStateMachine:Change("MainGame")
 //
 type State interface {
-	Enter(data interface{})
+	Enter(data ...interface{})
 	Render(win *pixelgl.Window)
 	Exit()
 	Update(dt float64)
@@ -51,12 +51,12 @@ func Create(states map[string]func() State) *StateMachine {
 
 //Change state
 // e.g. Controller.Change("move", {x = -1, y = 0})
-func (m *StateMachine) Change(stateName string, enterParams interface{}) {
+func (m *StateMachine) Change(stateName string, enterParams ...interface{}) {
 	if m.current != nil {
 		m.current.Exit()
 	}
 	m.current = m.states[stateName]()
-	m.current.Enter(enterParams)
+	m.current.Enter(enterParams...)
 }
 
 func (m *StateMachine) Update(dt float64) {
@@ -67,7 +67,7 @@ func (m *StateMachine) Render(win *pixelgl.Window) {
 	m.current.Render(win)
 }
 
-func (m *StateMachine) Enter(data interface{}) {
+func (m *StateMachine) Enter(data ...interface{}) {
 }
 func (m *StateMachine) Exit() {
 }

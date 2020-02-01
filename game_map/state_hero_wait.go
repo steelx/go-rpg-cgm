@@ -4,6 +4,7 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/state_machine"
+	"reflect"
 )
 
 type WaitState struct {
@@ -15,7 +16,13 @@ type WaitState struct {
 	mFrameResetSpeed, FrameCount float64
 }
 
-func WaitStateCreate(character *Character, gMap *GameMap) state_machine.State {
+//character *Character, gMap *GameMap
+func WaitStateCreate(args ...interface{}) *WaitState {
+	charV := reflect.ValueOf(args[0])
+	character := charV.Interface().(*Character)
+	gMapV := reflect.ValueOf(args[1])
+	gMap := gMapV.Interface().(*GameMap)
+
 	s := &WaitState{}
 	s.Character = character
 	s.Map = gMap
@@ -30,7 +37,7 @@ func WaitStateCreate(character *Character, gMap *GameMap) state_machine.State {
 //The StateMachine requires each state to have
 // four functions: Enter, Exit, Render and Update
 
-func (s *WaitState) Enter(data interface{}) {
+func (s *WaitState) Enter(data ...interface{}) {
 	// Reset to default frame
 	s.FrameCount = 0
 	s.Entity.SetFrame(s.Entity.StartFrame)

@@ -24,32 +24,16 @@ type Character struct {
 }
 
 func CharacterCreate(
-	id string, animations map[string][]int, facingDirection string, charDef EntityDefinition, controllerStates map[string]func() state_machine.State) *Character {
-	player := &Character{
-		Id:           id,
-		Facing:       facingDirection,
-		Entity:       CreateEntity(charDef),
+	def CharacterDefinition, controllerStates map[string]func() state_machine.State) *Character {
+
+	return &Character{
+		Id:           def.Id,
+		Facing:       def.FacingDirection,
+		Entity:       CreateEntity(def.EntityDef),
 		Controller:   state_machine.Create(controllerStates),
-		DefaultState: "wait",
+		DefaultState: def.DefaultState,
+		Anims:        def.Animations,
 	}
-
-	//AnimUp, AnimRight, AnimDown, AnimLeft []int
-	player.Anims = make(map[string][]int, 0)
-
-	if anim, ok := animations["left"]; ok {
-		player.Anims["left"] = anim
-	}
-	if anim, ok := animations["right"]; ok {
-		player.Anims["right"] = anim
-	}
-	if anim, ok := animations["up"]; ok {
-		player.Anims["up"] = anim
-	}
-	if anim, ok := animations["down"]; ok {
-		player.Anims["down"] = anim
-	}
-
-	return player
 }
 
 func (ch Character) GetFacedTileCoords() (x, y float64) {
@@ -80,4 +64,13 @@ func (ch *Character) FollowPath(path []string) {
 	ch.PrevDefaultState = "wait"
 	ch.DefaultState = "follow_path"
 	ch.Controller.Change("follow_path", nil)
+}
+
+func (ch *Character) GetCombatAnim(id string) []int {
+
+	if anims, ok := ch.Anims[id]; ok {
+		return anims
+	}
+
+	return []int{ch.Entity.StartFrame}
 }

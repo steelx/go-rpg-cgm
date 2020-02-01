@@ -48,8 +48,8 @@ func StatusMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *Status
 
 /////////////////////////////
 // StateMachine impl below //
-func (s *StatusMenuState) Enter(actorSumI interface{}) {
-	actorSumV := reflect.ValueOf(actorSumI)
+func (s *StatusMenuState) Enter(data ...interface{}) {
+	actorSumV := reflect.ValueOf(data[0])
 	s.ActorSummary = actorSumV.Interface().(combat.ActorSummary)
 
 	s.spacingY = 26

@@ -25,6 +25,7 @@ type Actor struct {
 	ActiveEquipSlots []int
 	Equipped         map[string]int //int is ItemsDB Id
 	worldRef         *WorldExtended
+	isPlayer         bool
 }
 
 // ActorCreate
@@ -34,6 +35,7 @@ func ActorCreate(def ActorDef) Actor {
 
 	a := Actor{
 		Id:               def.Id,
+		isPlayer:         def.IsPlayer,
 		Name:             def.Name,
 		StatGrowth:       def.StatGrowth,
 		Stats:            world.StatsCreate(def.Stats),
@@ -245,4 +247,19 @@ func (a Actor) CanUse(item world.Item) bool {
 	}
 
 	return false
+}
+
+//IsPlayer tell's if Actor is player controlled e.g. Hero, Mage, ..
+func (a *Actor) IsPlayer() bool {
+	return a.isPlayer
+}
+
+//has Knocked Out?
+func (a Actor) IsKOed() bool {
+	return a.Stats.Get("HpNow") <= 0
+}
+
+//Knock Out
+func (a *Actor) KO() {
+	//TODO : impl Actor KO
 }

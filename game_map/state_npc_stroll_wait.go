@@ -4,6 +4,7 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/state_machine"
 	"github.com/steelx/go-rpg-cgm/utilz"
+	"reflect"
 )
 
 type NPCStrollWaitState struct {
@@ -13,7 +14,13 @@ type NPCStrollWaitState struct {
 	mCountDown                    float64
 }
 
-func NPCStrollWaitStateCreate(character *Character, gMap *GameMap) state_machine.State {
+//character *Character, gMap *GameMap
+func NPCStrollWaitStateCreate(args ...interface{}) state_machine.State {
+	charV := reflect.ValueOf(args[0])
+	character := charV.Interface().(*Character)
+	gMapV := reflect.ValueOf(args[1])
+	gMap := gMapV.Interface().(*GameMap)
+
 	s := &NPCStrollWaitState{}
 	s.Character = character
 	s.Map = gMap
@@ -29,7 +36,7 @@ func NPCStrollWaitStateCreate(character *Character, gMap *GameMap) state_machine
 //The StateMachine requires each state to have
 // four functions: Enter, Exit, Render and Update
 
-func (s *NPCStrollWaitState) Enter(data interface{}) {
+func (s *NPCStrollWaitState) Enter(data ...interface{}) {
 	s.mFrameCount = 0
 	s.mCountDown = utilz.RandFloat(0, 3)
 }

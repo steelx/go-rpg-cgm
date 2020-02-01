@@ -17,6 +17,7 @@ var (
 	//camSpeed    = 1000.0
 	//camZoomSpeed = 1.2
 	frameRate = 15 * time.Millisecond
+	gWorld    *combat.WorldExtended
 )
 
 func run() {
@@ -49,6 +50,12 @@ func main() {
 //=============================================================
 func setup(win *pixelgl.Window) {
 	stack = gui.StateStackCreate(win)
+
+	gWorld = combat.WorldExtendedCreate()
+	gWorld.Party.Add(combat.ActorCreate(combat.HeroDef))
+	gWorld.Party.Add(combat.ActorCreate(combat.ThiefDef))
+
+	stack.Globals["world"] = gWorld
 
 	var introScene = []interface{}{
 		//game_map.BlackScreen("blackscreen"),
@@ -83,6 +90,16 @@ func setup(win *pixelgl.Window) {
 	var storyboardI = game_map.StoryboardCreate(stack, win, introScene, false)
 	stack.PushFitted(200, 1300, "storyboardI stack pop out.. :)")
 	stack.Push(storyboardI)
+
+	enemy1 := combat.ActorCreate(combat.GoblinDef)
+	combatState := game_map.CombatStateCreate(stack, win, game_map.CombatDef{
+		Background: "../resources/arena_background.png",
+		Actors: game_map.Actors{
+			Party:   gWorld.Party.ToArray(),
+			Enemies: []*combat.Actor{&enemy1},
+		},
+	})
+	stack.Push(combatState)
 	stack.Push(gui.TitleScreenCreate(stack, win))
 
 }
@@ -92,10 +109,6 @@ func setup(win *pixelgl.Window) {
 //=============================================================
 func gameLoop(win *pixelgl.Window) {
 	last := time.Now()
-	gWorld := combat.WorldExtendedCreate()
-	gWorld.Party.Add(combat.ActorCreate(combat.HeroDef))
-
-	stack.Globals["world"] = gWorld
 
 	//set fullscreen
 	//win.SetMonitor(globals.Global.PrimaryMonitor)
@@ -122,6 +135,9 @@ func gameLoop(win *pixelgl.Window) {
 			//<-- this would render only 1 stack at a time
 			switch top := stack.States[stack.GetLastIndex()].(type) {
 			case *game_map.InGameMenuState:
+				top.Render(win)
+
+			case *gui.TitleScreen:
 				top.Render(win)
 
 			default:

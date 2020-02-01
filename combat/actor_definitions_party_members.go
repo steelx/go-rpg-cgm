@@ -17,13 +17,15 @@ var PartyMembersDefinitions = map[string]ActorDef{
 }
 
 var HeroDef = ActorDef{
-	Id: "hero",
+	Id:       "hero",
+	IsPlayer: true,
 	Stats: world.BaseStats{
 		HpNow:    300,
 		HpMax:    300,
 		MpNow:    300,
 		MpMax:    300,
 		Strength: 10, Speed: 10, Intelligence: 10,
+		Attack: 10,
 	},
 	StatGrowth: map[string]func() int{
 		"HpMax":        dice.Create("4d50+100"),
@@ -39,7 +41,8 @@ var HeroDef = ActorDef{
 }
 
 var MageDef = ActorDef{
-	Id: "mage",
+	Id:       "mage",
+	IsPlayer: true,
 	Stats: world.BaseStats{
 		HpNow:    200,
 		HpMax:    200,
@@ -57,11 +60,12 @@ var MageDef = ActorDef{
 	Name:             "Mrignayani",
 	Portrait:         "../resources/avatar_mage.png",
 	Actions:          []string{attack, item},
-	ActiveEquipSlots: []int{1, 2, 3}, //mage dont get Attack slot
+	ActiveEquipSlots: []int{0, 1, 2, 3}, //mage if no attack slot, Access goes to Attack slot(fix pending)
 }
 
 var ThiefDef = ActorDef{
-	Id: "thief",
+	Id:       "thief",
+	IsPlayer: true,
 	Stats: world.BaseStats{
 		HpNow:    280,
 		HpMax:    280,

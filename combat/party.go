@@ -22,3 +22,11 @@ func (p *Party) Remove(member Actor) {
 func (p *Party) removeById(id string) {
 	delete(p.Members, id)
 }
+
+func (p Party) ToArray() []*Actor {
+	var party []*Actor
+	for _, v := range p.Members {
+		party = append(party, v)
+	}
+	return party
+}

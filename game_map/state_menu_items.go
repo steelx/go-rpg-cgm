@@ -97,7 +97,7 @@ func (im *ItemsMenuState) OnCategorySelect(index int, value interface{}) {
 /*
 	state_machine.State implemented below
 */
-func (im ItemsMenuState) Enter(data interface{}) {
+func (im ItemsMenuState) Enter(data ...interface{}) {
 
 }
 
