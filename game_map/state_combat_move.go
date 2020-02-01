@@ -7,7 +7,7 @@ import (
 	"reflect"
 )
 
-type CSStandBy struct {
+type CSMove struct {
 	Name        string
 	Character   *Character
 	CombatState *CombatState
@@ -16,32 +16,30 @@ type CSStandBy struct {
 }
 
 //char *Character, cs *CombatState
-func CSStandByCreate(args ...interface{}) state_machine.State {
+func CSMoveCreate(args ...interface{}) state_machine.State {
 	charV := reflect.ValueOf(args[0])
 	char := charV.Interface().(*Character)
 	csV := reflect.ValueOf(args[1])
 	cs := csV.Interface().(*CombatState)
 
-	return &CSStandBy{
-		Name:        CS_Standby,
+	return &CSMove{
+		Name:        CS_Move,
 		Character:   char,
 		CombatState: cs,
 		Entity:      char.Entity,
 	}
 }
 
-func (s *CSStandBy) Enter(data ...interface{}) {
-	frames := s.Character.GetCombatAnim(s.Name)
-	s.Anim = animation.Create(frames, true, 0.12)
+func (s *CSMove) Enter(data ...interface{}) {
 }
 
-func (s *CSStandBy) Render(win *pixelgl.Window) {
+func (s *CSMove) Exit() {
 }
 
-func (s *CSStandBy) Exit() {
-}
-
-func (s *CSStandBy) Update(dt float64) {
+func (s *CSMove) Update(dt float64) {
 	s.Anim.Update(dt)
 	s.Entity.SetFrame(s.Anim.Frame())
+}
+
+func (s *CSMove) Render(renderer *pixelgl.Window) {
 }

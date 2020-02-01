@@ -36,17 +36,8 @@ func CharacterCreate(
 	//AnimUp, AnimRight, AnimDown, AnimLeft []int
 	player.Anims = make(map[string][]int, 0)
 
-	if anim, ok := def.Animations["left"]; ok {
-		player.Anims["left"] = anim
-	}
-	if anim, ok := def.Animations["right"]; ok {
-		player.Anims["right"] = anim
-	}
-	if anim, ok := def.Animations["up"]; ok {
-		player.Anims["up"] = anim
-	}
-	if anim, ok := def.Animations["down"]; ok {
-		player.Anims["down"] = anim
+	for k := range def.Animations {
+		player.Anims[k] = def.Animations[k]
 	}
 
 	return player

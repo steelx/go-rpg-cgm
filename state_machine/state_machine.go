@@ -51,12 +51,12 @@ func Create(states map[string]func() State) *StateMachine {
 
 //Change state
 // e.g. Controller.Change("move", {x = -1, y = 0})
-func (m *StateMachine) Change(stateName string, enterParams interface{}) {
+func (m *StateMachine) Change(stateName string, enterParams ...interface{}) {
 	if m.current != nil {
 		m.current.Exit()
 	}
 	m.current = m.states[stateName]()
-	m.current.Enter(enterParams)
+	m.current.Enter(enterParams...)
 }
 
 func (m *StateMachine) Update(dt float64) {
