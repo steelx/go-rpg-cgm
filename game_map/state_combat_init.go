@@ -16,17 +16,17 @@ import (
 
 //CS -> CombatState
 const (
-	CS_NPC_Stand = "cs_npc_stand"
-	CS_Standby   = "cs_standby"  // The character is waiting to be told what action to do by the player or AI
-	CS_Prone     = "cs_prone"    // The character is waiting and ready to perform a given combat action
-	CS_Attack    = "cs_attack"   // The character will run an attack animation and attack an enemy
-	CS_Cast      = "cs_cast"     // The character will run a cast-spell animation and a special effect will play
-	CS_Use       = "cs_use"      // The character uses some item with a use-item animation
-	CS_Hurt      = "cd_hurt"     // The character takes some damage. Animation and numbers
-	CS_Die       = "cs_die"      // The character dies and the sprite is changed to the death sprite
-	CS_Move      = "cs_move"     // The character moves toward or away from the enemy, in order to perform an action
-	CS_Victory   = "cs_victory"  // The character dances around and combat ends
-	CS_RunAnim   = "cs_run_anim" // plays common animations states
+	csNpcStand = "cs_npc_stand"
+	csStandby  = "cs_standby"  // The character is waiting to be told what action to do by the player or AI
+	csProne    = "cs_prone"    // The character is waiting and ready to perform a given combat action
+	csAttack   = "cs_attack"   // The character will run an attack animation and attack an enemy
+	csCast     = "cs_cast"     // The character will run a cast-spell animation and a special effect will play
+	csUse      = "cs_use"      // The character uses some item with a use-item animation
+	csHurt     = "cd_hurt"     // The character takes some damage. Animation and numbers
+	csDie      = "cs_die"      // The character dies and the sprite is changed to the death sprite
+	csMove     = "cs_move"     // The character moves toward or away from the enemy, in order to perform an action
+	csVictory  = "cs_victory"  // The character dances around and combat ends
+	csRunanim  = "cs_run_anim" // plays common animations states
 )
 
 type CombatState struct {
@@ -263,8 +263,8 @@ func (c *CombatState) CreateCombatCharacters(key string) {
 		char.Entity.Y = y
 
 		// Change to standby because it's combat time
-		anim := CS_Standby
-		char.Controller.Change(CS_Standby, anim)
+		animName := csStandby
+		char.Controller.Change(csStandby, animName)
 
 		c.Characters[key] = append(c.Characters[key], char)
 	}

@@ -23,7 +23,7 @@ func CSMoveCreate(args ...interface{}) state_machine.State {
 	cs := csV.Interface().(*CombatState)
 
 	return &CSMove{
-		Name:        CS_Move,
+		Name:        csMove,
 		Character:   char,
 		CombatState: cs,
 		Entity:      char.Entity,

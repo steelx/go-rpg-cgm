@@ -24,7 +24,7 @@ func CSRunAnimCreate(args ...interface{}) state_machine.State {
 	cs := csV.Interface().(*CombatState)
 
 	return &CSRunAnim{
-		Name:        CS_RunAnim,
+		Name:        csRunanim,
 		Character:   char,
 		CombatState: cs,
 		Entity:      char.Entity,
@@ -33,8 +33,8 @@ func CSRunAnimCreate(args ...interface{}) state_machine.State {
 
 func (s *CSRunAnim) Enter(data ...interface{}) {
 	animV := reflect.ValueOf(data[0])
-	loop, spf := true, 0.12
 	s.AnimId = animV.Interface().(string)
+	loop, spf := true, 0.12
 
 	frames := s.Character.GetCombatAnim(s.AnimId)
 	s.Anim = animation.Create(frames, loop, spf)

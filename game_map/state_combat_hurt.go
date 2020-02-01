@@ -21,7 +21,7 @@ func CSHurtCreate(args ...interface{}) state_machine.State {
 	cs := csV.Interface().(*CombatState)
 
 	return &CSHurt{
-		Name:        CS_Hurt,
+		Name:        csHurt,
 		Character:   char,
 		CombatState: cs,
 		Entity:      char.Entity,
