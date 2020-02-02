@@ -144,8 +144,8 @@ func TextboxFITPassedMenuCreate(stack *StateStack, x, y float64, textBoxText str
 
 	textBounds := t.getTextBound()
 
-	menu.SetPosition(panelPos.X-(menu.GetWidth()/2), panelPos.Y-(textBounds.H()/2)+t.topPadding)
-	panel := PanelCreate(panelPos, menu.GetWidth(), menu.GetHeight())
+	menu.SetPosition(panelPos.X-(menu.GetWidth()/2), panelPos.Y-(textBounds.H()/2)+35-t.topPadding)
+	panel := PanelCreate(panelPos, menu.GetWidth(), menu.GetHeight()+30)
 
 	t.menu = menu
 	t.mPanel = panel

@@ -6,7 +6,6 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/combat"
 	"github.com/steelx/go-rpg-cgm/gui"
-	"github.com/steelx/go-rpg-cgm/world"
 	"reflect"
 )
 
@@ -15,13 +14,9 @@ type CombatChoiceState struct {
 	CombatState *CombatState
 	Actor       *combat.Actor
 	Character   *Character
-	UpArrow,
-	DownArrow,
-	Marker *pixel.Sprite
-	UpArrowPosition,
-	DownArrowPosition pixel.Vec
-	Selection *gui.SelectionMenu
-	textbox   *gui.Textbox
+	Marker      *pixel.Sprite
+	Selection   *gui.SelectionMenu
+	textbox     *gui.Textbox
 }
 
 func CombatChoiceStateCreate(combatState *CombatState, owner *combat.Actor) *CombatChoiceState {
@@ -30,8 +25,6 @@ func CombatChoiceStateCreate(combatState *CombatState, owner *combat.Actor) *Com
 		Stack:       combatState.GameState,
 		Actor:       owner,
 		Character:   combatState.ActorCharMap[owner.Id],
-		UpArrow:     world.IconsDB.Get(11),
-		DownArrow:   world.IconsDB.Get(12),
 		Marker:      pixel.NewSprite(gui.ContinueCaretPng, gui.ContinueCaretPng.Bounds()),
 	}
 
@@ -73,15 +66,6 @@ func (c *CombatChoiceState) OnSelect(index int, str interface{}) {
 	}
 }
 
-func (c *CombatChoiceState) SetArrowPosition() {
-	x, y := c.textbox.Position.X, c.textbox.Position.Y
-	width, height := c.textbox.Width, c.textbox.Height
-
-	arrowPad := 9.0
-	arrowX := x + width - arrowPad
-	c.UpArrowPosition = pixel.V(arrowX, y-arrowPad)
-	c.DownArrowPosition = pixel.V(arrowX, y-height+arrowPad)
-}
 func (c *CombatChoiceState) CreateActionDialog(choices interface{}) {
 	selectionMenu := gui.SelectionMenuCreate(20, 0, 0,
 		choices,

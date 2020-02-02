@@ -138,14 +138,26 @@ func (q *EventQueue) Update() {
 }
 
 func (q *EventQueue) Render(win *pixelgl.Window) {
+	yInc := 15.5
 	x := -win.Bounds().W() / 2
 	y := win.Bounds().H() / 2
 
 	textBase := text.New(pixel.V(0, 0), gui.BasicAtlasAscii)
+	if q.CurrentEvent != nil {
+		fmt.Fprintln(textBase, fmt.Sprintf("CURRENT: %s", q.CurrentEvent.Name()))
+	}
+
+	y = y - yInc
+
+	if q.IsEmpty() {
+		fmt.Fprintln(textBase, "EMPTY !")
+	}
+
 	for k, v := range q.Queue {
 		out := fmt.Sprintf("[%d] Event: [%v][%v]", k, v.CountDown(), v.Name())
 		fmt.Fprintln(textBase, out)
-		textBase.Draw(win, pixel.IM.Moved(pixel.V(x, y)))
-		y = y - 16
+		y = y - yInc
 	}
+
+	textBase.Draw(win, pixel.IM.Moved(pixel.V(x, y)))
 }
