@@ -32,8 +32,8 @@ func CSStandByCreate(args ...interface{}) state_machine.State {
 }
 
 func (s *CSStandBy) Enter(data ...interface{}) {
-	animV := reflect.ValueOf(data[0])
-	frames := s.Character.GetCombatAnim(animV.Interface().(string))
+	animID := reflect.ValueOf(data[0])
+	frames := s.Character.GetCombatAnim(animID.Interface().(string))
 	s.Anim.SetFrames(frames)
 }
 

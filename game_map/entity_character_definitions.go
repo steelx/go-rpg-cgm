@@ -1,9 +1,5 @@
 package game_map
 
-import (
-	"github.com/steelx/go-rpg-cgm/state_machine"
-)
-
 const (
 	walkCyclePng   = "../resources/walk_cycle.png"
 	sleepingPng    = "../resources/sleeping.png"
@@ -123,13 +119,14 @@ var CharacterDefinitions map[string]CharacterDefinition = map[string]CharacterDe
 		CombatEntityDef:    Entities["combat_hero"],
 		DefaultState:       "wait",
 		DefaultCombatState: csNpcStand,
-		CombatStates: map[string]func(args ...interface{}) state_machine.State{
-			csNpcStand: NPCStandCombatStateCreate,
-			csRunanim:  CSRunAnimCreate,
-			csHurt:     CSHurtCreate,
-			csMove:     CSMoveCreate,
-			csStandby:  CSStandByCreate,
-		},
+		//see state_combat_init.go -> CreateCombatCharacters
+		//CombatStates: map[string]func(args ...interface{}) state_machine.State{
+		//	csNpcStand: NPCStandCombatStateCreate,
+		//	csRunanim:  CSRunAnimCreate,
+		//	csHurt:     CSHurtCreate,
+		//	csMove:     CSMoveCreate,
+		//	csStandby:  CSStandByCreate,
+		//},
 	},
 	"thief": {
 		Id: "thief",
@@ -156,13 +153,6 @@ var CharacterDefinitions map[string]CharacterDefinition = map[string]CharacterDe
 		CombatEntityDef:    Entities["combat_thief"],
 		DefaultState:       "wait",
 		DefaultCombatState: csNpcStand,
-		CombatStates: map[string]func(args ...interface{}) state_machine.State{
-			csNpcStand: NPCStandCombatStateCreate,
-			csRunanim:  CSRunAnimCreate,
-			csHurt:     CSHurtCreate,
-			csMove:     CSMoveCreate,
-			csStandby:  CSStandByCreate,
-		},
 	},
 	"mage": {
 		Id: "mage",
@@ -237,11 +227,5 @@ var CharacterDefinitions map[string]CharacterDefinition = map[string]CharacterDe
 		EntityDef:          Entities["goblin"],
 		DefaultState:       "wait",
 		DefaultCombatState: csStandby,
-		CombatStates: map[string]func(args ...interface{}) state_machine.State{
-			csRunanim: CSRunAnimCreate,
-			csHurt:    CSHurtCreate,
-			csMove:    CSMoveCreate,
-			csStandby: CSStandByCreate,
-		},
 	},
 }

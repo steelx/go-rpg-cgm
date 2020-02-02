@@ -239,15 +239,25 @@ func (c *CombatState) CreateCombatCharacters(key string) {
 		}
 
 		var char *Character
-		charStates := make(map[string]func() state_machine.State)
-		for k, v := range charDef.CombatStates {
-			charStates[k] = func() state_machine.State {
-				return v(char, c)
-			}
-		}
 		char = CharacterCreate(
 			charDef,
-			charStates,
+			map[string]func() state_machine.State{
+				csStandby: func() state_machine.State {
+					return CSStandByCreate(char, c)
+				},
+				csNpcStand: func() state_machine.State {
+					return NPCStandCombatStateCreate(char, c)
+				},
+				csRunanim: func() state_machine.State {
+					return CSRunAnimCreate(char, c)
+				},
+				csHurt: func() state_machine.State {
+					return CSHurtCreate(char, c)
+				},
+				csMove: func() state_machine.State {
+					return CSMoveCreate(char, c)
+				},
+			},
 		)
 
 		//c.ActorCharMap[v.Id] = char
