@@ -38,7 +38,7 @@ type CombatState struct {
 	Layout        map[string][][]pixel.Vec
 	Actors        map[string][]*combat.Actor
 	Characters    map[string][]*Character
-	ActorCharMap  map[string]*Character
+	ActorCharMap  map[*combat.Actor]*Character
 	SelectedActor *combat.Actor
 
 	Panels []gui.Panel
@@ -87,7 +87,7 @@ func CombatStateCreate(state *gui.StateStack, win *pixelgl.Window, def CombatDef
 			enemies: def.Actors.Enemies,
 		},
 		Characters:   make(map[string][]*Character),
-		ActorCharMap: make(map[string]*Character),
+		ActorCharMap: make(map[*combat.Actor]*Character),
 		StatsYCol:    208,
 		marginLeft:   19,
 		marginTop:    19,
@@ -254,7 +254,10 @@ func (c *CombatState) CreateCombatCharacters(key string) {
 	layout := c.Layout[key][len(actorsList)-1]
 
 	for k, v := range actorsList {
-		charDef := CharacterDefinitions[v.Id]
+		charDef, ok := CharacterDefinitions[v.Id]
+		if !ok {
+			panic(fmt.Sprintf("Id '%s' Not found in CharacterDefinitions", v.Id))
+		}
 
 		if charDef.CombatEntityDef.Texture != "" {
 			charDef.EntityDef = charDef.CombatEntityDef
@@ -282,7 +285,7 @@ func (c *CombatState) CreateCombatCharacters(key string) {
 			},
 		)
 
-		c.ActorCharMap[v.Id] = char
+		c.ActorCharMap[v] = char
 
 		pos := layout[k]
 

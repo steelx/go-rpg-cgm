@@ -91,12 +91,15 @@ func setup(win *pixelgl.Window) {
 	stack.PushFitted(200, 1300, "storyboardI stack pop out.. :)")
 	stack.Push(storyboardI)
 
-	enemy1 := combat.ActorCreate(combat.GoblinDef)
+	enemyDef := combat.GoblinDef
+	enemy1 := combat.ActorCreate(enemyDef, "1")
+	enemy2 := combat.ActorCreate(enemyDef, "2")
+	enemy3 := combat.ActorCreate(enemyDef, "3")
 	combatState := game_map.CombatStateCreate(stack, win, game_map.CombatDef{
 		Background: "../resources/arena_background.png",
 		Actors: game_map.Actors{
 			Party:   gWorld.Party.ToArray(),
-			Enemies: []*combat.Actor{&enemy1},
+			Enemies: []*combat.Actor{&enemy1, &enemy2, &enemy3},
 		},
 	})
 	stack.Push(combatState)

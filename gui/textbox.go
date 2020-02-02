@@ -22,7 +22,7 @@ tBox := TextboxCreateFixed(
 */
 var (
 	ContinueCaretPng pixel.Picture
-	cursorPng        pixel.Picture
+	CursorPng        pixel.Picture
 	BasicAtlas12     *text.Atlas
 	BasicAtlasAscii  = text.NewAtlas(basicfont.Face7x13, text.ASCII)
 )
@@ -31,7 +31,7 @@ func init() {
 	var err error
 	ContinueCaretPng, err = utilz.LoadPicture("../resources/continue_caret.png")
 	utilz.PanicIfErr(err)
-	cursorPng, err = utilz.LoadPicture("../resources/cursor.png")
+	CursorPng, err = utilz.LoadPicture("../resources/cursor.png")
 	utilz.PanicIfErr(err)
 
 	fontFace12, err := utilz.LoadTTF("../resources/font/joystix.ttf", 12)

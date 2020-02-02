@@ -2,7 +2,6 @@ package utilz
 
 import (
 	"encoding/csv"
-	"fmt"
 	"github.com/faiface/pixel"
 	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/font"
@@ -167,8 +166,7 @@ func LoadSprite(path string) (*pixel.Sprite, *pixel.PictureData) {
 
 func PanicIfErr(err error) {
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(2)
+		panic(err)
 	}
 }
 

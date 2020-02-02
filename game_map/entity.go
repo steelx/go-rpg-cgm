@@ -106,7 +106,7 @@ func (e *Entity) GetSelectPosition() pixel.Vec {
 }
 
 func (e *Entity) GetTargetPosition() pixel.Vec {
-	x := e.X + (e.Width / 2) + 10
-	y := e.Y + e.Height
+	x := e.X - (e.Width / 2) - 20
+	y := e.Y - (e.Height / 2)
 	return pixel.V(x, y)
 }

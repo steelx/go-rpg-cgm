@@ -12,7 +12,7 @@ import (
 )
 
 type CombatChoiceState struct {
-	Stack       *gui.StateStack
+	Stack       *gui.StateStack //The internal stack of states from the CombatState object.
 	CombatState *CombatState
 	Actor       *combat.Actor
 	Character   *Character
@@ -30,9 +30,9 @@ type CombatChoiceState struct {
 func CombatChoiceStateCreate(combatState *CombatState, owner *combat.Actor) *CombatChoiceState {
 	c := &CombatChoiceState{
 		CombatState: combatState,
-		Stack:       combatState.GameState,
+		Stack:       combatState.InternalStack,
 		Actor:       owner,
-		Character:   combatState.ActorCharMap[owner.Id],
+		Character:   combatState.ActorCharMap[owner],
 		UpArrow:     world.IconsDB.Get(11),
 		DownArrow:   world.IconsDB.Get(12),
 		Marker:      pixel.NewSprite(gui.ContinueCaretPng, gui.ContinueCaretPng.Bounds()),
@@ -64,9 +64,6 @@ func (c CombatChoiceState) Render(renderer *pixelgl.Window) {
 
 func (c CombatChoiceState) HandleInput(win *pixelgl.Window) {
 	c.Selection.HandleInput(win)
-	//if win.JustPressed(pixelgl.KeyEscape) {
-	//	c.CombatState.InternalStack.Pop()
-	//}
 }
 
 func (c *CombatChoiceState) OnSelect(index int, str interface{}) {
@@ -74,7 +71,30 @@ func (c *CombatChoiceState) OnSelect(index int, str interface{}) {
 	if actionItem == "attack" {
 		fmt.Println("Character attacks")
 		c.Selection.HideCursor()
-		//pending
+
+		state := CombatTargetStateCreate(c.CombatState, CombatChoiceParams{
+			OnSelect: func(targets []*combat.Actor) {
+				c.TakeAction(actionItem, targets)
+			},
+			OnExit: func() {
+				c.Selection.ShowCursor()
+			},
+			SwitchSides:     true,
+			DefaultSelector: nil,
+			TargetType:      CombatTargetTypeONE,
+		})
+		c.Stack.Push(state)
+	}
+}
+
+func (c *CombatChoiceState) TakeAction(id string, targets []*combat.Actor) {
+	c.Stack.Pop() //select state
+	c.Stack.Pop() //action state
+
+	if id == "attack" {
+		fmt.Println("Entered attack state PENDING")
+		//attack := CEAttackCreate(c.CombatState, c.Actor, targets)
+		//c.CombatState.EventQueue.Push()
 	}
 }
 
