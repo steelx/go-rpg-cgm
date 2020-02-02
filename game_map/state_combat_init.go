@@ -31,7 +31,7 @@ const (
 
 type CombatState struct {
 	GameState     *gui.StateStack
-	InternalState *gui.StateStack
+	InternalStack *gui.StateStack
 	win           *pixelgl.Window
 	Background    *pixel.Sprite
 	Pos           pixel.Vec
@@ -51,8 +51,9 @@ type CombatState struct {
 	StatsYCol,
 	marginLeft,
 	marginTop float64
-	Bars map[string]BarStats //actor ID = BarStats
-	imd  *imdraw.IMDraw
+	Bars       map[string]BarStats //actor ID = BarStats
+	imd        *imdraw.IMDraw
+	EventQueue *EventQueue
 }
 
 type PanelTitle struct {
@@ -78,19 +79,20 @@ func CombatStateCreate(state *gui.StateStack, win *pixelgl.Window, def CombatDef
 	c := &CombatState{
 		win:           win,
 		GameState:     state,
-		InternalState: gui.StateStackCreate(win),
+		InternalStack: gui.StateStackCreate(win),
 		Background:    pixel.NewSprite(backgroundImg, backgroundImg.Bounds()),
 		Pos:           pixel.V(0, 0),
 		Actors: map[string][]*combat.Actor{
 			party:   def.Actors.Party,
 			enemies: def.Actors.Enemies,
 		},
-		Characters: make(map[string][]*Character),
-		//ActorCharMap: make(map[string]*Character),
-		StatsYCol:  208,
-		marginLeft: 19,
-		marginTop:  19,
-		imd:        imdraw.New(nil),
+		Characters:   make(map[string][]*Character),
+		ActorCharMap: make(map[string]*Character),
+		StatsYCol:    208,
+		marginLeft:   19,
+		marginTop:    19,
+		imd:          imdraw.New(nil),
+		EventQueue:   EventsQueueCreate(),
 	}
 
 	c.Layout = combatLayout
@@ -188,6 +190,23 @@ func (c *CombatState) Update(dt float64) bool {
 		v.Controller.Update(dt)
 	}
 
+	if len(c.InternalStack.States) != 0 && c.InternalStack.Top() != nil {
+		c.InternalStack.Update(dt)
+		return true
+	}
+
+	c.EventQueue.Update()
+	c.AddTurns(c.Actors[party])
+	c.AddTurns(c.Actors[enemies])
+
+	if c.PartyWins() {
+		c.EventQueue.Clear()
+		//deal with win
+	} else if c.EnemyWins() {
+		c.EventQueue.Clear()
+		//deal with lost
+	}
+
 	return true
 }
 
@@ -219,6 +238,9 @@ func (c CombatState) Render(renderer *pixelgl.Window) {
 
 	c.PartyList.Render(renderer)
 	c.StatsList.Render(renderer)
+
+	c.InternalStack.Render(renderer)
+	c.EventQueue.Render(renderer)
 
 	camera := pixel.IM.Scaled(c.Pos, 1.0).Moved(c.win.Bounds().Center().Sub(c.Pos))
 	c.win.SetMatrix(camera)
@@ -260,7 +282,7 @@ func (c *CombatState) CreateCombatCharacters(key string) {
 			},
 		)
 
-		//c.ActorCharMap[v.Id] = char
+		c.ActorCharMap[v.Id] = char
 
 		pos := layout[k]
 

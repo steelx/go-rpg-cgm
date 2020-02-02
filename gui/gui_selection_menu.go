@@ -297,3 +297,11 @@ func (m *SelectionMenu) HandleInput(window *pixelgl.Window) {
 	}
 
 }
+
+func (m SelectionMenu) CanScrollUp() bool {
+	return m.displayStart > 0
+}
+
+func (m SelectionMenu) CanScrollDown() bool {
+	return m.displayStart <= (m.maxRows - m.displayRows)
+}

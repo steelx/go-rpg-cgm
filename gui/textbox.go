@@ -21,7 +21,7 @@ tBox := TextboxCreateFixed(
 	)
 */
 var (
-	continueCaretPng pixel.Picture
+	ContinueCaretPng pixel.Picture
 	cursorPng        pixel.Picture
 	BasicAtlas12     *text.Atlas
 	BasicAtlasAscii  = text.NewAtlas(basicfont.Face7x13, text.ASCII)
@@ -29,7 +29,7 @@ var (
 
 func init() {
 	var err error
-	continueCaretPng, err = utilz.LoadPicture("../resources/continue_caret.png")
+	ContinueCaretPng, err = utilz.LoadPicture("../resources/continue_caret.png")
 	utilz.PanicIfErr(err)
 	cursorPng, err = utilz.LoadPicture("../resources/cursor.png")
 	utilz.PanicIfErr(err)
@@ -58,7 +58,7 @@ type Textbox struct {
 	AppearTween                 animation.Tween
 	time                        float64
 	isFixed, isDead, hasMenu    bool
-	menu                        SelectionMenu
+	menu                        *SelectionMenu
 }
 
 func TextboxNew(stack *StateStack, txt string, size float64, atlas *text.Atlas, avatarName string, avatarImg pixel.Picture) Textbox {
@@ -67,7 +67,7 @@ func TextboxNew(stack *StateStack, txt string, size float64, atlas *text.Atlas, 
 		text:         txt,
 		textScale:    1,
 		size:         size,
-		continueMark: continueCaretPng,
+		continueMark: ContinueCaretPng,
 		avatarName:   avatarName,
 		avatarImg:    avatarImg,
 		textAtlas:    atlas,
@@ -89,12 +89,13 @@ func TextboxWithMenuCreate(stack *StateStack, textBoxText string, panelPos pixel
 
 	textBounds := textbox.getTextBound()
 
-	textbox.menu = SelectionMenuCreate(24, 128, 0,
+	menu := SelectionMenuCreate(24, 128, 0,
 		choices, showColumns,
 		pixel.V(textbox.Position.X-10, textbox.Position.Y-textBounds.H()-10), func(i int, s interface{}) {
 			onSelection(i, s)
 			textbox.isDead = true
 		}, nil)
+	textbox.menu = &menu
 
 	return &textbox
 }
@@ -118,6 +119,32 @@ func TextboxFITMenuCreate(stack *StateStack, x, y float64, textBoxText string, c
 			t.isDead = true
 		}, nil)
 
+	panel := PanelCreate(panelPos, menu.GetWidth(), menu.GetHeight())
+
+	t.menu = &menu
+	t.mPanel = panel
+	t.textBounds = panel.mBounds
+
+	t.makeTextColumns()
+	t.buildTextBlocks()
+
+	return &t
+}
+
+func TextboxFITPassedMenuCreate(stack *StateStack, x, y float64, textBoxText string, menu *SelectionMenu) *Textbox {
+	panelPos := pixel.V(x, y)
+	t := TextboxNew(stack, textBoxText, 14, BasicAtlas12, "", nil)
+	t.AppearTween = animation.TweenCreate(1, 1, 1)
+	t.isFixed = false
+
+	t.hasMenu = true
+	if t.hasMenu {
+		t.topPadding = 10
+	}
+
+	textBounds := t.getTextBound()
+
+	menu.SetPosition(panelPos.X-(menu.GetWidth()/2), panelPos.Y-(textBounds.H()/2)+t.topPadding)
 	panel := PanelCreate(panelPos, menu.GetWidth(), menu.GetHeight())
 
 	t.menu = menu

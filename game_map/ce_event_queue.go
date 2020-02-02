@@ -1,7 +1,12 @@
-package combat
+package game_map
 
 import (
 	"fmt"
+	"github.com/faiface/pixel"
+	"github.com/faiface/pixel/pixelgl"
+	"github.com/faiface/pixel/text"
+	"github.com/steelx/go-rpg-cgm/combat"
+	"github.com/steelx/go-rpg-cgm/gui"
 	"math"
 )
 
@@ -57,7 +62,7 @@ func (q EventQueue) IsEmpty() bool {
 	return len(q.Queue) == 0
 }
 
-func (q EventQueue) ActorHasEvent(actor *Actor) bool {
+func (q EventQueue) ActorHasEvent(actor *combat.Actor) bool {
 	if q.CurrentEvent != nil && q.CurrentEvent.Owner() == actor {
 		return true
 	}
@@ -71,7 +76,7 @@ func (q EventQueue) ActorHasEvent(actor *Actor) bool {
 	return false
 }
 
-func (q *EventQueue) RemoveEventsOwnedBy(actor *Actor) {
+func (q *EventQueue) RemoveEventsOwnedBy(actor *combat.Actor) {
 	for i := len(q.Queue) - 1; i >= 0; i-- {
 		v := q.Queue[i]
 		if actor == v.Owner() {
@@ -129,5 +134,18 @@ func (q *EventQueue) Update() {
 	for _, v := range q.Queue {
 		//ensure countdown doesnt drop below 0
 		v.CountDownSet(math.Max(0, v.CountDown()-1))
+	}
+}
+
+func (q *EventQueue) Render(win *pixelgl.Window) {
+	x := -win.Bounds().W() / 2
+	y := win.Bounds().H() / 2
+
+	textBase := text.New(pixel.V(0, 0), gui.BasicAtlasAscii)
+	for k, v := range q.Queue {
+		out := fmt.Sprintf("[%d] Event: [%v][%v]", k, v.CountDown(), v.Name())
+		fmt.Fprintln(textBase, out)
+		textBase.Draw(win, pixel.IM.Moved(pixel.V(x, y)))
+		y = y - 16
 	}
 }

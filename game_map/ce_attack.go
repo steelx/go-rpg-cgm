@@ -1,16 +1,19 @@
-package combat
+package game_map
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/steelx/go-rpg-cgm/combat"
+)
 
 type CEAttack struct {
 	name      string
 	countDown float64
 	owner,
-	Target *Actor
-	Scene *Scene
+	Target *combat.Actor
+	Scene *CombatState
 }
 
-func CEAttackCreate(scene *Scene, owner, target *Actor) *CEAttack {
+func CEAttackCreate(scene *CombatState, owner, target *combat.Actor) *CEAttack {
 	return &CEAttack{
 		Scene:  scene,
 		owner:  owner,
@@ -31,7 +34,7 @@ func (c *CEAttack) CountDownSet(t float64) {
 	c.countDown = t
 }
 
-func (c CEAttack) Owner() *Actor {
+func (c CEAttack) Owner() *combat.Actor {
 	return c.owner
 }
 
