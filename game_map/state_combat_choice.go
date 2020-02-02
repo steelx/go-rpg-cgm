@@ -6,6 +6,8 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/combat"
 	"github.com/steelx/go-rpg-cgm/gui"
+	"github.com/steelx/go-rpg-cgm/world"
+	"math"
 	"reflect"
 )
 
@@ -14,9 +16,15 @@ type CombatChoiceState struct {
 	CombatState *CombatState
 	Actor       *combat.Actor
 	Character   *Character
-	Marker      *pixel.Sprite
-	Selection   *gui.SelectionMenu
-	textbox     *gui.Textbox
+	UpArrow,
+	DownArrow,
+	Marker *pixel.Sprite
+	UpArrowPosition,
+	DownArrowPosition,
+	MarkerPosition pixel.Vec
+	time      float64
+	Selection *gui.SelectionMenu
+	textbox   *gui.Textbox
 }
 
 func CombatChoiceStateCreate(combatState *CombatState, owner *combat.Actor) *CombatChoiceState {
@@ -25,9 +33,11 @@ func CombatChoiceStateCreate(combatState *CombatState, owner *combat.Actor) *Com
 		Stack:       combatState.GameState,
 		Actor:       owner,
 		Character:   combatState.ActorCharMap[owner.Id],
+		UpArrow:     world.IconsDB.Get(11),
+		DownArrow:   world.IconsDB.Get(12),
 		Marker:      pixel.NewSprite(gui.ContinueCaretPng, gui.ContinueCaretPng.Bounds()),
 	}
-
+	c.MarkerPosition = c.Character.Entity.GetSelectPosition()
 	c.CreateActionDialog(owner.Actions)
 	return c
 }
@@ -42,12 +52,14 @@ func (c *CombatChoiceState) Exit() {
 
 func (c *CombatChoiceState) Update(dt float64) bool {
 	c.textbox.Update(dt)
-
+	c.bounceMarker(dt)
 	return true
 }
 
 func (c CombatChoiceState) Render(renderer *pixelgl.Window) {
 	c.textbox.Render(renderer)
+
+	c.Marker.Draw(renderer, pixel.IM.Moved(c.MarkerPosition))
 }
 
 func (c CombatChoiceState) HandleInput(win *pixelgl.Window) {
@@ -66,6 +78,15 @@ func (c *CombatChoiceState) OnSelect(index int, str interface{}) {
 	}
 }
 
+func (c *CombatChoiceState) SetArrowPosition() {
+	x, y := c.textbox.Position.X, c.textbox.Position.Y
+	width, height := c.textbox.Width, c.textbox.Height
+
+	arrowPad := 9.0
+	arrowX := x + width - arrowPad
+	c.UpArrowPosition = pixel.V(arrowX, y-arrowPad)
+	c.DownArrowPosition = pixel.V(arrowX, y-height+arrowPad)
+}
 func (c *CombatChoiceState) CreateActionDialog(choices interface{}) {
 	selectionMenu := gui.SelectionMenuCreate(20, 0, 0,
 		choices,
@@ -90,4 +111,10 @@ func (c *CombatChoiceState) CreateActionDialog(choices interface{}) {
 		x, y, "",
 		c.Selection,
 	)
+}
+
+func (c *CombatChoiceState) bounceMarker(dt float64) {
+	c.time = c.time + dt
+	bounce := pixel.V(c.MarkerPosition.X, c.MarkerPosition.Y+math.Sin(c.time*5))
+	c.MarkerPosition = bounce
 }
