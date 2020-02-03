@@ -34,7 +34,7 @@ func CEAttackCreate(scene *CombatState, owner *combat.Actor, targets []*combat.A
 		RunFunction(c.DoAttack),
 		RunState(c.Character.Controller, csMove, Direction{-1, 0}),
 		RunFunction(c.onFinished),
-		RunState(c.Character.Controller, csRunanim, csStandby, false), //could be removed
+		RunState(c.Character.Controller, csRunanim, csStandby, false),
 	}
 
 	c.Storyboard = StoryboardCreate(scene.InternalStack, scene.win, storyboardEvents, false)
@@ -67,6 +67,23 @@ func (c CEAttack) IsFinished() bool {
 
 func (c *CEAttack) Execute(queue *EventQueue) {
 	c.Scene.InternalStack.Push(c.Storyboard)
+
+	for i := len(c.Targets) - 1; i >= 0; i-- {
+		v := c.Targets[i]
+		hpNow := v.Stats.Get("HpNow")
+		if hpNow <= 0 {
+			c.Targets = c.removeAtIndex(c.Targets, i)
+		}
+	}
+
+	//find next Target!
+	if len(c.Targets) == 0 {
+		c.Targets = CombatSelector.WeakestEnemy(c.Scene)
+	}
+}
+
+func (c CEAttack) removeAtIndex(arr []*combat.Actor, i int) []*combat.Actor {
+	return append(arr[:i], arr[i+1:]...)
 }
 
 func (c CEAttack) TimePoints(queue EventQueue) float64 {
@@ -104,4 +121,5 @@ func (c *CEAttack) attackTarget(target *combat.Actor) {
 
 	// the enemy needs stats
 	// the player needs a weapon
+	c.Scene.HandleDeath()
 }

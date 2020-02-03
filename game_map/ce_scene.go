@@ -59,6 +59,9 @@ func (c *CombatState) OnDead(actor *combat.Actor) {
 func (c CombatState) removeAtIndex(arr []*combat.Actor, i int) []*combat.Actor {
 	return append(arr[:i], arr[i+1:]...)
 }
+func (c CombatState) removeCharAtIndex(arr []*Character, i int) []*Character {
+	return append(arr[:i], arr[i+1:]...)
+}
 
 //IsPartyDefeated check's at least 1 Actor is standing return false
 func (c CombatState) IsPartyDefeated() bool {

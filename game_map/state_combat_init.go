@@ -17,13 +17,15 @@ import (
 //CS -> CombatState
 const (
 	csNpcStand = "cs_npc_stand"
-	csStandby  = "cs_standby"  // The character is waiting to be told what action to do by the player or AI
-	csProne    = "cs_prone"    // The character is waiting and ready to perform a given combat action
-	csAttack   = "cs_attack"   // The character will run an attack animation and attack an enemy
-	csCast     = "cs_cast"     // The character will run a cast-spell animation and a special effect will play
-	csUse      = "cs_use"      // The character uses some item with a use-item animation
-	csHurt     = "cd_hurt"     // The character takes some damage. Animation and numbers
-	csDie      = "cs_die"      // The character dies and the sprite is changed to the death sprite
+	csEnemyDie = "cs_enemy_die"
+	csStandby  = "cs_standby" // The character is waiting to be told what action to do by the player or AI
+	csProne    = "cs_prone"   // The character is waiting and ready to perform a given combat action
+	csAttack   = "cs_attack"  // The character will run an attack animation and attack an enemy
+	csCast     = "cs_cast"    // The character will run a cast-spell animation and a special effect will play
+	csUse      = "cs_use"     // The character uses some item with a use-item animation
+	csHurt     = "cd_hurt"    // The character takes some damage. Animation and numbers
+	csDie      = "cs_die"     // The character dies and the sprite is changed to the death sprite
+	csDeath    = "cs_death"
 	csMove     = "cs_move"     // The character moves toward or away from the enemy, in order to perform an action
 	csVictory  = "cs_victory"  // The character dances around and combat ends
 	csRunanim  = "cs_run_anim" // plays common animations states
@@ -39,6 +41,7 @@ type CombatState struct {
 	Layout        map[string][][]pixel.Vec
 	Actors        map[string][]*combat.Actor
 	Characters    map[string][]*Character
+	DeathList     []*Character
 	ActorCharMap  map[*combat.Actor]*Character
 	SelectedActor *combat.Actor
 
@@ -192,6 +195,15 @@ func (c *CombatState) Update(dt float64) bool {
 		v.Controller.Update(dt)
 	}
 
+	for i := len(c.DeathList) - 1; i >= 0; i-- {
+		char := c.DeathList[i]
+		char.Controller.Update(dt)
+		state := char.Controller.Current
+		if state.IsFinished() {
+			c.DeathList = c.removeCharAtIndex(c.DeathList, i)
+		}
+	}
+
 	if len(c.InternalStack.States) != 0 && c.InternalStack.Top() != nil {
 		c.InternalStack.Update(dt)
 		return true
@@ -220,6 +232,10 @@ func (c CombatState) Render(renderer *pixelgl.Window) {
 		v.Entity.Render(nil, renderer, pos)
 	}
 	for _, v := range c.Characters[enemies] {
+		pos := pixel.V(v.Entity.X, v.Entity.Y)
+		v.Entity.Render(nil, renderer, pos)
+	}
+	for _, v := range c.DeathList {
 		pos := pixel.V(v.Entity.X, v.Entity.Y)
 		v.Entity.Render(nil, renderer, pos)
 	}
@@ -283,6 +299,9 @@ func (c *CombatState) CreateCombatCharacters(key string) {
 				},
 				csMove: func() state_machine.State {
 					return CSMoveCreate(char, c)
+				},
+				csEnemyDie: func() state_machine.State {
+					return CSEnemyDieCreate(char, c)
 				},
 			},
 		)
@@ -391,4 +410,62 @@ func (c *CombatState) DrawMP(renderer pixel.Target, x, y float64, actor *combat.
 	textBase := text.New(pixel.V(x, y), gui.BasicAtlasAscii)
 	fmt.Fprintln(textBase, mpNowStr)
 	textBase.Draw(renderer, pixel.IM)
+}
+
+func (c *CombatState) HandleDeath() {
+	c.HandlePartyDeath()
+	c.HandleEnemyDeath()
+}
+
+func (c *CombatState) HandlePartyDeath() {
+	for _, actor := range c.Actors[enemies] {
+		character := c.ActorCharMap[actor]
+		state := character.Controller.Current
+		stats := actor.Stats
+
+		// is the character already dead?
+		var animId string
+		switch s := state.(type) {
+		case *CSStandBy:
+			animId = s.AnimId
+		case *CSRunAnim:
+			animId = s.AnimId
+		default:
+			panic(fmt.Sprintf("animId not found with %v", s))
+		}
+
+		if animId != csDeath {
+			//still alive
+
+			//but Is the HP above 0?
+			hpNow := stats.Get("HpNow")
+			if hpNow <= 0 {
+				//Dead party actor we need to run anim
+				character.Controller.Change(csRunanim, csDeath, false)
+				c.EventQueue.RemoveEventsOwnedBy(actor)
+			}
+		}
+	}
+}
+
+func (c *CombatState) HandleEnemyDeath() {
+	for i := len(c.Actors[enemies]) - 1; i >= 0; i-- {
+		enemy := c.Actors[enemies][i]
+		character := c.ActorCharMap[enemy]
+		stats := enemy.Stats
+
+		hpNow := stats.Get("HpNow")
+		if hpNow <= 0 {
+			//Remove all references
+			c.Actors[enemies] = c.removeAtIndex(c.Actors[enemies], i)
+			c.Characters[enemies] = c.removeCharAtIndex(c.Characters[enemies], i)
+			delete(c.ActorCharMap, enemy)
+
+			character.Controller.Change(csEnemyDie)
+			c.EventQueue.RemoveEventsOwnedBy(enemy)
+
+			//Add to effects
+			c.DeathList = append(c.DeathList, character)
+		}
+	}
 }
