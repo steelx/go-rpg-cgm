@@ -44,6 +44,7 @@ type CombatState struct {
 	DeathList     []*Character
 	ActorCharMap  map[*combat.Actor]*Character
 	SelectedActor *combat.Actor
+	EffectList    []EffectState
 
 	Panels []gui.Panel
 	TipPanel,
@@ -144,8 +145,8 @@ func CombatStateCreate(state *gui.StateStack, win *pixelgl.Window, def CombatDef
 			0, 0,
 			v.Stats.Get("HpNow"),
 			v.Stats.Get("HpMax"),
-			"#FF001E",
-			"#15FF00",
+			"#dc3545", //red
+			"#15FF00", //green
 			3, 100,
 			c.imd,
 		)
@@ -153,8 +154,8 @@ func CombatStateCreate(state *gui.StateStack, win *pixelgl.Window, def CombatDef
 			0, 0,
 			v.Stats.Get("MpNow"),
 			v.Stats.Get("MpMax"),
-			"#A48B2C",
-			"#00E7DA",
+			"#2a3151",
+			"#00f1ff",
 			3, 100,
 			c.imd,
 		)
@@ -204,6 +205,14 @@ func (c *CombatState) Update(dt float64) bool {
 		}
 	}
 
+	for i := len(c.EffectList) - 1; i >= 0; i-- {
+		fx := c.EffectList[i]
+		if fx.IsFinished() {
+			c.EffectList = c.removeFxAtIndex(c.EffectList, i)
+		}
+		fx.Update(dt)
+	}
+
 	if len(c.InternalStack.States) != 0 && c.InternalStack.Top() != nil {
 		c.InternalStack.Update(dt)
 		return true
@@ -238,6 +247,10 @@ func (c CombatState) Render(renderer *pixelgl.Window) {
 	for _, v := range c.DeathList {
 		pos := pixel.V(v.Entity.X, v.Entity.Y)
 		v.Entity.Render(nil, renderer, pos)
+	}
+
+	for _, v := range c.EffectList {
+		v.Render(renderer)
 	}
 
 	for _, v := range c.Panels {
@@ -344,9 +357,9 @@ func (c *CombatState) RenderPartyNames(args ...interface{}) {
 
 	var txtColor color.RGBA
 	if c.SelectedActor == actor {
-		txtColor = utilz.HexToColor("#00cc00") //green
+		txtColor = utilz.HexToColor("#ffdc00") //yellow
 	} else {
-		txtColor = utilz.HexToColor("#addbd8") //light blue
+		txtColor = utilz.HexToColor("#FFFFFF") //white
 	}
 
 	textBase := text.New(pixel.V(x, y), gui.BasicAtlasAscii)
@@ -470,4 +483,16 @@ func (c *CombatState) HandleEnemyDeath() {
 			c.DeathList = append(c.DeathList, character)
 		}
 	}
+}
+
+func (c *CombatState) AddEffect(fx EffectState) {
+	for i := 0; i < len(c.EffectList); i++ {
+		priority := c.EffectList[i].Priority()
+		if fx.Priority() > priority {
+			c.insertFxAtIndex(i, fx)
+			return
+		}
+	}
+	//else
+	c.EffectList = append(c.EffectList, fx)
 }

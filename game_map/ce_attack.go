@@ -136,5 +136,14 @@ func (c *CEAttack) attackTarget(target *combat.Actor) {
 		}
 	}
 
+	//FX
+	entity := character.Entity
+	x, y, offX := entity.X, entity.Y, 100.0
+	dmgEffect := JumpingNumbersFXCreate(x+offX, y, damage)
+	//slashEffect := AnimEntityFxCreate(x, y, gEntities.slash, gEntities.slash.frames)
+
+	c.Scene.AddEffect(dmgEffect)
+	//c.Scene.AddEffect(slashEffect)
+
 	c.Scene.HandleDeath()
 }
