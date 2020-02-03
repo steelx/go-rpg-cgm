@@ -47,7 +47,7 @@ type Textbox struct {
 	textBounds                  pixel.Rect
 	textBase                    *text.Text
 	textAtlas                   *text.Atlas
-	mPanel                      Panel
+	Panel                       Panel
 	continueMark                pixel.Picture
 	Width, Height               float64
 	textBlocks                  []string
@@ -122,7 +122,7 @@ func TextboxFITMenuCreate(stack *StateStack, x, y float64, textBoxText string, c
 	panel := PanelCreate(panelPos, menu.GetWidth(), menu.GetHeight())
 
 	t.menu = &menu
-	t.mPanel = panel
+	t.Panel = panel
 	t.textBounds = panel.mBounds
 
 	t.makeTextColumns()
@@ -148,7 +148,7 @@ func TextboxFITPassedMenuCreate(stack *StateStack, x, y float64, textBoxText str
 	panel := PanelCreate(panelPos, menu.GetWidth(), menu.GetHeight()+30)
 
 	t.menu = menu
-	t.mPanel = panel
+	t.Panel = panel
 	t.textBounds = panel.mBounds
 
 	t.makeTextColumns()
@@ -162,7 +162,7 @@ func TextboxCreateFixed(stack *StateStack, txt string, panelPos pixel.Vec, panel
 	t := TextboxNew(stack, txt, 14, BasicAtlas12, avatarName, avatarImg)
 	t.AppearTween = animation.TweenCreate(1, 0, 1)
 	t.isFixed = true
-	t.mPanel = panel
+	t.Panel = panel
 	t.textBounds = panel.mBounds
 	t.hasMenu = hasMenu
 	if hasMenu {
@@ -194,7 +194,7 @@ func TextboxCreateFitted(stack *StateStack, txt string, panelPos pixel.Vec, hasM
 	topLeft, _, _, _ := panel.GetCorners()
 	textPos := pixel.V(topLeft.X+padding, topLeft.Y-padding)
 	tBox.textBase = text.New(textPos, tBox.textAtlas) //reset text position to bounds
-	tBox.mPanel = panel
+	tBox.Panel = panel
 
 	tBox.makeTextColumns()
 
@@ -206,9 +206,9 @@ func (t *Textbox) makeTextColumns() {
 	if len(t.avatarName) != 0 {
 		makeColumns = true
 	}
-	var textColumnWidth = t.mPanel.mBounds.W() - (t.size * 2)
-	var textColumnHeight = t.mPanel.mBounds.H() - (t.size * 2)
-	var topLeft, _, _, _ = t.mPanel.GetCorners()
+	var textColumnWidth = t.Panel.mBounds.W() - (t.size * 2)
+	var textColumnHeight = t.Panel.mBounds.H() - (t.size * 2)
+	var topLeft, _, _, _ = t.Panel.GetCorners()
 	var textPos = pixel.V(topLeft.X+t.size, topLeft.Y-t.size-t.topPadding)
 	if makeColumns {
 		textColumnWidth -= t.avatarImg.Bounds().W()
@@ -266,10 +266,10 @@ func (t Textbox) drawAvatar(renderer pixel.Target) {
 
 	avatarSprite := pixel.NewSprite(t.avatarImg, t.avatarImg.Bounds())
 	topLeft := pixel.V(
-		t.mPanel.mBounds.Min.X+(t.avatarImg.Bounds().W()/2)+t.size/2,
-		t.mPanel.mBounds.Max.Y-(t.avatarImg.Bounds().H()/2)-5)
+		t.Panel.mBounds.Min.X+(t.avatarImg.Bounds().W()/2)+t.size/2,
+		t.Panel.mBounds.Max.Y-(t.avatarImg.Bounds().H()/2)-5)
 
-	titlePos := pixel.V(t.mPanel.mBounds.Min.X+t.size, t.mPanel.mBounds.Min.Y+t.avatarImg.Bounds().H()-(t.size/2)-2)
+	titlePos := pixel.V(t.Panel.mBounds.Min.X+t.size, t.Panel.mBounds.Min.Y+t.avatarImg.Bounds().H()-(t.size/2)-2)
 
 	title := text.New(titlePos, BasicAtlasAscii)
 	fmt.Fprintln(title, t.avatarName)
@@ -280,7 +280,7 @@ func (t Textbox) drawAvatar(renderer pixel.Target) {
 func (t Textbox) drawContinueArrow(renderer pixel.Target) {
 	if t.textBlockLimitIndex+t.textRowLimit < len(t.textBlocks) {
 		mat := pixel.IM
-		bottomRight := pixel.V(t.mPanel.mBounds.Max.X-t.size, t.mPanel.mBounds.Min.Y+t.size)
+		bottomRight := pixel.V(t.Panel.mBounds.Max.X-t.size, t.Panel.mBounds.Min.Y+t.size)
 		sprite := pixel.NewSprite(t.continueMark, t.continueMark.Bounds())
 		sprite.Draw(renderer, mat.Moved(bottomRight))
 
@@ -301,7 +301,7 @@ func (t *Textbox) Next() {
 func (t *Textbox) renderFitted(renderer pixel.Target) {
 	scale := t.AppearTween.Value()
 	t.textBase.Clear()
-	t.mPanel.Draw(renderer)
+	t.Panel.Draw(renderer)
 	fmt.Fprintln(t.textBase, t.text)
 	t.textBase.Draw(renderer, pixel.IM.Scaled(t.Position, scale))
 }
@@ -328,7 +328,7 @@ func (t *Textbox) renderFixed(renderer pixel.Target) {
 		utilz.PanicIfErr(err)
 	}
 
-	t.mPanel.Draw(renderer)
+	t.Panel.Draw(renderer)
 	t.textBase.Draw(renderer, pixel.IM)
 
 	t.drawAvatar(renderer)

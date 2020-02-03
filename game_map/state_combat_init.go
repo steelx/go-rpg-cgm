@@ -69,7 +69,8 @@ func CombatStateCreate(state *gui.StateStack, win *pixelgl.Window, def CombatDef
 	utilz.PanicIfErr(err)
 
 	// Setup layout panel
-	layout := gui.LayoutCreate(0, 0, win)
+	pos := pixel.V(0, 0)
+	layout := gui.LayoutCreate(pos.X, pos.Y, win)
 	layout.SplitHorz("screen", "top", "bottom", 0.72, 0)
 	layout.SplitHorz("top", "notice", "top", 0.25, 0)
 	layout.Contract("notice", 75, 25)
@@ -81,7 +82,7 @@ func CombatStateCreate(state *gui.StateStack, win *pixelgl.Window, def CombatDef
 		GameState:     state,
 		InternalStack: gui.StateStackCreate(win),
 		Background:    pixel.NewSprite(backgroundImg, backgroundImg.Bounds()),
-		Pos:           pixel.V(0, 0),
+		Pos:           pos,
 		Actors: map[string][]*combat.Actor{
 			party:   def.Actors.Party,
 			enemies: def.Actors.Enemies,
@@ -89,8 +90,8 @@ func CombatStateCreate(state *gui.StateStack, win *pixelgl.Window, def CombatDef
 		Characters:   make(map[string][]*Character),
 		ActorCharMap: make(map[*combat.Actor]*Character),
 		StatsYCol:    208,
-		marginLeft:   19,
-		marginTop:    19,
+		marginLeft:   18,
+		marginTop:    20,
 		imd:          imdraw.New(nil),
 		EventQueue:   EventsQueueCreate(),
 	}
@@ -117,19 +118,19 @@ func CombatStateCreate(state *gui.StateStack, win *pixelgl.Window, def CombatDef
 	c.PartyList = &partyListMenu
 
 	//title
-	x := -win.Bounds().W() / 2
+	x := layout.Left("left")
 	y := layout.Top("left")
 
 	marginTop := c.marginTop
 	marginLeft := c.marginLeft
 	c.PanelTitles = []PanelTitle{
-		{"NAME", x + marginLeft + 16, y - marginTop + 2},
+		{"NAME", x + marginLeft, y - marginTop + 2},
 		{"HP", layout.Left("right") + marginLeft, y - marginTop + 2},
 		{"MP", layout.Left("right") + marginLeft + c.StatsYCol, y - marginTop + 2},
 	}
 
 	y = y - 35 // - margin top
-	c.PartyList.SetPosition(x+marginLeft+16, y)
+	c.PartyList.SetPosition(x+marginLeft, y)
 	c.PartyList.HideCursor()
 
 	c.Bars = make(map[string]BarStats)

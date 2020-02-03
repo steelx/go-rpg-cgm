@@ -139,8 +139,14 @@ func (q *EventQueue) Update() {
 
 func (q *EventQueue) Render(win *pixelgl.Window) {
 	yInc := 15.5
-	x := -win.Bounds().W() / 2
-	y := win.Bounds().H() / 2
+	var width, height float64
+	if win.Monitor() != nil {
+		width, height = win.Monitor().Size()
+	} else {
+		width, height = win.Bounds().W(), win.Bounds().H()
+	}
+	x := -width / 2
+	y := height / 2
 
 	textBase := text.New(pixel.V(0, 0), gui.BasicAtlasAscii)
 	if q.CurrentEvent != nil {

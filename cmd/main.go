@@ -49,6 +49,9 @@ func main() {
 // Setup map, world, player etc.
 //=============================================================
 func setup(win *pixelgl.Window) {
+	//set fullscreen
+	//win.SetMonitor(globals.Global.PrimaryMonitor)
+
 	stack = gui.StateStackCreate(win)
 
 	gWorld = combat.WorldExtendedCreate()
@@ -112,9 +115,6 @@ func setup(win *pixelgl.Window) {
 //=============================================================
 func gameLoop(win *pixelgl.Window) {
 	last := time.Now()
-
-	//set fullscreen
-	//win.SetMonitor(globals.Global.PrimaryMonitor)
 
 	tick := time.Tick(frameRate)
 	for !win.Closed() {

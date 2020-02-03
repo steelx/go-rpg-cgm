@@ -117,20 +117,21 @@ func (c *CombatChoiceState) CreateActionDialog(choices interface{}) {
 	)
 	c.Selection = &selectionMenu
 
-	x := -c.Stack.Win.Bounds().W() / 2
+	x := c.Stack.Win.Bounds().W() / 2
 	y := -c.Stack.Win.Bounds().H() / 2
 
 	height := c.Selection.GetHeight() + 18
 	//width := c.Selection.GetWidth() + 16
 
 	y = y + height + 16
-	x = x + 200
+	x = x - 90
 
 	c.textbox = gui.TextboxFITPassedMenuCreate(
 		c.Stack,
 		x, y, "",
 		c.Selection,
 	)
+	c.textbox.Panel.BGColor = "#3c2f2f"
 }
 
 func (c *CombatChoiceState) bounceMarker(dt float64) {
