@@ -107,8 +107,8 @@ var CharacterDefinitions map[string]CharacterDefinition = map[string]CharacterDe
 			csRetreat: {0, 1, 2, 3},
 			csProne:   {5, 6},
 			csAttack: {
-				40, 39, 38, 37, 36,
-				41, 42, 43, 44, 45,
+				50, 51, 52, 53, 54,
+				45, 46, 47, 48, 49,
 			},
 			csVictory: {46, 47, 48, 49},
 			csUse:     {10, 11, 12, 13, 14},
@@ -134,8 +134,8 @@ var CharacterDefinitions map[string]CharacterDefinition = map[string]CharacterDe
 			csRetreat: {0, 1, 2, 3},
 			csProne:   {5, 6, 7, 8, 9},
 			csAttack: {
-				40, 39, 38, 37, 36,
-				41, 42, 43, 44, 45,
+				60, 61, 62, 63, 64,
+				55, 56, 57, 58, 59,
 			},
 			csVictory: {46, 47, 48, 49},
 			csUse:     {15, 16, 17, 18, 19},
@@ -151,8 +151,23 @@ var CharacterDefinitions map[string]CharacterDefinition = map[string]CharacterDe
 	"mage": {
 		Id: "mage",
 		Animations: map[string][]int{
-			csStandby: {15, 16, 17, 18},
-			"up":      {112, 113, 114, 115}, "right": {116, 117, 118, 119}, "down": {120, 121, 122, 123}, "left": {124, 125, 126, 127},
+			"up":    {112, 113, 114, 115},
+			"right": {116, 117, 118, 119},
+			"down":  {120, 121, 122, 123},
+			"left":  {124, 125, 126, 127},
+
+			csMove:    {15, 16, 17, 18, 19},
+			csStandby: {25, 26, 27, 28},
+			csRetreat: {0, 1, 2, 3},
+			csProne:   {5, 6},
+			csAttack: {
+				50, 51, 52, 53, 54,
+				45, 46, 47, 48, 49,
+			},
+			csVictory: {46, 47, 48, 49},
+			csUse:     {10, 11, 12, 13, 14},
+			csHurt:    {40, 41, 42, 43},
+			csDie:     {35, 36, 37, 38},
 		},
 		FacingDirection: CharacterFacingDirection[2],
 		EntityDef:       Entities["mage"],

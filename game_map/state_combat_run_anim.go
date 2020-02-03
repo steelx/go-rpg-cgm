@@ -40,7 +40,7 @@ func (s *CSRunAnim) Enter(data ...interface{}) {
 	animV := reflect.ValueOf(data[0])
 	loopV := reflect.ValueOf(data[1])
 	s.AnimId = animV.Interface().(string)
-	loop, spf := loopV.Interface().(bool), 0.15
+	loop, spf := loopV.Interface().(bool), 0.12
 
 	frames := s.Character.GetCombatAnim(s.AnimId)
 	s.Anim = animation.Create(frames, loop, spf)
