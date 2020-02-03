@@ -46,6 +46,10 @@ func NPCStandStateCreate(args ...interface{}) state_machine.State {
 //The StateMachine requires each state to have
 // four functions: Enter, Exit, Render and Update
 
+func (s NPCWaitState) IsFinished() bool {
+	return true
+}
+
 func (s *NPCWaitState) Enter(data ...interface{}) {}
 
 func (s *NPCWaitState) Render(win *pixelgl.Window) {}

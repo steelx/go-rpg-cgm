@@ -69,7 +69,6 @@ func (c CombatChoiceState) HandleInput(win *pixelgl.Window) {
 func (c *CombatChoiceState) OnSelect(index int, str interface{}) {
 	actionItem := reflect.ValueOf(str).Interface().(string)
 	if actionItem == "attack" {
-		fmt.Println("Character attacks")
 		c.Selection.HideCursor()
 
 		state := CombatTargetStateCreate(c.CombatState, CombatChoiceParams{
@@ -87,14 +86,18 @@ func (c *CombatChoiceState) OnSelect(index int, str interface{}) {
 	}
 }
 
+//TakeAction function pops the CombatTargetState and CombatChoiceState off the
+//stack. This leaves the CombatState internal stack empty and causes the mEventQueue
+//to start updating again.
 func (c *CombatChoiceState) TakeAction(id string, targets []*combat.Actor) {
 	c.Stack.Pop() //select state
 	c.Stack.Pop() //action state
 
 	if id == "attack" {
 		fmt.Println("Entered attack state PENDING")
-		//attack := CEAttackCreate(c.CombatState, c.Actor, targets)
-		//c.CombatState.EventQueue.Push()
+		attack := CEAttackCreate(c.CombatState, c.Actor, targets)
+		tp := attack.TimePoints(*c.CombatState.EventQueue)
+		c.CombatState.EventQueue.Add(attack, tp)
 	}
 }
 

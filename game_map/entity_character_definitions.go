@@ -102,8 +102,9 @@ var CharacterDefinitions map[string]CharacterDefinition = map[string]CharacterDe
 			"down":  {24, 25, 26, 27},
 			"left":  {28, 29, 30, 31},
 
-			csStandby: {15, 16, 17, 18, 19},
-			csMove:    {25, 26, 27, 28, 29},
+			csMove:    {15, 16, 17, 18, 19},
+			csStandby: {25, 26, 27, 28},
+			csRetreat: {0, 1, 2, 3},
 			csProne:   {5, 6},
 			csAttack: {
 				40, 39, 38, 37, 36,
@@ -119,14 +120,6 @@ var CharacterDefinitions map[string]CharacterDefinition = map[string]CharacterDe
 		CombatEntityDef:    Entities["combat_hero"],
 		DefaultState:       "wait",
 		DefaultCombatState: csNpcStand,
-		//see state_combat_init.go -> CreateCombatCharacters
-		//CombatStates: map[string]func(args ...interface{}) state_machine.State{
-		//	csNpcStand: NPCStandCombatStateCreate,
-		//	csRunanim:  CSRunAnimCreate,
-		//	csHurt:     CSHurtCreate,
-		//	csMove:     CSMoveCreate,
-		//	csStandby:  CSStandByCreate,
-		//},
 	},
 	"thief": {
 		Id: "thief",
@@ -136,9 +129,10 @@ var CharacterDefinitions map[string]CharacterDefinition = map[string]CharacterDe
 			"down":  {104, 105, 106, 107},
 			"left":  {108, 109, 110, 111},
 
-			csStandby: {25, 26, 27, 28, 29},
-			csMove:    {10, 11, 12, 13, 14},
-			csProne:   {5, 6},
+			csStandby: {25, 26, 27, 28},
+			csMove:    {24, 23, 22, 21, 20},
+			csRetreat: {0, 1, 2, 3},
+			csProne:   {5, 6, 7, 8, 9},
 			csAttack: {
 				40, 39, 38, 37, 36,
 				41, 42, 43, 44, 45,

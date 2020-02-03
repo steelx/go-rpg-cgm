@@ -48,6 +48,10 @@ func StatusMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *Status
 
 /////////////////////////////
 // StateMachine impl below //
+func (s StatusMenuState) IsFinished() bool {
+	return true
+}
+
 func (s *StatusMenuState) Enter(data ...interface{}) {
 	actorSumV := reflect.ValueOf(data[0])
 	s.ActorSummary = actorSumV.Interface().(combat.ActorSummary)

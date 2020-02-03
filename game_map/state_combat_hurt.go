@@ -28,6 +28,10 @@ func CSHurtCreate(args ...interface{}) state_machine.State {
 	}
 }
 
+func (s CSHurt) IsFinished() bool {
+	return true
+}
+
 func (s *CSHurt) Enter(data ...interface{}) {
 }
 

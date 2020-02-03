@@ -1,6 +1,7 @@
 package game_map
 
 import (
+	"fmt"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/animation"
 	"github.com/steelx/go-rpg-cgm/state_machine"
@@ -32,9 +33,14 @@ func CSRunAnimCreate(args ...interface{}) state_machine.State {
 }
 
 func (s *CSRunAnim) Enter(data ...interface{}) {
+	if len(data) != 2 {
+		panic(fmt.Sprintf("Please pass AnimID & Loop bool while changing State"))
+		return
+	}
 	animV := reflect.ValueOf(data[0])
+	loopV := reflect.ValueOf(data[1])
 	s.AnimId = animV.Interface().(string)
-	loop, spf := true, 0.12
+	loop, spf := loopV.Interface().(bool), 0.15
 
 	frames := s.Character.GetCombatAnim(s.AnimId)
 	s.Anim = animation.Create(frames, loop, spf)

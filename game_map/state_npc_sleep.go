@@ -38,6 +38,10 @@ func SleepStateCreate(args ...interface{}) *SleepState {
 //The StateMachine requires each state to have
 // four functions: Enter, Exit, Render and Update
 
+func (s SleepState) IsFinished() bool {
+	return true
+}
+
 func (s *SleepState) Enter(data ...interface{}) {
 	s.Entity.AddChild("snore", s.SleepEntity)
 }

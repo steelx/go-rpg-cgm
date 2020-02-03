@@ -36,6 +36,9 @@ func WaitStateCreate(args ...interface{}) *WaitState {
 
 //The StateMachine requires each state to have
 // four functions: Enter, Exit, Render and Update
+func (s WaitState) IsFinished() bool {
+	return true
+}
 
 func (s *WaitState) Enter(data ...interface{}) {
 	// Reset to default frame

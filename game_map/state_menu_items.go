@@ -97,6 +97,10 @@ func (im *ItemsMenuState) OnCategorySelect(index int, value interface{}) {
 /*
 	state_machine.State implemented below
 */
+func (im ItemsMenuState) IsFinished() bool {
+	return true
+}
+
 func (im ItemsMenuState) Enter(data ...interface{}) {
 
 }

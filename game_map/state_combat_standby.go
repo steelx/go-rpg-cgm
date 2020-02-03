@@ -31,6 +31,10 @@ func CSStandByCreate(args ...interface{}) state_machine.State {
 	}
 }
 
+func (s CSStandBy) IsFinished() bool {
+	return true
+}
+
 func (s *CSStandBy) Enter(data ...interface{}) {
 	animID := reflect.ValueOf(data[0])
 	frames := s.Character.GetCombatAnim(animID.Interface().(string))

@@ -27,6 +27,7 @@ const (
 	csMove     = "cs_move"     // The character moves toward or away from the enemy, in order to perform an action
 	csVictory  = "cs_victory"  // The character dances around and combat ends
 	csRunanim  = "cs_run_anim" // plays common animations states
+	csRetreat  = "cs_retreat"
 )
 
 type CombatState struct {
