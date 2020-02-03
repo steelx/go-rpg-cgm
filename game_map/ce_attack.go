@@ -121,5 +121,20 @@ func (c *CEAttack) attackTarget(target *combat.Actor) {
 
 	// the enemy needs stats
 	// the player needs a weapon
+
+	//Change actor's Character to hurt state
+	character := c.Scene.ActorCharMap[target]
+	if damage > 0 {
+		state := character.Controller.Current
+
+		//check if its NOT csHurt then change it to csHurt
+		switch state.(type) {
+		case *CSHurt:
+			//fmt.Println("already in Hurt state, do nothing")
+		default:
+			character.Controller.Change(csHurt, state)
+		}
+	}
+
 	c.Scene.HandleDeath()
 }

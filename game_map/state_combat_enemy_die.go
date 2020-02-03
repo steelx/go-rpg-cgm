@@ -40,7 +40,7 @@ func (s *CSEnemyDie) Enter(data ...interface{}) {
 
 func (s *CSEnemyDie) Render(win *pixelgl.Window) {
 	alpha := s.Tween.Value()
-	color_ := color.RGBA{255, 255, 255, uint8(alpha)}
+	color_ := color.RGBA{255, 255, 255, 255 - uint8(alpha)}
 	s.Entity.Sprite.DrawColorMask(win, pixel.IM, color_)
 }
 

@@ -239,5 +239,8 @@ var CharacterDefinitions map[string]CharacterDefinition = map[string]CharacterDe
 		EntityDef:          Entities["goblin"],
 		DefaultState:       "wait",
 		DefaultCombatState: csStandby,
+		Animations: map[string][]int{
+			csHurt: {0, 1},
+		},
 	},
 }

@@ -430,6 +430,8 @@ func (c *CombatState) HandlePartyDeath() {
 			animId = s.AnimId
 		case *CSRunAnim:
 			animId = s.AnimId
+		case *CSHurt:
+			animId = s.AnimId
 		default:
 			panic(fmt.Sprintf("animId not found with %v", s))
 		}
