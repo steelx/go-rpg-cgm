@@ -36,6 +36,10 @@ func NPCStrollWaitStateCreate(args ...interface{}) state_machine.State {
 //The StateMachine requires each state to have
 // four functions: Enter, Exit, Render and Update
 
+func (s NPCStrollWaitState) IsFinished() bool {
+	return true
+}
+
 func (s *NPCStrollWaitState) Enter(data ...interface{}) {
 	s.mFrameCount = 0
 	s.mCountDown = utilz.RandFloat(0, 3)

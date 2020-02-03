@@ -68,9 +68,9 @@ func SelectionMenuCreate(spacingY, spacingX, xWidth float64, data interface{}, s
 	}
 	m.textBase = text.New(position, BasicAtlas12)
 	m.displayRows = 4
-	m.cursor = pixel.NewSprite(cursorPng, cursorPng.Bounds())
-	m.cursorWidth = cursorPng.Bounds().W()
-	m.cursorHeight = cursorPng.Bounds().H()
+	m.cursor = pixel.NewSprite(CursorPng, CursorPng.Bounds())
+	m.cursorWidth = CursorPng.Bounds().W()
+	m.cursorHeight = CursorPng.Bounds().H()
 
 	if renderFunc != nil {
 		m.RenderFunction = renderFunc
@@ -296,4 +296,12 @@ func (m *SelectionMenu) HandleInput(window *pixelgl.Window) {
 		m.OnClick()
 	}
 
+}
+
+func (m SelectionMenu) CanScrollUp() bool {
+	return m.displayStart > 0
+}
+
+func (m SelectionMenu) CanScrollDown() bool {
+	return m.displayStart <= (m.maxRows - m.displayRows)
 }

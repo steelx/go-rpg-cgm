@@ -34,40 +34,45 @@ type State interface {
 	Render(win *pixelgl.Window)
 	Exit()
 	Update(dt float64)
+	IsFinished() bool
 }
 
 //StateMachine Controller
 type StateMachine struct {
 	states  map[string]func() State
-	current State
+	Current State
 }
 
 func Create(states map[string]func() State) *StateMachine {
 	return &StateMachine{
 		states:  states,
-		current: nil,
+		Current: nil,
 	}
 }
 
 //Change state
 // e.g. Controller.Change("move", {x = -1, y = 0})
-func (m *StateMachine) Change(stateName string, enterParams ...interface{}) {
-	if m.current != nil {
-		m.current.Exit()
+func (s *StateMachine) Change(stateName string, enterParams ...interface{}) {
+	if s.Current != nil {
+		s.Current.Exit()
 	}
-	m.current = m.states[stateName]()
-	m.current.Enter(enterParams...)
+	s.Current = s.states[stateName]()
+	s.Current.Enter(enterParams...)
 }
 
-func (m *StateMachine) Update(dt float64) {
-	m.current.Update(dt)
+func (s StateMachine) IsFinished() bool {
+	return true
 }
 
-func (m *StateMachine) Render(win *pixelgl.Window) {
-	m.current.Render(win)
+func (s *StateMachine) Update(dt float64) {
+	s.Current.Update(dt)
 }
 
-func (m *StateMachine) Enter(data ...interface{}) {
+func (s *StateMachine) Render(win *pixelgl.Window) {
+	s.Current.Render(win)
 }
-func (m *StateMachine) Exit() {
+
+func (s *StateMachine) Enter(data ...interface{}) {
+}
+func (s *StateMachine) Exit() {
 }

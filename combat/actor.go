@@ -29,14 +29,18 @@ type Actor struct {
 }
 
 // ActorCreate
-func ActorCreate(def ActorDef) Actor {
+func ActorCreate(def ActorDef, randName ...interface{}) Actor {
+	randNameV := ""
+	if len(randName) > 0 {
+		randNameV = reflect.ValueOf(randName[0]).Interface().(string)
+	}
 	actorAvatar, err := utilz.LoadPicture(def.Portrait)
 	utilz.PanicIfErr(err)
 
 	a := Actor{
 		Id:               def.Id,
 		isPlayer:         def.IsPlayer,
-		Name:             def.Name,
+		Name:             fmt.Sprintf("%s%s", def.Name, randNameV),
 		StatGrowth:       def.StatGrowth,
 		Stats:            world.StatsCreate(def.Stats),
 		XP:               0,

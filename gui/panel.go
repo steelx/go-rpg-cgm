@@ -9,6 +9,7 @@ import (
 type Panel struct {
 	mBounds                 pixel.Rect
 	mTileSize, mCenterScale float64
+	BGColor                 string //hex
 }
 
 var imd = imdraw.New(nil)
@@ -22,6 +23,7 @@ func PanelCreate(pos pixel.Vec, width, height float64) Panel {
 			Min: pixel.V(pos.X-width/2, pos.Y-height/2),
 			Max: pixel.V(pos.X+width/2, pos.Y+height/2),
 		},
+		BGColor: "#002D64",
 	}
 
 	return p
@@ -41,7 +43,7 @@ func (p *Panel) Draw(renderer pixel.Target) {
 	topLeft, topRight, bottomLeft, bottomRight := p.GetCorners()
 
 	// Middle backing panel
-	imd.Color = utilz.HexToColor("#002D64")
+	imd.Color = utilz.HexToColor(p.BGColor)
 	imd.EndShape = imdraw.RoundEndShape
 	imd.Push(
 		bottomLeft.Add(pixel.V(1, 1)),

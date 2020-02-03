@@ -1,6 +1,8 @@
 package combat
 
-import "github.com/steelx/go-rpg-cgm/world"
+import (
+	"github.com/steelx/go-rpg-cgm/world"
+)
 
 type ActorDef struct {
 	Id               string //must match entityDef

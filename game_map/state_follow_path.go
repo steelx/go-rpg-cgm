@@ -30,7 +30,9 @@ func FollowPathStateCreate(args ...interface{}) state_machine.State {
 
 //The StateMachine requires each state to have
 // four functions: Enter, Exit, Render and Update
-
+func (s FollowPathState) IsFinished() bool {
+	return true
+}
 func (s *FollowPathState) Enter(data ...interface{}) {
 
 	if s.Character.PathIndex >= len(s.Character.Path) || len(s.Character.Path) == 0 {

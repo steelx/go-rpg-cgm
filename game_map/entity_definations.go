@@ -4,20 +4,16 @@ import (
 	"github.com/steelx/go-rpg-cgm/state_machine"
 )
 
-var Entities = make(map[string]EntityDefinition)
-var Characters = make(map[string]func(gMap *GameMap) *Character)
-var CharacterDefinitions = make(map[string]CharacterDefinition)
-
-func init() {
-	Characters["hero"] = hero
-	Characters["thief"] = thief
-	Characters["mage"] = mage
-	Characters["sleeper"] = Sleeper
-	Characters["npc1"] = NPC1
-	Characters["npc2"] = NPC2
-	Characters["guard"] = guard
-	Characters["prisoner"] = prisoner
-	Characters["chest"] = chest
+var Characters = map[string]func(gMap *GameMap) *Character{
+	"hero":     hero,
+	"thief":    thief,
+	"mage":     mage,
+	"sleeper":  Sleeper,
+	"npc1":     NPC1,
+	"npc2":     NPC2,
+	"guard":    guard,
+	"prisoner": prisoner,
+	"chest":    chest,
 }
 
 type CharacterDefinition struct {

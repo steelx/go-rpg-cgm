@@ -129,6 +129,9 @@ func (fm *FrontMenuState) goBackToFrontMenu() {
 /*
    StateMachine :: State impl below
 */
+func (fm FrontMenuState) IsFinished() bool {
+	return true
+}
 func (fm FrontMenuState) Enter(data ...interface{}) {
 }
 

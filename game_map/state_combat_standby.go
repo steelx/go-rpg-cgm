@@ -23,16 +23,21 @@ func CSStandByCreate(args ...interface{}) state_machine.State {
 	cs := csV.Interface().(*CombatState)
 
 	return &CSStandBy{
-		Name:        CS_Standby,
+		Name:        csStandby,
 		Character:   char,
 		CombatState: cs,
 		Entity:      char.Entity,
-		Anim:        animation.Create([]int{char.Entity.StartFrame}, true, 0.12),
+		Anim:        animation.Create([]int{char.Entity.StartFrame}, true, 0.16),
 	}
 }
 
+func (s CSStandBy) IsFinished() bool {
+	return true
+}
+
 func (s *CSStandBy) Enter(data ...interface{}) {
-	frames := s.Character.GetCombatAnim(s.Name)
+	animID := reflect.ValueOf(data[0])
+	frames := s.Character.GetCombatAnim(animID.Interface().(string))
 	s.Anim.SetFrames(frames)
 }
 

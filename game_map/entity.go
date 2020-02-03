@@ -9,7 +9,7 @@ import (
 var CharacterFacingDirection = [4]string{"up", "right", "down", "left"}
 
 type EntityDefinition struct {
-	Texture       pixel.Picture
+	Texture       string
 	Width, Height float64
 	StartFrame    int
 	TileX, TileY  float64
@@ -29,11 +29,13 @@ type Entity struct {
 }
 
 func CreateEntity(def EntityDefinition) *Entity {
+	pngImg, err := utilz.LoadPicture(def.Texture)
+	utilz.PanicIfErr(err)
 	e := &Entity{}
 
-	e.Texture = def.Texture
-	e.Frames = utilz.LoadAsFrames(def.Texture, def.Width, def.Height)
-	e.Sprite = pixel.NewSprite(def.Texture, e.Frames[def.StartFrame])
+	e.Texture = pngImg
+	e.Frames = utilz.LoadAsFrames(pngImg, def.Width, def.Height)
+	e.Sprite = pixel.NewSprite(pngImg, e.Frames[def.StartFrame])
 	e.Width = def.Width
 	e.Height = def.Height
 	e.TileX = def.TileX
@@ -96,20 +98,15 @@ func (e *Entity) Render(gMap *GameMap, renderer pixel.Target, pos pixel.Vec) {
 	}
 }
 
-//RenderWithNPC Just had an idea about future renders WIP
-//func (e *Entity) RenderWithNPC(renderer pixel.Target) {
-//	var others []*Entity
-//	for _, npc := range e.NPCs {
-//		others = append(others, npc)
-//	}
-//
-//	//sort players as per visible to screen Y position
-//	withOthers := append([]*Entity{e}, others...)
-//	sort.Slice(withOthers[:], func(i, j int) bool {
-//		return withOthers[i].TileY < withOthers[j].TileY
-//	})
-//
-//	for _, player := range withOthers {
-//		player.Render(renderer)
-//	}
-//}
+//GetSelectPosition gets Head position minus offset
+func (e *Entity) GetSelectPosition() pixel.Vec {
+	x := e.X
+	y := e.Y + (e.Height / 2) + 10
+	return pixel.V(x, y)
+}
+
+func (e *Entity) GetTargetPosition() pixel.Vec {
+	x := e.X - (e.Width / 2) - 20
+	y := e.Y - (e.Height / 2)
+	return pixel.V(x, y)
+}

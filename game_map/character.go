@@ -23,17 +23,22 @@ type Character struct {
 	TalkIndex                      int      //used during speech tracking
 }
 
-func CharacterCreate(
-	def CharacterDefinition, controllerStates map[string]func() state_machine.State) *Character {
+func CharacterCreate(def CharacterDefinition, controllerStates map[string]func() state_machine.State) *Character {
 
-	return &Character{
+	ch := &Character{
 		Id:           def.Id,
 		Facing:       def.FacingDirection,
 		Entity:       CreateEntity(def.EntityDef),
 		Controller:   state_machine.Create(controllerStates),
 		DefaultState: def.DefaultState,
-		Anims:        def.Animations,
 	}
+
+	ch.Anims = make(map[string][]int)
+	for k, v := range def.Animations {
+		ch.Anims[k] = v
+	}
+
+	return ch
 }
 
 func (ch Character) GetFacedTileCoords() (x, y float64) {

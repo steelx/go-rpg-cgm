@@ -21,11 +21,15 @@ func CSHurtCreate(args ...interface{}) state_machine.State {
 	cs := csV.Interface().(*CombatState)
 
 	return &CSHurt{
-		Name:        CS_Hurt,
+		Name:        csHurt,
 		Character:   char,
 		CombatState: cs,
 		Entity:      char.Entity,
 	}
+}
+
+func (s CSHurt) IsFinished() bool {
+	return true
 }
 
 func (s *CSHurt) Enter(data ...interface{}) {

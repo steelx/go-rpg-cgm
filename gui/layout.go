@@ -1,6 +1,7 @@
 package gui
 
 import (
+	"fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"log"
@@ -27,7 +28,14 @@ func LayoutCreate(x, y float64, win *pixelgl.Window) Layout {
 	}
 	//first panel - full screen
 	l.centerPos = pixel.V(x, y)
-	fullScreenPanel := PanelDef{l.centerPos, win.Bounds().W() - 50, win.Bounds().H() - 50}
+	var width, height float64
+	if win.Monitor() != nil {
+		width, height = win.Monitor().Size()
+	} else {
+		width, height = win.Bounds().W(), win.Bounds().H()
+	}
+	fmt.Println(width, height)
+	fullScreenPanel := PanelDef{l.centerPos, width - 50, height - 50}
 	l.Panels["screen"] = fullScreenPanel
 
 	return l

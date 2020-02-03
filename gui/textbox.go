@@ -21,17 +21,17 @@ tBox := TextboxCreateFixed(
 	)
 */
 var (
-	continueCaretPng pixel.Picture
-	cursorPng        pixel.Picture
+	ContinueCaretPng pixel.Picture
+	CursorPng        pixel.Picture
 	BasicAtlas12     *text.Atlas
 	BasicAtlasAscii  = text.NewAtlas(basicfont.Face7x13, text.ASCII)
 )
 
 func init() {
 	var err error
-	continueCaretPng, err = utilz.LoadPicture("../resources/continue_caret.png")
+	ContinueCaretPng, err = utilz.LoadPicture("../resources/continue_caret.png")
 	utilz.PanicIfErr(err)
-	cursorPng, err = utilz.LoadPicture("../resources/cursor.png")
+	CursorPng, err = utilz.LoadPicture("../resources/cursor.png")
 	utilz.PanicIfErr(err)
 
 	fontFace12, err := utilz.LoadTTF("../resources/font/joystix.ttf", 12)
@@ -47,7 +47,7 @@ type Textbox struct {
 	textBounds                  pixel.Rect
 	textBase                    *text.Text
 	textAtlas                   *text.Atlas
-	mPanel                      Panel
+	Panel                       Panel
 	continueMark                pixel.Picture
 	Width, Height               float64
 	textBlocks                  []string
@@ -58,7 +58,7 @@ type Textbox struct {
 	AppearTween                 animation.Tween
 	time                        float64
 	isFixed, isDead, hasMenu    bool
-	menu                        SelectionMenu
+	menu                        *SelectionMenu
 }
 
 func TextboxNew(stack *StateStack, txt string, size float64, atlas *text.Atlas, avatarName string, avatarImg pixel.Picture) Textbox {
@@ -67,7 +67,7 @@ func TextboxNew(stack *StateStack, txt string, size float64, atlas *text.Atlas, 
 		text:         txt,
 		textScale:    1,
 		size:         size,
-		continueMark: continueCaretPng,
+		continueMark: ContinueCaretPng,
 		avatarName:   avatarName,
 		avatarImg:    avatarImg,
 		textAtlas:    atlas,
@@ -89,12 +89,13 @@ func TextboxWithMenuCreate(stack *StateStack, textBoxText string, panelPos pixel
 
 	textBounds := textbox.getTextBound()
 
-	textbox.menu = SelectionMenuCreate(24, 128, 0,
+	menu := SelectionMenuCreate(24, 128, 0,
 		choices, showColumns,
 		pixel.V(textbox.Position.X-10, textbox.Position.Y-textBounds.H()-10), func(i int, s interface{}) {
 			onSelection(i, s)
 			textbox.isDead = true
 		}, nil)
+	textbox.menu = &menu
 
 	return &textbox
 }
@@ -120,8 +121,34 @@ func TextboxFITMenuCreate(stack *StateStack, x, y float64, textBoxText string, c
 
 	panel := PanelCreate(panelPos, menu.GetWidth(), menu.GetHeight())
 
+	t.menu = &menu
+	t.Panel = panel
+	t.textBounds = panel.mBounds
+
+	t.makeTextColumns()
+	t.buildTextBlocks()
+
+	return &t
+}
+
+func TextboxFITPassedMenuCreate(stack *StateStack, x, y float64, textBoxText string, menu *SelectionMenu) *Textbox {
+	panelPos := pixel.V(x, y)
+	t := TextboxNew(stack, textBoxText, 14, BasicAtlas12, "", nil)
+	t.AppearTween = animation.TweenCreate(1, 1, 1)
+	t.isFixed = false
+
+	t.hasMenu = true
+	if t.hasMenu {
+		t.topPadding = 10
+	}
+
+	textBounds := t.getTextBound()
+
+	menu.SetPosition(panelPos.X-(menu.GetWidth()/2), panelPos.Y-(textBounds.H()/2)+35-t.topPadding)
+	panel := PanelCreate(panelPos, menu.GetWidth(), menu.GetHeight()+30)
+
 	t.menu = menu
-	t.mPanel = panel
+	t.Panel = panel
 	t.textBounds = panel.mBounds
 
 	t.makeTextColumns()
@@ -135,7 +162,7 @@ func TextboxCreateFixed(stack *StateStack, txt string, panelPos pixel.Vec, panel
 	t := TextboxNew(stack, txt, 14, BasicAtlas12, avatarName, avatarImg)
 	t.AppearTween = animation.TweenCreate(1, 0, 1)
 	t.isFixed = true
-	t.mPanel = panel
+	t.Panel = panel
 	t.textBounds = panel.mBounds
 	t.hasMenu = hasMenu
 	if hasMenu {
@@ -167,7 +194,7 @@ func TextboxCreateFitted(stack *StateStack, txt string, panelPos pixel.Vec, hasM
 	topLeft, _, _, _ := panel.GetCorners()
 	textPos := pixel.V(topLeft.X+padding, topLeft.Y-padding)
 	tBox.textBase = text.New(textPos, tBox.textAtlas) //reset text position to bounds
-	tBox.mPanel = panel
+	tBox.Panel = panel
 
 	tBox.makeTextColumns()
 
@@ -179,9 +206,9 @@ func (t *Textbox) makeTextColumns() {
 	if len(t.avatarName) != 0 {
 		makeColumns = true
 	}
-	var textColumnWidth = t.mPanel.mBounds.W() - (t.size * 2)
-	var textColumnHeight = t.mPanel.mBounds.H() - (t.size * 2)
-	var topLeft, _, _, _ = t.mPanel.GetCorners()
+	var textColumnWidth = t.Panel.mBounds.W() - (t.size * 2)
+	var textColumnHeight = t.Panel.mBounds.H() - (t.size * 2)
+	var topLeft, _, _, _ = t.Panel.GetCorners()
 	var textPos = pixel.V(topLeft.X+t.size, topLeft.Y-t.size-t.topPadding)
 	if makeColumns {
 		textColumnWidth -= t.avatarImg.Bounds().W()
@@ -239,10 +266,10 @@ func (t Textbox) drawAvatar(renderer pixel.Target) {
 
 	avatarSprite := pixel.NewSprite(t.avatarImg, t.avatarImg.Bounds())
 	topLeft := pixel.V(
-		t.mPanel.mBounds.Min.X+(t.avatarImg.Bounds().W()/2)+t.size/2,
-		t.mPanel.mBounds.Max.Y-(t.avatarImg.Bounds().H()/2)-5)
+		t.Panel.mBounds.Min.X+(t.avatarImg.Bounds().W()/2)+t.size/2,
+		t.Panel.mBounds.Max.Y-(t.avatarImg.Bounds().H()/2)-5)
 
-	titlePos := pixel.V(t.mPanel.mBounds.Min.X+t.size, t.mPanel.mBounds.Min.Y+t.avatarImg.Bounds().H()-(t.size/2)-2)
+	titlePos := pixel.V(t.Panel.mBounds.Min.X+t.size, t.Panel.mBounds.Min.Y+t.avatarImg.Bounds().H()-(t.size/2)-2)
 
 	title := text.New(titlePos, BasicAtlasAscii)
 	fmt.Fprintln(title, t.avatarName)
@@ -253,7 +280,7 @@ func (t Textbox) drawAvatar(renderer pixel.Target) {
 func (t Textbox) drawContinueArrow(renderer pixel.Target) {
 	if t.textBlockLimitIndex+t.textRowLimit < len(t.textBlocks) {
 		mat := pixel.IM
-		bottomRight := pixel.V(t.mPanel.mBounds.Max.X-t.size, t.mPanel.mBounds.Min.Y+t.size)
+		bottomRight := pixel.V(t.Panel.mBounds.Max.X-t.size, t.Panel.mBounds.Min.Y+t.size)
 		sprite := pixel.NewSprite(t.continueMark, t.continueMark.Bounds())
 		sprite.Draw(renderer, mat.Moved(bottomRight))
 
@@ -274,7 +301,7 @@ func (t *Textbox) Next() {
 func (t *Textbox) renderFitted(renderer pixel.Target) {
 	scale := t.AppearTween.Value()
 	t.textBase.Clear()
-	t.mPanel.Draw(renderer)
+	t.Panel.Draw(renderer)
 	fmt.Fprintln(t.textBase, t.text)
 	t.textBase.Draw(renderer, pixel.IM.Scaled(t.Position, scale))
 }
@@ -301,7 +328,7 @@ func (t *Textbox) renderFixed(renderer pixel.Target) {
 		utilz.PanicIfErr(err)
 	}
 
-	t.mPanel.Draw(renderer)
+	t.Panel.Draw(renderer)
 	t.textBase.Draw(renderer, pixel.IM)
 
 	t.drawAvatar(renderer)

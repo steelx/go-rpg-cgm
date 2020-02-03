@@ -45,6 +45,10 @@ func MoveStateCreate(args ...interface{}) state_machine.State {
 //The StateMachine class requires each state to have
 // four functions: Enter, Exit, Render and Update
 
+func (s MoveState) IsFinished() bool {
+	return true
+}
+
 func (s *MoveState) Enter(data ...interface{}) {
 	var frames []int
 	v := reflect.ValueOf(data[0])

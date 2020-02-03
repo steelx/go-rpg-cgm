@@ -9,6 +9,7 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/sound"
+	"github.com/steelx/go-rpg-cgm/state_machine"
 	"image/color"
 	"os"
 	"reflect"
@@ -351,5 +352,23 @@ func PlayBGSound(pathToSound string) func() {
 func StopBGSound() func() {
 	return func() {
 		queueBG.Pop()
+	}
+}
+
+func RunState(stateMachine *state_machine.StateMachine, stateId string, params ...interface{}) func(storyboard *Storyboard) *BlockUntilEvent {
+
+	return func(storyboard *Storyboard) *BlockUntilEvent {
+		stateMachine.Change(stateId, params...)
+		return BlockUntilEventCreate(func() bool {
+			return stateMachine.Current.IsFinished()
+		})
+	}
+}
+
+func RunFunction(fn func()) func(storyboard *Storyboard) *WaitEvent {
+
+	return func(storyboard *Storyboard) *WaitEvent {
+		fn()
+		return Wait(0)
 	}
 }
