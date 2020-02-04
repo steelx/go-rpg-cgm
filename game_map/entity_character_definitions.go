@@ -8,6 +8,7 @@ const (
 	combatMagePng  = "../resources/combat_mage.png"
 	combatThiefPng = "../resources/combat_thief.png"
 	goblinPng      = "../resources/goblin.png"
+	combatSlashPng = "../resources/combat_slash.png"
 )
 
 //Entities
@@ -90,6 +91,12 @@ var Entities = map[string]EntityDefinition{
 		StartFrame: 0,
 		TileX:      20,
 		TileY:      20,
+	},
+	"slash": {
+		Texture: combatSlashPng,
+		Width:   64, Height: 64,
+		StartFrame: 2,
+		Frames:     []int{2, 1, 0},
 	},
 }
 

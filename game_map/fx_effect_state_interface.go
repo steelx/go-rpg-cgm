@@ -14,5 +14,5 @@ type EffectState interface {
 	IsFinished() bool
 	Update(dt float64)
 	Render(renderer pixel.Target)
-	Priority() int
+	Priority() int //0 is highest
 }
