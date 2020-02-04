@@ -71,7 +71,7 @@ var ThiefDef = ActorDef{
 		HpMax:    200,
 		MpNow:    150,
 		MpMax:    150,
-		Strength: 10, Speed: 15, Intelligence: 10,
+		Strength: 10, Speed: 11, Intelligence: 10,
 		Attack: 8,
 	},
 	StatGrowth: map[string]func() int{

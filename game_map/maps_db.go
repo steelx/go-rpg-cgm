@@ -1,9 +1,9 @@
 package game_map
 
 import (
+	log "github.com/sirupsen/logrus"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/tilepix"
-	"log"
 )
 
 var MapsDB map[string]func(gStack *gui.StateStack) MapInfo
@@ -71,6 +71,6 @@ func smallRoomMap(gStack *gui.StateStack) MapInfo {
 
 func logFatalErr(err error) {
 	if err != nil {
-		log.Fatal(err)
+		log.WithError(err).Fatal("logFatalErr")
 	}
 }

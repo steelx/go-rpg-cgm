@@ -5,6 +5,7 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
+	"github.com/sirupsen/logrus"
 	"github.com/steelx/go-rpg-cgm/animation"
 	"github.com/steelx/go-rpg-cgm/combat"
 	"github.com/steelx/go-rpg-cgm/gui"
@@ -62,7 +63,7 @@ func (s *StatusMenuState) Enter(data ...interface{}) {
 		false,
 		pixel.V(0, 0),
 		func(i int, equipId interface{}) {
-			fmt.Println(i, equipId)
+			logrus.Info(i, equipId)
 		},
 		s.ActorSummary.Actor.RenderEquipment,
 	)
@@ -74,7 +75,7 @@ func (s *StatusMenuState) Enter(data ...interface{}) {
 		false,
 		pixel.V(0, 0),
 		func(i int, equipId interface{}) {
-			fmt.Println(i, equipId)
+			logrus.Info(i, equipId)
 		},
 		nil,
 	)

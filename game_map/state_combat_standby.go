@@ -13,6 +13,7 @@ type CSStandBy struct {
 	CombatState *CombatState
 	Entity      *Entity
 	Anim        animation.Animation
+	AnimId      string
 }
 
 //char *Character, cs *CombatState
@@ -36,8 +37,8 @@ func (s CSStandBy) IsFinished() bool {
 }
 
 func (s *CSStandBy) Enter(data ...interface{}) {
-	animID := reflect.ValueOf(data[0])
-	frames := s.Character.GetCombatAnim(animID.Interface().(string))
+	s.AnimId = reflect.ValueOf(data[0]).Interface().(string)
+	frames := s.Character.GetCombatAnim(s.AnimId)
 	s.Anim.SetFrames(frames)
 }
 

@@ -59,6 +59,17 @@ func (c *CombatState) OnDead(actor *combat.Actor) {
 func (c CombatState) removeAtIndex(arr []*combat.Actor, i int) []*combat.Actor {
 	return append(arr[:i], arr[i+1:]...)
 }
+func (c CombatState) removeCharAtIndex(arr []*Character, i int) []*Character {
+	return append(arr[:i], arr[i+1:]...)
+}
+func (c CombatState) removeFxAtIndex(arr []EffectState, i int) []EffectState {
+	return append(arr[:i], arr[i+1:]...)
+}
+func (c *CombatState) insertFxAtIndex(index int, fxI EffectState) {
+	temp := append([]EffectState{}, c.EffectList[index:]...)
+	c.EffectList = append(c.EffectList[0:index], fxI)
+	c.EffectList = append(c.EffectList, temp...)
+}
 
 //IsPartyDefeated check's at least 1 Actor is standing return false
 func (c CombatState) IsPartyDefeated() bool {

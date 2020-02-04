@@ -6,24 +6,28 @@ import (
 	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
+	"github.com/sirupsen/logrus"
 	"github.com/steelx/go-rpg-cgm/combat"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/state_machine"
 	"github.com/steelx/go-rpg-cgm/utilz"
 	"image/color"
+	"math"
 	"reflect"
 )
 
 //CS -> CombatState
 const (
 	csNpcStand = "cs_npc_stand"
-	csStandby  = "cs_standby"  // The character is waiting to be told what action to do by the player or AI
-	csProne    = "cs_prone"    // The character is waiting and ready to perform a given combat action
-	csAttack   = "cs_attack"   // The character will run an attack animation and attack an enemy
-	csCast     = "cs_cast"     // The character will run a cast-spell animation and a special effect will play
-	csUse      = "cs_use"      // The character uses some item with a use-item animation
-	csHurt     = "cd_hurt"     // The character takes some damage. Animation and numbers
-	csDie      = "cs_die"      // The character dies and the sprite is changed to the death sprite
+	csEnemyDie = "cs_enemy_die"
+	csStandby  = "cs_standby" // The character is waiting to be told what action to do by the player or AI
+	csProne    = "cs_prone"   // The character is waiting and ready to perform a given combat action
+	csAttack   = "cs_attack"  // The character will run an attack animation and attack an enemy
+	csCast     = "cs_cast"    // The character will run a cast-spell animation and a special effect will play
+	csUse      = "cs_use"     // The character uses some item with a use-item animation
+	csHurt     = "cd_hurt"    // The character takes some damage. Animation and numbers
+	csDie      = "cs_die"     // The character dies and the sprite is changed to the death sprite
+	csDeath    = "cs_death"
 	csMove     = "cs_move"     // The character moves toward or away from the enemy, in order to perform an action
 	csVictory  = "cs_victory"  // The character dances around and combat ends
 	csRunanim  = "cs_run_anim" // plays common animations states
@@ -39,8 +43,10 @@ type CombatState struct {
 	Layout        map[string][][]pixel.Vec
 	Actors        map[string][]*combat.Actor
 	Characters    map[string][]*Character
+	DeathList     []*Character
 	ActorCharMap  map[*combat.Actor]*Character
 	SelectedActor *combat.Actor
+	EffectList    []EffectState
 
 	Panels []gui.Panel
 	TipPanel,
@@ -141,8 +147,8 @@ func CombatStateCreate(state *gui.StateStack, win *pixelgl.Window, def CombatDef
 			0, 0,
 			v.Stats.Get("HpNow"),
 			v.Stats.Get("HpMax"),
-			"#FF001E",
-			"#15FF00",
+			"#dc3545", //red
+			"#15FF00", //green
 			3, 100,
 			c.imd,
 		)
@@ -150,8 +156,8 @@ func CombatStateCreate(state *gui.StateStack, win *pixelgl.Window, def CombatDef
 			0, 0,
 			v.Stats.Get("MpNow"),
 			v.Stats.Get("MpMax"),
-			"#A48B2C",
-			"#00E7DA",
+			"#2a3151",
+			"#00f1ff",
 			3, 100,
 			c.imd,
 		)
@@ -192,6 +198,23 @@ func (c *CombatState) Update(dt float64) bool {
 		v.Controller.Update(dt)
 	}
 
+	for i := len(c.DeathList) - 1; i >= 0; i-- {
+		char := c.DeathList[i]
+		char.Controller.Update(dt)
+		state := char.Controller.Current
+		if state.IsFinished() {
+			c.DeathList = c.removeCharAtIndex(c.DeathList, i)
+		}
+	}
+
+	for i := len(c.EffectList) - 1; i >= 0; i-- {
+		fx := c.EffectList[i]
+		if fx.IsFinished() {
+			c.EffectList = c.removeFxAtIndex(c.EffectList, i)
+		}
+		fx.Update(dt)
+	}
+
 	if len(c.InternalStack.States) != 0 && c.InternalStack.Top() != nil {
 		c.InternalStack.Update(dt)
 		return true
@@ -203,10 +226,10 @@ func (c *CombatState) Update(dt float64) bool {
 
 	if c.PartyWins() {
 		c.EventQueue.Clear()
-		//deal with win
+		logrus.Info("YOU WON") //temp
 	} else if c.EnemyWins() {
 		c.EventQueue.Clear()
-		//deal with lost
+		logrus.Info("YOU LOST!") //temp
 	}
 
 	return true
@@ -222,6 +245,14 @@ func (c CombatState) Render(renderer *pixelgl.Window) {
 	for _, v := range c.Characters[enemies] {
 		pos := pixel.V(v.Entity.X, v.Entity.Y)
 		v.Entity.Render(nil, renderer, pos)
+	}
+	for _, v := range c.DeathList {
+		pos := pixel.V(v.Entity.X, v.Entity.Y)
+		v.Entity.Render(nil, renderer, pos)
+	}
+
+	for _, v := range c.EffectList {
+		v.Render(renderer)
 	}
 
 	for _, v := range c.Panels {
@@ -284,6 +315,9 @@ func (c *CombatState) CreateCombatCharacters(key string) {
 				csMove: func() state_machine.State {
 					return CSMoveCreate(char, c)
 				},
+				csEnemyDie: func() state_machine.State {
+					return CSEnemyDieCreate(char, c)
+				},
 			},
 		)
 
@@ -309,7 +343,7 @@ func (c *CombatState) CreateCombatCharacters(key string) {
 }
 
 func (c *CombatState) OnPartyMemberSelect(index int, str interface{}) {
-	fmt.Println(index, str)
+	logrus.Info(index, str)
 }
 
 func (c *CombatState) RenderPartyNames(args ...interface{}) {
@@ -325,9 +359,9 @@ func (c *CombatState) RenderPartyNames(args ...interface{}) {
 
 	var txtColor color.RGBA
 	if c.SelectedActor == actor {
-		txtColor = utilz.HexToColor("#00cc00") //green
+		txtColor = utilz.HexToColor("#ffdc00") //yellow
 	} else {
-		txtColor = utilz.HexToColor("#addbd8") //light blue
+		txtColor = utilz.HexToColor("#FFFFFF") //white
 	}
 
 	textBase := text.New(pixel.V(x, y), gui.BasicAtlasAscii)
@@ -370,12 +404,12 @@ func (c *CombatState) RenderPartyStats(args ...interface{}) {
 
 func (c *CombatState) DrawHP(renderer pixel.Target, x, y float64, actor *combat.Actor) {
 	hp, max := actor.Stats.Get("HpNow"), actor.Stats.Get("HpMax")
-	percent := hp / max
+	percentHealth := hp / max
 
 	txtColor := utilz.HexToColor("#ffffff")
-	if percent < 0.2 {
-		txtColor = utilz.HexToColor("#00cc00") //green
-	} else if percent < 0.45 {
+	if percentHealth < 0.25 {
+		txtColor = utilz.HexToColor("#ff2727") //red
+	} else if percentHealth < 0.50 {
 		txtColor = utilz.HexToColor("#ffffa2") //light yellow
 	}
 
@@ -391,4 +425,115 @@ func (c *CombatState) DrawMP(renderer pixel.Target, x, y float64, actor *combat.
 	textBase := text.New(pixel.V(x, y), gui.BasicAtlasAscii)
 	fmt.Fprintln(textBase, mpNowStr)
 	textBase.Draw(renderer, pixel.IM)
+}
+
+func (c *CombatState) HandleDeath() {
+	c.HandlePartyDeath()
+	c.HandleEnemyDeath()
+}
+
+func (c *CombatState) HandlePartyDeath() {
+	for _, actor := range c.Actors[party] {
+		character := c.ActorCharMap[actor]
+		state := character.Controller.Current
+		stats := actor.Stats
+
+		// is the character already dead?
+		var animId string
+		switch s := state.(type) {
+		case *CSStandBy:
+			animId = s.AnimId
+		case *CSRunAnim:
+			animId = s.AnimId
+		case *CSHurt:
+			animId = s.AnimId
+		case *CSMove:
+			animId = s.AnimId
+		default:
+			panic(fmt.Sprintf("animId not found with %v", s))
+		}
+
+		if animId != csDeath {
+			//still alive
+
+			//but Is the HP above 0?
+			hpNow := stats.Get("HpNow")
+			if hpNow <= 0 {
+				//Dead party actor we need to run anim,
+				//reason we dont move Party member to DeathList is
+				//party player can be revived
+				character.Controller.Change(csRunanim, csDeath, false)
+				c.EventQueue.RemoveEventsOwnedBy(actor)
+			}
+		}
+	}
+}
+
+func (c *CombatState) HandleEnemyDeath() {
+	for i := len(c.Actors[enemies]) - 1; i >= 0; i-- {
+		enemy := c.Actors[enemies][i]
+		character := c.ActorCharMap[enemy]
+		stats := enemy.Stats
+
+		hpNow := stats.Get("HpNow")
+		if hpNow <= 0 {
+			//Remove all references
+			c.Actors[enemies] = c.removeAtIndex(c.Actors[enemies], i)
+			c.Characters[enemies] = c.removeCharAtIndex(c.Characters[enemies], i)
+			delete(c.ActorCharMap, enemy)
+
+			character.Controller.Change(csEnemyDie)
+			c.EventQueue.RemoveEventsOwnedBy(enemy)
+
+			//Add to effects
+			c.DeathList = append(c.DeathList, character)
+		}
+	}
+}
+
+func (c *CombatState) AddEffect(fx EffectState) {
+	for i := 0; i < len(c.EffectList); i++ {
+		priority := c.EffectList[i].Priority()
+		if fx.Priority() > priority {
+			c.insertFxAtIndex(i, fx)
+			return
+		}
+	}
+	//else
+	c.EffectList = append(c.EffectList, fx)
+}
+
+func (c *CombatState) ApplyDamage(target *combat.Actor, damage float64) {
+	stats := target.Stats
+	hp := stats.Get("HpNow") - damage
+	stats.Set("HpNow", math.Max(0, hp))
+	hpAfterDamage := stats.Get("HpNow")
+	logrus.Info(target.Name, " HP now ", hpAfterDamage)
+
+	// Change actor's character to hurt state
+	character := c.ActorCharMap[target]
+
+	if damage > 0 {
+		state := character.Controller.Current
+		//check if its NOT csHurt then change it to csHurt
+		switch state.(type) {
+		case *CSHurt:
+			//logrus.Info("already in Hurt state, do nothing")
+		default:
+			character.Controller.Change(csHurt, state)
+		}
+	}
+
+	x, y, offX := character.Entity.X, character.Entity.Y, 100.0
+	if target.IsPlayer() {
+		offX = -100.0
+	} else {
+		//only for enemy
+		hpEffect := JumpingNumbersFXCreate(x+50, y, hpAfterDamage, "#34df6b", 2, 1.0) //green
+		c.AddEffect(hpEffect)
+	}
+
+	dmgEffect := JumpingNumbersFXCreate(x+offX, y, damage, "#ff2727") //red
+	c.AddEffect(dmgEffect)
+	c.HandleDeath()
 }

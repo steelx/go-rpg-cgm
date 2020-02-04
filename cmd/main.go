@@ -56,6 +56,7 @@ func setup(win *pixelgl.Window) {
 
 	gWorld = combat.WorldExtendedCreate()
 	gWorld.Party.Add(combat.ActorCreate(combat.HeroDef))
+	gWorld.Party.Add(combat.ActorCreate(combat.MageDef))
 	gWorld.Party.Add(combat.ActorCreate(combat.ThiefDef))
 
 	stack.Globals["world"] = gWorld

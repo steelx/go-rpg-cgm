@@ -12,6 +12,7 @@ type EntityDefinition struct {
 	Texture       string
 	Width, Height float64
 	StartFrame    int
+	Frames        []int //used for quick FX
 	TileX, TileY  float64
 }
 

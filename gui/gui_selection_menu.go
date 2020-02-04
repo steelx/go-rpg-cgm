@@ -203,7 +203,6 @@ func (m SelectionMenu) Render(renderer *pixelgl.Window) {
 
 			default:
 				m.RenderFunction(renderer, x, y, d)
-				//fmt.Println("SelectionMenu:Render :: type unknown")
 			}
 			y = y - rowHeight
 		}

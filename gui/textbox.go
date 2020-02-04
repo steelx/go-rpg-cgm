@@ -110,7 +110,7 @@ func TextboxFITMenuCreate(stack *StateStack, x, y float64, textBoxText string, c
 	if t.hasMenu {
 		t.topPadding = 10
 	}
-	fmt.Println("choices", choices)
+
 	textBounds := t.getTextBound()
 	menu := SelectionMenuCreate(24, 128, 0,
 		choices, true,

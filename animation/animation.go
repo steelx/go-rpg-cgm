@@ -51,9 +51,9 @@ func (a Animation) GetFirstFrame() int {
 }
 
 func (a Animation) IsLastFrame() bool {
-	return a.Index >= len(a.Frames)
+	return a.Index >= len(a.Frames)-1
 }
 
 func (a Animation) IsFinished() bool {
-	return a.loop == false || a.IsLastFrame()
+	return a.loop == false && a.IsLastFrame()
 }

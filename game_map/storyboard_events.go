@@ -1,12 +1,12 @@
 package game_map
 
 import (
-	"fmt"
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/mp3"
 	"github.com/faiface/beep/speaker"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
+	"github.com/sirupsen/logrus"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/sound"
 	"github.com/steelx/go-rpg-cgm/state_machine"
@@ -293,7 +293,7 @@ func PlaySound(pathToSound string, duration float64) func(storyboard *Storyboard
 	logFatalErr(err)
 
 	return func(storyboard *Storyboard) *NonBlockingTimer {
-		fmt.Println("Playing sound: ", pathToSound)
+		logrus.Info("Playing sound: ", pathToSound)
 
 		// The speaker's sample rate is fixed at 44100. Therefore, we need to
 		// resample the file in case it's in a different sample rate.
@@ -309,7 +309,7 @@ func PlaySound(pathToSound string, duration float64) func(storyboard *Storyboard
 			func(e *NonBlockingTimer) {
 				if e.TimeUp() {
 					queue.Pop()
-					fmt.Println("Removing sound: ", pathToSound)
+					logrus.Info("Removing sound: ", pathToSound)
 				}
 			},
 		)
@@ -332,7 +332,7 @@ func PlayBGSound(pathToSound string) func() {
 	//f.Close()
 
 	return func() {
-		fmt.Println("Playing BG sound: ", pathToSound)
+		logrus.Info("Playing BG sound: ", pathToSound)
 		//bufferedSound := buffer.Streamer(0, buffer.Len())
 
 		// The speaker's sample rate is fixed at 44100. Therefore, we need to

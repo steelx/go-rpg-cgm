@@ -5,6 +5,7 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/combat"
 	"github.com/steelx/go-rpg-cgm/gui"
+	"github.com/steelx/go-rpg-cgm/utilz"
 )
 
 type TargetType int
@@ -16,12 +17,23 @@ const (
 )
 
 type CombatSelectorFunc struct {
+	RandomAlivePlayer,
 	WeakestEnemy,
 	SideEnemy,
 	SelectAll func(state *CombatState) []*combat.Actor
 }
 
 var CombatSelector = CombatSelectorFunc{
+	RandomAlivePlayer: func(state *CombatState) []*combat.Actor {
+		aliveList := make([]*combat.Actor, 0)
+		for _, v := range state.Actors[party] {
+			if v.Stats.Get("HpNow") > 0 {
+				aliveList = append(aliveList, v)
+			}
+		}
+		randIndex := utilz.RandInt(0, len(aliveList)-1)
+		return []*combat.Actor{aliveList[randIndex]}
+	},
 	WeakestEnemy: func(state *CombatState) []*combat.Actor {
 		enemyList := state.Actors[enemies]
 		health := 99999.9

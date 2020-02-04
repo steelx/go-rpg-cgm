@@ -36,9 +36,8 @@ func MoveStateCreate(args ...interface{}) state_machine.State {
 	s.Controller = character.Controller
 	s.MoveX = 0
 	s.MoveY = 0
-	s.Tween = animation.TweenCreate(0, 0, 1)
-	s.MoveSpeed = 0.42
-	s.Anim = animation.Create([]int{s.Entity.StartFrame}, true, 0.11)
+	s.MoveSpeed = 0.38
+	s.Anim = animation.Create([]int{s.Entity.StartFrame}, true, 0.12)
 	return s
 }
 
@@ -103,7 +102,7 @@ func (s *MoveState) Render(win *pixelgl.Window) {
 
 func (s *MoveState) Update(dt float64) {
 	s.Anim.Update(dt)
-	s.Entity.SetFrame(s.Anim.Frame())
+	s.Entity.SetFrame(s.Anim.Frame() + 1)
 
 	s.Tween.Update(dt)
 	value := s.Tween.Value()
@@ -111,6 +110,7 @@ func (s *MoveState) Update(dt float64) {
 	s.Entity.TileY = s.PixelY + value*s.MoveY
 
 	if s.Tween.IsFinished() {
+		s.Entity.StartFrame = s.Anim.GetFirstFrame()
 		s.Controller.Change(s.Character.DefaultState, Direction{0, 0})
 	}
 }
