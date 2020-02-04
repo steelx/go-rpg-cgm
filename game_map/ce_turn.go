@@ -47,23 +47,21 @@ func (c CETurn) IsFinished() bool {
 }
 
 func (c *CETurn) Execute(queue *EventQueue) {
-	//target := c.Scene.GetTarget(c.owner)
-	//msg := fmt.Sprintf("%s decides to attack %s", c.owner.Name, target.Name)
-	//fmt.Println(msg)
-	//
-	//event := CEAttackCreate(c.Scene, c.owner, target)
-	//tp := event.TimePoints(*queue)
-	//queue.Add(event, tp)
 
+	// 1. Player
 	if c.Scene.IsPartyMember(c.owner) {
 		state := CombatChoiceStateCreate(c.Scene, c.owner)
 		c.Scene.InternalStack.Push(state)
-		c.finished = true
-		return
+	} else {
+		// 2. an Enemy
+		// do a dumb attack
+		targets := CombatSelector.RandomAlivePlayer(c.Scene)
+		queue := c.Scene.EventQueue
+		event := CEAttackCreate(c.Scene, c.owner, targets)
+		tp := event.TimePoints(*queue)
+		queue.Add(event, tp)
 	}
 
-	// 2. Am I an enemy
-	// Skip turn, PENDING
 	c.finished = true
 
 }

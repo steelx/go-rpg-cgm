@@ -20,12 +20,20 @@ type JumpingNumbersFX struct {
 	priority int
 }
 
-func JumpingNumbersFXCreate(x, y, number float64, hexColorI ...interface{}) *JumpingNumbersFX {
+func JumpingNumbersFXCreate(x, y, number float64, params ...interface{}) *JumpingNumbersFX {
 	//hexColorI must be HEX string
 	color_ := utilz.HexToColor("#FFFFFF")
-	if len(hexColorI) > 0 {
-		hexColor := reflect.ValueOf(hexColorI).Interface().(string)
+	priority := 0
+	scale := 1.5
+	if len(params) > 0 {
+		hexColor := reflect.ValueOf(params[0]).Interface().(string)
 		color_ = utilz.HexToColor(hexColor)
+	}
+	if len(params) >= 2 {
+		priority = reflect.ValueOf(params[1]).Interface().(int)
+	}
+	if len(params) >= 3 {
+		scale = reflect.ValueOf(params[2]).Interface().(float64)
 	}
 
 	return &JumpingNumbersFX{
@@ -35,10 +43,10 @@ func JumpingNumbersFXCreate(x, y, number float64, hexColorI ...interface{}) *Jum
 		VelocityY:    230,
 		Gravity:      400,
 		FadeDistance: 33,
-		Scale:        1.5,
+		Scale:        scale,
 		Number:       number,
 		Color:        color_,
-		priority:     0,
+		priority:     priority,
 	}
 }
 

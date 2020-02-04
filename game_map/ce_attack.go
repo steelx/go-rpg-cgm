@@ -2,20 +2,20 @@ package game_map
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"github.com/steelx/go-rpg-cgm/combat"
-	"math"
 )
 
 type CEAttack struct {
-	name       string
-	countDown  float64
-	owner      *combat.Actor
-	Targets    []*combat.Actor
-	Scene      *CombatState
-	Finished   bool
-	Character  *Character
-	Storyboard *Storyboard
+	name            string
+	countDown       float64
+	owner           *combat.Actor
+	Targets         []*combat.Actor
+	Scene           *CombatState
+	Finished        bool
+	Character       *Character
+	Storyboard      *Storyboard
+	AttackEntityDef EntityDefinition
+	DefaultTargeter func(state *CombatState) []*combat.Actor
 }
 
 func CEAttackCreate(scene *CombatState, owner *combat.Actor, targets []*combat.Actor) *CEAttack {
@@ -27,15 +27,31 @@ func CEAttackCreate(scene *CombatState, owner *combat.Actor, targets []*combat.A
 		name:      fmt.Sprintf("Attack for %s ->)", owner.Name),
 	}
 	c.Character.Controller.Change(csRunanim, csProne, true) //CombatState, CombatAnimationID
+	var storyboardEvents []interface{}
+	if owner.IsPlayer() {
+		c.DefaultTargeter = CombatSelector.WeakestEnemy
+		c.AttackEntityDef = Entities["slash"]
 
-	storyboardEvents := []interface{}{
-		//stateMachine, stateID, ...animID, additionalParams
-		RunState(c.Character.Controller, csMove, Direction{1, 0}),
-		RunState(c.Character.Controller, csRunanim, csAttack, false),
-		RunFunction(c.DoAttack),
-		RunState(c.Character.Controller, csMove, Direction{-1, 0}),
-		RunFunction(c.onFinished),
-		RunState(c.Character.Controller, csRunanim, csStandby, false),
+		storyboardEvents = []interface{}{
+			//stateMachine, stateID, ...animID, additionalParams
+			RunState(c.Character.Controller, csMove, CSMoveParams{Dir: 1}),
+			RunState(c.Character.Controller, csRunanim, csAttack, false),
+			RunFunction(c.DoAttack),
+			RunState(c.Character.Controller, csMove, CSMoveParams{Dir: -1}),
+			RunFunction(c.onFinished),
+			RunState(c.Character.Controller, csRunanim, csStandby, false),
+		}
+	} else {
+		c.DefaultTargeter = CombatSelector.RandomAlivePlayer
+		c.AttackEntityDef = Entities["claw"]
+
+		storyboardEvents = []interface{}{
+			RunState(c.Character.Controller, csMove, CSMoveParams{Dir: 1, Distance: 8, Time: 0.2}),
+			RunFunction(c.DoAttack),
+			RunState(c.Character.Controller, csMove, CSMoveParams{Dir: -1, Distance: 8, Time: 0.4}),
+			RunFunction(c.onFinished),
+			RunState(c.Character.Controller, csRunanim, csStandby, false),
+		}
 	}
 
 	c.Storyboard = StoryboardCreate(scene.InternalStack, scene.win, storyboardEvents, false)
@@ -79,7 +95,7 @@ func (c *CEAttack) Execute(queue *EventQueue) {
 
 	//find next Target!
 	if len(c.Targets) == 0 {
-		c.Targets = CombatSelector.WeakestEnemy(c.Scene)
+		c.Targets = c.DefaultTargeter(c.Scene)
 	}
 }
 
@@ -103,48 +119,12 @@ func (c *CEAttack) DoAttack() {
 }
 func (c *CEAttack) attackTarget(target *combat.Actor) {
 
-	stats := c.owner.Stats
-	enemyStats := target.Stats
-
-	// Simple attack get
-	attack := stats.Get("Attack")
-	attack = attack + stats.Get("Strength")
-	defense := enemyStats.Get("Defense")
-
-	damage := math.Max(0, attack-defense)
-	logrus.Info("Attacked for ", damage, attack, defense)
-
-	hp := enemyStats.Get("HpNow")
-	hp = hp - damage
-
-	enemyStats.Set("HpNow", math.Max(0, hp))
-	logrus.Info("HpNow :", enemyStats.Get("HpNow"))
-
-	// the enemy needs stats
-	// the player needs a weapon
-
-	//Change actor's Character to hurt state
-	character := c.Scene.ActorCharMap[target]
-	if damage > 0 {
-		state := character.Controller.Current
-
-		//check if its NOT csHurt then change it to csHurt
-		switch state.(type) {
-		case *CSHurt:
-			//logrus.Info("already in Hurt state, do nothing")
-		default:
-			character.Controller.Change(csHurt, state)
-		}
-	}
+	damage := Formula.MeleeAttack(c.Scene, c.owner, target)
+	entity := c.Scene.ActorCharMap[target].Entity
+	c.Scene.ApplyDamage(target, damage)
 
 	//FX
-	entity := character.Entity
-	x, y, offX := entity.X, entity.Y, 100.0
-	dmgEffect := JumpingNumbersFXCreate(x+offX, y, damage)
-	slashEffect := AnimEntityFxCreate(x, y, Entities["slash"], Entities["slash"].Frames)
-
-	c.Scene.AddEffect(dmgEffect)
-	c.Scene.AddEffect(slashEffect)
-
-	c.Scene.HandleDeath()
+	x, y := entity.X, entity.Y
+	effect := AnimEntityFxCreate(x, y, c.AttackEntityDef, c.AttackEntityDef.Frames)
+	c.Scene.AddEffect(effect)
 }

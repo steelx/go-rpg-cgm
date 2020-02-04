@@ -9,6 +9,10 @@ import (
 	"reflect"
 )
 
+type CSMoveParams struct {
+	Dir, Distance, Time float64
+}
+
 type CSMove struct {
 	Name                   string
 	Character              *Character
@@ -16,6 +20,7 @@ type CSMove struct {
 	Entity                 *Entity
 	Tween                  animation.Tween
 	Anim                   animation.Animation
+	AnimId                 string
 	MoveTime, MoveDistance float64
 	PixelX, PixelY         float64
 }
@@ -42,26 +47,28 @@ func (s CSMove) IsFinished() bool {
 	return s.Tween.IsFinished()
 }
 
-//Direction, float64, float64
+//data = CSMoveParams
 func (s *CSMove) Enter(data ...interface{}) {
 	if len(data) == 0 || !reflect.ValueOf(data[0]).CanInterface() {
-		panic(fmt.Sprintf("Please pass Direction while changing State"))
+		panic(fmt.Sprintf("Please pass CSMoveParams while changing State"))
 		return
 	}
-	backForth := reflect.ValueOf(data[0]).Interface().(Direction)
+	backForth := reflect.ValueOf(data[0]).Interface().(CSMoveParams)
 
 	if len(data) == 3 {
-		s.MoveTime = reflect.ValueOf(data[1]).Interface().(float64)
-		s.MoveDistance = reflect.ValueOf(data[2]).Interface().(float64)
+		s.MoveTime = backForth.Time
+		s.MoveDistance = backForth.Distance
 	}
 
+	s.AnimId = s.Name
 	frames := s.Character.GetCombatAnim(s.Name)
 	var dir float64 = -1
 	if s.Character.Facing == CharacterFacingDirection[1] {
-		frames = s.Character.GetCombatAnim(csRetreat)
+		s.AnimId = csRetreat
+		frames = s.Character.GetCombatAnim(s.AnimId)
 		dir = 1
 	}
-	dir = dir * backForth.X
+	dir = dir * backForth.Dir
 	s.Anim.SetFrames(frames)
 
 	// Store current position
