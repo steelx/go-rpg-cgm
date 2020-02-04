@@ -58,9 +58,10 @@ type CombatState struct {
 	StatsYCol,
 	marginLeft,
 	marginTop float64
-	Bars       map[string]BarStats //actor ID = BarStats
-	imd        *imdraw.IMDraw
-	EventQueue *EventQueue
+	Bars        map[string]BarStats //actor ID = BarStats
+	imd         *imdraw.IMDraw
+	EventQueue  *EventQueue
+	IsFinishing bool
 }
 
 type PanelTitle struct {
@@ -219,17 +220,20 @@ func (c *CombatState) Update(dt float64) bool {
 		c.InternalStack.Update(dt)
 		return true
 	}
+	if !c.IsFinishing {
+		c.EventQueue.Update()
+		c.AddTurns(c.Actors[party])
+		c.AddTurns(c.Actors[enemies])
 
-	c.EventQueue.Update()
-	c.AddTurns(c.Actors[party])
-	c.AddTurns(c.Actors[enemies])
-
-	if c.PartyWins() {
-		c.EventQueue.Clear()
-		logrus.Info("YOU WON") //temp
-	} else if c.EnemyWins() {
-		c.EventQueue.Clear()
-		logrus.Info("YOU LOST!") //temp
+		if c.PartyWins() {
+			c.EventQueue.Clear()
+			logrus.Info("YOU WON") //temp
+			c.OnWin()
+		} else if c.EnemyWins() {
+			c.EventQueue.Clear()
+			logrus.Info("YOU LOST!") //temp
+			c.OnLose()
+		}
 	}
 
 	return true
@@ -536,4 +540,22 @@ func (c *CombatState) ApplyDamage(target *combat.Actor, damage float64) {
 	dmgEffect := JumpingNumbersFXCreate(x+offX, y, damage, "#ff2727") //red
 	c.AddEffect(dmgEffect)
 	c.HandleDeath()
+}
+
+func (c *CombatState) OnWin() {
+	c.IsFinishing = true
+}
+
+func (c *CombatState) OnLose() {
+	c.IsFinishing = true
+	sbI := []interface{}{
+		BlackScreen("blackscreen"),
+		Wait(1),
+		KillState("blackscreen"),
+	}
+	storyboard := StoryboardCreate(c.GameState, c.GameState.Win, sbI, false)
+	c.GameState.Push(storyboard)
+	c.GameState.Pop()
+	gameOverState := GameOverStateCreate(c.GameState)
+	c.GameState.Push(gameOverState)
 }

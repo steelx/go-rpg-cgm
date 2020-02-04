@@ -75,6 +75,9 @@ func SubTitleCaptionScreen(id string, txt string, duration float64) func(storybo
 func Scene(mapName string, hideHero bool, win *pixelgl.Window) func(storyboard *Storyboard) *NonBlockEvent {
 
 	return func(storyboard *Storyboard) *NonBlockEvent {
+		if win == nil {
+			win = storyboard.Stack.Win
+		}
 		mapInfo := MapsDB[mapName](storyboard.Stack)
 		exploreState := ExploreStateCreate(storyboard.Stack, mapInfo, win)
 		if hideHero {
@@ -141,6 +144,9 @@ func Say(mapName, npcId, textMessage string, time float64) func(storyboard *Stor
 //ReplaceScene will remove mapName and add newMapName with a Hero at given Tile X, Y
 func ReplaceScene(mapName string, newMapName string, tileX, tileY float64, hideHero bool, win *pixelgl.Window) func(storyboard *Storyboard) *NonBlockEvent {
 	return func(storyboard *Storyboard) *NonBlockEvent {
+		if win == nil {
+			win = storyboard.Stack.Win
+		}
 		storyboard.RemoveState(mapName) //remove previous map (exploreState)
 
 		mapInfo := MapsDB[newMapName](storyboard.Stack)
