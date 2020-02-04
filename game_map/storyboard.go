@@ -1,8 +1,8 @@
 package game_map
 
 import (
-	"fmt"
 	"github.com/faiface/pixel/pixelgl"
+	"github.com/sirupsen/logrus"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"reflect"
 )
@@ -50,7 +50,7 @@ func (s *Storyboard) PushState(identifier string, state gui.StackInterface) {
 		//found already
 		return
 	}
-	fmt.Println("Adding InternalStack", identifier)
+	logrus.Info("Adding InternalStack", identifier)
 	s.States[identifier] = state
 	s.InternalStack.Push(state)
 }
@@ -60,7 +60,7 @@ func (s *Storyboard) RemoveState(identifier string) {
 	delete(s.States, identifier)
 	for i, v := range s.InternalStack.States {
 		if reflect.DeepEqual(v, stateV) {
-			fmt.Println("removing", identifier)
+			logrus.Info("Removing Storyboard: ", identifier)
 			s.removeSliceItem(i)
 			break
 		}
@@ -133,7 +133,7 @@ Loop:
 			s.Events[k] = x(s)
 
 		default:
-			fmt.Printf("Unsupported type: %T\n", x)
+			logrus.Warn("Unsupported type: %T ", x)
 		}
 
 		valV := reflect.ValueOf(s.Events[k])
@@ -165,8 +165,7 @@ Loop:
 }
 
 func (s Storyboard) Render(win *pixelgl.Window) {
-	//debugText := fmt.Sprintf("Storyboard Events # %v", len(s.Events))
-	//fmt.Println(debugText)
+	logrus.Debugf("Storyboard Events # %v \n", len(s.Events))
 
 	s.InternalStack.Render(win)
 }

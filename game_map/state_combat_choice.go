@@ -1,9 +1,9 @@
 package game_map
 
 import (
-	"fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
+	"github.com/sirupsen/logrus"
 	"github.com/steelx/go-rpg-cgm/combat"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/world"
@@ -94,7 +94,7 @@ func (c *CombatChoiceState) TakeAction(id string, targets []*combat.Actor) {
 	c.Stack.Pop() //action state
 
 	if id == "attack" {
-		fmt.Println("Entered attack state PENDING")
+		logrus.Info("Entered TakeAction 'attack'")
 		attack := CEAttackCreate(c.CombatState, c.Actor, targets)
 		tp := attack.TimePoints(*c.CombatState.EventQueue)
 		c.CombatState.EventQueue.Add(attack, tp)

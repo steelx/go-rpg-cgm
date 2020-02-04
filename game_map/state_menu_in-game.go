@@ -63,10 +63,6 @@ func InGameMenuStateCreate(stack *gui.StateStack, win *pixelgl.Window) *InGameMe
 
 func (igm *InGameMenuState) Update(dt float64) bool {
 	igm.StateMachine.Update(dt)
-	//fmt.Println("ingame_menu_state", reflect.DeepEqual(igm.Stack.Top(), igm)) // temp
-	//if reflect.DeepEqual(igm.Stack.Top(), igm) {
-	//	igm.StateMachine.Update(dt)
-	//}
 	return true
 }
 func (igm InGameMenuState) Render(win *pixelgl.Window) {

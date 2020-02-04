@@ -1,7 +1,7 @@
 package game_map
 
 import (
-	"fmt"
+	"github.com/sirupsen/logrus"
 	"github.com/steelx/go-rpg-cgm/combat"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/utilz"
@@ -79,7 +79,7 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 		if worldI.HasKey(boneItemId) {
 			prisoner, ok := gameMap.NPCbyId["prisoner"]
 			if !ok {
-				fmt.Println("GameMap prisoner not found!")
+				logrus.Fatal("GameMap prisoner not found!")
 				return
 			}
 			//started at 20, 29
@@ -100,7 +100,7 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 	talkGregor := func(gameMap *GameMap, entity *Entity, tileX, tileY float64) {
 		prisoner, ok := gameMap.NPCbyId["prisoner"]
 		if !ok {
-			fmt.Println("GameMap prisoner not found!")
+			logrus.Fatal("GameMap prisoner not found!")
 			return
 		}
 

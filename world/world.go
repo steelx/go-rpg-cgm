@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/text"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/image/font/basicfont"
-	"log"
 	"math"
 	"reflect"
 )

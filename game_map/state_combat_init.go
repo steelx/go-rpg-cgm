@@ -6,6 +6,7 @@ import (
 	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
+	"github.com/sirupsen/logrus"
 	"github.com/steelx/go-rpg-cgm/combat"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/state_machine"
@@ -341,7 +342,7 @@ func (c *CombatState) CreateCombatCharacters(key string) {
 }
 
 func (c *CombatState) OnPartyMemberSelect(index int, str interface{}) {
-	fmt.Println(index, str)
+	logrus.Info(index, str)
 }
 
 func (c *CombatState) RenderPartyNames(args ...interface{}) {

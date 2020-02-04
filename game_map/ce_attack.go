@@ -2,6 +2,7 @@ package game_map
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"github.com/steelx/go-rpg-cgm/combat"
 	"math"
 )
@@ -111,13 +112,13 @@ func (c *CEAttack) attackTarget(target *combat.Actor) {
 	defense := enemyStats.Get("Defense")
 
 	damage := math.Max(0, attack-defense)
-	fmt.Println("Attacked for ", damage, attack, defense)
+	logrus.Info("Attacked for ", damage, attack, defense)
 
 	hp := enemyStats.Get("HpNow")
 	hp = hp - damage
 
 	enemyStats.Set("HpNow", math.Max(0, hp))
-	fmt.Println("HpNow :", enemyStats.Get("HpNow"))
+	logrus.Info("HpNow :", enemyStats.Get("HpNow"))
 
 	// the enemy needs stats
 	// the player needs a weapon
@@ -130,7 +131,7 @@ func (c *CEAttack) attackTarget(target *combat.Actor) {
 		//check if its NOT csHurt then change it to csHurt
 		switch state.(type) {
 		case *CSHurt:
-			//fmt.Println("already in Hurt state, do nothing")
+			//logrus.Info("already in Hurt state, do nothing")
 		default:
 			character.Controller.Change(csHurt, state)
 		}

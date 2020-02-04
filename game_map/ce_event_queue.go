@@ -5,6 +5,7 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
+	"github.com/sirupsen/logrus"
 	"github.com/steelx/go-rpg-cgm/combat"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"math"
@@ -95,18 +96,18 @@ func (q EventQueue) SpeedToTimePoints(speed float64) float64 {
 //Print just for debug
 func (q EventQueue) Print() {
 	if q.IsEmpty() {
-		fmt.Println("Event Queue is empty.")
+		logrus.Info("Event Queue is empty.")
 		return
 	}
 
-	fmt.Println("Event Queue:")
+	logrus.Info("Event Queue:")
 	if q.CurrentEvent != nil {
-		fmt.Println("Current event:", q.CurrentEvent.Name())
+		logrus.Info("Current event:", q.CurrentEvent.Name())
 	}
 
 	for k, v := range q.Queue {
 		msg := fmt.Sprintf("[%d] Event: [%v][%s]", k, v.CountDown(), v.Name())
-		fmt.Println(msg)
+		logrus.Info(msg)
 	}
 }
 

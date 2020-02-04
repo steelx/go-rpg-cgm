@@ -2,6 +2,7 @@ package game_map
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"github.com/steelx/go-rpg-cgm/combat"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/world"
@@ -21,13 +22,13 @@ func mapArena(gStack *gui.StateStack) MapInfo {
 
 		char := gameMap.GetNPC(tileX, tileY)
 		if char == nil {
-			fmt.Println("Character not found at tile:", tileX, tileY)
+			logrus.Info("Character not found at tile:", tileX, tileY)
 			return
 		}
 
 		actorDef, ok := combat.PartyMembersDefinitions[char.Id]
 		if !ok {
-			fmt.Println("Missing actor definition at party_members_definitions.go")
+			logrus.Info("Missing actor definition at party_members_definitions.go")
 			return
 		}
 
