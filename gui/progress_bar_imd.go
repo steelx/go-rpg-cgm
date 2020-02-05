@@ -70,6 +70,7 @@ func (pb ProgressBarIMD) Render(renderer pixel.Target) {
 	leftPos := pixel.V(pb.x, pb.y)
 	imd_.Color = pb.Background
 	imd_.Push(leftPos, leftPos.Add(pixel.V(pb.Width, pb.Height)))
+	imd_.Rectangle(0)
 
 	imd_.Color = pb.Foreground
 	imd_.Push(leftPos, leftPos.Add(pixel.V(pb.GetPercentWidth(), pb.Height)))

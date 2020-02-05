@@ -7,6 +7,15 @@ import (
 	"github.com/steelx/go-rpg-cgm/gui"
 )
 
+/* example ->
+layout := gui.LayoutCreate(0, 0, win)
+pos := pixel.V(400, 200)
+layout.Panels["test"] = gui.PanelDef{pos, 400, 400}
+actorHero := gWorld.Party.Members["hero"]
+summary := combat.ActorXPSummaryCreate(actorHero, layout, "test")
+summary.AddPopUp("Level Up!", "#34df6b")
+*/
+
 type ActorXPSummary struct {
 	Actor                     *Actor
 	X, Y                      float64
@@ -50,6 +59,9 @@ func (a ActorXPSummary) PopUpCount() int {
 }
 
 func (a *ActorXPSummary) CancelPopUp() {
+	if a.PopUpCount() == 0 {
+		return
+	}
 	if popup := a.PopUpList[0]; popup != nil {
 		popup.TurnOff()
 	}
@@ -68,6 +80,9 @@ func (a *ActorXPSummary) AddPopUp(text, hexColor string) {
 }
 
 func (a *ActorXPSummary) Update(dt float64) {
+	if a.PopUpCount() == 0 {
+		return
+	}
 	popup := a.PopUpList[0]
 	if popup == nil {
 		return
@@ -84,11 +99,11 @@ func (a *ActorXPSummary) Update(dt float64) {
 
 func (a *ActorXPSummary) Render(renderer pixel.Target) {
 	// portrait
-	left := a.Layout.Left(a.LayoutId)
-	topY := a.Layout.Top(a.LayoutId)
+	left := a.Layout.Left(a.LayoutId) + 25
+	topY := a.Layout.Top(a.LayoutId) - a.AvatarHeight/2 + 25
 
 	avatarLeft := left + a.AvatarWidth/2
-	avatarY := topY - a.AvatarHeight/2 + 10
+	avatarY := topY - a.AvatarHeight/2
 	pos := pixel.V(avatarLeft, avatarY)
 	a.Avatar.Draw(renderer, pixel.IM.Moved(pos))
 
@@ -109,8 +124,8 @@ func (a *ActorXPSummary) Render(renderer pixel.Target) {
 	textBase.Draw(renderer, pixel.IM)
 
 	// XP
-	strXPValue := fmt.Sprintf("EXP: %+6v", a.Actor.XP)
-	right := a.Layout.Right(a.LayoutId) - 18
+	strXPValue := fmt.Sprintf("EXP: %+2v", a.Actor.XP)
+	right := a.Layout.Right(a.LayoutId) - a.AvatarWidth
 	rightLabel := right - 96
 	pos = pixel.V(rightLabel, nameY)
 	textBase = text.New(pos, gui.BasicAtlasAscii)
@@ -130,6 +145,9 @@ func (a *ActorXPSummary) Render(renderer pixel.Target) {
 	fmt.Fprintln(textBase, strNextLevel)
 	textBase.Draw(renderer, pixel.IM)
 
+	if a.PopUpCount() == 0 {
+		return
+	}
 	if popup := a.PopUpList[0]; popup != nil {
 		popup.Render(renderer)
 	}
