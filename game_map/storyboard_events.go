@@ -7,6 +7,7 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/sirupsen/logrus"
+	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/sound"
 	"github.com/steelx/go-rpg-cgm/state_machine"
@@ -376,5 +377,38 @@ func RunFunction(fn func()) func(storyboard *Storyboard) *WaitEvent {
 	return func(storyboard *Storyboard) *WaitEvent {
 		fn()
 		return Wait(0)
+	}
+}
+
+func UpdateState(state gui.StackInterface, time float64) func(storyboard *Storyboard) *TweenEvent {
+
+	return func(storyboard *Storyboard) *TweenEvent {
+
+		return TweenEventCreate(
+			0, 1, time,
+			state,
+			func(e *TweenEvent) {
+				state.Update(globals.Global.DeltaTime)
+			},
+		)
+	}
+}
+
+func ReplaceState(current, new gui.StackInterface) func(storyboard *Storyboard) {
+
+	return func(storyboard *Storyboard) {
+		logrus.Info("Being asked to replace a state")
+		stack := storyboard.Stack
+
+		for k, v := range stack.States {
+			if v == current {
+				stack.States[k].Exit()
+				stack.States[k] = new
+				stack.States[k].Enter()
+				return
+			}
+		}
+
+		panic("You should have found a Current state.")
 	}
 }

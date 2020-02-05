@@ -8,7 +8,6 @@ import (
 	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/utilz"
-	"github.com/steelx/go-rpg-cgm/world"
 	"time"
 )
 
@@ -78,20 +77,20 @@ func setup(win *pixelgl.Window) {
 		},
 	})
 	stack.Push(combatState)
-	stack.Push(game_map.XPSummaryStateCreate(stack, win, *gWorld.Party, game_map.CombatData{XP: 4}))
-	stack.Push(game_map.LootSummaryStateCreate(stack, win, gWorld, game_map.CombatData{
-		XP:   30,
-		Gold: 100,
-		Loot: []world.ItemIndex{
-			{1, 1},
-			{2, 1},
-			{3, 1},
-			{9, 1},
-			{6, 1},
-			{7, 1},
-			{10, 5},
-		},
-	}))
+	//stack.Push(game_map.XPSummaryStateCreate(stack, win, *gWorld.Party, game_map.CombatData{XP: 4}))
+	//stack.Push(game_map.LootSummaryStateCreate(stack, win, gWorld, game_map.CombatData{
+	//	XP:   30,
+	//	Gold: 100,
+	//	Loot: []world.ItemIndex{
+	//		{1, 1},
+	//		{2, 1},
+	//		{3, 1},
+	//		{9, 1},
+	//		{6, 1},
+	//		{7, 1},
+	//		{10, 5},
+	//	},
+	//}))
 
 	stack.Push(gui.TitleScreenCreate(stack, win))
 

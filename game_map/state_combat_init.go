@@ -11,6 +11,7 @@ import (
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/state_machine"
 	"github.com/steelx/go-rpg-cgm/utilz"
+	"github.com/steelx/go-rpg-cgm/world"
 	"image/color"
 	"math"
 	"reflect"
@@ -543,6 +544,30 @@ func (c *CombatState) ApplyDamage(target *combat.Actor, damage float64) {
 }
 
 func (c *CombatState) OnWin() {
+	//Tell all living party members to dance.
+	for _, v := range c.Actors[party] {
+		char := c.ActorCharMap[v]
+		alive := v.Stats.Get("HpNow") > 0
+		if alive {
+			char.Controller.Change(csRunanim, csVictory, false)
+		}
+	}
+
+	//Create the storyboard and add the stats.
+	combatData := c.CalcCombatData()
+	world_ := reflect.ValueOf(c.GameState.Globals["world"]).Interface().(*combat.WorldExtended)
+	xpSummaryState := XPSummaryStateCreate(c.GameState, c.win, *world_.Party, combatData)
+
+	storyboardEvents := []interface{}{
+		UpdateState(c, 1.0),
+		Wait(2),
+		BlackScreen("blackscreen"),
+		Wait(1),
+		KillState("blackscreen"),
+		ReplaceState(c, xpSummaryState),
+	}
+	storyboard := StoryboardCreate(c.GameState, c.win, storyboardEvents, false)
+	c.GameState.Push(storyboard)
 	c.IsFinishing = true
 }
 
@@ -558,4 +583,15 @@ func (c *CombatState) OnLose() {
 	c.GameState.Pop()
 	gameOverState := GameOverStateCreate(c.GameState)
 	c.GameState.Push(gameOverState)
+}
+
+func (c *CombatState) CalcCombatData() CombatData {
+	// Todo: Work out loot, xp and gold drops
+	return CombatData{
+		XP:   30,
+		Gold: 10,
+		Loot: []world.ItemIndex{
+			{Id: 1, Count: 1},
+		},
+	}
 }
