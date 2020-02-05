@@ -252,3 +252,10 @@ func HexToColor(hex string) (c color.RGBA) {
 	}
 	return
 }
+
+func GetAlpha(f float64) uint8 {
+	if f >= 1 {
+		return 255
+	}
+	return uint8(f * 256)
+}

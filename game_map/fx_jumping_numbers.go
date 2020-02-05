@@ -58,8 +58,8 @@ func (f *JumpingNumbersFX) Update(dt float64) {
 	f.CurrentY = f.CurrentY + (f.VelocityY * dt)
 	f.VelocityY = f.VelocityY - (f.Gravity * dt)
 	if f.CurrentY <= f.Y {
-		fade01 := (f.Y - f.CurrentY) / f.FadeDistance
-		f.Color.A = 255 - uint8(fade01)
+		alpha := (f.Y - f.CurrentY) / f.FadeDistance
+		f.Color.A = utilz.GetAlpha(alpha)
 	}
 }
 

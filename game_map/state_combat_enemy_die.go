@@ -4,6 +4,7 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/animation"
+	"github.com/steelx/go-rpg-cgm/utilz"
 	"image/color"
 	"reflect"
 )
@@ -40,7 +41,7 @@ func (s *CSEnemyDie) Enter(data ...interface{}) {
 
 func (s *CSEnemyDie) Render(win *pixelgl.Window) {
 	alpha := s.Tween.Value()
-	color_ := color.RGBA{255, 255, 255, 255 - uint8(alpha)}
+	color_ := color.RGBA{255, 255, 255, utilz.GetAlpha(alpha)}
 	s.Entity.Sprite.DrawColorMask(win, pixel.IM, color_)
 }
 

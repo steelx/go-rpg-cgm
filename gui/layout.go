@@ -12,12 +12,12 @@ type Layout struct {
 }
 
 type PanelDef struct {
-	pos           pixel.Vec
-	width, height float64
+	Pos           pixel.Vec
+	Width, Height float64
 }
 
 func (p PanelDef) GetSize() (width, height float64) {
-	return p.width, p.height
+	return p.Width, p.Height
 }
 
 //centerPos would Player TileX, TileY
@@ -41,7 +41,7 @@ func LayoutCreate(x, y float64, win *pixelgl.Window) Layout {
 
 func (l Layout) CreatePanel(name string) Panel {
 	panelDef := l.getPanelDef(name)
-	return PanelCreate(panelDef.pos, panelDef.width, panelDef.height)
+	return PanelCreate(panelDef.Pos, panelDef.Width, panelDef.Height)
 }
 func (l Layout) getPanelDef(name string) PanelDef {
 	panelDef, ok := l.Panels[name]
@@ -67,8 +67,8 @@ func (l Layout) DebugRender(win *pixelgl.Window) {
 //e.g. Contract('screen', 118, 40)
 func (l Layout) Contract(name string, horz, vert float64) {
 	panelDef := l.getPanelDef(name)
-	panelDef.width = panelDef.width - horz
-	panelDef.height = panelDef.height - vert
+	panelDef.Width = panelDef.Width - horz
+	panelDef.Height = panelDef.Height - vert
 }
 
 //e.g. SplitHorz('screen', "top", "bottom", 0.12, 2) // X = from 0 to 1
@@ -78,19 +78,19 @@ func (l *Layout) SplitHorz(name, topName, bottomName string, x, margin float64) 
 	//delete parent from Layout, we dont need it anymore
 	delete(l.Panels, name)
 
-	p1Height := parent.height * x
-	p2Height := parent.height * (1 - x)
+	p1Height := parent.Height * x
+	p2Height := parent.Height * (1 - x)
 
 	l.Panels[topName] = PanelDef{
-		pos:    pixel.V(parent.pos.X, parent.pos.Y+parent.height/2-p1Height/2+margin/2),
-		width:  parent.width,
-		height: p1Height - margin,
+		Pos:    pixel.V(parent.Pos.X, parent.Pos.Y+parent.Height/2-p1Height/2+margin/2),
+		Width:  parent.Width,
+		Height: p1Height - margin,
 	}
 
 	l.Panels[bottomName] = PanelDef{
-		pos:    pixel.V(parent.pos.X, parent.pos.Y-parent.height/2+p2Height/2-margin/2),
-		width:  parent.width,
-		height: p2Height - margin,
+		Pos:    pixel.V(parent.Pos.X, parent.Pos.Y-parent.Height/2+p2Height/2-margin/2),
+		Width:  parent.Width,
+		Height: p2Height - margin,
 	}
 }
 
@@ -101,49 +101,49 @@ func (l *Layout) SplitVert(name, leftName, rightName string, y, margin float64) 
 	//delete parent from Layout, we dont need it anymore
 	delete(l.Panels, name)
 
-	p1Width := parent.width * y
-	p2Width := parent.width * (1 - y)
+	p1Width := parent.Width * y
+	p2Width := parent.Width * (1 - y)
 
 	l.Panels[rightName] = PanelDef{
-		pos:    pixel.V(parent.pos.X+parent.width/2-p1Width/2+margin/2, parent.pos.Y),
-		width:  p1Width - margin,
-		height: parent.height,
+		Pos:    pixel.V(parent.Pos.X+parent.Width/2-p1Width/2+margin/2, parent.Pos.Y),
+		Width:  p1Width - margin,
+		Height: parent.Height,
 	}
 
 	l.Panels[leftName] = PanelDef{
-		pos:    pixel.V(parent.pos.X-parent.width/2+p2Width/2-margin/2, parent.pos.Y),
-		width:  p2Width - margin,
-		height: parent.height,
+		Pos:    pixel.V(parent.Pos.X-parent.Width/2+p2Width/2-margin/2, parent.Pos.Y),
+		Width:  p2Width - margin,
+		Height: parent.Height,
 	}
 }
 
 //since Panel renders from Center of X, Y
 func (l Layout) Top(name string) float64 {
 	panel := l.getPanelDef(name)
-	return panel.pos.Y + panel.height/2
+	return panel.Pos.Y + panel.Height/2
 }
 
 func (l Layout) Bottom(name string) float64 {
 	panel := l.getPanelDef(name)
-	return panel.pos.Y - panel.height/2
+	return panel.Pos.Y - panel.Height/2
 }
 
 func (l Layout) Left(name string) float64 {
 	panel := l.getPanelDef(name)
-	return panel.pos.X - panel.width/2
+	return panel.Pos.X - panel.Width/2
 }
 
 func (l Layout) Right(name string) float64 {
 	panel := l.getPanelDef(name)
-	return panel.pos.X + panel.width/2
+	return panel.Pos.X + panel.Width/2
 }
 
 func (l Layout) MidX(name string) float64 {
 	panel := l.getPanelDef(name)
-	return panel.pos.X
+	return panel.Pos.X
 }
 
 func (l Layout) MidY(name string) float64 {
 	panel := l.getPanelDef(name)
-	return panel.pos.Y
+	return panel.Pos.Y
 }
