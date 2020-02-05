@@ -236,7 +236,7 @@ func (c *CombatState) Update(dt float64) bool {
 		}
 	}
 
-	return true
+	return false
 }
 
 func (c CombatState) Render(renderer *pixelgl.Window) {

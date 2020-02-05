@@ -7,6 +7,7 @@ import (
 	"github.com/faiface/pixel/text"
 	"github.com/steelx/go-rpg-cgm/combat"
 	"github.com/steelx/go-rpg-cgm/gui"
+	"github.com/steelx/go-rpg-cgm/world"
 	"math"
 )
 
@@ -27,7 +28,8 @@ type XPSummaryState struct {
 }
 
 type CombatData struct {
-	XP float64
+	XP, Gold float64
+	Loot     []world.ItemIndex
 }
 
 func XPSummaryStateCreate(stack *gui.StateStack, win *pixelgl.Window, party combat.Party, combatData CombatData) *XPSummaryState {
@@ -109,10 +111,9 @@ func (s *XPSummaryState) Update(dt float64) bool {
 			s.IsCountingXP = false
 		}
 
-		return true
 	}
 
-	return true
+	return false //we dont want to update other states
 }
 
 func (s *XPSummaryState) Render(renderer *pixelgl.Window) {
@@ -143,6 +144,10 @@ func (s *XPSummaryState) Render(renderer *pixelgl.Window) {
 		s.ActorPanels[i].Draw(renderer)
 		s.PartySummary[i].Render(renderer)
 	}
+
+	//camera
+	camera := pixel.IM.Scaled(pixel.ZV, 1.0).Moved(renderer.Bounds().Center().Sub(pixel.ZV))
+	renderer.SetMatrix(camera)
 }
 
 func (s *XPSummaryState) HandleInput(win *pixelgl.Window) {
