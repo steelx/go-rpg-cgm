@@ -10,6 +10,13 @@ import (
 	"reflect"
 )
 
+type ActorDropItem struct {
+	XP     float64
+	Gold   float64
+	Always []int //item ids that are guaranteed to drop
+	Chance *OddmentTable
+}
+
 // Actor is any creature or character that participates in combat
 // and therefore requires stats, equipment, etc
 type Actor struct {
@@ -26,6 +33,7 @@ type Actor struct {
 	Equipped         map[string]int //int is ItemsDB Id
 	worldRef         *WorldExtended
 	isPlayer         bool
+	Drop             ActorDropItem
 }
 
 // ActorCreate
@@ -55,6 +63,13 @@ func ActorCreate(def ActorDef, randName ...interface{}) Actor {
 			ActorLabels.EquipSlotId[2]: def.Access1,
 			ActorLabels.EquipSlotId[3]: def.Access2,
 		},
+	}
+
+	if !def.IsPlayer {
+		gold := utilz.RandInt(def.Drop.Gold[0], def.Drop.Gold[1])
+		a.Drop.XP = def.Drop.XP
+		a.Drop.Gold = float64(gold)
+		a.Drop.Chance = OddmentTableCreate(def.Drop.Chance)
 	}
 
 	a.NextLevelXP = NextLevel(a.Level)

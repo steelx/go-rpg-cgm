@@ -48,6 +48,7 @@ type CombatState struct {
 	ActorCharMap  map[*combat.Actor]*Character
 	SelectedActor *combat.Actor
 	EffectList    []EffectState
+	Loot          []combat.ActorDropItem
 
 	Panels []gui.Panel
 	TipPanel,
@@ -490,6 +491,9 @@ func (c *CombatState) HandleEnemyDeath() {
 			character.Controller.Change(csEnemyDie)
 			c.EventQueue.RemoveEventsOwnedBy(enemy)
 
+			//Add the loot to the loot list
+			c.Loot = append(c.Loot, enemy.Drop)
+
 			//Add to effects
 			c.DeathList = append(c.DeathList, character)
 		}
@@ -586,12 +590,42 @@ func (c *CombatState) OnLose() {
 }
 
 func (c *CombatState) CalcCombatData() CombatData {
-	// Todo: Work out loot, xp and gold drops
-	return CombatData{
-		XP:   30,
-		Gold: 10,
-		Loot: []world.ItemIndex{
-			{Id: 1, Count: 1},
-		},
+	drop := CombatData{
+		XP:   0,
+		Gold: 0,
+		Loot: make([]world.ItemIndex, 0),
 	}
+
+	lootDict := make(map[int]int) //itemId = count
+
+	for _, v := range c.Loot {
+		drop.XP += v.XP
+		drop.Gold += v.Gold
+
+		for _, itemId := range v.Always {
+			if _, ok := lootDict[itemId]; ok {
+				lootDict[itemId] += 1
+			} else {
+				lootDict[itemId] = 1
+			}
+		}
+
+		item := v.Chance.Pick()
+		if item.Id != -1 {
+			if _, ok := lootDict[item.Id]; ok {
+				lootDict[item.Id] += item.Count
+			} else {
+				lootDict[item.Id] = item.Count
+			}
+		}
+	}
+
+	for itemId, count := range lootDict {
+		drop.Loot = append(drop.Loot, world.ItemIndex{
+			Id:    itemId,
+			Count: count,
+		})
+	}
+
+	return drop
 }

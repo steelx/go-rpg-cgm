@@ -46,9 +46,9 @@ func CEAttackCreate(scene *CombatState, owner *combat.Actor, targets []*combat.A
 		c.AttackEntityDef = Entities["claw"]
 
 		storyboardEvents = []interface{}{
-			RunState(c.Character.Controller, csMove, CSMoveParams{Dir: 1, Distance: 8, Time: 0.2}),
+			RunState(c.Character.Controller, csMove, CSMoveParams{Dir: -1, Distance: 10, Time: 0.2}),
 			RunFunction(c.DoAttack),
-			RunState(c.Character.Controller, csMove, CSMoveParams{Dir: -1, Distance: 8, Time: 0.4}),
+			RunState(c.Character.Controller, csMove, CSMoveParams{Dir: 1, Distance: 10, Time: 0.4}),
 			RunFunction(c.onFinished),
 			RunState(c.Character.Controller, csRunanim, csStandby, false),
 		}

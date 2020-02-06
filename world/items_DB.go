@@ -13,6 +13,7 @@ type Item struct {
 	Restrictions      []string //e.g. {"hero","mage",}
 	Use               UseAction
 	Icon              int
+	Oddment           float64 //chances of finding
 }
 
 type Action int
@@ -20,6 +21,7 @@ type Action int
 const (
 	Revive Action = iota
 	Heal
+	ReviveMana
 )
 
 type ActionTarget int
@@ -27,6 +29,7 @@ type ActionTarget int
 const (
 	Any ActionTarget = iota
 	FriendlyDead
+	FriendlyLowestMana
 	Enemy
 )
 
@@ -62,6 +65,7 @@ func init() {
 	ItemsDB[0] = Item{
 		Id:          0,
 		ItemType:    Empty,
+		Oddment:     95,
 		Name:        "empty",
 		Description: "",
 		Icon:        0,
@@ -97,6 +101,7 @@ func init() {
 	ItemsDB[2] = Item{
 		Id:           2,
 		ItemType:     Armor,
+		Oddment:      1,
 		Name:         "Bone Armor",
 		Description:  "Armor made from plates of blackened bone.",
 		Icon:         7,
@@ -112,6 +117,7 @@ func init() {
 	ItemsDB[3] = Item{
 		Id:          3,
 		ItemType:    Accessory,
+		Oddment:     1,
 		Name:        "Ring of Titan",
 		Description: "Grants the strength of the Titan.",
 		Icon:        2,
@@ -203,6 +209,7 @@ func init() {
 
 	ItemsDB[10] = Item{
 		Id:          10,
+		Oddment:     1,
 		ItemType:    Accessory,
 		Name:        "Swift Boots",
 		Description: "Increases speed by 25%",
@@ -225,6 +232,32 @@ func init() {
 			Target:        Any,
 			TargetDefault: FriendlyDead,
 			Hint:          "Choose target to revive.",
+		},
+	}
+
+	ItemsDB[12] = Item{
+		Id:          12,
+		ItemType:    Usable,
+		Name:        "Mana Potion",
+		Description: "Heals a small amount of Mana (MP)",
+		Use: UseAction{
+			Action:        ReviveMana,
+			Target:        Any,
+			TargetDefault: FriendlyLowestMana,
+			Hint:          "Choose target to restore mana.",
+		},
+	}
+
+	ItemsDB[13] = Item{
+		Id:          13,
+		ItemType:    Accessory,
+		Name:        "Mysterious Torque",
+		Description: "A golden torque that glitters",
+		Stats: Mod{
+			Add: BaseStats{
+				Strength: 10,
+				Speed:    10,
+			},
 		},
 	}
 }
