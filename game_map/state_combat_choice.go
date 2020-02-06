@@ -6,6 +6,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/steelx/go-rpg-cgm/combat"
 	"github.com/steelx/go-rpg-cgm/gui"
+	"github.com/steelx/go-rpg-cgm/utilz"
 	"github.com/steelx/go-rpg-cgm/world"
 	"math"
 	"reflect"
@@ -134,7 +135,7 @@ func (c *CombatChoiceState) CreateActionDialog(choices interface{}) {
 		x, y, "",
 		c.Selection,
 	)
-	c.textbox.Panel.BGColor = "#3c2f2f"
+	c.textbox.Panel.BGColor = utilz.HexToColor("#3c2f2f")
 }
 
 func (c *CombatChoiceState) bounceMarker(dt float64) {

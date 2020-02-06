@@ -36,8 +36,8 @@ func (s SimpleCaptionsScreen) Render(win *pixelgl.Window) {
 		txt := s.captions[i].Text
 		var centerPos pixel.Vec
 		if i == 0 {
-			centerPosMain = pixel.V(textBase.BoundsOf(txt).W()/2, s.Position.Y)
-			centerPos = pixel.V(textBase.BoundsOf(txt).W()/2, s.Position.Y)
+			centerPosMain = pixel.V(-textBase.BoundsOf(txt).W()/2, s.Position.Y)
+			centerPos = pixel.V(-textBase.BoundsOf(txt).W()/2, s.Position.Y)
 		}
 		centerPos = pixel.V(centerPosMain.X, s.Position.Y-textBase.BoundsOf(txt).H()-margin)
 		textBase.Clear()

@@ -28,7 +28,11 @@ func StateStackCreate(win *pixelgl.Window) *StateStack {
 	return &StateStack{
 		Win:     win,
 		Globals: make(map[string]interface{}),
+		States:  make([]StackInterface, 0),
 	}
+}
+func (ss *StateStack) Clear() {
+	ss.States = make([]StackInterface, 0)
 }
 
 func (ss *StateStack) Push(state StackInterface) {

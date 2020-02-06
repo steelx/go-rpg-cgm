@@ -15,6 +15,7 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"time"
 )
 
 /*
@@ -171,10 +172,12 @@ func PanicIfErr(err error) {
 }
 
 func RandInt(min, max int) int {
-	return rand.Intn(max-min) + min
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	return r.Intn(max-min) + min
 }
 func RandFloat(min, max float64) float64 {
-	return min + rand.Float64()*(max-min)
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	return min + r.Float64()*(max-min)
 }
 func MinInt(a, b int) int {
 	if a < b {
@@ -248,4 +251,11 @@ func HexToColor(hex string) (c color.RGBA) {
 		return errInvalidFormat
 	}
 	return
+}
+
+func GetAlpha(f float64) uint8 {
+	if f >= 1 {
+		return 255
+	}
+	return uint8(f * 256)
 }

@@ -58,7 +58,7 @@ func (s TitleScreen) Exit() {
 
 func (s TitleScreen) Update(dt float64) bool {
 	s.menu.HandleInput(s.win)
-	return true
+	return false
 }
 
 func (s TitleScreen) Render(win *pixelgl.Window) {

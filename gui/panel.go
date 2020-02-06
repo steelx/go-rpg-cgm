@@ -4,12 +4,13 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
 	"github.com/steelx/go-rpg-cgm/utilz"
+	"image/color"
 )
 
 type Panel struct {
 	mBounds                 pixel.Rect
 	mTileSize, mCenterScale float64
-	BGColor                 string //hex
+	BGColor                 color.RGBA //hex
 }
 
 var imd = imdraw.New(nil)
@@ -23,7 +24,7 @@ func PanelCreate(pos pixel.Vec, width, height float64) Panel {
 			Min: pixel.V(pos.X-width/2, pos.Y-height/2),
 			Max: pixel.V(pos.X+width/2, pos.Y+height/2),
 		},
-		BGColor: "#002D64",
+		BGColor: utilz.HexToColor("#002D64"),
 	}
 
 	return p
@@ -43,7 +44,7 @@ func (p *Panel) Draw(renderer pixel.Target) {
 	topLeft, topRight, bottomLeft, bottomRight := p.GetCorners()
 
 	// Middle backing panel
-	imd.Color = utilz.HexToColor(p.BGColor)
+	imd.Color = p.BGColor
 	imd.EndShape = imdraw.RoundEndShape
 	imd.Push(
 		bottomLeft.Add(pixel.V(1, 1)),

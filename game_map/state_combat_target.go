@@ -31,6 +31,9 @@ var CombatSelector = CombatSelectorFunc{
 				aliveList = append(aliveList, v)
 			}
 		}
+		if len(aliveList) == 1 {
+			return []*combat.Actor{aliveList[0]}
+		}
 		randIndex := utilz.RandInt(0, len(aliveList)-1)
 		return []*combat.Actor{aliveList[randIndex]}
 	},

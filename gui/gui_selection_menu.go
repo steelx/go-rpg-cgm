@@ -33,7 +33,7 @@ type SelectionMenu struct {
 	X, Y          float64
 	width, height float64
 
-	columns        int //The number of columns the menu has. This defaults to 1
+	Columns        int //The number of columns the menu has. This defaults to 1
 	focusX, focusY int //Indicates which item in the list is currently selected.
 	//focusX tells us which column is selected and focusY which element in that column
 	SpacingY, SpacingX        float64 //space btw each items
@@ -43,7 +43,7 @@ type SelectionMenu struct {
 	cursorPosOffset           pixel.Vec
 	cursorWidth, cursorHeight float64
 	IsShowCursor              bool
-	maxRows, displayRows      int //rows might be 30 but only 5 maxRows are displayed at once
+	MaxRows, displayRows      int //rows might be 30 but only 5 maxRows are displayed at once
 	displayStart              int //index at which we start displaying menu, e.g. out of 30 max 5 are visible from index 6
 	textBase                  *text.Text
 	OnSelection               func(int, interface{}) //to be called after selection
@@ -56,7 +56,7 @@ func SelectionMenuCreate(spacingY, spacingX, xWidth float64, data interface{}, s
 	m := SelectionMenu{
 		X:            position.X,
 		Y:            position.Y,
-		columns:      1,
+		Columns:      1,
 		focusX:       0,
 		focusY:       0,
 		SpacingY:     spacingY,
@@ -79,7 +79,7 @@ func SelectionMenuCreate(spacingY, spacingX, xWidth float64, data interface{}, s
 	}
 
 	dataI := reflect.ValueOf(data)
-	m.maxRows = dataI.Len() - 1
+	m.MaxRows = dataI.Len() - 1
 
 	if dataI.Len() > 0 {
 		m.DataI = make([]interface{}, dataI.Len())
@@ -90,9 +90,9 @@ func SelectionMenuCreate(spacingY, spacingX, xWidth float64, data interface{}, s
 
 	//temp implement correct columns pending
 	if showColumns {
-		m.columns += m.maxRows / m.displayRows
-		if m.maxRows == 1 {
-			m.columns = 2
+		m.Columns += m.MaxRows / m.displayRows
+		if m.MaxRows == 1 {
+			m.Columns = 2
 			m.displayRows = 1
 		}
 	}
@@ -129,7 +129,7 @@ func (m SelectionMenu) calcTotalHeight() float64 {
 	return height - m.SpacingY/2
 }
 func (m SelectionMenu) calcTotalWidth(xWidth float64) float64 {
-	if m.columns == 1 {
+	if m.Columns == 1 {
 		maxEntryWidth := 0.0
 		for _, v := range m.DataI {
 			switch x := v.(type) {
@@ -144,7 +144,7 @@ func (m SelectionMenu) calcTotalWidth(xWidth float64) float64 {
 		}
 		return maxEntryWidth + m.cursorWidth
 	}
-	return m.SpacingX * float64(m.columns)
+	return m.SpacingX * float64(m.Columns)
 }
 
 func (m SelectionMenu) IsDataSourceEmpty() bool {
@@ -186,8 +186,8 @@ func (m SelectionMenu) Render(renderer *pixelgl.Window) {
 	var x, y = m.X, m.Y
 	var mat = pixel.IM.Scaled(pixel.V(x, y), m.scale)
 
-	//temp single columns not rendering hence
-	if m.columns == 1 {
+	//temp single Columns not rendering hence
+	if m.Columns == 1 {
 		for i, v := range m.DataI {
 			cursorPos := pixel.V(x+cursorHalfWidth, y+(cursorHalfHeight/2))
 			if m.useCursorPos {
@@ -210,16 +210,20 @@ func (m SelectionMenu) Render(renderer *pixelgl.Window) {
 		return
 	}
 
-	//itemIndex := ((displayStart - 1) * m.columns) + 1
-	itemIndex := displayStart * m.columns
+	//itemIndex := ((displayStart - 1) * m.Columns) + 1
+	itemIndex := displayStart * m.Columns
 	for i := displayStart; i < displayEnd; i++ {
-		for j := 0; j < m.columns; j++ {
+
+		for j := 0; j < m.Columns; j++ {
 			cursorPos := pixel.V(x+cursorHalfWidth, y+(cursorHalfHeight/2))
 			if m.useCursorPos {
 				cursorPos = pixel.V(x+m.cursorPosOffset.X, y+(cursorHalfHeight/2))
 			}
 			if i == m.focusY && j == m.focusX && m.IsShowCursor {
 				m.cursor.Draw(renderer, mat.Moved(cursorPos))
+			}
+			if itemIndex >= len(m.DataI) {
+				return
 			}
 			item := m.DataI[itemIndex]
 			m.RenderFunction(renderer, x+cursorWidth, y, item)
@@ -240,8 +244,8 @@ func (m *SelectionMenu) MoveUp() {
 }
 
 func (m *SelectionMenu) MoveDown() {
-	if m.columns == 1 {
-		m.focusY = utilz.MinInt(m.focusY+1, m.maxRows)
+	if m.Columns == 1 {
+		m.focusY = utilz.MinInt(m.focusY+1, m.MaxRows)
 	} else {
 		m.focusY = utilz.MinInt(m.focusY+1, m.displayRows-1)
 	}
@@ -256,7 +260,7 @@ func (m *SelectionMenu) MoveLeft() {
 }
 
 func (m *SelectionMenu) MoveRight() {
-	m.focusX = utilz.MinInt(m.focusX+1, m.columns-1)
+	m.focusX = utilz.MinInt(m.focusX+1, m.Columns-1)
 }
 
 func (m *SelectionMenu) MoveDisplayUp() {
@@ -273,8 +277,8 @@ func (m SelectionMenu) SelectedItem() interface{} {
 }
 
 func (m SelectionMenu) GetIndex() int {
-	//return m.focusX + ((m.focusY - 1) * m.columns)
-	return m.focusX + (m.focusY * m.columns)
+	//return m.focusX + ((m.focusY - 1) * m.Columns)
+	return m.focusX + (m.focusY * m.Columns)
 }
 
 func (m SelectionMenu) OnClick() {
@@ -287,9 +291,9 @@ func (m *SelectionMenu) HandleInput(window *pixelgl.Window) {
 		m.MoveUp()
 	} else if window.JustPressed(pixelgl.KeyDown) {
 		m.MoveDown()
-	} else if m.columns > 1 && window.JustPressed(pixelgl.KeyLeft) {
+	} else if m.Columns > 1 && window.JustPressed(pixelgl.KeyLeft) {
 		m.MoveLeft()
-	} else if m.columns > 1 && window.JustPressed(pixelgl.KeyRight) {
+	} else if m.Columns > 1 && window.JustPressed(pixelgl.KeyRight) {
 		m.MoveRight()
 	} else if window.JustPressed(pixelgl.KeySpace) {
 		m.OnClick()
@@ -302,5 +306,5 @@ func (m SelectionMenu) CanScrollUp() bool {
 }
 
 func (m SelectionMenu) CanScrollDown() bool {
-	return m.displayStart <= (m.maxRows - m.displayRows)
+	return m.displayStart <= (m.MaxRows - m.displayRows)
 }

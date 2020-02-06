@@ -56,57 +56,25 @@ func setup(win *pixelgl.Window) {
 
 	gWorld = combat.WorldExtendedCreate()
 	gWorld.Party.Add(combat.ActorCreate(combat.HeroDef))
-	gWorld.Party.Add(combat.ActorCreate(combat.MageDef))
-	gWorld.Party.Add(combat.ActorCreate(combat.ThiefDef))
 
 	stack.Globals["world"] = gWorld
 
-	var introScene = []interface{}{
-		//game_map.BlackScreen("blackscreen"),
-		//game_map.Wait(1),
-		//game_map.KillState("blackscreen"),
-		//game_map.PlayBGSound("../sound/rain.mp3"),
-		//game_map.TitleCaptionScreen("title", "Chandragupta Maurya", 3),
-		//game_map.SubTitleCaptionScreen("subtitle", "A jRPG game in GO", 2),
-		//game_map.KillState("title"),
-		//game_map.KillState("subtitle"),
-		game_map.Scene("map_player_house", true, win),
-		game_map.RunActionAddNPC("map_player_house", "sleeper", 14, 19, 3),
-		game_map.RunActionAddNPC("map_player_house", "guard", 19, 23, 0),
-		game_map.PlaySound("../sound/door_break.mp3", 1),
-		game_map.MoveNPC("guard", "map_player_house", []string{
-			"up", "up", "up", "left", "left", "left",
-		}),
-		game_map.Say("map_player_house", "guard", "You'r coming with me!!", 3),
-		game_map.StopBGSound(),
-		game_map.PlaySound("../sound/wagon.mp3", 4),
-		game_map.BlackScreen("blackscreen"),
-		game_map.Wait(3),
-		game_map.KillState("blackscreen"),
-		game_map.ReplaceScene("map_player_house", "map_jail", 31, 21, false, win),
-		game_map.Wait(1),
-		game_map.Say("map_jail", "hero", "Where am I...", 2),
-		game_map.Say("map_jail", "hero", "I should keep looking for ways out", 2),
-		game_map.Wait(1),
-		game_map.HandOffToMainStack("map_jail"),
-	}
-
-	var storyboardI = game_map.StoryboardCreate(stack, win, introScene, false)
-	stack.PushFitted(200, 1300, "storyboardI stack pop out.. :)")
+	var storyboardI = game_map.StoryboardCreate(stack, win, game_map.IntroScene, false)
 	stack.Push(storyboardI)
 
-	enemyDef := combat.GoblinDef
-	enemy1 := combat.ActorCreate(enemyDef, "1")
-	enemy2 := combat.ActorCreate(enemyDef, "2")
-	enemy3 := combat.ActorCreate(enemyDef, "3")
-	combatState := game_map.CombatStateCreate(stack, win, game_map.CombatDef{
-		Background: "../resources/arena_background.png",
-		Actors: game_map.Actors{
-			Party:   gWorld.Party.ToArray(),
-			Enemies: []*combat.Actor{&enemy1, &enemy2, &enemy3},
-		},
-	})
-	stack.Push(combatState)
+	//enemyDef := combat.GoblinDef
+	//enemy1 := combat.ActorCreate(enemyDef, "1")
+	//enemy2 := combat.ActorCreate(enemyDef, "2")
+	//enemy3 := combat.ActorCreate(enemyDef, "3")
+	//combatState := game_map.CombatStateCreate(stack, win, game_map.CombatDef{
+	//	Background: "../resources/arena_background.png",
+	//	Actors: game_map.Actors{
+	//		Party:   gWorld.Party.ToArray(),
+	//		Enemies: []*combat.Actor{&enemy1, &enemy2, &enemy3},
+	//	},
+	//})
+	//stack.Push(combatState)
+
 	stack.Push(gui.TitleScreenCreate(stack, win))
 
 }

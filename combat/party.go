@@ -2,19 +2,19 @@ package combat
 
 type Party struct {
 	Members map[string]*Actor
-	world   *WorldExtended
+	World   *WorldExtended
 }
 
 func PartyCreate(w *WorldExtended) *Party {
 	return &Party{
 		Members: make(map[string]*Actor),
-		world:   w,
+		World:   w,
 	}
 }
 
 func (p *Party) Add(member Actor) {
 	p.Members[member.Id] = &member
-	p.Members[member.Id].worldRef = p.world
+	p.Members[member.Id].worldRef = p.World
 }
 func (p *Party) Remove(member Actor) {
 	p.removeById(member.Id)
