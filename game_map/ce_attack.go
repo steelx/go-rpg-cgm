@@ -16,10 +16,16 @@ type CEAttack struct {
 	Storyboard      *Storyboard
 	AttackEntityDef EntityDefinition
 	DefaultTargeter func(state *CombatState) []*combat.Actor
+	options         AttackOptions
 }
 
-func CEAttackCreate(scene *CombatState, owner *combat.Actor, targets []*combat.Actor) *CEAttack {
+type AttackOptions struct {
+	Counter bool
+}
+
+func CEAttackCreate(scene *CombatState, owner *combat.Actor, targets []*combat.Actor, options AttackOptions) *CEAttack {
 	c := &CEAttack{
+		options:   options,
 		Scene:     scene,
 		owner:     owner,
 		Targets:   targets,
@@ -112,16 +118,41 @@ func (c *CEAttack) onFinished() {
 	c.Finished = true
 }
 
+//CounterTarget - Decide if the attack is countered.
+func (c *CEAttack) CounterTarget(target *combat.Actor) {
+	countered := Formula.IsCountered(c.Scene, c.owner, target)
+	if countered {
+		c.Scene.ApplyCounter(target, c.owner)
+	}
+}
+
 func (c *CEAttack) DoAttack() {
 	for _, v := range c.Targets {
 		c.attackTarget(v)
+
+		if !c.options.Counter {
+			c.CounterTarget(v)
+		}
 	}
 }
 func (c *CEAttack) attackTarget(target *combat.Actor) {
 
-	damage := Formula.MeleeAttack(c.Scene, c.owner, target)
+	//hit result lets us know the status of this attack
+	damage, hitResult := Formula.MeleeAttack(c.Scene, c.owner, target)
 	entity := c.Scene.ActorCharMap[target].Entity
-	c.Scene.ApplyDamage(target, damage)
+
+	if hitResult == HitResultMiss {
+		c.Scene.ApplyMiss(target)
+		return
+	} else if hitResult == HitResultDodge {
+		c.Scene.ApplyDodge(target)
+	}
+
+	var isCrit bool
+	if hitResult == HitResultCritical {
+		isCrit = true
+	}
+	c.Scene.ApplyDamage(target, damage, isCrit)
 
 	//FX
 	x, y := entity.X, entity.Y

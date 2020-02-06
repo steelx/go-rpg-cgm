@@ -96,7 +96,7 @@ func (c *CombatChoiceState) TakeAction(id string, targets []*combat.Actor) {
 
 	if id == "attack" {
 		logrus.Info("Entered TakeAction 'attack'")
-		attack := CEAttackCreate(c.CombatState, c.Actor, targets)
+		attack := CEAttackCreate(c.CombatState, c.Actor, targets, AttackOptions{})
 		tp := attack.TimePoints(*c.CombatState.EventQueue)
 		c.CombatState.EventQueue.Add(attack, tp)
 	}

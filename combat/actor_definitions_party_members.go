@@ -25,7 +25,8 @@ var HeroDef = ActorDef{
 		MpNow:    200,
 		MpMax:    200,
 		Strength: 10, Speed: 10, Intelligence: 10,
-		Attack: 10,
+		Attack:  10,
+		Counter: 1, //make it 0 to stop counter attacks by this Actor
 	},
 	StatGrowth: map[string]func() int{
 		"HpMax":        dice.Create("4d50+100"),

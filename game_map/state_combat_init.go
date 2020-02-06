@@ -512,7 +512,7 @@ func (c *CombatState) AddEffect(fx EffectState) {
 	c.EffectList = append(c.EffectList, fx)
 }
 
-func (c *CombatState) ApplyDamage(target *combat.Actor, damage float64) {
+func (c *CombatState) ApplyDamage(target *combat.Actor, damage float64, isCritical bool) {
 	stats := target.Stats
 	hp := stats.Get("HpNow") - damage
 	stats.Set("HpNow", math.Max(0, hp))
@@ -542,7 +542,12 @@ func (c *CombatState) ApplyDamage(target *combat.Actor, damage float64) {
 		c.AddEffect(hpEffect)
 	}
 
-	dmgEffect := JumpingNumbersFXCreate(x+offX, y, damage, "#ff2727") //red
+	dmgEffectColor := "#ff9054" //light red
+	if isCritical {
+		dmgEffectColor = "#ff2727" //red
+	}
+
+	dmgEffect := JumpingNumbersFXCreate(x+offX, y, damage, dmgEffectColor)
 	c.AddEffect(dmgEffect)
 	c.HandleDeath()
 }
@@ -628,4 +633,54 @@ func (c *CombatState) CalcCombatData() CombatData {
 	}
 
 	return drop
+}
+
+func (c *CombatState) ApplyDodge(target *combat.Actor) {
+	character := c.ActorCharMap[target]
+	state := character.Controller.Current
+
+	//check if its NOT csHurt then change it to csHurt
+	switch state.(type) {
+	case *CSHurt:
+		//do nothing if it is
+	default:
+		character.Controller.Change(csHurt, state)
+	}
+
+	c.AddTextEffect(target, "DODGE")
+}
+
+func (c *CombatState) ApplyMiss(target *combat.Actor) {
+	c.AddTextEffect(target, "MISS")
+}
+
+func (c *CombatState) AddTextEffect(actor *combat.Actor, txt string) {
+	character := c.ActorCharMap[actor]
+	entity := character.Entity
+	offX := 100.0
+	if actor.IsPlayer() {
+		offX = -100
+	}
+	x := entity.X + offX
+	y := entity.Y
+	effect := CombatTextFXCreate(x, y, txt)
+	c.AddEffect(effect)
+}
+
+func (c *CombatState) ApplyCounter(target, owner *combat.Actor) {
+	//not Alive
+	if target.Stats.Get("HpNow") <= 0 {
+		return
+	}
+
+	options := AttackOptions{
+		Counter: true,
+	}
+
+	// Add an attack state at -1
+	attack := CEAttackCreate(c, target, []*combat.Actor{owner}, options)
+	var tp float64 = -1 // immediate
+	c.EventQueue.Add(attack, tp)
+
+	c.AddTextEffect(target, "COUNTER")
 }

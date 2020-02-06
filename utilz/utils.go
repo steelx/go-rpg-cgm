@@ -192,6 +192,13 @@ func MaxInt(a, b int) int {
 	return b
 }
 
+//Clamp restricts a number to a certain range. If a value is too high,
+// it’s reduced to the maximum.
+// If it’s too low, it’s increased to the minimum.
+func Clamp(value, min, max float64) float64 {
+	return math.Max(min, math.Min(value, max))
+}
+
 func LoadTTF(path string, size float64) (font.Face, error) {
 	file, err := os.Open(path)
 	if err != nil {
