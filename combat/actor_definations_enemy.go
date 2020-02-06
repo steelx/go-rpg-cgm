@@ -18,4 +18,13 @@ var GoblinDef = ActorDef{
 	Name:     "Goblin",
 	Portrait: "../resources/avatar_hero.png",
 	Actions:  []string{attack},
+	Drop: Drop{
+		XP:     5,
+		Gold:   [2]int{0, 5},
+		Always: nil,
+		Chance: []DropChanceItem{
+			{Oddment: 95, ItemId: -1},
+			{Oddment: 3, ItemId: 11},
+		},
+	},
 }

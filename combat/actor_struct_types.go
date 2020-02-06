@@ -14,6 +14,19 @@ type ActorDef struct {
 	ActiveEquipSlots []int
 	IsPlayer         bool
 	Equipment
+	Drop
+}
+
+type DropChanceItem struct {
+	Oddment float64
+	ItemId  int //item ID
+}
+
+type Drop struct {
+	XP     float64
+	Gold   [2]int //range min, max
+	Always []int  //item ids that are guaranteed to drop
+	Chance []DropChanceItem
 }
 
 type LevelUp struct {
