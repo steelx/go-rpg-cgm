@@ -103,6 +103,48 @@ func mapArena(gStack *gui.StateStack) MapInfo {
 		gStack.PushSelectionMenu(x, y, 300, 70, "You found a treasure chest", choices, onSelection, true)
 	}
 
+	enterFight := func(gameMap *GameMap, entity *Entity, tileX, tileY float64) {
+		x, y := gameMap.GetTileIndex(tileX, tileY)
+		enemyDef := combat.GoblinDef
+		enemy1 := combat.ActorCreate(enemyDef, "1")
+		enemy2 := combat.ActorCreate(enemyDef, "2")
+		enemy3 := combat.ActorCreate(enemyDef, "3")
+
+		readyForFight := func() {
+			gStack.Pop() //remove selection menu
+
+			combatState := CombatStateCreate(gStack, gStack.Win, CombatDef{
+				Background: "../resources/arena_background.png",
+				Actors: Actors{
+					Party:   worldI.Party.ToArray(),
+					Enemies: []*combat.Actor{&enemy1, &enemy2, &enemy3},
+				},
+			})
+
+			storyboardEvents := []interface{}{
+				Wait(0),
+				BlackScreen("blackscreen"),
+				Wait(1),
+				KillState("blackscreen"),
+				ReplaceState(gStack.States[len(gStack.States)-1], combatState),
+			}
+			storyboard := StoryboardCreate(gStack, gStack.Win, storyboardEvents, false)
+			gStack.Push(storyboard)
+		}
+
+		choices := []string{
+			"Ready for fight",
+			"Get back, prepare team",
+		}
+		onSelection := func(index int, c interface{}) {
+			if index == 0 {
+				readyForFight()
+			}
+		}
+
+		gStack.PushSelectionMenu(x, y, 300, 70, "You get spotted by door guards, Goblins !!", choices, onSelection, true)
+	}
+
 	return MapInfo{
 		Tilemap:            gMap,
 		CollisionLayer:     2,
@@ -128,6 +170,10 @@ func mapArena(gStack *gui.StateStack) MapInfo {
 				Id:     "RunScript",
 				Script: addChest,
 			},
+			"enter_fight": {
+				Id:     "RunScript",
+				Script: enterFight,
+			},
 		},
 		TriggerTypes: map[string]TriggerType{
 			"talk_recruit_at_alley": {
@@ -136,11 +182,17 @@ func mapArena(gStack *gui.StateStack) MapInfo {
 			"add_chest_1": {
 				OnUse: "add_chest",
 			},
+			"enter_fight_at_gate": {
+				OnEnter: "enter_fight",
+			},
 		},
 		Triggers: []TriggerParam{
 			{Id: "talk_recruit_at_alley", X: 36, Y: 12},
 			{Id: "talk_recruit_at_alley", X: 37, Y: 10},
 			{Id: "add_chest_1", X: 17, Y: 14},
+			{Id: "enter_fight_at_gate", X: 22, Y: 42},
+			{Id: "enter_fight_at_gate", X: 23, Y: 42},
+			{Id: "enter_fight_at_gate", X: 24, Y: 42},
 		},
 	}
 }

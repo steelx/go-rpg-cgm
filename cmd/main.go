@@ -56,41 +56,24 @@ func setup(win *pixelgl.Window) {
 
 	gWorld = combat.WorldExtendedCreate()
 	gWorld.Party.Add(combat.ActorCreate(combat.HeroDef))
-	gWorld.Party.Add(combat.ActorCreate(combat.MageDef))
-	gWorld.Party.Add(combat.ActorCreate(combat.ThiefDef))
 
 	stack.Globals["world"] = gWorld
 
 	var storyboardI = game_map.StoryboardCreate(stack, win, game_map.IntroScene, false)
-	stack.PushFitted(200, 1300, "storyboardI stack pop out.. :)")
 	stack.Push(storyboardI)
 
-	enemyDef := combat.GoblinDef
-	enemy1 := combat.ActorCreate(enemyDef, "1")
-	enemy2 := combat.ActorCreate(enemyDef, "2")
-	enemy3 := combat.ActorCreate(enemyDef, "3")
-	combatState := game_map.CombatStateCreate(stack, win, game_map.CombatDef{
-		Background: "../resources/arena_background.png",
-		Actors: game_map.Actors{
-			Party:   gWorld.Party.ToArray(),
-			Enemies: []*combat.Actor{&enemy1, &enemy2, &enemy3},
-		},
-	})
-	stack.Push(combatState)
-	//stack.Push(game_map.XPSummaryStateCreate(stack, win, *gWorld.Party, game_map.CombatData{XP: 4}))
-	//stack.Push(game_map.LootSummaryStateCreate(stack, win, gWorld, game_map.CombatData{
-	//	XP:   30,
-	//	Gold: 100,
-	//	Loot: []world.ItemIndex{
-	//		{1, 1},
-	//		{2, 1},
-	//		{3, 1},
-	//		{9, 1},
-	//		{6, 1},
-	//		{7, 1},
-	//		{10, 5},
+	//enemyDef := combat.GoblinDef
+	//enemy1 := combat.ActorCreate(enemyDef, "1")
+	//enemy2 := combat.ActorCreate(enemyDef, "2")
+	//enemy3 := combat.ActorCreate(enemyDef, "3")
+	//combatState := game_map.CombatStateCreate(stack, win, game_map.CombatDef{
+	//	Background: "../resources/arena_background.png",
+	//	Actors: game_map.Actors{
+	//		Party:   gWorld.Party.ToArray(),
+	//		Enemies: []*combat.Actor{&enemy1, &enemy2, &enemy3},
 	//	},
-	//}))
+	//})
+	//stack.Push(combatState)
 
 	stack.Push(gui.TitleScreenCreate(stack, win))
 
