@@ -167,6 +167,19 @@ func (s *LootSummaryState) HandleInput(win *pixelgl.Window) {
 			return
 		}
 		s.Stack.Pop()
+		//pending new map after winning
+		storyboardEvents := []interface{}{
+			Wait(0),
+			BlackScreen("blackscreen"),
+			Wait(1),
+			KillState("blackscreen"),
+			//ReplaceState(s, combatState),//then dont Pop()
+			ReplaceScene("handin", "map_sewer", 3, 5, false, win),
+			PlayBGSound("../sound/reveal.mp3"),
+			HandOffToMainStack("map_sewer"),
+		}
+		storyboard := StoryboardCreate(s.Stack, win, storyboardEvents, false)
+		s.Stack.Push(storyboard)
 	}
 }
 

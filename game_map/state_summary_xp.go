@@ -9,6 +9,7 @@ import (
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/world"
 	"math"
+	"reflect"
 )
 
 type XPSummaryState struct {
@@ -163,7 +164,8 @@ func (s *XPSummaryState) HandleInput(win *pixelgl.Window) {
 			return
 		}
 
-		s.Stack.Pop()
+		//s.Stack.Pop()
+		s.GotoLootSummary()
 	}
 }
 
@@ -212,4 +214,19 @@ func (s *XPSummaryState) CloseNextPopUp() {
 			v.CancelPopUp()
 		}
 	}
+}
+
+func (s *XPSummaryState) GotoLootSummary() {
+	world_ := reflect.ValueOf(s.Stack.Globals["world"]).Interface().(*combat.WorldExtended)
+	lootSummaryState := LootSummaryStateCreate(s.Stack, s.win, world_, s.CombatData)
+
+	storyboardEvents := []interface{}{
+		Wait(0),
+		BlackScreen("blackscreen"),
+		Wait(1),
+		KillState("blackscreen"),
+		ReplaceState(s, lootSummaryState),
+	}
+	storyboard := StoryboardCreate(s.Stack, s.win, storyboardEvents, false)
+	s.Stack.Push(storyboard)
 }
