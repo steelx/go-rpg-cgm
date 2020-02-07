@@ -36,19 +36,20 @@ const (
 )
 
 type CombatState struct {
-	GameState     *gui.StateStack
-	InternalStack *gui.StateStack
-	win           *pixelgl.Window
-	Background    *pixel.Sprite
-	Pos           pixel.Vec
-	Layout        map[string][][]pixel.Vec
-	Actors        map[string][]*combat.Actor
-	Characters    map[string][]*Character
-	DeathList     []*Character
-	ActorCharMap  map[*combat.Actor]*Character
-	SelectedActor *combat.Actor
-	EffectList    []EffectState
-	Loot          []combat.ActorDropItem
+	GameState        *gui.StateStack
+	InternalStack    *gui.StateStack
+	win              *pixelgl.Window
+	Background       *pixel.Sprite
+	BackgroundBounds pixel.Rect
+	Pos              pixel.Vec
+	Layout           map[string][][]pixel.Vec
+	Actors           map[string][]*combat.Actor
+	Characters       map[string][]*Character
+	DeathList        []*Character
+	ActorCharMap     map[*combat.Actor]*Character
+	SelectedActor    *combat.Actor
+	EffectList       []EffectState
+	Loot             []combat.ActorDropItem
 
 	Panels []gui.Panel
 	TipPanel,
@@ -87,12 +88,17 @@ func CombatStateCreate(state *gui.StateStack, win *pixelgl.Window, def CombatDef
 	layout.SplitHorz("bottom", "tip", "bottom", 0.24, 0)
 	layout.SplitVert("bottom", "left", "right", 0.67, 0)
 
+	bottomH := layout.Top("left")
+	screenW := win.Bounds().W()
+	screenH := win.Bounds().H()
+	bgBounds := pixel.R(0, bottomH, screenW, screenH)
 	c := &CombatState{
-		win:           win,
-		GameState:     state,
-		InternalStack: gui.StateStackCreate(win),
-		Background:    pixel.NewSprite(backgroundImg, backgroundImg.Bounds()),
-		Pos:           pos,
+		win:              win,
+		GameState:        state,
+		InternalStack:    gui.StateStackCreate(win),
+		BackgroundBounds: bgBounds,
+		Background:       pixel.NewSprite(backgroundImg, bgBounds),
+		Pos:              pos,
 		Actors: map[string][]*combat.Actor{
 			party:   def.Actors.Party,
 			enemies: def.Actors.Enemies,
@@ -242,7 +248,7 @@ func (c *CombatState) Update(dt float64) bool {
 }
 
 func (c CombatState) Render(renderer *pixelgl.Window) {
-	c.Background.Draw(renderer, pixel.IM.Scaled(c.Pos, 1).Moved(c.Pos))
+	c.Background.Draw(renderer, pixel.IM.Moved(c.Pos))
 
 	for _, v := range c.Characters[party] {
 		pos := pixel.V(v.Entity.X, v.Entity.Y)

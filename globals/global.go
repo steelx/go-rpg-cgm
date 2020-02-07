@@ -25,7 +25,7 @@ type GlobalVars struct {
 
 var Global = &GlobalVars{
 	WindowHeight:      480,
-	WindowWidth:       800,
+	WindowWidth:       640,
 	Vsync:             true,
 	Undecorated:       false,
 	ClearColor:        utilz.HexToColor("#12161A"),
