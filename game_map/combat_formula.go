@@ -22,6 +22,7 @@ type FormulaT struct {
 	IsHit       func(state *CombatState, attacker, target *combat.Actor) HitResult
 	IsDodged    func(state *CombatState, attacker, target *combat.Actor) bool
 	IsCountered func(state *CombatState, attacker, target *combat.Actor) bool
+	CanFlee     func(state *CombatState, target *combat.Actor) bool
 }
 
 var Formula = FormulaT{
@@ -31,6 +32,7 @@ var Formula = FormulaT{
 	IsHit:       isHit,
 	IsDodged:    isDodged,
 	IsCountered: isCountered,
+	CanFlee:     canFlee,
 }
 
 func meleeAttack(state *CombatState, attacker, target *combat.Actor) (dmg float64, hit HitResult) {
@@ -124,4 +126,25 @@ func calcDamage(state *CombatState, attacker, target *combat.Actor) (dmg float64
 
 	attack := baseAttack(state, attacker, target)
 	return math.Floor(math.Max(0, attack-defense))
+}
+
+func canFlee(state *CombatState, target *combat.Actor) bool {
+	fc := 0.35 // flee chance
+	stats := target.Stats
+	speed := stats.Get("Speed")
+
+	// Get the average speed of the enemies
+	var enemyCount, totalSpeed float64
+	for _, v := range state.Actors[enemies] {
+		speed := v.Stats.Get("Speed")
+		totalSpeed += speed
+		enemyCount += 1
+	}
+	avgSpeed := totalSpeed / enemyCount
+	if speed > avgSpeed {
+		fc = fc + 0.15
+	} else {
+		fc = fc - 0.15
+	}
+	return utilz.RandFloat(0, 1) <= fc
 }

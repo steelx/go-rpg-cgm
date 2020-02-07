@@ -42,7 +42,8 @@ type CombatState struct {
 	Background       *pixel.Sprite
 	BackgroundBounds pixel.Rect
 	Pos              pixel.Vec
-	Layout           map[string][][]pixel.Vec
+	Layout           gui.Layout
+	LayoutMap        map[string][][]pixel.Vec
 	Actors           map[string][]*combat.Actor
 	Characters       map[string][]*Character
 	DeathList        []*Character
@@ -54,7 +55,9 @@ type CombatState struct {
 	Panels []gui.Panel
 	TipPanel,
 	NoticePanel gui.Panel
-	PanelTitles []PanelTitle
+	tipPanelText, noticePanelText string
+	showTipPanel, showNoticePanel bool
+	PanelTitles                   []PanelTitle
 	PartyList,
 	StatsList *gui.SelectionMenu
 	//HP and MP columns in the bottom right panel
@@ -65,6 +68,7 @@ type CombatState struct {
 	imd         *imdraw.IMDraw
 	EventQueue  *EventQueue
 	IsFinishing bool
+	Fled        bool
 }
 
 type PanelTitle struct {
@@ -110,9 +114,10 @@ func CombatStateCreate(state *gui.StateStack, win *pixelgl.Window, def CombatDef
 		marginTop:    20,
 		imd:          imdraw.New(nil),
 		EventQueue:   EventsQueueCreate(),
+		Layout:       layout,
 	}
 
-	c.Layout = combatLayout
+	c.LayoutMap = combatLayout
 	c.CreateCombatCharacters(party)
 	c.CreateCombatCharacters(enemies)
 
@@ -120,6 +125,9 @@ func CombatStateCreate(state *gui.StateStack, win *pixelgl.Window, def CombatDef
 		layout.CreatePanel("left"),
 		layout.CreatePanel("right"),
 	}
+
+	c.showTipPanel = false
+	c.showNoticePanel = false
 	c.TipPanel = layout.CreatePanel("tip")
 	c.NoticePanel = layout.CreatePanel("notice")
 
@@ -233,13 +241,11 @@ func (c *CombatState) Update(dt float64) bool {
 		c.AddTurns(c.Actors[party])
 		c.AddTurns(c.Actors[enemies])
 
-		if c.PartyWins() {
+		if c.PartyWins() || c.HasPartyFled() {
 			c.EventQueue.Clear()
-			logrus.Info("YOU WON") //temp
 			c.OnWin()
 		} else if c.EnemyWins() {
 			c.EventQueue.Clear()
-			logrus.Info("YOU LOST!") //temp
 			c.OnLose()
 		}
 	}
@@ -271,8 +277,25 @@ func (c CombatState) Render(renderer *pixelgl.Window) {
 	for _, v := range c.Panels {
 		v.Draw(renderer)
 	}
-	//c.TipPanel.Draw(renderer)
-	//c.NoticePanel.Draw(renderer) //pending
+	if c.showTipPanel {
+		x := c.Layout.MidX("tip") - 10
+		y := c.Layout.MidY("tip")
+		c.TipPanel.Draw(renderer)
+
+		textBase := text.New(pixel.V(x, y), gui.BasicAtlasAscii)
+		fmt.Fprintln(textBase, c.tipPanelText)
+		textBase.Draw(renderer, pixel.IM)
+	}
+
+	if c.showNoticePanel {
+		x := c.Layout.MidX("notice") - 10
+		y := c.Layout.MidY("notice")
+		c.NoticePanel.Draw(renderer)
+
+		textBase := text.New(pixel.V(x, y), gui.BasicAtlasAscii)
+		fmt.Fprintln(textBase, c.noticePanelText)
+		textBase.Draw(renderer, pixel.IM)
+	}
 
 	textBase := text.New(pixel.V(0, 0), gui.BasicAtlas12)
 	//textBase.Color = txtColor
@@ -297,7 +320,7 @@ func (c *CombatState) HandleInput(win *pixelgl.Window) {
 
 func (c *CombatState) CreateCombatCharacters(key string) {
 	actorsList := c.Actors[key]
-	layout := c.Layout[key][len(actorsList)-1]
+	layout := c.LayoutMap[key][len(actorsList)-1]
 
 	for k, v := range actorsList {
 		charDef, ok := CharacterDefinitions[v.Id]
@@ -559,6 +582,13 @@ func (c *CombatState) ApplyDamage(target *combat.Actor, damage float64, isCritic
 	c.HandleDeath()
 }
 
+func (c *CombatState) OnFlee() {
+	c.Fled = true
+}
+func (c *CombatState) HasPartyFled() bool {
+	return c.Fled
+}
+
 func (c *CombatState) OnWin() {
 	//Tell all living party members to dance.
 	for _, v := range c.Actors[party] {
@@ -690,4 +720,19 @@ func (c *CombatState) ApplyCounter(target, owner *combat.Actor) {
 	c.EventQueue.Add(attack, tp)
 
 	c.AddTextEffect(target, "COUNTER", 3)
+}
+
+func (c *CombatState) ShowTip(txt string) {
+	c.showTipPanel = true
+	c.tipPanelText = txt
+}
+func (c *CombatState) ShowNotice(txt string) {
+	c.showNoticePanel = true
+	c.noticePanelText = txt
+}
+func (c *CombatState) HideTip() {
+	c.showTipPanel = false
+}
+func (c *CombatState) HideNotice() {
+	c.showNoticePanel = false
 }
