@@ -257,7 +257,8 @@ func (c CombatState) Render(renderer *pixelgl.Window) {
 		v.Entity.Render(nil, renderer, pos)
 	}
 
-	for _, v := range c.EffectList {
+	for i := len(c.EffectList) - 1; i >= 0; i-- {
+		v := c.EffectList[i]
 		v.Render(renderer)
 	}
 
@@ -647,14 +648,14 @@ func (c *CombatState) ApplyDodge(target *combat.Actor) {
 		character.Controller.Change(csHurt, state)
 	}
 
-	c.AddTextEffect(target, "DODGE")
+	c.AddTextEffect(target, "DODGE", 2)
 }
 
 func (c *CombatState) ApplyMiss(target *combat.Actor) {
-	c.AddTextEffect(target, "MISS")
+	c.AddTextEffect(target, "MISS", 2)
 }
 
-func (c *CombatState) AddTextEffect(actor *combat.Actor, txt string) {
+func (c *CombatState) AddTextEffect(actor *combat.Actor, txt string, priority int) {
 	character := c.ActorCharMap[actor]
 	entity := character.Entity
 	offX := 100.0
@@ -663,13 +664,13 @@ func (c *CombatState) AddTextEffect(actor *combat.Actor, txt string) {
 	}
 	x := entity.X + offX
 	y := entity.Y
-	effect := CombatTextFXCreate(x, y, txt)
+	effect := CombatTextFXCreate(x, y, txt, "#FFFFFF", priority)
 	c.AddEffect(effect)
 }
 
 func (c *CombatState) ApplyCounter(target, owner *combat.Actor) {
 	//not Alive
-	if target.Stats.Get("HpNow") <= 0 {
+	if alive := target.Stats.Get("HpNow") > 0; !alive {
 		return
 	}
 
@@ -682,5 +683,5 @@ func (c *CombatState) ApplyCounter(target, owner *combat.Actor) {
 	var tp float64 = -1 // immediate
 	c.EventQueue.Add(attack, tp)
 
-	c.AddTextEffect(target, "COUNTER")
+	c.AddTextEffect(target, "COUNTER", 3)
 }

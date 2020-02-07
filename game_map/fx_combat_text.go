@@ -32,6 +32,10 @@ func CombatTextFXCreate(x, y float64, txt string, params ...interface{}) *Combat
 		hexColor := reflect.ValueOf(params[0]).Interface().(string)
 		color_ = utilz.HexToColor(hexColor)
 	}
+	priority := 2
+	if len(params) >= 2 {
+		priority = reflect.ValueOf(params[1]).Interface().(int)
+	}
 
 	return &CombatTextFX{
 		X:           x,
@@ -46,7 +50,7 @@ func CombatTextFXCreate(x, y float64, txt string, params ...interface{}) *Combat
 		HoldTime:    0.5,
 		HoldCounter: 0,
 		FadeSpeed:   3,
-		priority:    2,
+		priority:    priority,
 	}
 }
 
