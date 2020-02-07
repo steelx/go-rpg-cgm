@@ -6,8 +6,10 @@ import (
 )
 
 const (
-	attack = "attack"
-	item   = "item"
+	ActionAttack  = "attack"
+	ActionItem    = "item"
+	ActionSpecial = "special"
+	ActionFlee    = "flee"
 )
 
 var PartyMembersDefinitions = map[string]ActorDef{
@@ -37,7 +39,7 @@ var HeroDef = ActorDef{
 	},
 	Name:             "Chandragupta",
 	Portrait:         "../resources/avatar_hero.png",
-	Actions:          []string{attack, item},
+	Actions:          []string{ActionAttack, ActionSpecial, ActionItem, ActionFlee},
 	ActiveEquipSlots: []int{0, 1, 2, 3},
 }
 
@@ -60,7 +62,7 @@ var MageDef = ActorDef{
 	},
 	Name:             "Mrignayani",
 	Portrait:         "../resources/avatar_mage.png",
-	Actions:          []string{attack, item},
+	Actions:          []string{ActionAttack, ActionSpecial, ActionItem, ActionFlee},
 	ActiveEquipSlots: []int{0, 1, 2, 3}, //mage if no attack slot, Access goes to Attack slot(fix pending)
 }
 
@@ -84,6 +86,6 @@ var ThiefDef = ActorDef{
 	},
 	Name:             "Shashank",
 	Portrait:         "../resources/avatar_thief.png",
-	Actions:          []string{attack, item},
+	Actions:          []string{ActionAttack, ActionSpecial, ActionItem, ActionFlee},
 	ActiveEquipSlots: []int{0, 1, 2, 3},
 }
