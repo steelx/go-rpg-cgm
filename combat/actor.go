@@ -13,7 +13,7 @@ import (
 type ActorDropItem struct {
 	XP     float64
 	Gold   float64
-	Always []int //item ids that are guaranteed to drop
+	Always []int //ActionItem ids that are guaranteed to drop
 	Chance *OddmentTable
 }
 

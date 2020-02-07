@@ -57,6 +57,7 @@ type BaseStats struct {
 	MpNow, MpMax                   float64
 	Strength, Speed, Intelligence  float64 //ActorStats
 	Attack, Defense, Magic, Resist float64 //ItemStats
+	Counter                        float64
 }
 
 type Modifier struct {

@@ -69,7 +69,7 @@ func (c CombatChoiceState) HandleInput(win *pixelgl.Window) {
 
 func (c *CombatChoiceState) OnSelect(index int, str interface{}) {
 	actionItem := reflect.ValueOf(str).Interface().(string)
-	if actionItem == "attack" {
+	if actionItem == combat.ActionAttack {
 		c.Selection.HideCursor()
 
 		state := CombatTargetStateCreate(c.CombatState, CombatChoiceParams{
@@ -85,20 +85,29 @@ func (c *CombatChoiceState) OnSelect(index int, str interface{}) {
 		})
 		c.Stack.Push(state)
 	}
+
+	if actionItem == combat.ActionFlee {
+		c.Stack.Pop() // choice state
+		queue := c.CombatState.EventQueue
+		event := CEFleeCreate(c.CombatState, c.Actor, CSMoveParams{Dir: 8, Distance: 180, Time: 0.6})
+		tp := event.TimePoints(queue)
+		queue.Add(event, tp)
+	}
 }
 
 //TakeAction function pops the CombatTargetState and CombatChoiceState off the
-//stack. This leaves the CombatState internal stack empty and causes the mEventQueue
+//stack. This leaves the CombatState internal stack empty and causes the EventQueue
 //to start updating again.
 func (c *CombatChoiceState) TakeAction(id string, targets []*combat.Actor) {
 	c.Stack.Pop() //select state
 	c.Stack.Pop() //action state
 
-	if id == "attack" {
+	if id == combat.ActionAttack {
 		logrus.Info("Entered TakeAction 'attack'")
-		attack := CEAttackCreate(c.CombatState, c.Actor, targets)
+		attack := CEAttackCreate(c.CombatState, c.Actor, targets, AttackOptions{})
 		tp := attack.TimePoints(*c.CombatState.EventQueue)
 		c.CombatState.EventQueue.Add(attack, tp)
+		return
 	}
 }
 
@@ -122,12 +131,12 @@ func (c *CombatChoiceState) CreateActionDialog(choices interface{}) {
 	c.Selection = &selectionMenu
 
 	x := c.Stack.Win.Bounds().W() / 2
-	y := -c.Stack.Win.Bounds().H() / 2
+	y := c.Stack.Win.Bounds().H() / 2
 
 	height := c.Selection.GetHeight() + 18
 	//width := c.Selection.GetWidth() + 16
 
-	y = y + height + 16
+	y = y - height
 	x = x - 90
 
 	c.textbox = gui.TextboxFITPassedMenuCreate(

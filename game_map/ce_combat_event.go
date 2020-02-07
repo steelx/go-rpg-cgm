@@ -3,7 +3,7 @@ package game_map
 import "github.com/steelx/go-rpg-cgm/combat"
 
 //CombatEvent (CE)
-type Event interface {
+type CombatEvent interface {
 	Name() string
 	CountDown() float64
 	CountDownSet(t float64)

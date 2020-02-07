@@ -16,10 +16,16 @@ type CEAttack struct {
 	Storyboard      *Storyboard
 	AttackEntityDef EntityDefinition
 	DefaultTargeter func(state *CombatState) []*combat.Actor
+	options         AttackOptions
 }
 
-func CEAttackCreate(scene *CombatState, owner *combat.Actor, targets []*combat.Actor) *CEAttack {
+type AttackOptions struct {
+	Counter bool
+}
+
+func CEAttackCreate(scene *CombatState, owner *combat.Actor, targets []*combat.Actor, options AttackOptions) *CEAttack {
 	c := &CEAttack{
+		options:   options,
 		Scene:     scene,
 		owner:     owner,
 		Targets:   targets,
@@ -34,10 +40,10 @@ func CEAttackCreate(scene *CombatState, owner *combat.Actor, targets []*combat.A
 
 		storyboardEvents = []interface{}{
 			//stateMachine, stateID, ...animID, additionalParams
-			RunState(c.Character.Controller, csMove, CSMoveParams{Dir: 1}),
+			RunState(c.Character.Controller, csMove, CSMoveParams{Dir: 5}),
 			RunState(c.Character.Controller, csRunanim, csAttack, false),
 			RunFunction(c.DoAttack),
-			RunState(c.Character.Controller, csMove, CSMoveParams{Dir: -1}),
+			RunState(c.Character.Controller, csMove, CSMoveParams{Dir: -5}),
 			RunFunction(c.onFinished),
 			RunState(c.Character.Controller, csRunanim, csStandby, false),
 		}
@@ -46,9 +52,9 @@ func CEAttackCreate(scene *CombatState, owner *combat.Actor, targets []*combat.A
 		c.AttackEntityDef = Entities["claw"]
 
 		storyboardEvents = []interface{}{
-			RunState(c.Character.Controller, csMove, CSMoveParams{Dir: -1, Distance: 10, Time: 0.2}),
+			RunState(c.Character.Controller, csMove, CSMoveParams{Dir: -3, Distance: 10, Time: 0.2}),
 			RunFunction(c.DoAttack),
-			RunState(c.Character.Controller, csMove, CSMoveParams{Dir: 1, Distance: 10, Time: 0.4}),
+			RunState(c.Character.Controller, csMove, CSMoveParams{Dir: 3, Distance: 10, Time: 0.4}),
 			RunFunction(c.onFinished),
 			RunState(c.Character.Controller, csRunanim, csStandby, false),
 		}
@@ -112,16 +118,41 @@ func (c *CEAttack) onFinished() {
 	c.Finished = true
 }
 
+//CounterTarget - Decide if the attack is countered.
+func (c *CEAttack) CounterTarget(target *combat.Actor) {
+	countered := Formula.IsCountered(c.Scene, c.owner, target)
+	if countered {
+		c.Scene.ApplyCounter(target, c.owner)
+	}
+}
+
 func (c *CEAttack) DoAttack() {
 	for _, v := range c.Targets {
 		c.attackTarget(v)
+
+		if !c.options.Counter {
+			c.CounterTarget(v)
+		}
 	}
 }
 func (c *CEAttack) attackTarget(target *combat.Actor) {
 
-	damage := Formula.MeleeAttack(c.Scene, c.owner, target)
+	//hit result lets us know the status of this attack
+	damage, hitResult := Formula.MeleeAttack(c.Scene, c.owner, target)
 	entity := c.Scene.ActorCharMap[target].Entity
-	c.Scene.ApplyDamage(target, damage)
+
+	if hitResult == HitResultMiss {
+		c.Scene.ApplyMiss(target)
+		return
+	} else if hitResult == HitResultDodge {
+		c.Scene.ApplyDodge(target)
+	}
+
+	var isCrit bool
+	if hitResult == HitResultCritical {
+		isCrit = true
+	}
+	c.Scene.ApplyDamage(target, damage, isCrit)
 
 	//FX
 	x, y := entity.X, entity.Y

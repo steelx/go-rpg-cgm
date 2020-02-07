@@ -57,7 +57,7 @@ func (c *CETurn) Execute(queue *EventQueue) {
 		// do a dumb attack
 		targets := CombatSelector.RandomAlivePlayer(c.Scene)
 		queue := c.Scene.EventQueue
-		event := CEAttackCreate(c.Scene, c.owner, targets)
+		event := CEAttackCreate(c.Scene, c.owner, targets, AttackOptions{})
 		tp := event.TimePoints(*queue)
 		queue.Add(event, tp)
 	}

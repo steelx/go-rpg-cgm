@@ -12,19 +12,19 @@ import (
 )
 
 type EventQueue struct {
-	Queue        []Event
-	CurrentEvent Event
+	Queue        []CombatEvent
+	CurrentEvent CombatEvent
 }
 
 func EventsQueueCreate() *EventQueue {
 
 	return &EventQueue{
-		Queue:        make([]Event, 0),
+		Queue:        make([]CombatEvent, 0),
 		CurrentEvent: nil,
 	}
 }
 
-func (q *EventQueue) Add(eventI Event, timePoints float64) {
+func (q *EventQueue) Add(eventI CombatEvent, timePoints float64) {
 	//Instant event
 	eventI.CountDownSet(timePoints)
 	if timePoints == -1 {
@@ -44,8 +44,8 @@ func (q *EventQueue) Add(eventI Event, timePoints float64) {
 	q.Queue = append(q.Queue, eventI)
 }
 
-func (q *EventQueue) insertAtIndex(index int, eventI Event) {
-	temp := append([]Event{}, q.Queue[index:]...)
+func (q *EventQueue) insertAtIndex(index int, eventI CombatEvent) {
+	temp := append([]CombatEvent{}, q.Queue[index:]...)
 	q.Queue = append(q.Queue[0:index], eventI)
 	q.Queue = append(q.Queue, temp...)
 }
@@ -56,7 +56,7 @@ func (q *EventQueue) removeQueAtIndex(i int) {
 }
 
 func (q *EventQueue) Clear() {
-	q.Queue = make([]Event, 0)
+	q.Queue = make([]CombatEvent, 0)
 	q.CurrentEvent = nil
 }
 func (q EventQueue) IsEmpty() bool {
