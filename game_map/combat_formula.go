@@ -16,13 +16,17 @@ const (
 )
 
 type FormulaT struct {
-	MeleeAttack func(state *CombatState, attacker, target *combat.Actor) (dmg float64, hit HitResult)
-	BaseAttack  func(state *CombatState, attacker, target *combat.Actor) (dmg float64)
-	CalcDamage  func(state *CombatState, attacker, target *combat.Actor) (dmg float64)
-	IsHit       func(state *CombatState, attacker, target *combat.Actor) HitResult
-	IsDodged    func(state *CombatState, attacker, target *combat.Actor) bool
-	IsCountered func(state *CombatState, attacker, target *combat.Actor) bool
-	CanFlee     func(state *CombatState, target *combat.Actor) bool
+	MeleeAttack      func(state *CombatState, attacker, target *combat.Actor) (dmg float64, hit HitResult)
+	BaseAttack       func(state *CombatState, attacker, target *combat.Actor) (dmg float64)
+	CalcDamage       func(state *CombatState, attacker, target *combat.Actor) (dmg float64)
+	IsHit            func(state *CombatState, attacker, target *combat.Actor) HitResult
+	IsDodged         func(state *CombatState, attacker, target *combat.Actor) bool
+	IsCountered      func(state *CombatState, attacker, target *combat.Actor) bool
+	CanFlee          func(state *CombatState, target *combat.Actor) bool
+	MostHurtEnemy    func(state *CombatState) []*combat.Actor
+	MostHurtParty    func(state *CombatState) []*combat.Actor
+	MostDrainedParty func(state *CombatState) []*combat.Actor
+	DeadParty        func(state *CombatState) []*combat.Actor
 }
 
 var Formula = FormulaT{
@@ -33,6 +37,18 @@ var Formula = FormulaT{
 	IsDodged:    isDodged,
 	IsCountered: isCountered,
 	CanFlee:     canFlee,
+	MostHurtEnemy: func(state *CombatState) []*combat.Actor {
+		return WeakestActor(state.Actors[enemies], true)
+	},
+	MostHurtParty: func(state *CombatState) []*combat.Actor {
+		return WeakestActor(state.Actors[party], true)
+	},
+	MostDrainedParty: func(state *CombatState) []*combat.Actor {
+		return MostDrainedActor(state.Actors[party], true)
+	},
+	DeadParty: func(state *CombatState) []*combat.Actor {
+		return DeadActors(state.Actors[party])
+	},
 }
 
 func meleeAttack(state *CombatState, attacker, target *combat.Actor) (dmg float64, hit HitResult) {
@@ -147,4 +163,68 @@ func canFlee(state *CombatState, target *combat.Actor) bool {
 		fc = fc - 0.15
 	}
 	return utilz.RandFloat(0, 1) <= fc
+}
+
+func WeakestActor(actors []*combat.Actor, onlyCheckHurt bool) []*combat.Actor {
+	var target *combat.Actor = nil
+	health := 99999.9
+
+	for _, v := range actors {
+		hp := v.Stats.Get("HpNow")
+		isHurt := false
+		if hp < v.Stats.Get("HpMax") {
+			isHurt = true
+		}
+		skip := false
+		if onlyCheckHurt && !isHurt {
+			skip = true
+		}
+		if hp < health && !skip {
+			health = hp
+			target = v
+		}
+	}
+
+	if target != nil {
+		return []*combat.Actor{target}
+	}
+
+	return []*combat.Actor{actors[0]}
+}
+
+func MostDrainedActor(actors []*combat.Actor, onlyCheckDrained bool) []*combat.Actor {
+	var target *combat.Actor = nil
+	magic := 99999.9
+
+	for _, v := range actors {
+		mp := v.Stats.Get("MpNow")
+		isDrained := false
+		if mp < v.Stats.Get("MpMax") {
+			isDrained = true
+		}
+		skip := false
+		if onlyCheckDrained && !isDrained {
+			skip = true
+		}
+		if mp < magic && !skip {
+			magic = mp
+			target = v
+		}
+	}
+	if target != nil {
+		return []*combat.Actor{target}
+	}
+
+	return []*combat.Actor{actors[0]}
+}
+
+func DeadActors(actors []*combat.Actor) []*combat.Actor {
+	for _, v := range actors {
+		hp := v.Stats.Get("HpNow")
+		if hp <= 0 {
+			return []*combat.Actor{v}
+		}
+	}
+
+	return []*combat.Actor{actors[0]}
 }

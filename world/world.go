@@ -187,3 +187,15 @@ func (w *World) HasKey(id int) bool {
 func (w *World) Get(idx ItemIndex) Item {
 	return ItemsDB[idx.Id]
 }
+
+func (w *World) FilterItems(predicate ItemType) []ItemIndex {
+	list := make([]ItemIndex, 0)
+	for _, v := range w.Items {
+		item := ItemsDB[v.Id]
+		if item.ItemType == predicate {
+			list = append(list, v)
+		}
+	}
+
+	return list
+}

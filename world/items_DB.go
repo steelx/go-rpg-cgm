@@ -20,24 +20,36 @@ type Action int
 
 const (
 	Revive Action = iota
-	Heal
+	HpRestore
 	ReviveMana
 )
 
 type ActionTarget int
+type TargetType int
 
 const (
-	Any ActionTarget = iota
-	FriendlyDead
-	FriendlyLowestMana
+	TargetTypeOne TargetType = iota
+	TargetTypeTwo
+)
+
+const (
+	Any                ActionTarget = iota
+	MostlyHurtParty                 //lowest HP that is below their max HP value.
+	MostlyDrainedParty              //lowest MP
+	DeadParty
 	Enemy
 )
 
+type ItemTarget struct {
+	Selector    ActionTarget
+	SwitchSides bool
+	TargetType  TargetType
+}
+
 type UseAction struct {
-	Action        Action
-	Target        ActionTarget //character type
-	TargetDefault ActionTarget
-	Hint          string
+	Action Action
+	Target ItemTarget
+	Hint   string
 }
 
 type ItemType int
@@ -228,10 +240,13 @@ func init() {
 		Description: "Heal a small amount of HP.",
 		Icon:        1,
 		Use: UseAction{
-			Action:        Revive,
-			Target:        Any,
-			TargetDefault: FriendlyDead,
-			Hint:          "Choose target to revive.",
+			Action: HpRestore,
+			Target: ItemTarget{
+				Selector:    MostlyHurtParty,
+				SwitchSides: true,
+				TargetType:  TargetTypeOne,
+			},
+			Hint: "Choose target to revive.",
 		},
 	}
 
@@ -241,10 +256,13 @@ func init() {
 		Name:        "Mana Potion",
 		Description: "Heals a small amount of Mana (MP)",
 		Use: UseAction{
-			Action:        ReviveMana,
-			Target:        Any,
-			TargetDefault: FriendlyLowestMana,
-			Hint:          "Choose target to restore mana.",
+			Action: ReviveMana,
+			Target: ItemTarget{
+				Selector:    MostlyDrainedParty,
+				SwitchSides: true,
+				TargetType:  TargetTypeOne,
+			},
+			Hint: "Choose target to restore mana.",
 		},
 	}
 
@@ -258,6 +276,23 @@ func init() {
 				Strength: 10,
 				Speed:    10,
 			},
+		},
+	}
+
+	ItemsDB[14] = Item{
+		Id:          14,
+		ItemType:    Usable,
+		Name:        "Life salve",
+		Description: "Restore a character from the brink of death",
+		Icon:        1,
+		Use: UseAction{
+			Action: Revive,
+			Target: ItemTarget{
+				Selector:    DeadParty,
+				SwitchSides: true,
+				TargetType:  TargetTypeOne,
+			},
+			Hint: "Choose target to revive.",
 		},
 	}
 }
