@@ -3,6 +3,7 @@ package game_map
 import (
 	"github.com/faiface/pixel"
 	"github.com/steelx/go-rpg-cgm/animation"
+	"reflect"
 )
 
 type AnimEntityFx struct {
@@ -12,16 +13,17 @@ type AnimEntityFx struct {
 	priority int
 }
 
-func AnimEntityFxCreate(x, y float64, entityDef EntityDefinition, frames []int) *AnimEntityFx {
-	//entity := CreateEntity(entityDef)
-	//entity.X = x
-	//entity.Y = y
+func AnimEntityFxCreate(x, y float64, entityDef EntityDefinition, frames []int, args ...interface{}) *AnimEntityFx {
+	spf := 0.09
+	if len(args) >= 1 {
+		spf = reflect.ValueOf(args[0]).Interface().(float64)
+	}
 
 	return &AnimEntityFx{
 		X:        x,
 		Y:        y,
 		Entity:   CreateEntity(entityDef),
-		Anim:     animation.Create(frames, false, 0.09),
+		Anim:     animation.Create(frames, false, spf),
 		priority: 1,
 	}
 }

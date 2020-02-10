@@ -37,18 +37,6 @@ var Formula = FormulaT{
 	IsDodged:    isDodged,
 	IsCountered: isCountered,
 	CanFlee:     canFlee,
-	MostHurtEnemy: func(state *CombatState) []*combat.Actor {
-		return WeakestActor(state.Actors[enemies], true)
-	},
-	MostHurtParty: func(state *CombatState) []*combat.Actor {
-		return WeakestActor(state.Actors[party], true)
-	},
-	MostDrainedParty: func(state *CombatState) []*combat.Actor {
-		return MostDrainedActor(state.Actors[party], true)
-	},
-	DeadParty: func(state *CombatState) []*combat.Actor {
-		return DeadActors(state.Actors[party])
-	},
 }
 
 func meleeAttack(state *CombatState, attacker, target *combat.Actor) (dmg float64, hit HitResult) {
