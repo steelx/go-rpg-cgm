@@ -52,9 +52,9 @@ func SelectionMenuCreate(spacingY, spacingX, xWidth float64, data interface{}, s
 		displayStart: 0,
 		Scale:        1,
 		OnSelection:  onSelection,
+		displayRows:  4,
 	}
 	m.textBase = text.New(position, BasicAtlas12)
-	m.displayRows = 4
 	m.cursor = pixel.NewSprite(CursorPng, CursorPng.Bounds())
 	m.cursorWidth = CursorPng.Bounds().W()
 	m.cursorHeight = CursorPng.Bounds().H()
@@ -78,7 +78,8 @@ func SelectionMenuCreate(spacingY, spacingX, xWidth float64, data interface{}, s
 	//temp implement correct columns pending
 	if showColumns {
 		m.Columns += m.MaxRows / m.displayRows
-		if m.MaxRows == 1 {
+		m.displayRows = (len(m.DataI) / m.Columns) - 1
+		if m.MaxRows == 1 || len(m.DataI) == 1 {
 			m.Columns = 2
 			m.displayRows = 1
 		}
@@ -93,6 +94,14 @@ func (m *SelectionMenu) SetPosition(x, y float64) {
 	m.X = x
 	m.Y = y
 }
+
+func (m *SelectionMenu) SetColumns(columns, maxRows int) {
+	m.Columns = columns
+	m.MaxRows = maxRows
+	m.width = m.calcTotalWidth(0)
+	m.height = m.calcTotalHeight()
+}
+
 func (m *SelectionMenu) OffsetCursorPosition(x, y float64) {
 	m.useCursorPos = true
 	m.cursorPosOffset = pixel.V(x, y)
