@@ -39,10 +39,9 @@ func BrowseListStateCreate(
 		Title:     title,
 		OnExit:    onExit,
 		OnFocus:   onFocus,
-		UpArrow:   world.IconsDB.Get(11),
-		DownArrow: world.IconsDB.Get(12),
+		UpArrow:   world.IconsDB.Get(12),
+		DownArrow: world.IconsDB.Get(13),
 		hide:      false,
-		Box:       gui.PanelCreate(pixel.V(x, y), width, height),
 	}
 
 	var selectCallback func(*BrowseListState, int, interface{}) = nil
@@ -68,10 +67,10 @@ func BrowseListStateCreate(
 	itemCount := utilz.MaxInt(columns, reflect.ValueOf(data).Len())
 	maxRows := utilz.MaxInt(displayRows, itemCount/columns) - 1
 
-	menu := gui.SelectionMenuCreate(19, 132, 0,
+	menu := gui.SelectionMenuCreate(19, 132, width,
 		data,
 		false,
-		pixel.V(x-32, y-32),
+		pixel.V(x, y),
 		func(index int, itemIdx interface{}) {
 			selectCallback(s, index, itemIdx)
 		},
@@ -81,6 +80,9 @@ func BrowseListStateCreate(
 	menu.MaxRows = maxRows
 
 	s.Selection = &menu
+	s.Selection.SetPosition(x-80, y+20)
+	s.Box = gui.PanelCreate(pixel.V(x, y), s.Selection.GetWidth(), height)
+
 	s.SetArrowPosition()
 
 	return s
@@ -144,8 +146,7 @@ func (s *BrowseListState) Show() {
 }
 
 func (s *BrowseListState) SetArrowPosition() {
-	arrowPad := 9.0
-	arrowX := s.X + s.Width - arrowPad
-	s.UpArrowPosition = pixel.V(arrowX, s.Y-arrowPad)
-	s.DownArrowPosition = pixel.V(arrowX, s.Y-s.Height+arrowPad)
+	_, topRight, _, bottomRight := s.Box.GetCorners()
+	s.UpArrowPosition = topRight.Sub(pixel.V(7, 7))
+	s.DownArrowPosition = bottomRight.Sub(pixel.V(7, -7))
 }

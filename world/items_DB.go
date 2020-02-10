@@ -304,4 +304,57 @@ func init() {
 			Hint: "Choose target to revive.",
 		},
 	}
+
+	ItemsDB[15] = Item{
+		Id:          15,
+		ItemType:    Usable,
+		Name:        "Life salve 15",
+		Description: "Restore a character from the brink of death",
+		Icon:        1,
+		Use: UseAction{
+			Action:  Revive,
+			Restore: 100,
+			Target: ItemTarget{
+				Selector:    DeadParty,
+				SwitchSides: false,
+				Type:        CombatTargetTypeONE,
+			},
+			Hint: "Choose target to revive.",
+		},
+	}
+
+	ItemsDB[16] = Item{
+		Id:          16,
+		ItemType:    Usable,
+		Name:        "Life salve 16",
+		Description: "Restore a character from the brink of death",
+		Icon:        1,
+		Use: UseAction{
+			Action:  Revive,
+			Restore: 100,
+			Target: ItemTarget{
+				Selector:    DeadParty,
+				SwitchSides: false,
+				Type:        CombatTargetTypeONE,
+			},
+			Hint: "Choose target to revive.",
+		},
+	}
+	ItemsDB[17] = Item{
+		Id:          16,
+		ItemType:    Usable,
+		Name:        "Life salve 17",
+		Description: "Restore a character from the brink of death",
+		Icon:        1,
+		Use: UseAction{
+			Action:  Revive,
+			Restore: 100,
+			Target: ItemTarget{
+				Selector:    DeadParty,
+				SwitchSides: false,
+				Type:        CombatTargetTypeONE,
+			},
+			Hint: "Choose target to revive.",
+		},
+	}
 }

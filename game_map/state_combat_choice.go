@@ -174,8 +174,9 @@ func (c *CombatChoiceState) OnItemAction() {
 	}
 
 	// 2. Create the selection box
-	x := c.textbox.Position.X - 64
-	y := c.textbox.Position.Y
+	itemsSelectionWidth := 120.0
+	x := c.Selection.X - itemsSelectionWidth
+	y := c.Selection.Y - (itemsSelectionWidth / 2)
 	c.Selection.HideCursor()
 
 	OnFocus := func(itemI interface{}) {
@@ -220,7 +221,7 @@ func (c *CombatChoiceState) OnItemAction() {
 	}
 
 	state := BrowseListStateCreate(
-		c.Stack, x, y, 100, 300, "ITEMS",
+		c.Stack, x+24, y+24, itemsSelectionWidth+10, 100, "ITEMS",
 		OnFocus,
 		OnExit,
 		filteredItems,
