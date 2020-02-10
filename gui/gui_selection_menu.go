@@ -6,22 +6,9 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
 	"github.com/steelx/go-rpg-cgm/utilz"
-	"golang.org/x/image/font/basicfont"
 	"math"
 	"reflect"
 )
-
-//var (
-//	cursorPng pixel.Picture
-//	BasicAtlasAscii *text.Atlas
-//)
-//
-//func init() {
-//	var err error
-//	cursorPng, err = utilz.LoadPicture("../resources/cursor.png")
-//	utilz.PanicIfErr(err)
-//	BasicAtlasAscii = text.NewAtlas(basicfont.Face7x13, text.ASCII)
-//}
 
 /* e.g.
 menu2 := gui.SelectionMenuCreate(24, 128,[]string{"Menu 1", "", "Menu 2", "Menu 03", "Menu 04", "Menu 05"}, false, pixel.V(200, 250), func(i int, item string) {
@@ -37,7 +24,7 @@ type SelectionMenu struct {
 	focusX, focusY int //Indicates which item in the list is currently selected.
 	//focusX tells us which column is selected and focusY which element in that column
 	SpacingY, SpacingX        float64 //space btw each items
-	scale                     float64 //menu scale in size
+	Scale                     float64 //menu Scale in size
 	cursor                    *pixel.Sprite
 	useCursorPos              bool
 	cursorPosOffset           pixel.Vec
@@ -63,7 +50,7 @@ func SelectionMenuCreate(spacingY, spacingX, xWidth float64, data interface{}, s
 		SpacingX:     spacingX,
 		IsShowCursor: true,
 		displayStart: 0,
-		scale:        1,
+		Scale:        1,
 		OnSelection:  onSelection,
 	}
 	m.textBase = text.New(position, BasicAtlas12)
@@ -163,52 +150,26 @@ func (m SelectionMenu) renderItem(a ...interface{}) {
 	item := itemV.Interface().(string)
 
 	pos := pixel.V(x, y)
-	//textBase := text.New(pos, BasicAtlas12)
-	textBase := text.New(pos, text.NewAtlas(basicfont.Face7x13, text.ASCII))
+	textBase := text.New(pixel.ZV, BasicAtlasAscii)
 	if item == "" {
 		fmt.Fprintf(textBase, "--")
 	} else {
 		fmt.Fprintf(textBase, item)
 	}
-	textBase.Draw(renderer, pixel.IM.Scaled(pixel.V(0, 0), m.scale))
+	textBase.Draw(renderer, pixel.IM.Scaled(pos, m.Scale).Moved(pos))
 }
 
 func (m SelectionMenu) Render(renderer *pixelgl.Window) {
 	displayStart := m.displayStart
 	displayEnd := displayStart + m.displayRows
 
-	cursorWidth := m.cursorWidth * m.scale
+	cursorWidth := m.cursorWidth * m.Scale
 	cursorHalfWidth := cursorWidth / 2
 	cursorHalfHeight := m.cursorHeight / 2
-	spacingX := m.SpacingX * m.scale
-	rowHeight := m.SpacingY * m.scale
+	spacingX := m.SpacingX * m.Scale
+	rowHeight := m.SpacingY * m.Scale
 
 	var x, y = m.X, m.Y
-	var mat = pixel.IM.Scaled(pixel.V(x, y), m.scale)
-
-	//temp single Columns not rendering hence
-	if m.Columns == 1 {
-		for i, v := range m.DataI {
-			cursorPos := pixel.V(x+cursorHalfWidth, y+(cursorHalfHeight/2))
-			if m.useCursorPos {
-				cursorPos = pixel.V(x+m.cursorPosOffset.X, y+(cursorHalfHeight/2))
-			}
-			if i == m.focusY && m.IsShowCursor {
-				m.cursor.Draw(renderer, mat.Moved(cursorPos))
-			}
-
-			switch d := v.(type) {
-			case string:
-				m.RenderFunction(renderer, x+cursorWidth, y, d)
-
-			default:
-				m.RenderFunction(renderer, x, y, d)
-			}
-			y = y - rowHeight
-		}
-
-		return
-	}
 
 	//itemIndex := ((displayStart - 1) * m.Columns) + 1
 	itemIndex := displayStart * m.Columns
@@ -220,7 +181,7 @@ func (m SelectionMenu) Render(renderer *pixelgl.Window) {
 				cursorPos = pixel.V(x+m.cursorPosOffset.X, y+(cursorHalfHeight/2))
 			}
 			if i == m.focusY && j == m.focusX && m.IsShowCursor {
-				m.cursor.Draw(renderer, mat.Moved(cursorPos))
+				m.cursor.Draw(renderer, pixel.IM.Scaled(cursorPos, m.Scale).Moved(cursorPos))
 			}
 			if itemIndex >= len(m.DataI) {
 				return

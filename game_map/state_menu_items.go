@@ -50,7 +50,7 @@ func ItemsMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *ItemsMe
 
 	itemsMenu := gui.SelectionMenuCreate(24, 128, 100,
 		parent.World.Items,
-		false,
+		true,
 		pixel.V(0, 0),
 		func(index int, s interface{}) {
 			//Items menu screen selection
@@ -59,7 +59,7 @@ func ItemsMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *ItemsMe
 	)
 	keyItemsMenu := gui.SelectionMenuCreate(24, 128, 100,
 		parent.World.KeyItems,
-		false,
+		true,
 		pixel.V(0, 0),
 		func(index int, s interface{}) {
 			//Items menu screen selection
