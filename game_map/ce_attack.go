@@ -40,10 +40,10 @@ func CEAttackCreate(scene *CombatState, owner *combat.Actor, targets []*combat.A
 
 		storyboardEvents = []interface{}{
 			//stateMachine, stateID, ...animID, additionalParams
-			RunState(c.Character.Controller, csMove, CSMoveParams{Dir: 5}),
+			RunState(c.Character.Controller, csMove, CSMoveParams{Dir: 3}),
 			RunState(c.Character.Controller, csRunanim, csAttack, false),
 			RunFunction(c.DoAttack),
-			RunState(c.Character.Controller, csMove, CSMoveParams{Dir: -5}),
+			RunState(c.Character.Controller, csMove, CSMoveParams{Dir: -3}),
 			RunFunction(c.onFinished),
 			RunState(c.Character.Controller, csRunanim, csStandby, false),
 		}

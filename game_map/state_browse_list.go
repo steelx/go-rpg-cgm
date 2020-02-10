@@ -28,7 +28,7 @@ type BrowseListState struct {
 
 func BrowseListStateCreate(
 	stack *gui.StateStack, x, y, width, height float64, title string, onFocus func(item interface{}), onExit func(), data interface{}, args ...interface{}) *BrowseListState {
-	//args sequence -> onSelection func(int, interface{}), renderFunc(a ...interface{}), columns int, displayRows int
+	//args sequence -> onSelection func(int, interface{}), renderFunc(a ...interface{})
 
 	s := &BrowseListState{
 		Stack:     stack,
@@ -54,19 +54,6 @@ func BrowseListStateCreate(
 		renderFunc = reflect.ValueOf(args[1]).Interface().(func(a ...interface{}))
 	}
 
-	columns := 1
-	if len(args) >= 3 {
-		columns = reflect.ValueOf(args[2]).Interface().(int)
-	}
-
-	displayRows := 3
-	if len(args) >= 4 {
-		displayRows = reflect.ValueOf(args[3]).Interface().(int)
-	}
-
-	itemCount := utilz.MaxInt(columns, reflect.ValueOf(data).Len())
-	maxRows := utilz.MaxInt(displayRows, itemCount/columns) - 1
-
 	menu := gui.SelectionMenuCreate(19, 132, width,
 		data,
 		false,
@@ -76,8 +63,6 @@ func BrowseListStateCreate(
 		},
 		renderFunc,
 	)
-	menu.Columns = columns
-	menu.MaxRows = maxRows
 
 	s.Selection = &menu
 	s.Selection.SetPosition(x-80, y+20)

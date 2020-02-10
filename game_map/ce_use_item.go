@@ -45,6 +45,7 @@ func CEUseItemCreate(scene *CombatState, owner *combat.Actor, item world.Item, t
 		RunFunction(func() {
 			c.DoFinish()
 		}),
+		RunState(c.Character.Controller, csRunanim, csStandby, false),
 	}
 
 	c.Storyboard = StoryboardCreate(scene.InternalStack, scene.win, storyboardEvents, false)
