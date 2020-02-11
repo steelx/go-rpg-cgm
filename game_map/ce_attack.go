@@ -109,7 +109,7 @@ func (c CEAttack) removeAtIndex(arr []*combat.Actor, i int) []*combat.Actor {
 	return append(arr[:i], arr[i+1:]...)
 }
 
-func (c CEAttack) TimePoints(queue EventQueue) float64 {
+func (c CEAttack) TimePoints(queue *EventQueue) float64 {
 	speed := c.Owner().Stats.Get("Speed")
 	return queue.SpeedToTimePoints(speed)
 }

@@ -195,7 +195,7 @@ func (c *CombatState) BuildBars(actor *combat.Actor) {
 		0, 0,
 		actor.Stats.Get("MpNow"),
 		actor.Stats.Get("MpMax"),
-		"#2a3151",
+		"#ffffff",
 		"#00f1ff",
 		3, 100,
 		c.imd,
@@ -541,7 +541,7 @@ func (c *CombatState) HandleEnemyDeath() {
 		hpNow := stats.Get("HpNow")
 		if hpNow <= 0 {
 			//Remove all references
-			c.Actors[enemies] = c.removeAtIndex(c.Actors[enemies], i)
+			c.Actors[enemies] = removeActorAtIndex(c.Actors[enemies], i)
 			c.Characters[enemies] = c.removeCharAtIndex(c.Characters[enemies], i)
 			delete(c.ActorCharMap, enemy)
 

@@ -29,6 +29,8 @@ type Actor struct {
 	Level            int
 	XP, NextLevelXP  float64
 	Actions          []string
+	Magic            []string
+	Special          []string
 	ActiveEquipSlots []int
 	Equipped         map[string]int //int is ItemsDB Id
 	worldRef         *WorldExtended
@@ -56,6 +58,7 @@ func ActorCreate(def ActorDef, randName ...interface{}) Actor {
 		PortraitTexture:  actorAvatar,
 		Portrait:         pixel.NewSprite(actorAvatar, actorAvatar.Bounds()),
 		Actions:          def.Actions,
+		Magic:            def.Magic,
 		ActiveEquipSlots: def.ActiveEquipSlots,
 		Equipped: map[string]int{
 			ActorLabels.EquipSlotId[0]: def.Weapon,

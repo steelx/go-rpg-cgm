@@ -11,6 +11,8 @@ type ActorDef struct {
 	Portrait         string
 	Name             string
 	Actions          []string
+	Magic            []string
+	Special          []string
 	ActiveEquipSlots []int
 	IsPlayer         bool
 	Equipment

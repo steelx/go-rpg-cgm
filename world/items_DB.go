@@ -22,6 +22,8 @@ const (
 	Revive Action = iota
 	HpRestore
 	MpRestore
+	ElementSpell
+	Special
 )
 
 //below should match to Key of Co
