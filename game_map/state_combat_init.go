@@ -400,7 +400,8 @@ func (c *CombatState) RenderPartyNames(args ...interface{}) {
 		txtColor = utilz.HexToColor("#FFFFFF") //white
 	}
 
-	textBase := text.New(pixel.V(x, y), gui.BasicAtlasAscii)
+	cursorWidth := 16.0 + c.marginLeft
+	textBase := text.New(pixel.V(x-cursorWidth, y), gui.BasicAtlasAscii)
 	textBase.Color = txtColor
 	fmt.Fprintln(textBase, actor.Name)
 	textBase.Draw(renderer, pixel.IM)
@@ -415,7 +416,8 @@ func (c *CombatState) RenderPartyStats(args ...interface{}) {
 	yV := reflect.ValueOf(args[2])
 	x, y := xV.Interface().(float64), yV.Interface().(float64)
 
-	x = x + c.marginLeft + 10
+	cursorWidth := 22.0
+	x = x + c.marginLeft - cursorWidth
 	itemV := reflect.ValueOf(args[3])
 	actor := itemV.Interface().(*combat.Actor)
 
