@@ -46,7 +46,7 @@ func CombatTextFXCreate(x, y float64, txt string, params ...interface{}) *Combat
 		Color:       color_,
 		Gravity:     700,
 		Alpha:       1,
-		Scale:       1.2,
+		Scale:       1.5,
 		HoldTime:    0.5,
 		HoldCounter: 0,
 		FadeSpeed:   3,
@@ -73,23 +73,14 @@ func (f *CombatTextFX) Update(dt float64) {
 }
 
 func (f *CombatTextFX) Render(renderer pixel.Target) {
-
 	x := f.X
-	y := math.Floor(f.CurrentY)
+	y := f.CurrentY
 
 	pos := pixel.V(x, y)
-	shadow := utilz.HexToColor("#000000")
-	shadow.A = f.Color.A
 	textBase := text.New(pos, gui.BasicAtlasAscii)
-	textBase.Color = shadow
-	fmt.Fprintln(textBase, f.Text)
-	textBase.Draw(renderer, pixel.IM.Scaled(pos, f.Scale).Moved(pos))
-
-	pos = pixel.V(x+0.5, y-0.5)
-	textBase = text.New(pos, gui.BasicAtlas12)
 	textBase.Color = f.Color
 	fmt.Fprintln(textBase, f.Text)
-	textBase.Draw(renderer, pixel.IM.Scaled(pos, f.Scale).Moved(pos))
+	textBase.Draw(renderer, pixel.IM.Scaled(pos, f.Scale))
 }
 
 func (f *CombatTextFX) Priority() int {

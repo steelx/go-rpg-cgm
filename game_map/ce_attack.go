@@ -155,7 +155,8 @@ func (c *CEAttack) attackTarget(target *combat.Actor) {
 	c.Scene.ApplyDamage(target, damage, isCrit)
 
 	//FX
-	x, y := entity.X, entity.Y
+	pos := entity.GetSelectPosition()
+	x, y := pos.X, pos.Y-entity.Height/2
 	effect := AnimEntityFxCreate(x, y, c.AttackEntityDef, c.AttackEntityDef.Frames)
 	c.Scene.AddEffect(effect)
 }

@@ -563,12 +563,10 @@ func (c *CombatState) ApplyDamage(target *combat.Actor, damage float64, isCritic
 		}
 	}
 
-	x, y, offX := character.Entity.X, character.Entity.Y, 100.0
-	if target.IsPlayer() {
-		offX = -100.0
-	} else {
+	x, y := character.Entity.X, character.Entity.Y
+	if !target.IsPlayer() {
 		//only for enemy
-		hpEffect := JumpingNumbersFXCreate(x+50, y, hpAfterDamage, "#34df6b", 2, 1.0) //green
+		hpEffect := JumpingNumbersFXCreate(x-50, y, hpAfterDamage, "#34df6b", 2, 1.0) //green
 		c.AddEffect(hpEffect)
 	}
 
@@ -576,8 +574,7 @@ func (c *CombatState) ApplyDamage(target *combat.Actor, damage float64, isCritic
 	if isCritical {
 		dmgEffectColor = "#ff2727" //red
 	}
-
-	dmgEffect := JumpingNumbersFXCreate(x+offX, y, damage, dmgEffectColor)
+	dmgEffect := JumpingNumbersFXCreate(x, y, damage, dmgEffectColor)
 	c.AddEffect(dmgEffect)
 	c.HandleDeath()
 }
@@ -694,12 +691,8 @@ func (c *CombatState) ApplyMiss(target *combat.Actor) {
 func (c *CombatState) AddTextEffect(actor *combat.Actor, txt string, priority int) {
 	character := c.ActorCharMap[actor]
 	entity := character.Entity
-	offX := 100.0
-	if actor.IsPlayer() {
-		offX = -100
-	}
-	x := entity.X + offX
-	y := entity.Y
+	pos := entity.GetSelectPosition()
+	x, y := pos.X, pos.Y
 	effect := CombatTextFXCreate(x, y, txt, "#FFFFFF", priority)
 	c.AddEffect(effect)
 }

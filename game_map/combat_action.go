@@ -80,16 +80,17 @@ func Revive(state *CombatState, owner *combat.Actor, targets []*combat.Actor, de
 }
 
 func AddAnimEffect(state *CombatState, entity *Entity, fxEntityDef EntityDefinition, spf float64) {
-	x := entity.X
-	y := entity.Y + (entity.Height * 0.75)
+	pos := entity.GetSelectPosition()
+	x := pos.X
+	y := pos.Y
 
 	effect := AnimEntityFxCreate(x, y, fxEntityDef, fxEntityDef.Frames, spf)
 	state.AddEffect(effect)
 }
 
 func AddTextNumberEffect(state *CombatState, entity *Entity, num float64, hexColor string) {
-	x := entity.X
-	y := entity.Y
+	pos := entity.GetSelectPosition()
+	x, y := pos.X, pos.Y-entity.Height/2
 
 	fxText := fmt.Sprintf("+%v", num)
 	textEffect := CombatTextFXCreate(x, y, fxText, hexColor)

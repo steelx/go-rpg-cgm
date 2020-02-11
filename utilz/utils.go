@@ -3,6 +3,7 @@ package utilz
 import (
 	"encoding/csv"
 	"github.com/faiface/pixel"
+	"github.com/faiface/pixel/imdraw"
 	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/font"
 	"image"
@@ -265,4 +266,12 @@ func GetAlpha(f float64) uint8 {
 		return 255
 	}
 	return uint8(f * 256)
+}
+
+func DebugPxPoint(x, y float64, renderer pixel.Target) {
+	imd := imdraw.New(nil)
+	imd.Color = HexToColor("#ff00ff")
+	imd.Push(pixel.V(x, y))
+	imd.Circle(3, 0)
+	imd.Draw(renderer)
 }
