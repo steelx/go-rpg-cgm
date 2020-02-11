@@ -20,24 +20,42 @@ type Action int
 
 const (
 	Revive Action = iota
-	Heal
-	ReviveMana
+	HpRestore
+	MpRestore
 )
 
-type ActionTarget int
+//below should match to Key of Co
+const (
+	Any               = "Any"
+	MostHurtParty     = "MostHurtParty"    //lowest HP that is below their max HP value.
+	MostDrainedParty  = "MostDrainedParty" //lowest MP
+	MostHurtEnemy     = "MostHurtEnemy"
+	DeadParty         = "DeadParty"
+	RandomAlivePlayer = "RandomAlivePlayer"
+	WeakestEnemy      = "WeakestEnemy"
+	SideEnemy         = "SideEnemy"
+	SelectAll         = "SelectAll"
+)
+
+type CombatTargetType int
 
 const (
-	Any ActionTarget = iota
-	FriendlyDead
-	FriendlyLowestMana
-	Enemy
+	CombatTargetTypeONE CombatTargetType = iota
+	CombatTargetTypeSIDE
+	CombatTargetTypeALL
 )
 
+type ItemTarget struct {
+	Selector    string
+	SwitchSides bool
+	Type        CombatTargetType
+}
+
 type UseAction struct {
-	Action        Action
-	Target        ActionTarget //character type
-	TargetDefault ActionTarget
-	Hint          string
+	Action  Action
+	Restore float64
+	Target  ItemTarget
+	Hint    string
 }
 
 type ItemType int
@@ -228,10 +246,14 @@ func init() {
 		Description: "Heal a small amount of HP.",
 		Icon:        1,
 		Use: UseAction{
-			Action:        Revive,
-			Target:        Any,
-			TargetDefault: FriendlyDead,
-			Hint:          "Choose target to revive.",
+			Action:  HpRestore,
+			Restore: 250,
+			Target: ItemTarget{
+				Selector:    MostHurtParty,
+				SwitchSides: false,
+				Type:        CombatTargetTypeONE,
+			},
+			Hint: "Choose target to revive.",
 		},
 	}
 
@@ -241,10 +263,14 @@ func init() {
 		Name:        "Mana Potion",
 		Description: "Heals a small amount of Mana (MP)",
 		Use: UseAction{
-			Action:        ReviveMana,
-			Target:        Any,
-			TargetDefault: FriendlyLowestMana,
-			Hint:          "Choose target to restore mana.",
+			Action:  MpRestore,
+			Restore: 50,
+			Target: ItemTarget{
+				Selector:    MostDrainedParty,
+				SwitchSides: false,
+				Type:        CombatTargetTypeONE,
+			},
+			Hint: "Choose target to restore mana.",
 		},
 	}
 
@@ -258,6 +284,77 @@ func init() {
 				Strength: 10,
 				Speed:    10,
 			},
+		},
+	}
+
+	ItemsDB[14] = Item{
+		Id:          14,
+		ItemType:    Usable,
+		Name:        "Life salve",
+		Description: "Restore a character from the brink of death",
+		Icon:        1,
+		Use: UseAction{
+			Action:  Revive,
+			Restore: 100,
+			Target: ItemTarget{
+				Selector:    DeadParty,
+				SwitchSides: false,
+				Type:        CombatTargetTypeONE,
+			},
+			Hint: "Choose target to revive.",
+		},
+	}
+
+	ItemsDB[15] = Item{
+		Id:          15,
+		ItemType:    Usable,
+		Name:        "Life salve 15",
+		Description: "Restore a character from the brink of death",
+		Icon:        1,
+		Use: UseAction{
+			Action:  Revive,
+			Restore: 100,
+			Target: ItemTarget{
+				Selector:    DeadParty,
+				SwitchSides: false,
+				Type:        CombatTargetTypeONE,
+			},
+			Hint: "Choose target to revive.",
+		},
+	}
+
+	ItemsDB[16] = Item{
+		Id:          16,
+		ItemType:    Usable,
+		Name:        "Life salve 16",
+		Description: "Restore a character from the brink of death",
+		Icon:        1,
+		Use: UseAction{
+			Action:  Revive,
+			Restore: 100,
+			Target: ItemTarget{
+				Selector:    DeadParty,
+				SwitchSides: false,
+				Type:        CombatTargetTypeONE,
+			},
+			Hint: "Choose target to revive.",
+		},
+	}
+	ItemsDB[17] = Item{
+		Id:          16,
+		ItemType:    Usable,
+		Name:        "Life salve 17",
+		Description: "Restore a character from the brink of death",
+		Icon:        1,
+		Use: UseAction{
+			Action:  Revive,
+			Restore: 100,
+			Target: ItemTarget{
+				Selector:    DeadParty,
+				SwitchSides: false,
+				Type:        CombatTargetTypeONE,
+			},
+			Hint: "Choose target to revive.",
 		},
 	}
 }

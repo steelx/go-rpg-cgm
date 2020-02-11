@@ -10,6 +10,10 @@ const (
 	goblinPng      = "../resources/goblin.png"
 	combatSlashPng = "../resources/combat_slash.png"
 	combatClawPng  = "../resources/combat_claw.png"
+	fxRestoreHpPng = "../resources/fx_restore_hp.png"
+	fxRestoreMpPng = "../resources/fx_restore_mp.png"
+	fxRevivePng    = "../resources/fx_revive.png"
+	fxUseItemPng   = "../resources/fx_use_item.png"
 )
 
 //Entities
@@ -104,6 +108,34 @@ var Entities = map[string]EntityDefinition{
 		Width:   64, Height: 64,
 		StartFrame: 0,
 		Frames:     []int{0, 1, 2},
+	},
+	"fx_restore_hp": {
+		Texture:    fxRestoreHpPng,
+		Width:      16,
+		Height:     16,
+		StartFrame: 0,
+		Frames:     []int{0, 1, 2, 3, 4},
+	},
+	"fx_restore_mp": {
+		Texture:    fxRestoreMpPng,
+		Width:      16,
+		Height:     16,
+		StartFrame: 0,
+		Frames:     []int{0, 1, 2, 3, 4, 5},
+	},
+	"fx_revive": {
+		Texture:    fxRevivePng,
+		Width:      16,
+		Height:     16,
+		StartFrame: 0,
+		Frames:     []int{0, 1, 2, 3, 4, 5, 6, 7},
+	},
+	"fx_use_item": {
+		Texture:    fxUseItemPng,
+		Width:      16,
+		Height:     16,
+		StartFrame: 0,
+		Frames:     []int{0, 1, 2, 3, 3, 2, 1, 0},
 	},
 }
 

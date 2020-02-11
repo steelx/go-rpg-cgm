@@ -166,14 +166,14 @@ func (w World) DrawItem(a ...interface{}) {
 	iconsSize := 16.0
 
 	basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
-	pos1 := pixel.V(x+40, y+(iconsSize/2))
-	pos2 := pixel.V(x+40+iconsSize, y)
-	textBase := text.New(pos2, basicAtlas)
+	textPos := pixel.V(x+iconsSize, y)
+	textBase := text.New(textPos, basicAtlas)
 	fmt.Fprintln(textBase, fmt.Sprintf("%-6s (%v)", itemDef.Name, itemIdx.Count))
 	textBase.Draw(renderer, pixel.IM)
 
+	iconPos := pixel.V(x+5, y+(iconsSize/2))
 	iconSprite := w.Icons.Get(itemDef.Icon)
-	iconSprite.Draw(renderer, pixel.IM.Moved(pos1))
+	iconSprite.Draw(renderer, pixel.IM.Moved(iconPos))
 }
 
 func (w *World) HasKey(id int) bool {
@@ -186,4 +186,16 @@ func (w *World) HasKey(id int) bool {
 }
 func (w *World) Get(idx ItemIndex) Item {
 	return ItemsDB[idx.Id]
+}
+
+func (w *World) FilterItems(predicate ItemType) []ItemIndex {
+	list := make([]ItemIndex, 0)
+	for _, v := range w.Items {
+		item := ItemsDB[v.Id]
+		if item.ItemType == predicate {
+			list = append(list, v)
+		}
+	}
+
+	return list
 }

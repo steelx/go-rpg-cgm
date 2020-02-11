@@ -65,11 +65,12 @@ func (f *JumpingNumbersFX) Update(dt float64) {
 
 func (f *JumpingNumbersFX) Render(renderer pixel.Target) {
 	pos := pixel.V(f.X, f.CurrentY)
+	txtStr := fmt.Sprintf("%v", f.Number)
 	textBase := text.New(pos, gui.BasicAtlas12)
 	textBase.Color = f.Color
-
-	fmt.Fprintln(textBase, f.Number)
-	textBase.Draw(renderer, pixel.IM.Scaled(pos, f.Scale).Moved(pos))
+	fmt.Fprintln(textBase, txtStr)
+	//do NOT use IM.Moved its not working correct
+	textBase.Draw(renderer, pixel.IM.Scaled(pos, f.Scale))
 }
 
 func (f *JumpingNumbersFX) Priority() int {

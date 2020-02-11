@@ -16,6 +16,7 @@ type FrontMenuState struct {
 	Parent                     *InGameMenuState
 	Layout                     gui.Layout
 	Stack                      *gui.StateStack
+	World                      *combat.WorldExtended
 	StateMachine               *state_machine.StateMachine
 	TopBarText, PrevTopBarText string
 	Selections                 *gui.SelectionMenu
@@ -39,6 +40,7 @@ func FrontMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *FrontMe
 		Stack:        parent.Stack,
 		StateMachine: parent.StateMachine,
 		Layout:       layout,
+		World:        reflect.ValueOf(parent.Stack.Globals["world"]).Interface().(*combat.WorldExtended),
 		TopBarText:   "Game Paused",
 	}
 	fm.PrevTopBarText = fm.TopBarText
@@ -179,26 +181,15 @@ func (fm FrontMenuState) Render(renderer *pixelgl.Window) {
 	goldX := fm.Layout.Left("gold") + 16
 	goldY := fm.Layout.Top("gold") - 24
 	textBase = text.New(pixel.V(goldX, goldY), basicAtlas)
-	fmt.Fprintln(textBase, "GP :")
+	fmt.Fprintln(textBase, fmt.Sprintf("GP : %v", fm.World.Gold))
 	textBase.Draw(renderer, pixel.IM)
 
 	textBase = text.New(pixel.V(goldX, goldY-25), basicAtlas)
-	fmt.Fprintln(textBase, "TIME :")
-	textBase.Draw(renderer, pixel.IM)
-
-	//renderer:AlignText("left", "top")
-	textBase = text.New(pixel.V(goldX+10, goldY), basicAtlas)
-	textBase = text.New(pixel.V(goldX+10+getTextW(textBase, "GP :"), goldY), basicAtlas)
-	fmt.Fprintln(textBase, "0")
-	textBase.Draw(renderer, pixel.IM)
-
-	textBase = text.New(pixel.V(goldX+10, goldY-25), basicAtlas)
-	textBase = text.New(pixel.V(goldX+10+getTextW(textBase, "TIME :"), goldY-25), basicAtlas)
-	fmt.Fprintln(textBase, "0")
+	fmt.Fprintln(textBase, fmt.Sprintf("TIME : %v", fm.World.Time))
 	textBase.Draw(renderer, pixel.IM)
 
 	// Party Members
-	partyX := fm.Layout.Left("party") - 16
+	partyX := fm.Layout.Left("party") - 45
 	partyY := fm.Layout.Top("party") - 45
 	fm.PartyMenu.SetPosition(partyX, partyY)
 	fm.PartyMenu.Render(renderer)

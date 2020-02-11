@@ -5,59 +5,8 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/steelx/go-rpg-cgm/combat"
 	"github.com/steelx/go-rpg-cgm/gui"
-	"github.com/steelx/go-rpg-cgm/utilz"
+	"github.com/steelx/go-rpg-cgm/world"
 )
-
-type TargetType int
-
-const (
-	CombatTargetTypeONE TargetType = iota
-	CombatTargetTypeSIDE
-	CombatTargetTypeALL
-)
-
-type CombatSelectorFunc struct {
-	RandomAlivePlayer,
-	WeakestEnemy,
-	SideEnemy,
-	SelectAll func(state *CombatState) []*combat.Actor
-}
-
-var CombatSelector = CombatSelectorFunc{
-	RandomAlivePlayer: func(state *CombatState) []*combat.Actor {
-		aliveList := make([]*combat.Actor, 0)
-		for _, v := range state.Actors[party] {
-			if v.Stats.Get("HpNow") > 0 {
-				aliveList = append(aliveList, v)
-			}
-		}
-		if len(aliveList) == 1 {
-			return []*combat.Actor{aliveList[0]}
-		}
-		randIndex := utilz.RandInt(0, len(aliveList)-1)
-		return []*combat.Actor{aliveList[randIndex]}
-	},
-	WeakestEnemy: func(state *CombatState) []*combat.Actor {
-		enemyList := state.Actors[enemies]
-		health := 99999.9
-
-		var target *combat.Actor
-		for _, v := range enemyList {
-			hpNow := v.Stats.Get("HpNow")
-			if hpNow < health {
-				health = hpNow
-				target = v
-			}
-		}
-		return []*combat.Actor{target}
-	},
-	SideEnemy: func(state *CombatState) []*combat.Actor {
-		return state.Actors[enemies]
-	},
-	SelectAll: func(state *CombatState) []*combat.Actor {
-		return append(state.Actors[enemies], state.Actors[party]...)
-	},
-}
 
 type CombatTargetState struct {
 	CombatState     *CombatState
@@ -65,7 +14,7 @@ type CombatTargetState struct {
 	DefaultSelector func(state *CombatState) []*combat.Actor //The function that chooses which characters are targeted
 	//when the state begins.
 	CanSwitchSide bool
-	SelectType    TargetType
+	SelectType    world.CombatTargetType
 	OnSelect      func(targets []*combat.Actor)
 	OnExit        func()
 	Targets,
@@ -80,7 +29,7 @@ type CombatChoiceParams struct {
 	OnExit          func()
 	SwitchSides     bool
 	DefaultSelector func(state *CombatState) []*combat.Actor
-	TargetType      TargetType
+	TargetType      world.CombatTargetType
 }
 
 func CombatTargetStateCreate(state *CombatState, choiceParams CombatChoiceParams) *CombatTargetState {
@@ -97,11 +46,11 @@ func CombatTargetStateCreate(state *CombatState, choiceParams CombatChoiceParams
 	}
 
 	if t.DefaultSelector == nil {
-		if t.SelectType == CombatTargetTypeONE {
+		if t.SelectType == world.CombatTargetTypeONE {
 			t.DefaultSelector = CombatSelector.WeakestEnemy
-		} else if t.SelectType == CombatTargetTypeSIDE {
+		} else if t.SelectType == world.CombatTargetTypeSIDE {
 			t.DefaultSelector = CombatSelector.SideEnemy
-		} else if t.SelectType == CombatTargetTypeALL {
+		} else if t.SelectType == world.CombatTargetTypeALL {
 			t.DefaultSelector = CombatSelector.SelectAll
 		}
 	}
@@ -181,10 +130,10 @@ func (t *CombatTargetState) Left() {
 	if !t.CanSwitchSide || !t.CombatState.IsPartyMember(t.Targets[0]) {
 		return
 	}
-	if t.SelectType == CombatTargetTypeONE {
+	if t.SelectType == world.CombatTargetTypeONE {
 		t.Targets = []*combat.Actor{t.Enemies[0]}
 	}
-	if t.SelectType == CombatTargetTypeSIDE {
+	if t.SelectType == world.CombatTargetTypeSIDE {
 		t.Targets = t.Enemies
 	}
 }
@@ -193,16 +142,16 @@ func (t *CombatTargetState) Right() {
 	if !t.CanSwitchSide || !t.CombatState.IsPartyMember(t.Targets[0]) {
 		return
 	}
-	if t.SelectType == CombatTargetTypeONE {
+	if t.SelectType == world.CombatTargetTypeONE {
 		t.Targets = []*combat.Actor{t.Party[0]}
 	}
-	if t.SelectType == CombatTargetTypeSIDE {
+	if t.SelectType == world.CombatTargetTypeSIDE {
 		t.Targets = t.Party
 	}
 }
 
 func (t *CombatTargetState) Up() {
-	if t.SelectType != CombatTargetTypeONE {
+	if t.SelectType != world.CombatTargetTypeONE {
 		return
 	}
 
@@ -218,7 +167,7 @@ func (t *CombatTargetState) Up() {
 }
 
 func (t *CombatTargetState) Down() {
-	if t.SelectType != CombatTargetTypeONE {
+	if t.SelectType != world.CombatTargetTypeONE {
 		return
 	}
 

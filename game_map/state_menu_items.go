@@ -48,24 +48,26 @@ func ItemsMenuStateCreate(parent *InGameMenuState, win *pixelgl.Window) *ItemsMe
 		layout.CreatePanel("inv"),
 	}
 
-	itemsMenu := gui.SelectionMenuCreate(24, 128, 100,
+	itemsMenu := gui.SelectionMenuCreate(24, 200, 120,
 		parent.World.Items,
-		false,
+		true,
 		pixel.V(0, 0),
 		func(index int, s interface{}) {
 			//Items menu screen selection
 		},
 		parent.World.DrawItem,
 	)
+	itemsMenu.Columns = 3
 	keyItemsMenu := gui.SelectionMenuCreate(24, 128, 100,
 		parent.World.KeyItems,
-		false,
+		true,
 		pixel.V(0, 0),
 		func(index int, s interface{}) {
 			//Items menu screen selection
 		},
 		parent.World.DrawItem,
 	)
+	keyItemsMenu.Columns = 3
 	im.ItemMenus = []*gui.SelectionMenu{&itemsMenu, &keyItemsMenu}
 
 	categoryMenu := gui.SelectionMenuCreate(24, 128, 0,
@@ -130,15 +132,14 @@ func (im ItemsMenuState) Render(win *pixelgl.Window) {
 
 	if !im.InCategoryMenu || !im.CategoryMenu.IsShowCursor {
 		//convert interface to world.ItemIndex type
-		selectedItemIdxV := reflect.ValueOf(menu.SelectedItem())
-		selectedItemIdx := selectedItemIdxV.Interface().(world.ItemIndex)
+		selectedItemIdx := reflect.ValueOf(menu.SelectedItem()).Interface().(world.ItemIndex)
 		itemDef := world.ItemsDB[selectedItemIdx.Id]
 
 		//render description
 		descX := im.Layout.Left("mid") + 20
 		descY := im.Layout.MidY("mid")
 		pos = pixel.V(descX, descY)
-		textBase = text.New(pos, text.NewAtlas(basicfont.Face7x13, text.ASCII))
+		textBase = text.New(pos, gui.BasicAtlasAscii)
 		fmt.Fprintln(textBase, itemDef.Description)
 		textBase.Draw(win, pixel.IM)
 	}
