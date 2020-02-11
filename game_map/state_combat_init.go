@@ -64,7 +64,7 @@ type CombatState struct {
 	StatsYCol,
 	marginLeft,
 	marginTop float64
-	Bars        map[string]BarStats //actor ID = BarStats
+	Bars        map[*combat.Actor]BarStats //actor ID = BarStats
 	imd         *imdraw.IMDraw
 	EventQueue  *EventQueue
 	IsFinishing bool
@@ -157,32 +157,12 @@ func CombatStateCreate(state *gui.StateStack, win *pixelgl.Window, def CombatDef
 	c.PartyList.SetPosition(x+marginLeft, y)
 	c.PartyList.HideCursor()
 
-	c.Bars = make(map[string]BarStats)
-	for _, v := range c.Actors[party] {
-
-		hpBar := gui.ProgressBarIMDCreate(
-			0, 0,
-			v.Stats.Get("HpNow"),
-			v.Stats.Get("HpMax"),
-			"#dc3545", //red
-			"#15FF00", //green
-			3, 100,
-			c.imd,
-		)
-		mpBar := gui.ProgressBarIMDCreate(
-			0, 0,
-			v.Stats.Get("MpNow"),
-			v.Stats.Get("MpMax"),
-			"#2a3151",
-			"#00f1ff",
-			3, 100,
-			c.imd,
-		)
-
-		c.Bars[v.Id] = BarStats{
-			HP: hpBar,
-			MP: mpBar,
-		}
+	c.Bars = make(map[*combat.Actor]BarStats)
+	for _, p := range c.Actors[party] {
+		c.BuildBars(p)
+	}
+	for _, e := range c.Actors[enemies] {
+		c.BuildBars(e)
 	}
 
 	statsListMenu := gui.SelectionMenuCreate(19, 0, 100,
@@ -199,6 +179,32 @@ func CombatStateCreate(state *gui.StateStack, win *pixelgl.Window, def CombatDef
 	c.StatsList.HideCursor()
 
 	return c
+}
+
+func (c *CombatState) BuildBars(actor *combat.Actor) {
+	hpBar := gui.ProgressBarIMDCreate(
+		0, 0,
+		actor.Stats.Get("HpNow"),
+		actor.Stats.Get("HpMax"),
+		"#dc3545", //red
+		"#15FF00", //green
+		3, 100,
+		c.imd,
+	)
+	mpBar := gui.ProgressBarIMDCreate(
+		0, 0,
+		actor.Stats.Get("MpNow"),
+		actor.Stats.Get("MpMax"),
+		"#2a3151",
+		"#00f1ff",
+		3, 100,
+		c.imd,
+	)
+
+	c.Bars[actor] = BarStats{
+		HP: hpBar,
+		MP: mpBar,
+	}
 }
 
 func (c *CombatState) Enter() {
@@ -256,14 +262,23 @@ func (c *CombatState) Update(dt float64) bool {
 func (c CombatState) Render(renderer *pixelgl.Window) {
 	c.Background.Draw(renderer, pixel.IM.Moved(c.Pos))
 
-	for _, v := range c.Characters[party] {
-		pos := pixel.V(v.Entity.X, v.Entity.Y)
-		v.Entity.Render(nil, renderer, pos)
+	//for _, v := range c.Characters[party] {
+	//	pos := pixel.V(v.Entity.X, v.Entity.Y)
+	//	v.Entity.Render(nil, renderer, pos)
+	//}
+	//for _, v := range c.Characters[enemies] {
+	//	pos := pixel.V(v.Entity.X, v.Entity.Y)
+	//	v.Entity.Render(nil, renderer, pos)
+	//}
+	for a, char := range c.ActorCharMap {
+		pos := pixel.V(char.Entity.X, char.Entity.Y)
+		char.Entity.Render(nil, renderer, pos)
+
+		if !a.IsPlayer() {
+			c.DrawHpBarAtFeet(renderer, char.Entity.X, char.Entity.Y, a)
+		}
 	}
-	for _, v := range c.Characters[enemies] {
-		pos := pixel.V(v.Entity.X, v.Entity.Y)
-		v.Entity.Render(nil, renderer, pos)
-	}
+
 	for _, v := range c.DeathList {
 		pos := pixel.V(v.Entity.X, v.Entity.Y)
 		v.Entity.Render(nil, renderer, pos)
@@ -424,7 +439,7 @@ func (c *CombatState) RenderPartyStats(args ...interface{}) {
 	stats := actor.Stats
 	barOffset := 70.0
 
-	bars := c.Bars[actor.Id]
+	bars := c.Bars[actor]
 	bars.HP.SetPosition(x+barOffset, y)
 	bars.HP.SetValue(stats.Get("HpNow"))
 	bars.HP.Render(renderer)
@@ -455,6 +470,16 @@ func (c *CombatState) DrawHP(renderer pixel.Target, x, y float64, actor *combat.
 	textBase.Color = txtColor
 	fmt.Fprintf(textBase, fmt.Sprintf("%v/%v", hp, max))
 	textBase.Draw(renderer, pixel.IM)
+}
+
+func (c *CombatState) DrawHpBarAtFeet(renderer pixel.Target, x, y float64, actor *combat.Actor) {
+	stats := actor.Stats
+	entityWidth, entityHeight := 64.0, 64.0
+	bars := c.Bars[actor]
+	bars.HP.Width = 32
+	bars.HP.SetPosition(x-entityWidth/3, y-entityHeight/2)
+	bars.HP.SetValue(stats.Get("HpNow"))
+	bars.HP.Render(renderer)
 }
 
 func (c *CombatState) DrawMP(renderer pixel.Target, x, y float64, actor *combat.Actor) {
@@ -566,12 +591,6 @@ func (c *CombatState) ApplyDamage(target *combat.Actor, damage float64, isCritic
 	}
 
 	x, y := character.Entity.X, character.Entity.Y
-	if !target.IsPlayer() {
-		//only for enemy
-		hpEffect := JumpingNumbersFXCreate(x-50, y, hpAfterDamage, "#34df6b", 2, 1.0) //green
-		c.AddEffect(hpEffect)
-	}
-
 	dmgEffectColor := "#ff9054" //light red
 	if isCritical {
 		dmgEffectColor = "#ff2727" //red

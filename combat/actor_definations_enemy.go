@@ -9,7 +9,7 @@ var GoblinDef = ActorDef{
 	IsPlayer: false,
 	Stats: world.BaseStats{
 		HpNow:    90,
-		HpMax:    100,
+		HpMax:    90,
 		MpNow:    50,
 		MpMax:    50,
 		Strength: 8, Speed: 8, Intelligence: 5,
