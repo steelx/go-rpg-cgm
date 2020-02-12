@@ -185,7 +185,7 @@ func (c *CombatChoiceState) OnItemAction() {
 
 	// 2. Create the selection box
 	itemsSelectionWidth := 120.0
-	x := c.Selection.X - itemsSelectionWidth
+	x := c.Selection.X - (itemsSelectionWidth / 2)
 	y := c.Selection.Y - (itemsSelectionWidth / 2)
 	c.Selection.HideCursor()
 
@@ -245,8 +245,8 @@ func (c *CombatChoiceState) OnMagicAction() {
 	actor := c.Actor
 
 	// Create the selection box
-	itemsSelectionWidth := 120.0
-	x := c.Selection.X - itemsSelectionWidth
+	itemsSelectionWidth := 150.0
+	x := c.Selection.X - (itemsSelectionWidth / 2)
 	y := c.Selection.Y - (itemsSelectionWidth / 2)
 	c.Selection.HideCursor()
 
@@ -294,8 +294,8 @@ func (c *CombatChoiceState) OnMagicAction() {
 		c.Stack.Push(targeter)
 	}
 
-	state := BrowseListStateCreate(
-		c.Stack, x+24, y+24, itemsSelectionWidth+10, 100, "MAGIC",
+	magicItemsState := BrowseListStateCreate(
+		c.Stack, x+24, y+24, itemsSelectionWidth, 100, "MAGIC",
 		func(item interface{}) {
 			//onFocus do nothing
 		},
@@ -304,7 +304,7 @@ func (c *CombatChoiceState) OnMagicAction() {
 		OnSelection,
 		OnRenderItem,
 	)
-	c.Stack.Push(state)
+	c.Stack.Push(magicItemsState)
 }
 
 func (c *CombatChoiceState) CreateItemTargeter(def world.Item, browseState *BrowseListState) *CombatTargetState {

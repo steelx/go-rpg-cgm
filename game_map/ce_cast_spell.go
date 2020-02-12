@@ -23,7 +23,7 @@ type CECastSpell struct {
 func CECastSpellCreate(scene *CombatState, owner *combat.Actor, targets []*combat.Actor, spellI interface{}) CombatEvent {
 	spell := reflect.ValueOf(spellI).Interface().(world.SpecialItem)
 	c := &CECastSpell{
-		name:      fmt.Sprintf("%s is casting spell: %s", spell.Name, owner.Name),
+		name:      fmt.Sprintf("%s is casting spell: %s", owner.Name, spell.Name),
 		owner:     owner,
 		Targets:   targets,
 		Scene:     scene,

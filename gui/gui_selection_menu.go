@@ -17,8 +17,8 @@ menu2 := gui.SelectionMenuCreate(24, 128,[]string{"Menu 1", "", "Menu 2", "Menu 
 */
 
 type SelectionMenu struct {
-	X, Y          float64
-	width, height float64
+	X, Y                  float64
+	xWidth, width, height float64
 
 	Columns        int //The number of columns the menu has. This defaults to 1
 	focusX, focusY int //Indicates which item in the list is currently selected.
@@ -85,7 +85,8 @@ func SelectionMenuCreate(spacingY, spacingX, xWidth float64, data interface{}, s
 		}
 	}
 
-	m.width = m.calcTotalWidth(xWidth)
+	m.xWidth = xWidth
+	m.width = m.calcTotalWidth()
 	m.height = m.calcTotalHeight()
 	return m
 }
@@ -98,7 +99,7 @@ func (m *SelectionMenu) SetPosition(x, y float64) {
 func (m *SelectionMenu) SetColumns(columns, maxRows int) {
 	m.Columns = columns
 	m.MaxRows = maxRows
-	m.width = m.calcTotalWidth(0)
+	m.width = m.calcTotalWidth()
 	m.height = m.calcTotalHeight()
 }
 
@@ -113,7 +114,7 @@ func (m *SelectionMenu) HideCursor() {
 	m.IsShowCursor = false
 }
 
-func (m SelectionMenu) GetWidth() float64 {
+func (m *SelectionMenu) GetWidth() float64 {
 	return m.width
 }
 func (m SelectionMenu) GetHeight() float64 {
@@ -124,8 +125,11 @@ func (m SelectionMenu) calcTotalHeight() float64 {
 	height := float64(m.displayRows) * m.SpacingY
 	return height - m.SpacingY/2
 }
-func (m SelectionMenu) calcTotalWidth(xWidth float64) float64 {
+func (m SelectionMenu) calcTotalWidth() float64 {
 	if m.Columns == 1 {
+		if m.xWidth > 0 {
+			return m.xWidth
+		}
 		maxEntryWidth := 0.0
 		for _, v := range m.DataI {
 			switch x := v.(type) {
@@ -135,7 +139,8 @@ func (m SelectionMenu) calcTotalWidth(xWidth float64) float64 {
 
 			default:
 				//fmt.Println("SelectionMenu:calcTotalWidth :: type unknown")
-				maxEntryWidth = xWidth
+				maxEntryWidth = m.xWidth
+				break
 			}
 		}
 		return maxEntryWidth + m.cursorWidth

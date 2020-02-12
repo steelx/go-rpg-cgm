@@ -17,6 +17,8 @@ var imd = imdraw.New(nil)
 
 //PanelCreate
 func PanelCreate(pos pixel.Vec, width, height float64) Panel {
+	padding := 12.0
+	width += padding
 	var size float64 = 3
 	p := Panel{
 		mTileSize: size,

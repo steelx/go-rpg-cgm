@@ -21,6 +21,8 @@ const (
 	SpellBolt = "Bolt"
 )
 
+// SpecialItem
+//Damage = Spell Power * 4 + (Level * Magic Power * Spell Power / 32)
 type SpecialItem struct {
 	Name    string
 	Action  Action
