@@ -23,7 +23,8 @@ const (
 	HpRestore
 	MpRestore
 	ElementSpell
-	Special
+	ElementSlash
+	ElementSteal
 )
 
 //below should match to Key of Co

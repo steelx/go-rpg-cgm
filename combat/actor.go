@@ -59,6 +59,7 @@ func ActorCreate(def ActorDef, randName ...interface{}) Actor {
 		Portrait:         pixel.NewSprite(actorAvatar, actorAvatar.Bounds()),
 		Actions:          def.Actions,
 		Magic:            def.Magic,
+		Special:          def.Special,
 		ActiveEquipSlots: def.ActiveEquipSlots,
 		Equipped: map[string]int{
 			ActorLabels.EquipSlotId[0]: def.Weapon,

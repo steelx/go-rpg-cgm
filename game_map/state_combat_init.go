@@ -24,7 +24,7 @@ const (
 	csStandby  = "cs_standby" // The character is waiting to be told what action to do by the player or AI
 	csProne    = "cs_prone"   // The character is waiting and ready to perform a given combat action
 	csAttack   = "cs_attack"  // The character will run an attack animation and attack an enemy
-	csCast     = "cs_cast"    // The character will run a cast-spell animation and a special effect will play
+	csSpecial  = "cs_cast"    // The character will run a cast-spell animation and a special effect will play
 	csUse      = "cs_use"     // The character uses some item with a use-item animation
 	csHurt     = "cd_hurt"    // The character takes some damage. Animation and numbers
 	csDie      = "cs_die"     // The character dies and the sprite is changed to the death sprite
@@ -195,7 +195,7 @@ func (c *CombatState) BuildBars(actor *combat.Actor) {
 		0, 0,
 		actor.Stats.Get("MpNow"),
 		actor.Stats.Get("MpMax"),
-		"#ffffff",
+		"#7f7575",
 		"#00f1ff",
 		3, 100,
 		c.imd,
@@ -472,6 +472,14 @@ func (c *CombatState) DrawHP(renderer pixel.Target, x, y float64, actor *combat.
 	textBase.Draw(renderer, pixel.IM)
 }
 
+func (c *CombatState) DrawMP(renderer pixel.Target, x, y float64, actor *combat.Actor) {
+	mpNow := actor.Stats.Get("MpNow")
+	mpNowStr := fmt.Sprintf("%v", mpNow)
+	textBase := text.New(pixel.V(x, y), gui.BasicAtlasAscii)
+	fmt.Fprintln(textBase, mpNowStr)
+	textBase.Draw(renderer, pixel.IM)
+}
+
 func (c *CombatState) DrawHpBarAtFeet(renderer pixel.Target, x, y float64, actor *combat.Actor) {
 	stats := actor.Stats
 	entityWidth, entityHeight := 64.0, 64.0
@@ -480,14 +488,6 @@ func (c *CombatState) DrawHpBarAtFeet(renderer pixel.Target, x, y float64, actor
 	bars.HP.SetPosition(x-entityWidth/3, y-entityHeight/2)
 	bars.HP.SetValue(stats.Get("HpNow"))
 	bars.HP.Render(renderer)
-}
-
-func (c *CombatState) DrawMP(renderer pixel.Target, x, y float64, actor *combat.Actor) {
-	mpNow := actor.Stats.Get("MpNow")
-	mpNowStr := fmt.Sprintf("%v", mpNow)
-	textBase := text.New(pixel.V(x, y), gui.BasicAtlasAscii)
-	fmt.Fprintln(textBase, mpNowStr)
-	textBase.Draw(renderer, pixel.IM)
 }
 
 func (c *CombatState) HandleDeath() {

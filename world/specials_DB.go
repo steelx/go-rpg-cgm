@@ -9,7 +9,7 @@ var SpecialsDB = map[string]SpecialItem{
 	SpecialSlash: {
 		Name:       "Slash",
 		MpCost:     15,
-		Action:     Special,
+		Action:     ElementSlash,
 		TimePoints: 10,
 		Target: ItemTarget{
 			Selector:    SideEnemy,
@@ -21,7 +21,7 @@ var SpecialsDB = map[string]SpecialItem{
 	SpecialSteal: {
 		Name:       "Steal",
 		MpCost:     0,
-		Action:     Special,
+		Action:     ElementSteal,
 		TimePoints: 10,
 		Target: ItemTarget{
 			Selector:    WeakestEnemy,

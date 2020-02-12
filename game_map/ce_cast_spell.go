@@ -36,13 +36,15 @@ func CECastSpellCreate(scene *CombatState, owner *combat.Actor, targets []*comba
 		RunFunction(c.ShowSpellNotice),
 		RunState(c.Character.Controller, csMove, CSMoveParams{Dir: 3}),
 		Wait(0.5),
-		RunState(c.Character.Controller, csRunanim, csCast, false),
+		RunState(c.Character.Controller, csRunanim, csSpecial, false),
 		Wait(0.20),
 		RunState(c.Character.Controller, csRunanim, csProne, false),
 		RunFunction(c.DoCast),
 		Wait(1),
 		RunFunction(c.HideSpellNotice),
 		RunState(c.Character.Controller, csMove, CSMoveParams{Dir: -3}),
+		Wait(0.5),
+		RunState(c.Character.Controller, csRunanim, csProne, false),
 		RunFunction(c.DoFinish),
 	}
 
@@ -68,6 +70,17 @@ func (c *CECastSpell) Owner() *combat.Actor {
 }
 
 func (c *CECastSpell) Update() {
+}
+
+func (c *CECastSpell) IsFinished() bool {
+	return c.mIsFinished
+}
+
+func (c *CECastSpell) DoFinish() {
+	c.mIsFinished = true
+}
+
+func (c *CECastSpell) Execute(queue *EventQueue) {
 	c.Scene.InternalStack.Push(c.Storyboard)
 	for i := len(c.Targets) - 1; i >= 0; i-- {
 		v := c.Targets[i]
@@ -85,18 +98,6 @@ func (c *CECastSpell) Update() {
 		selectorF := CombatSelectorMap[c.Spell.Target.Selector]
 		c.Targets = selectorF(c.Scene)
 	}
-}
-
-func (c *CECastSpell) IsFinished() bool {
-	return c.mIsFinished
-}
-
-func (c *CECastSpell) DoFinish() {
-	c.mIsFinished = true
-}
-
-func (c *CECastSpell) Execute(queue *EventQueue) {
-
 }
 
 func (c CECastSpell) TimePoints(queue *EventQueue) float64 {

@@ -33,6 +33,7 @@ type SpecialItem struct {
 	TimePoints float64
 	BaseDamage [2]float64 // multiplied by level
 	Target     ItemTarget
+	Counter    bool
 }
 
 // spell cast time 1 is base, 2 is twice as long etc
