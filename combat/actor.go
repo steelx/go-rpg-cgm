@@ -31,6 +31,7 @@ type Actor struct {
 	Actions          []string
 	Magic            []string
 	Special          []string
+	StealItem        int //Item ID only for Enemy actors
 	ActiveEquipSlots []int
 	Equipped         map[string]int //int is ItemsDB Id
 	worldRef         *WorldExtended
@@ -60,6 +61,7 @@ func ActorCreate(def ActorDef, randName ...interface{}) Actor {
 		Actions:          def.Actions,
 		Magic:            def.Magic,
 		Special:          def.Special,
+		StealItem:        def.StealItem,
 		ActiveEquipSlots: def.ActiveEquipSlots,
 		Equipped: map[string]int{
 			ActorLabels.EquipSlotId[0]: def.Weapon,

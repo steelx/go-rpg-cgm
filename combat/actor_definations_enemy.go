@@ -27,4 +27,5 @@ var GoblinDef = ActorDef{
 			{Oddment: 3, ItemId: 11},
 		},
 	},
+	StealItem: 14,
 }

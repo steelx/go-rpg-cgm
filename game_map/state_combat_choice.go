@@ -297,10 +297,9 @@ func (c *CombatChoiceState) OnSpecialAction() {
 		var combatEventFunc func(scene *CombatState, owner *combat.Actor, targets []*combat.Actor, spellI interface{}) CombatEvent
 		if def.Action == world.ElementSlash {
 			combatEventFunc = CESlashCreate
+		} else if def.Action == world.ElementSteal {
+			combatEventFunc = CEStealCreate
 		}
-		//else if def.Action == world.ElementSteal {
-		//	combatEventFunc = CESteal
-		//}
 
 		targeter := c.CreateActionTargeter(def, selection, combatEventFunc)
 		c.Stack.Push(targeter)

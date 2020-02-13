@@ -28,6 +28,7 @@ type FormulaT struct {
 	MostHurtParty    func(state *CombatState) []*combat.Actor
 	MostDrainedParty func(state *CombatState) []*combat.Actor
 	DeadParty        func(state *CombatState) []*combat.Actor
+	Steal            func(state *CombatState, attacker, target *combat.Actor) bool
 }
 
 var Formula = FormulaT{
@@ -38,6 +39,7 @@ var Formula = FormulaT{
 	IsDodged:    isDodged,
 	IsCountered: isCountered,
 	CanFlee:     canFlee,
+	Steal:       Steal,
 }
 
 func meleeAttack(state *CombatState, attacker, target *combat.Actor) (dmg float64, hit HitResult) {
@@ -200,7 +202,7 @@ func MagicAttack(state *CombatState, attacker, target *combat.Actor, spell world
 }
 
 func Steal(state *CombatState, attacker, target *combat.Actor) bool {
-	cts := 0.05 // 5%
+	cts := 0.50 // 50% chance to steal
 
 	if attacker.Level > target.Level {
 		cts = float64(50+attacker.Level-target.Level) / 128

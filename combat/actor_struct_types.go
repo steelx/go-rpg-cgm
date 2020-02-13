@@ -13,6 +13,7 @@ type ActorDef struct {
 	Actions          []string
 	Magic            []string
 	Special          []string
+	StealItem        int //Item ID only for Enemy actors
 	ActiveEquipSlots []int
 	IsPlayer         bool
 	Equipment

@@ -33,6 +33,7 @@ const (
 	csVictory  = "cs_victory"  // The character dances around and combat ends
 	csRunanim  = "cs_run_anim" // plays common animations states
 	csRetreat  = "cs_retreat"
+	csSteal    = "cs_steal"
 )
 
 type CombatState struct {
