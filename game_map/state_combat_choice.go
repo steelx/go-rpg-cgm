@@ -105,6 +105,16 @@ func (c *CombatChoiceState) OnSelect(index int, str interface{}) {
 		c.OnItemAction()
 		return
 	}
+
+	if actionItem == combat.ActionMagic {
+		c.OnMagicAction()
+		return
+	}
+
+	if actionItem == combat.ActionSpecial && len(c.Actor.Special) > 0 {
+		c.OnSpecialAction()
+		return
+	}
 }
 
 //TakeAction function pops the CombatTargetState and CombatChoiceState off the
@@ -117,7 +127,7 @@ func (c *CombatChoiceState) TakeAction(id string, targets []*combat.Actor) {
 	if id == combat.ActionAttack {
 		logrus.Info("Entered TakeAction 'attack'")
 		attack := CEAttackCreate(c.CombatState, c.Actor, targets, AttackOptions{})
-		tp := attack.TimePoints(*c.CombatState.EventQueue)
+		tp := attack.TimePoints(c.CombatState.EventQueue)
 		c.CombatState.EventQueue.Add(attack, tp)
 		return
 	}
@@ -175,7 +185,7 @@ func (c *CombatChoiceState) OnItemAction() {
 
 	// 2. Create the selection box
 	itemsSelectionWidth := 120.0
-	x := c.Selection.X - itemsSelectionWidth
+	x := c.Selection.X - (itemsSelectionWidth / 2)
 	y := c.Selection.Y - (itemsSelectionWidth / 2)
 	c.Selection.HideCursor()
 
@@ -231,6 +241,153 @@ func (c *CombatChoiceState) OnItemAction() {
 	c.Stack.Push(state)
 }
 
+func (c *CombatChoiceState) OnSpecialAction() {
+	actor := c.Actor
+
+	// Create the selection box
+	itemsSelectionWidth := 150.0
+	x := c.Selection.X - (itemsSelectionWidth / 2)
+	y := c.Selection.Y - (itemsSelectionWidth / 2)
+	c.Selection.HideCursor()
+
+	OnExit := func() {
+		c.CombatState.HideTip()
+		c.Selection.ShowCursor()
+	}
+
+	OnRenderItem := func(a ...interface{}) {
+		//renderer pixel.Target, x, y float64, item string
+		renderer := reflect.ValueOf(a[0]).Interface().(pixel.Target)
+		x := reflect.ValueOf(a[1]).Interface().(float64)
+		y := reflect.ValueOf(a[2]).Interface().(float64)
+		elementStr := reflect.ValueOf(a[3]).Interface().(string)
+
+		mpNow := actor.Stats.Get("MpNow")
+		color_ := utilz.HexToColor("#bbbbbb")
+		def, ok := world.SpecialsDB[elementStr]
+		if !ok {
+			panic(fmt.Sprintf("Key '%s' not found in SpecialsDB", elementStr))
+		}
+
+		txtWithCost := fmt.Sprintf("%s (%v)", def.Name, def.MpCost)
+
+		if mpNow >= def.MpCost {
+			color_ = utilz.HexToColor("#ffffff")
+		}
+
+		pos := pixel.V(x, y)
+		textBase := text.New(pos, gui.BasicAtlasAscii)
+		textBase.Color = color_
+		fmt.Fprintln(textBase, txtWithCost)
+		textBase.Draw(renderer, pixel.IM)
+	}
+
+	OnSelection := func(selection *BrowseListState, index int, spellStringI interface{}) {
+		spellString := reflect.ValueOf(spellStringI).Interface().(string)
+		def, ok := world.SpecialsDB[spellString]
+		if !ok {
+			panic(fmt.Sprintf("Key '%s' not found in SpecialsDB", spellString))
+		}
+
+		mpNow := actor.Stats.Get("MpNow")
+		if mpNow < def.MpCost {
+			return //not enough mp
+		}
+
+		var combatEventFunc func(scene *CombatState, owner *combat.Actor, targets []*combat.Actor, spellI interface{}) CombatEvent
+		if def.Action == world.ElementSlash {
+			combatEventFunc = CESlashCreate
+		} else if def.Action == world.ElementSteal {
+			combatEventFunc = CEStealCreate
+		}
+
+		targeter := c.CreateActionTargeter(def, selection, combatEventFunc)
+		c.Stack.Push(targeter)
+	}
+
+	specialItemsState := BrowseListStateCreate(
+		c.Stack, x+24, y+24, itemsSelectionWidth, 100, "SPECIAL",
+		func(item interface{}) {
+			//onFocus do nothing
+		},
+		OnExit,
+		actor.Special,
+		OnSelection,
+		OnRenderItem,
+	)
+	c.Stack.Push(specialItemsState)
+}
+
+func (c *CombatChoiceState) OnMagicAction() {
+	actor := c.Actor
+
+	// Create the selection box
+	itemsSelectionWidth := 150.0
+	x := c.Selection.X - (itemsSelectionWidth / 2)
+	y := c.Selection.Y - (itemsSelectionWidth / 2)
+	c.Selection.HideCursor()
+
+	OnExit := func() {
+		c.CombatState.HideTip()
+		c.Selection.ShowCursor()
+	}
+
+	OnRenderItem := func(a ...interface{}) {
+		//renderer pixel.Target, x, y float64, item string
+		renderer := reflect.ValueOf(a[0]).Interface().(pixel.Target)
+		x := reflect.ValueOf(a[1]).Interface().(float64)
+		y := reflect.ValueOf(a[2]).Interface().(float64)
+		elementStr := reflect.ValueOf(a[3]).Interface().(string)
+
+		mpNow := actor.Stats.Get("MpNow")
+		color_ := utilz.HexToColor("#bbbbbb")
+		def, ok := world.SpellsDB[elementStr]
+		if !ok {
+			panic(fmt.Sprintf("Key '%s' not found in SpellsDB", elementStr))
+		}
+
+		txtWithCost := fmt.Sprintf("%s (%v)", def.Name, def.MpCost)
+
+		if mpNow >= def.MpCost {
+			color_ = utilz.HexToColor("#ffffff")
+		}
+
+		pos := pixel.V(x, y)
+		textBase := text.New(pos, gui.BasicAtlasAscii)
+		textBase.Color = color_
+		fmt.Fprintln(textBase, txtWithCost)
+		textBase.Draw(renderer, pixel.IM)
+	}
+
+	OnSelection := func(selection *BrowseListState, index int, spellStringI interface{}) {
+		spellString := reflect.ValueOf(spellStringI).Interface().(string)
+		def, ok := world.SpellsDB[spellString]
+		if !ok {
+			panic(fmt.Sprintf("Key '%s' not found in SpellsDB", spellString))
+		}
+
+		mpNow := actor.Stats.Get("MpNow")
+		if mpNow < def.MpCost {
+			return //not enough mp
+		}
+
+		targeter := c.CreateActionTargeter(def, selection, CECastSpellCreate)
+		c.Stack.Push(targeter)
+	}
+
+	magicItemsState := BrowseListStateCreate(
+		c.Stack, x+24, y+24, itemsSelectionWidth, 100, "MAGIC",
+		func(item interface{}) {
+			//onFocus do nothing
+		},
+		OnExit,
+		actor.Magic,
+		OnSelection,
+		OnRenderItem,
+	)
+	c.Stack.Push(magicItemsState)
+}
+
 func (c *CombatChoiceState) CreateItemTargeter(def world.Item, browseState *BrowseListState) *CombatTargetState {
 	targetDef := def.Use.Target
 	c.CombatState.ShowTip(def.Use.Hint)
@@ -272,4 +429,34 @@ func (c *CombatChoiceState) Hide() {
 }
 func (c *CombatChoiceState) Show() {
 	c.mHide = false
+}
+
+func (c *CombatChoiceState) CreateActionTargeter(def world.SpecialItem, browseState *BrowseListState, combatEventF func(scene *CombatState, owner *combat.Actor, targets []*combat.Actor, spellI interface{}) CombatEvent) *CombatTargetState {
+	targetDef := def.Target
+	browseState.Hide()
+	c.Hide()
+
+	OnSelect := func(targets []*combat.Actor) {
+		c.Stack.Pop() // target state
+		c.Stack.Pop() // spell browse state
+		c.Stack.Pop() // action state
+
+		queue := c.CombatState.EventQueue
+		event := combatEventF(c.CombatState, c.Actor, targets, def)
+		tp := event.TimePoints(queue)
+		queue.Add(event, tp)
+	}
+
+	OnExit := func() {
+		browseState.Show()
+		c.Show()
+	}
+
+	return CombatTargetStateCreate(c.CombatState, CombatChoiceParams{
+		OnSelect:        OnSelect,
+		OnExit:          OnExit,
+		SwitchSides:     targetDef.SwitchSides,
+		DefaultSelector: CombatSelectorMap[targetDef.Selector],
+		TargetType:      targetDef.Type,
+	})
 }

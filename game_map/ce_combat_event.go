@@ -11,4 +11,5 @@ type CombatEvent interface {
 	Update()
 	IsFinished() bool
 	Execute(queue *EventQueue)
+	TimePoints(queue *EventQueue) float64
 }

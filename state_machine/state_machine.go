@@ -1,6 +1,8 @@
 package state_machine
 
-import "github.com/faiface/pixel/pixelgl"
+import (
+	"github.com/faiface/pixel/pixelgl"
+)
 
 /*
 Controller :

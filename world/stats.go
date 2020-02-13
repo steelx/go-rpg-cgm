@@ -1,8 +1,8 @@
 package world
 
 import (
+	"fmt"
 	"github.com/fatih/structs"
-	"log"
 	"reflect"
 )
 
@@ -57,7 +57,7 @@ type BaseStats struct {
 	MpNow, MpMax                   float64
 	Strength, Speed, Intelligence  float64 //ActorStats
 	Attack, Defense, Magic, Resist float64 //ItemStats
-	Counter                        float64
+	Counter, Fire, Burn, Ice, Bolt float64 //Magic
 }
 
 type Modifier struct {
@@ -115,7 +115,7 @@ func (s *Stats) RemoveModifier(uniqueId int) {
 func (s Stats) Get(id string) float64 {
 	total, ok := s.Base[id] //10
 	if !ok {
-		log.Fatal("stats.go: BaseStats key not found: ", id)
+		panic(fmt.Sprintf("stats.go: '%v' not defined on BaseStats", id))
 	}
 	multiplier := 0.0
 

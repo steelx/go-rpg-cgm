@@ -1,144 +1,5 @@
 package game_map
 
-const (
-	walkCyclePng   = "../resources/walk_cycle.png"
-	sleepingPng    = "../resources/sleeping.png"
-	chestPng       = "../resources/chest.png"
-	combatHeroPng  = "../resources/combat_hero.png"
-	combatMagePng  = "../resources/combat_mage.png"
-	combatThiefPng = "../resources/combat_thief.png"
-	goblinPng      = "../resources/goblin.png"
-	combatSlashPng = "../resources/combat_slash.png"
-	combatClawPng  = "../resources/combat_claw.png"
-	fxRestoreHpPng = "../resources/fx_restore_hp.png"
-	fxRestoreMpPng = "../resources/fx_restore_mp.png"
-	fxRevivePng    = "../resources/fx_revive.png"
-	fxUseItemPng   = "../resources/fx_use_item.png"
-)
-
-//Entities
-var Entities = map[string]EntityDefinition{
-	"empty": {
-		Texture: "",
-	},
-	"combat_hero": {
-		Texture: combatHeroPng,
-		Width:   64, Height: 64,
-		StartFrame: 10,
-	},
-	"combat_mage": {
-		Texture: combatMagePng,
-		Width:   64, Height: 64,
-		StartFrame: 10,
-	},
-	"combat_thief": {
-		Texture: combatThiefPng,
-		Width:   64, Height: 64,
-		StartFrame: 10,
-	},
-	"hero": {
-		Texture: walkCyclePng,
-		Width:   16, Height: 24,
-		StartFrame: 24,
-		TileX:      20,
-		TileY:      20,
-	},
-	"thief": {
-		Texture: walkCyclePng,
-		Width:   16, Height: 24,
-		StartFrame: 104,
-		TileX:      11,
-		TileY:      3,
-	},
-	"mage": {
-		Texture: walkCyclePng,
-		Width:   16, Height: 24,
-		StartFrame: 120,
-		TileX:      11,
-		TileY:      3,
-	},
-	"goblin": {
-		Texture: goblinPng,
-		Width:   32, Height: 32,
-		StartFrame: 0,
-	},
-	"sleeper": {
-		Texture: sleepingPng,
-		Width:   32, Height: 32,
-		StartFrame: 12,
-		TileX:      14,
-		TileY:      19,
-	},
-	"npc1": {
-		Texture: walkCyclePng,
-		Width:   16, Height: 24,
-		StartFrame: 46,
-		TileX:      24,
-		TileY:      19,
-	},
-	"npc2": {
-		Texture: walkCyclePng,
-		Width:   16, Height: 24,
-		StartFrame: 56,
-		TileX:      19,
-		TileY:      24,
-	},
-	"prisoner": {
-		Texture: walkCyclePng,
-		Width:   16, Height: 24,
-		StartFrame: 88,
-		TileX:      19,
-		TileY:      19, //jail map cords
-	},
-	"chest": {
-		Texture: chestPng,
-		Width:   16, Height: 16,
-		StartFrame: 0,
-		TileX:      20,
-		TileY:      20,
-	},
-	"slash": {
-		Texture: combatSlashPng,
-		Width:   64, Height: 64,
-		StartFrame: 2,
-		Frames:     []int{2, 1, 0},
-	},
-	"claw": {
-		Texture: combatClawPng,
-		Width:   64, Height: 64,
-		StartFrame: 0,
-		Frames:     []int{0, 1, 2},
-	},
-	"fx_restore_hp": {
-		Texture:    fxRestoreHpPng,
-		Width:      16,
-		Height:     16,
-		StartFrame: 0,
-		Frames:     []int{0, 1, 2, 3, 4},
-	},
-	"fx_restore_mp": {
-		Texture:    fxRestoreMpPng,
-		Width:      16,
-		Height:     16,
-		StartFrame: 0,
-		Frames:     []int{0, 1, 2, 3, 4, 5},
-	},
-	"fx_revive": {
-		Texture:    fxRevivePng,
-		Width:      16,
-		Height:     16,
-		StartFrame: 0,
-		Frames:     []int{0, 1, 2, 3, 4, 5, 6, 7},
-	},
-	"fx_use_item": {
-		Texture:    fxUseItemPng,
-		Width:      16,
-		Height:     16,
-		StartFrame: 0,
-		Frames:     []int{0, 1, 2, 3, 3, 2, 1, 0},
-	},
-}
-
 var CharacterDefinitions map[string]CharacterDefinition = map[string]CharacterDefinition{
 	"hero": {
 		Id: "hero",
@@ -151,13 +12,11 @@ var CharacterDefinitions map[string]CharacterDefinition = map[string]CharacterDe
 			csStandby: {41, 42, 43, 44, 45, 46, 47, 48, 49, 50},
 			csMove:    {81, 82, 83, 88, 85, 86},
 			csRetreat: {21, 22, 23, 24, 25, 26},
-			csProne:   {5, 6},
-			csAttack: {
-				61, 62, 63, 64, 65, 66, 67, 68, 69, 70,
-				//71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
-			},
+			csProne:   {4, 5, 6},
+			csAttack:  {61, 62, 63, 64, 65, 66, 67, 68, 69, 70},
 			csVictory: {71, 72, 73, 74, 75, 76, 77, 78, 79, 80},
-			csUse:     {10, 11, 12, 13, 14},
+			csUse:     {68, 67, 66, 65},
+			csSpecial: {134, 133, 132, 131, 130, 129, 128, 127, 126, 125, 124, 64, 63},
 			csHurt:    {113, 112, 111, 110, 109},
 			csDie:     {114, 113, 112, 111, 110, 109, 108, 107, 106, 105, 104, 103, 102, 101},
 			csDeath:   {35, 36, 37, 38},
@@ -185,10 +44,17 @@ var CharacterDefinitions map[string]CharacterDefinition = map[string]CharacterDe
 				55, 56, 57, 58, 59,
 			},
 			csVictory: {46, 47, 48, 49},
-			csUse:     {15, 16, 17, 18, 19},
-			csHurt:    {40, 41, 42, 43},
-			csDie:     {35, 36, 37, 38},
-			csDeath:   {35, 36, 37, 38},
+			//csSteal:   {15, 16, 17, 18, 19},
+			"steal_1":       {41, 42, 43, 44, 45},
+			"steal_2":       {15, 16, 17, 18, 19},
+			"steal_3":       {20, 21, 22, 23, 24},
+			"steal_4":       {45, 44, 43, 42, 41},
+			"steal_success": {10, 11, 12, 13},
+			"steal_failure": {10, 11, 12, 14},
+			csUse:           {45, 46, 47, 48, 49},
+			csHurt:          {40, 41, 42, 43},
+			csDie:           {35, 36, 37, 38},
+			csDeath:         {35, 36, 37, 38},
 		},
 		FacingDirection:    CharacterFacingDirection[2],
 		EntityDef:          Entities["thief"],
@@ -214,6 +80,7 @@ var CharacterDefinitions map[string]CharacterDefinition = map[string]CharacterDe
 			},
 			csVictory: {46, 47, 48, 49},
 			csUse:     {10, 11, 12, 13, 14},
+			csSpecial: {15, 16, 17, 18, 19},
 			csHurt:    {40, 41, 42, 43},
 			csDie:     {35, 36, 37, 38},
 			csDeath:   {35, 36, 37, 38},

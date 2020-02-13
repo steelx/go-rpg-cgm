@@ -3,6 +3,7 @@ package game_map
 import (
 	"github.com/steelx/go-rpg-cgm/combat"
 	"github.com/steelx/go-rpg-cgm/utilz"
+	"github.com/steelx/go-rpg-cgm/world"
 	"math"
 )
 
@@ -27,6 +28,7 @@ type FormulaT struct {
 	MostHurtParty    func(state *CombatState) []*combat.Actor
 	MostDrainedParty func(state *CombatState) []*combat.Actor
 	DeadParty        func(state *CombatState) []*combat.Actor
+	Steal            func(state *CombatState, attacker, target *combat.Actor) bool
 }
 
 var Formula = FormulaT{
@@ -37,6 +39,7 @@ var Formula = FormulaT{
 	IsDodged:    isDodged,
 	IsCountered: isCountered,
 	CanFlee:     canFlee,
+	Steal:       Steal,
 }
 
 func meleeAttack(state *CombatState, attacker, target *combat.Actor) (dmg float64, hit HitResult) {
@@ -153,66 +156,59 @@ func canFlee(state *CombatState, target *combat.Actor) bool {
 	return utilz.RandFloat(0, 1) <= fc
 }
 
-func WeakestActor(actors []*combat.Actor, onlyCheckHurt bool) []*combat.Actor {
-	var target *combat.Actor = nil
-	health := 99999.9
-
-	for _, v := range actors {
-		hp := v.Stats.Get("HpNow")
-		isHurt := false
-		if hp < v.Stats.Get("HpMax") {
-			isHurt = true
-		}
-		skip := false
-		if onlyCheckHurt && !isHurt {
-			skip = true
-		}
-		if hp < health && !skip {
-			health = hp
-			target = v
-		}
+func IsHitMagic(state *CombatState, attacker, target *combat.Actor, spell world.SpecialItem) HitResult {
+	// Spell hit information determined by the spell
+	hitChance := spell.BaseHitChance
+	if utilz.RandFloat(0, 1) <= hitChance {
+		return HitResultHit
 	}
 
-	if target != nil {
-		return []*combat.Actor{target}
-	}
-
-	return []*combat.Actor{actors[0]}
+	return HitResultMiss
 }
 
-func MostDrainedActor(actors []*combat.Actor, onlyCheckDrained bool) []*combat.Actor {
-	var target *combat.Actor = nil
-	magic := 99999.9
+func CalcSpellDamage(state *CombatState, attacker, target *combat.Actor, spell world.SpecialItem) (damage float64) {
+	// Find the basic damage
+	base := utilz.RandFloat(spell.BaseDamage[0], spell.BaseDamage[1])
+	damage = base * 4
+	// Increase power of spell by caster
+	level := attacker.Level
+	stats := attacker.Stats
+	bonus := float64(level) * stats.Get("Intelligence") * (base / 32)
 
-	for _, v := range actors {
-		mp := v.Stats.Get("MpNow")
-		isDrained := false
-		if mp < v.Stats.Get("MpMax") {
-			isDrained = true
-		}
-		skip := false
-		if onlyCheckDrained && !isDrained {
-			skip = true
-		}
-		if mp < magic && !skip {
-			magic = mp
-			target = v
-		}
-	}
-	if target != nil {
-		return []*combat.Actor{target}
-	}
+	damage += bonus
 
-	return []*combat.Actor{actors[0]}
+	// Apply elemental weakness / strength modifications
+	if spell.Element != "" {
+		modifier := target.Stats.Get(spell.Element)
+		damage += damage * modifier
+	}
+	// Handle resistance [0..255]
+	resist := math.Min(255, target.Stats.Get("Resist"))
+	resist01 := 1 - (resist / 255)
+	damage = damage * resist01
+	return damage
 }
 
-func DeadActors(actors []*combat.Actor) []*combat.Actor {
-	for _, v := range actors {
-		hp := v.Stats.Get("HpNow")
-		if hp <= 0 {
-			return []*combat.Actor{v}
-		}
+func MagicAttack(state *CombatState, attacker, target *combat.Actor, spell world.SpecialItem) (float64, HitResult) {
+	damage := 0.0
+	hitResult := IsHitMagic(state, attacker, target, spell)
+	if hitResult == HitResultMiss {
+		return damage, HitResultMiss
 	}
 
-	return []*combat.Actor{actors[0]}
+	// Dodging spells not allowed.
+	damage = CalcSpellDamage(state, attacker, target, spell)
+	return math.Floor(damage), HitResultHit
+}
+
+func Steal(state *CombatState, attacker, target *combat.Actor) bool {
+	cts := 0.50 // 50% chance to steal
+
+	if attacker.Level > target.Level {
+		cts = float64(50+attacker.Level-target.Level) / 128
+		cts = utilz.Clamp(cts, 0.05, 0.95)
+	}
+
+	randN := utilz.RandFloat(0, 1) //wondering if should be 0 to 1 or higher
+	return randN <= cts
 }

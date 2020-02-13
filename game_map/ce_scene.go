@@ -41,7 +41,7 @@ func (c *CombatState) OnDead(actor *combat.Actor) {
 	} else {
 		for i := len(c.Actors[enemies]) - 1; i >= 0; i-- {
 			if actor == c.Actors[enemies][i] {
-				c.Actors[enemies] = c.removeAtIndex(c.Actors[enemies], i)
+				c.Actors[enemies] = removeActorAtIndex(c.Actors[enemies], i)
 			}
 		}
 	}
@@ -56,7 +56,7 @@ func (c *CombatState) OnDead(actor *combat.Actor) {
 	}
 }
 
-func (c CombatState) removeAtIndex(arr []*combat.Actor, i int) []*combat.Actor {
+func removeActorAtIndex(arr []*combat.Actor, i int) []*combat.Actor {
 	return append(arr[:i], arr[i+1:]...)
 }
 func (c CombatState) removeCharAtIndex(arr []*Character, i int) []*Character {
