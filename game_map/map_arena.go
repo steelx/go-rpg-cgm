@@ -142,7 +142,12 @@ func mapArena(gStack *gui.StateStack) MapInfo {
 			}
 		}
 
-		gStack.PushSelectionMenu(x, y, 300, 70, "You get spotted by door guards, Goblins !!", choices, onSelection, true)
+		gStack.PushSelectionMenu(x, y, 400, 70, "You get spotted by Goblins", choices, onSelection, true)
+	}
+
+	enterArena := func(gameMap *GameMap, entity *Entity, tileX, tileY float64) {
+		gStack.Pop() //temp
+		gStack.Push(ArenaStateCreate(gStack))
 	}
 
 	return MapInfo{
@@ -153,8 +158,8 @@ func mapArena(gStack *gui.StateStack) MapInfo {
 
 		OnWake: map[string][]TriggerParam{
 			"AddNPC": {
-				{Id: "mage", X: 36, Y: 12},
-				{Id: "thief", X: 37, Y: 10},
+				{Id: "mage", X: 26, Y: 14},
+				{Id: "thief", X: 27, Y: 14},
 			},
 			"AddChest": {
 				{Id: "chest", X: 17, Y: 14},
@@ -174,6 +179,10 @@ func mapArena(gStack *gui.StateStack) MapInfo {
 				Id:     "RunScript",
 				Script: enterFight,
 			},
+			"enter_arena": {
+				Id:     "RunScript",
+				Script: enterArena,
+			},
 		},
 		TriggerTypes: map[string]TriggerType{
 			"talk_recruit_at_alley": {
@@ -185,14 +194,20 @@ func mapArena(gStack *gui.StateStack) MapInfo {
 			"enter_fight_at_gate": {
 				OnEnter: "enter_fight",
 			},
+			"enter_arena_at_door": {
+				OnUse: "enter_arena",
+			},
 		},
 		Triggers: []TriggerParam{
-			{Id: "talk_recruit_at_alley", X: 36, Y: 12},
-			{Id: "talk_recruit_at_alley", X: 37, Y: 10},
+			{Id: "talk_recruit_at_alley", X: 26, Y: 14},
+			{Id: "talk_recruit_at_alley", X: 27, Y: 14},
 			{Id: "add_chest_1", X: 17, Y: 14},
 			{Id: "enter_fight_at_gate", X: 22, Y: 42},
 			{Id: "enter_fight_at_gate", X: 23, Y: 42},
 			{Id: "enter_fight_at_gate", X: 24, Y: 42},
+			{Id: "enter_arena_at_door", X: 22, Y: 13},
+			{Id: "enter_arena_at_door", X: 23, Y: 13},
+			{Id: "enter_arena_at_door", X: 24, Y: 13},
 		},
 	}
 }
