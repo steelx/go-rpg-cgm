@@ -7,7 +7,6 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/sirupsen/logrus"
-	"github.com/steelx/go-rpg-cgm/globals"
 	"github.com/steelx/go-rpg-cgm/gui"
 	"github.com/steelx/go-rpg-cgm/sound"
 	"github.com/steelx/go-rpg-cgm/state_machine"
@@ -388,7 +387,7 @@ func UpdateState(state gui.StackInterface, time float64) func(storyboard *Storyb
 			0, 1, time,
 			state,
 			func(e *TweenEvent) {
-				state.Update(globals.Global.DeltaTime)
+				state.Update(storyboard.Stack.DeltaTime)
 			},
 		)
 	}

@@ -55,7 +55,7 @@ func ActorCreate(def ActorDef, randName ...interface{}) Actor {
 		StatGrowth:       def.StatGrowth,
 		Stats:            world.StatsCreate(def.Stats),
 		XP:               0,
-		Level:            1,
+		Level:            def.Level,
 		PortraitTexture:  actorAvatar,
 		Portrait:         pixel.NewSprite(actorAvatar, actorAvatar.Bounds()),
 		Actions:          def.Actions,
@@ -126,11 +126,11 @@ func (a Actor) CreateLevelUp() LevelUp {
 		levelUp.BaseStats[id] = float64(diceRoll())
 	}
 
-	//Pending feature
 	// Additional level up code
-	// e.g. if you want to apply
-	// a bonus every 4 levels
-	// or heal the players MP/HP
+	// unlocks ActionGrowth
+	level := a.Level + levelUp.Level
+	def := PartyMembersDefinitions[a.Id]
+	levelUp.Actions = def.ActionGrowth[level]
 
 	return levelUp
 }
@@ -144,8 +144,17 @@ func (a *Actor) ApplyLevel(levelUp LevelUp) {
 		a.Stats.Base[k] += v
 	}
 
-	//Pending feature
 	// Unlock any special abilities etc.
+	for action, specialPower := range levelUp.Actions {
+		a.UnlockMenuAction(action)
+		a.AddAction(action, specialPower)
+	}
+
+	//Restore HP and MP on level up
+	maxHP := a.Stats.Get("HpMax")
+	maxMP := a.Stats.Get("MpMax")
+	a.Stats.Set("HpNow", maxHP)
+	a.Stats.Set("MpNow", maxMP)
 }
 
 //GetEquipSlotIdByItemType takes in Item Type INT return Type string e.g. Weapon
@@ -287,4 +296,25 @@ func (a Actor) IsKOed() bool {
 //Knock Out
 func (a *Actor) KO() {
 	//TODO : impl Actor KO
+}
+
+func (a *Actor) UnlockMenuAction(actionId string) {
+	for _, v := range a.Actions {
+		if v == actionId {
+			//already exists
+			return
+		}
+	}
+	a.Actions = append(a.Actions, actionId)
+}
+
+func (a *Actor) AddAction(actionId string, specials []string) {
+	t := a.Special
+	if actionId == ActionMagic {
+		t = a.Magic
+	}
+
+	for _, v := range specials {
+		t = append(t, v)
+	}
 }

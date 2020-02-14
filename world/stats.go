@@ -58,6 +58,7 @@ type BaseStats struct {
 	Strength, Speed, Intelligence  float64 //ActorStats
 	Attack, Defense, Magic, Resist float64 //ItemStats
 	Counter, Fire, Burn, Ice, Bolt float64 //Magic
+	Level                          float64
 }
 
 type Modifier struct {

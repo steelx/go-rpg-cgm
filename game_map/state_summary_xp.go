@@ -164,8 +164,23 @@ func (s *XPSummaryState) HandleInput(win *pixelgl.Window) {
 			return
 		}
 
-		//s.Stack.Pop()
 		s.GotoLootSummary()
+	}
+}
+
+func (s *XPSummaryState) UnlockPopUps(summary *combat.ActorXPSummary, levelUpActions map[string][]string) {
+	for k, v := range levelUpActions {
+		hexColor := "#6dff25"
+		db := world.SpecialsDB
+		if k == combat.ActionMagic {
+			db = world.SpellsDB
+			hexColor = "#b725ff"
+		}
+
+		for _, id := range v {
+			msg := fmt.Sprintf("+ %s", db[id].Name)
+			summary.AddPopUp(msg, hexColor)
+		}
 	}
 }
 
@@ -177,13 +192,10 @@ func (s *XPSummaryState) ApplyXPToParty(xp float64) {
 
 			for actor.ReadyToLevelUp() {
 				levelUp := actor.CreateLevelUp()
-				summary.AddPopUp("Level Up!", "#e9d79b")
+				levelNumber := actor.Level + levelUp.Level
+				summary.AddPopUp(fmt.Sprintf("Level Up! %d", levelNumber), "#e9d79b")
 
-				//future Pending
-				//levelNumber := actor.Level + levelup.Level
-				// if levelNumber == 2 {
-				//     summary.AddPopUp("Unlocked: Fire I", hexColor)
-				// }
+				s.UnlockPopUps(summary, levelUp.Actions)
 
 				actor.ApplyLevel(levelUp)
 			}

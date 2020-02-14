@@ -18,9 +18,10 @@ type StackInterface interface {
 //top of the stack and is rendered last.
 //aka Last in First out
 type StateStack struct {
-	States  []StackInterface
-	Win     *pixelgl.Window
-	Globals map[string]interface{}
+	States    []StackInterface
+	Win       *pixelgl.Window
+	Globals   map[string]interface{}
+	DeltaTime float64
 }
 
 func StateStackCreate(win *pixelgl.Window) *StateStack {
