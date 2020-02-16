@@ -34,7 +34,7 @@ func StoryboardCreate(stack *gui.StateStack, win *pixelgl.Window, eventsI interf
 	//move an ExploreState from the main stack onto the Storyboard InternalStack
 	if handIn {
 		state := sb.Stack.Pop()
-		sb.PushState("handin", *state)
+		sb.PushState("handin", state)
 	}
 
 	return sb

@@ -146,8 +146,8 @@ func mapArena(gStack *gui.StateStack) MapInfo {
 	}
 
 	enterArena := func(gameMap *GameMap, entity *Entity, tileX, tileY float64) {
-		gStack.Pop() //temp
-		gStack.Push(ArenaStateCreate(gStack))
+		prevState := gStack.Pop()
+		gStack.Push(ArenaStateCreate(gStack, prevState))
 	}
 
 	return MapInfo{

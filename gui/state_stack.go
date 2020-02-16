@@ -40,11 +40,11 @@ func (ss *StateStack) Push(state StackInterface) {
 	ss.States = append(ss.States, state)
 	state.Enter()
 }
-func (ss *StateStack) Pop() *StackInterface {
+func (ss *StateStack) Pop() StackInterface {
 	top := ss.States[ss.GetLastIndex()]
 	ss.States = ss.States[:len(ss.States)-1] //remove
 	top.Exit()
-	return &top
+	return top
 }
 
 func (ss *StateStack) Update(dt float64) {

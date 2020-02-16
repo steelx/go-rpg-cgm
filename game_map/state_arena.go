@@ -16,6 +16,7 @@ type ArenaRound struct {
 }
 
 type ArenaState struct {
+	prevState gui.StackInterface
 	Stack     *gui.StateStack
 	World     *combat.WorldExtended
 	Layout    gui.Layout
@@ -25,7 +26,7 @@ type ArenaState struct {
 	Rounds []ArenaRound
 }
 
-func ArenaStateCreate(stack *gui.StateStack) gui.StackInterface {
+func ArenaStateCreate(stack *gui.StateStack, prevState gui.StackInterface) gui.StackInterface {
 	layout := gui.LayoutCreate(0, 0, stack.Win)
 	layout.Contract("screen", 120, 40)
 	layout.SplitHorz("screen", "top", "bottom", 0.15, 0)
@@ -36,9 +37,10 @@ func ArenaStateCreate(stack *gui.StateStack) gui.StackInterface {
 
 	gWorld := reflect.ValueOf(stack.Globals["world"]).Interface().(*combat.WorldExtended)
 	s := &ArenaState{
-		Stack:  stack,
-		World:  gWorld,
-		Layout: layout,
+		prevState: prevState,
+		Stack:     stack,
+		World:     gWorld,
+		Layout:    layout,
 		Rounds: []ArenaRound{
 			{Name: "Round 1", Locked: false},
 			{Name: "Round 2", Locked: true},
@@ -102,6 +104,7 @@ func (s *ArenaState) Exit() {
 func (s *ArenaState) HandleInput(win *pixelgl.Window) {
 	if win.JustPressed(pixelgl.KeyEscape) {
 		s.Stack.Pop() //remove self
+		s.Stack.Push(s.prevState)
 		return
 	}
 
