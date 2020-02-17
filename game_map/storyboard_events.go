@@ -411,3 +411,20 @@ func ReplaceState(current, new gui.StackInterface) func(storyboard *Storyboard) 
 		panic("You should have found a Current state.")
 	}
 }
+
+func RemoveState(state gui.StackInterface) func(storyboard *Storyboard) {
+	return func(storyboard *Storyboard) {
+		logrus.Info("Being asked to Remove a state")
+		stack := storyboard.Stack
+
+		for i := len(stack.States) - 1; i >= 0; i-- {
+			v := stack.States[i]
+			if v == state {
+				v.Exit()
+				stack.RemoveStateAtIndex(i)
+				return
+			}
+		}
+
+	}
+}

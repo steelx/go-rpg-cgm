@@ -119,6 +119,7 @@ func mapArena(gStack *gui.StateStack) MapInfo {
 					Party:   worldI.Party.ToArray(),
 					Enemies: []*combat.Actor{&enemy1, &enemy2, &enemy3},
 				},
+				CanFlee: true,
 			})
 
 			storyboardEvents := []interface{}{

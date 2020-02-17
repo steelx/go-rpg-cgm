@@ -7,12 +7,36 @@ import (
 	"github.com/faiface/pixel/text"
 	"github.com/steelx/go-rpg-cgm/combat"
 	"github.com/steelx/go-rpg-cgm/gui"
+	"math"
 	"reflect"
 )
 
+var rounds = []*ArenaRound{
+	{Name: "Round 1", Locked: false, Enemies: []combat.ActorDef{
+		combat.GoblinDef,
+	}},
+	{Name: "Round 2", Locked: true, Enemies: []combat.ActorDef{
+		combat.GoblinDef,
+		combat.GoblinDef,
+	}},
+	{Name: "Round 3", Locked: true, Enemies: []combat.ActorDef{
+		combat.GoblinDef,
+		combat.GoblinDef,
+		combat.GoblinDef,
+	}},
+	{Name: "Round 4", Locked: true, Enemies: []combat.ActorDef{
+		combat.OgreDef,
+		combat.OgreDef,
+	}},
+	{Name: "Round 5", Locked: true, Enemies: []combat.ActorDef{
+		combat.DragonDef,
+	}},
+}
+
 type ArenaRound struct {
-	Name   string
-	Locked bool
+	Name    string
+	Locked  bool
+	Enemies []combat.ActorDef
 }
 
 type ArenaState struct {
@@ -23,7 +47,7 @@ type ArenaState struct {
 	Panels    []gui.Panel
 	Selection *gui.SelectionMenu
 
-	Rounds []ArenaRound
+	Rounds []*ArenaRound
 }
 
 func ArenaStateCreate(stack *gui.StateStack, prevState gui.StackInterface) gui.StackInterface {
@@ -41,13 +65,7 @@ func ArenaStateCreate(stack *gui.StateStack, prevState gui.StackInterface) gui.S
 		Stack:     stack,
 		World:     gWorld,
 		Layout:    layout,
-		Rounds: []ArenaRound{
-			{Name: "Round 1", Locked: false},
-			{Name: "Round 2", Locked: true},
-			{Name: "Round 3", Locked: true},
-			{Name: "Round 4", Locked: true},
-			{Name: "Round 5", Locked: true},
-		},
+		Rounds:    rounds,
 	}
 
 	s.Panels = []gui.Panel{
@@ -60,9 +78,7 @@ func ArenaStateCreate(stack *gui.StateStack, prevState gui.StackInterface) gui.S
 		s.Rounds,
 		false,
 		pixel.V(0, 0),
-		func(index int, round interface{}) {
-
-		},
+		s.OnRoundSelected,
 		s.RenderRoundItem,
 	)
 	txtSize := 100.0
@@ -80,7 +96,7 @@ func (s *ArenaState) RenderRoundItem(a ...interface{}) {
 	renderer := reflect.ValueOf(a[0]).Interface().(pixel.Target)
 	x := reflect.ValueOf(a[1]).Interface().(float64)
 	y := reflect.ValueOf(a[2]).Interface().(float64)
-	round := reflect.ValueOf(a[3]).Interface().(ArenaRound)
+	round := reflect.ValueOf(a[3]).Interface().(*ArenaRound)
 
 	lockLabel := "Open"
 	if round.Locked {
@@ -91,6 +107,40 @@ func (s *ArenaState) RenderRoundItem(a ...interface{}) {
 	textBase := text.New(pixel.V(x, y), gui.BasicAtlas12)
 	fmt.Fprintf(textBase, label)
 	textBase.Draw(renderer, pixel.IM)
+}
+
+func (s *ArenaState) OnRoundSelected(index int, itemI interface{}) {
+	item := reflect.ValueOf(itemI).Interface().(*ArenaRound)
+	if item.Locked {
+		return
+	}
+
+	enemyDefs := []combat.ActorDef{combat.GoblinDef}
+	if len(item.Enemies) > 0 {
+		enemyDefs = item.Enemies
+	}
+
+	var enemyList []*combat.Actor
+	for k, v := range enemyDefs {
+		enemy_ := combat.ActorCreate(v, fmt.Sprintf("%v", k))
+		enemyList = append(enemyList, &enemy_)
+	}
+	combatDef := CombatDef{
+		Background: "../resources/arena_background.png",
+		Actors: Actors{
+			Party:   s.World.Party.ToArray(),
+			Enemies: enemyList,
+		},
+		CanFlee: false,
+		OnWin: func() {
+			s.WinRound(index, item)
+		},
+		OnDie: func() {
+			s.LoseRound(index, item)
+		},
+	}
+	state := CombatStateCreate(s.Stack, s.Stack.Win, combatDef)
+	s.Stack.Push(state)
 }
 
 func (s *ArenaState) Enter() {
@@ -143,4 +193,31 @@ func (s *ArenaState) Render(renderer *pixelgl.Window) {
 	//camera
 	camera := pixel.IM.Scaled(pixel.ZV, 1.0).Moved(renderer.Bounds().Center().Sub(pixel.ZV))
 	renderer.SetMatrix(camera)
+}
+
+func (s *ArenaState) WinRound(index int, round *ArenaRound) {
+	fmt.Println("WinRound", round.Name)
+	//Check for win - is is last round
+	if index == len(s.Rounds)-1 {
+		s.Stack.Pop()
+		state := ArenaCompleteStateCreate(s.Stack)
+		s.Stack.Push(state)
+		return
+	}
+
+	//Move the cursor to the next round if there is one
+	s.Selection.MoveDown()
+
+	//Unlock the newly selected round
+	nextRoundI := s.Selection.SelectedItem()
+	nextRound := reflect.ValueOf(nextRoundI).Interface().(*ArenaRound)
+	nextRound.Locked = false
+}
+func (s *ArenaState) LoseRound(index int, round *ArenaRound) {
+	party := s.World.Party.Members
+	for _, v := range party {
+		hpNow := v.Stats.Get("HpNow")
+		hpNow = math.Max(hpNow, 1)
+		v.Stats.Set("HpNow", hpNow)
+	}
 }

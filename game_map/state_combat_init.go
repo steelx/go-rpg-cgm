@@ -65,11 +65,13 @@ type CombatState struct {
 	StatsYCol,
 	marginLeft,
 	marginTop float64
-	Bars        map[*combat.Actor]BarStats //actor ID = BarStats
-	imd         *imdraw.IMDraw
-	EventQueue  *EventQueue
-	IsFinishing bool
-	Fled        bool
+	Bars       map[*combat.Actor]BarStats //actor ID = BarStats
+	imd        *imdraw.IMDraw
+	EventQueue *EventQueue
+	IsFinishing,
+	Fled,
+	CanFlee bool
+	OnDieCallback, OnWinCallback func()
 }
 
 type PanelTitle struct {
@@ -108,14 +110,17 @@ func CombatStateCreate(state *gui.StateStack, win *pixelgl.Window, def CombatDef
 			party:   def.Actors.Party,
 			enemies: def.Actors.Enemies,
 		},
-		Characters:   make(map[string][]*Character),
-		ActorCharMap: make(map[*combat.Actor]*Character),
-		StatsYCol:    208,
-		marginLeft:   18,
-		marginTop:    20,
-		imd:          imdraw.New(nil),
-		EventQueue:   EventsQueueCreate(),
-		Layout:       layout,
+		Characters:    make(map[string][]*Character),
+		ActorCharMap:  make(map[*combat.Actor]*Character),
+		StatsYCol:     208,
+		marginLeft:    18,
+		marginTop:     20,
+		imd:           imdraw.New(nil),
+		EventQueue:    EventsQueueCreate(),
+		Layout:        layout,
+		CanFlee:       def.CanFlee,
+		OnWinCallback: def.OnWin,
+		OnDieCallback: def.OnDie,
 	}
 
 	c.LayoutMap = combatLayout
@@ -625,11 +630,14 @@ func (c *CombatState) OnWin() {
 
 	storyboardEvents := []interface{}{
 		UpdateState(c, 1.0),
-		Wait(2),
 		BlackScreen("blackscreen"),
 		Wait(1),
 		KillState("blackscreen"),
 		ReplaceState(c, xpSummaryState),
+		Wait(0.3),
+	}
+	if c.OnWinCallback != nil {
+		storyboardEvents = append(storyboardEvents, RunFunction(c.OnWinCallback))
 	}
 	storyboard := StoryboardCreate(c.GameState, c.win, storyboardEvents, false)
 	c.GameState.Push(storyboard)
@@ -638,16 +646,35 @@ func (c *CombatState) OnWin() {
 
 func (c *CombatState) OnLose() {
 	c.IsFinishing = true
-	sbI := []interface{}{
-		BlackScreen("blackscreen"),
-		Wait(1),
-		KillState("blackscreen"),
+	var storyboardEvents []interface{}
+
+	if c.OnDieCallback != nil {
+		storyboardEvents = []interface{}{
+			UpdateState(c, 1.5),
+			BlackScreen("blackscreen"),
+			Wait(1),
+			KillState("blackscreen"),
+			RemoveState(c),
+			RunFunction(c.OnDieCallback),
+			Wait(2),
+		}
+	} else {
+		gameOverState := GameOverStateCreate(c.GameState)
+		storyboardEvents = []interface{}{
+			UpdateState(c, 1.5),
+			BlackScreen("blackscreen"),
+			Wait(1),
+			KillState("blackscreen"),
+			ReplaceState(c, gameOverState),
+			Wait(2),
+		}
 	}
-	storyboard := StoryboardCreate(c.GameState, c.GameState.Win, sbI, false)
+
+	storyboard := StoryboardCreate(c.GameState, c.GameState.Win, storyboardEvents, false)
 	c.GameState.Push(storyboard)
-	c.GameState.Pop()
-	gameOverState := GameOverStateCreate(c.GameState)
-	c.GameState.Push(gameOverState)
+	//c.GameState.Pop()
+	//gameOverState := GameOverStateCreate(c.GameState)
+	//c.GameState.Push(gameOverState)
 }
 
 func (c *CombatState) CalcCombatData() CombatData {

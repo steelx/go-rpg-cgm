@@ -16,9 +16,11 @@ type CombatCharacters struct {
 }
 
 type CombatDef struct {
-	Background string
-	Actors     Actors
-	Characters CombatCharacters
+	Background   string
+	Actors       Actors
+	Characters   CombatCharacters
+	CanFlee      bool
+	OnWin, OnDie func()
 }
 
 const (

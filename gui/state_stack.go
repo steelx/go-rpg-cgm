@@ -78,6 +78,10 @@ func (ss StateStack) GetLastIndex() int {
 	return len(ss.States) - 1
 }
 
+func (ss *StateStack) RemoveStateAtIndex(i int) {
+	ss.States = append(ss.States[:i], ss.States[i+1:]...)
+}
+
 //Render only last item in array
 //unless the last item gets Pop() next would show.
 func (ss StateStack) Render(renderer *pixelgl.Window) {

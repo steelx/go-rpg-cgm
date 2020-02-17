@@ -173,10 +173,7 @@ func (s *LootSummaryState) HandleInput(win *pixelgl.Window) {
 			BlackScreen("blackscreen"),
 			Wait(1),
 			KillState("blackscreen"),
-			//ReplaceState(s, combatState),//then dont Pop()
-			ReplaceScene("handin", "map_sewer", 3, 5, false, win),
-			PlayBGSound("../sound/reveal.mp3"),
-			HandOffToMainStack("map_sewer"),
+			//end the end we get kicked back to ArenaState
 		}
 		storyboard := StoryboardCreate(s.Stack, win, storyboardEvents, false)
 		s.Stack.Push(storyboard)
