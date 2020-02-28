@@ -54,7 +54,11 @@ func (ss *StateStack) Update(dt float64) {
 	//The most important state is at the top and it needs updating first.
 	//Each state can return a value, stored in the OK variable. If OK is false
 	//then the loop breaks and no subsequent states are updated.
-	ss.States[ss.GetLastIndex()].Update(dt)
+	lastIndex := ss.GetLastIndex()
+	if lastIndex == -1 {
+		return
+	}
+	ss.States[lastIndex].Update(dt)
 
 	//this duplicate is needed, after user interaction,
 	//user does Pop() hence empty check

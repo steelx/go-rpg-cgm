@@ -23,9 +23,10 @@ type XPSummaryState struct {
 	XPcopy,
 	XPPerSec,
 	XPCounter float64
-	IsCountingXP bool
-	Party        []*combat.Actor
-	PartySummary []*combat.ActorXPSummary
+	IsCountingXP  bool
+	Party         []*combat.Actor
+	PartySummary  []*combat.ActorXPSummary
+	OnWinCallback func()
 }
 
 type CombatData struct {
@@ -33,7 +34,7 @@ type CombatData struct {
 	Loot     []world.ItemIndex
 }
 
-func XPSummaryStateCreate(stack *gui.StateStack, win *pixelgl.Window, party combat.Party, combatData CombatData) *XPSummaryState {
+func XPSummaryStateCreate(stack *gui.StateStack, win *pixelgl.Window, party combat.Party, combatData CombatData, onWinCallback func()) *XPSummaryState {
 	layout := gui.LayoutCreate(0, 0, win)
 	layout.Contract("screen", 120, 40)
 	layout.SplitHorz("screen", "top", "bottom", 0.5, 2)
@@ -43,16 +44,17 @@ func XPSummaryStateCreate(stack *gui.StateStack, win *pixelgl.Window, party comb
 	layout.SplitHorz("top", "title", "detail", 0.5, 2)
 
 	s := &XPSummaryState{
-		win:          win,
-		Stack:        stack,
-		CombatData:   combatData,
-		Layout:       layout,
-		XP:           combatData.XP,
-		XPcopy:       combatData.XP,
-		XPPerSec:     5.0,
-		XPCounter:    0,
-		IsCountingXP: true,
-		Party:        party.ToArray(),
+		win:           win,
+		Stack:         stack,
+		CombatData:    combatData,
+		Layout:        layout,
+		XP:            combatData.XP,
+		XPcopy:        combatData.XP,
+		XPPerSec:      5.0,
+		XPCounter:     0,
+		IsCountingXP:  true,
+		Party:         party.ToArray(),
+		OnWinCallback: onWinCallback,
 	}
 
 	digitNumber := math.Log10(s.XP + 1)
@@ -230,12 +232,12 @@ func (s *XPSummaryState) CloseNextPopUp() {
 
 func (s *XPSummaryState) GotoLootSummary() {
 	world_ := reflect.ValueOf(s.Stack.Globals["world"]).Interface().(*combat.WorldExtended)
-	lootSummaryState := LootSummaryStateCreate(s.Stack, s.win, world_, s.CombatData)
+	lootSummaryState := LootSummaryStateCreate(s.Stack, s.win, world_, s.CombatData, s.OnWinCallback)
 
 	storyboardEvents := []interface{}{
 		Wait(0),
 		BlackScreen("blackscreen"),
-		Wait(1),
+		Wait(0.3),
 		KillState("blackscreen"),
 		ReplaceState(s, lootSummaryState),
 	}

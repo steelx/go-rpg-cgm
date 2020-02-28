@@ -196,11 +196,10 @@ func (s *ArenaState) Render(renderer *pixelgl.Window) {
 }
 
 func (s *ArenaState) WinRound(index int, round *ArenaRound) {
-	fmt.Println("WinRound", round.Name)
 	//Check for win - is is last round
 	if index == len(s.Rounds)-1 {
 		s.Stack.Pop()
-		state := ArenaCompleteStateCreate(s.Stack)
+		state := ArenaCompleteStateCreate(s.Stack, s.prevState)
 		s.Stack.Push(state)
 		return
 	}

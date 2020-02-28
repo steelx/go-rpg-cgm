@@ -7,18 +7,20 @@ import (
 )
 
 type ArenaCompleteState struct {
-	Stack    *gui.StateStack
-	captions gui.SimpleCaptionsScreen
+	Stack     *gui.StateStack
+	prevState gui.StackInterface
+	captions  gui.SimpleCaptionsScreen
 }
 
-func ArenaCompleteStateCreate(stack *gui.StateStack) gui.StackInterface {
+func ArenaCompleteStateCreate(stack *gui.StateStack, prevState gui.StackInterface) *ArenaCompleteState {
 	captions := []gui.CaptionStyle{
 		{"YOU WON!", 3},
 		{"Champion of the Arena", 1},
 	}
 	return &ArenaCompleteState{
-		Stack:    stack,
-		captions: gui.SimpleCaptionsScreenCreate(captions, pixel.V(0, 0)),
+		Stack:     stack,
+		prevState: prevState,
+		captions:  gui.SimpleCaptionsScreenCreate(captions, pixel.V(0, 0)),
 	}
 }
 
@@ -39,5 +41,8 @@ func (s *ArenaCompleteState) Render(win *pixelgl.Window) {
 }
 
 func (s *ArenaCompleteState) HandleInput(win *pixelgl.Window) {
-
+	if win.JustPressed(pixelgl.KeySpace) || win.JustPressed(pixelgl.KeyEscape) {
+		s.Stack.Pop()
+		s.Stack.Push(s.prevState)
+	}
 }

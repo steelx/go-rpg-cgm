@@ -626,7 +626,7 @@ func (c *CombatState) OnWin() {
 	//Create the storyboard and add the stats.
 	combatData := c.CalcCombatData()
 	world_ := reflect.ValueOf(c.GameState.Globals["world"]).Interface().(*combat.WorldExtended)
-	xpSummaryState := XPSummaryStateCreate(c.GameState, c.win, *world_.Party, combatData)
+	xpSummaryState := XPSummaryStateCreate(c.GameState, c.win, *world_.Party, combatData, c.OnWinCallback)
 
 	storyboardEvents := []interface{}{
 		UpdateState(c, 1.0),
@@ -636,9 +636,7 @@ func (c *CombatState) OnWin() {
 		ReplaceState(c, xpSummaryState),
 		Wait(0.3),
 	}
-	if c.OnWinCallback != nil {
-		storyboardEvents = append(storyboardEvents, RunFunction(c.OnWinCallback))
-	}
+
 	storyboard := StoryboardCreate(c.GameState, c.win, storyboardEvents, false)
 	c.GameState.Push(storyboard)
 	c.IsFinishing = true
