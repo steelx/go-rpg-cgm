@@ -25,9 +25,10 @@ type LootSummaryState struct {
 	GoldCounter float64
 	IsCountingGold bool
 	LootView       *gui.SelectionMenu
+	OnWinCallback  func()
 }
 
-func LootSummaryStateCreate(stack *gui.StateStack, win *pixelgl.Window, world *combat.WorldExtended, combatData CombatData) *LootSummaryState {
+func LootSummaryStateCreate(stack *gui.StateStack, win *pixelgl.Window, world *combat.WorldExtended, combatData CombatData, onWinCallback func()) *LootSummaryState {
 	layout := gui.LayoutCreate(0, 0, win)
 	layout.Contract("screen", 120, 40)
 	layout.SplitHorz("screen", "top", "bottom", 0.25, 2)
@@ -45,6 +46,7 @@ func LootSummaryStateCreate(stack *gui.StateStack, win *pixelgl.Window, world *c
 		GoldPerSec:     5.0,
 		GoldCounter:    0,
 		IsCountingGold: true,
+		OnWinCallback:  onWinCallback,
 	}
 
 	s.Panels = []gui.Panel{
@@ -166,17 +168,16 @@ func (s *LootSummaryState) HandleInput(win *pixelgl.Window) {
 			s.SkipCountingGold()
 			return
 		}
-		s.Stack.Pop()
-		//pending new map after winning
+		s.Stack.Pop() //remove self
+		if s.OnWinCallback != nil {
+			s.OnWinCallback()
+		}
 		storyboardEvents := []interface{}{
 			Wait(0),
 			BlackScreen("blackscreen"),
 			Wait(1),
 			KillState("blackscreen"),
-			//ReplaceState(s, combatState),//then dont Pop()
-			ReplaceScene("handin", "map_sewer", 3, 5, false, win),
-			PlayBGSound("../sound/reveal.mp3"),
-			HandOffToMainStack("map_sewer"),
+			//end the end we get kicked back to ArenaState
 		}
 		storyboard := StoryboardCreate(s.Stack, win, storyboardEvents, false)
 		s.Stack.Push(storyboard)

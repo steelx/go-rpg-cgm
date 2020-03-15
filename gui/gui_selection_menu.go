@@ -28,7 +28,7 @@ type SelectionMenu struct {
 	cursor                    *pixel.Sprite
 	useCursorPos              bool
 	cursorPosOffset           pixel.Vec
-	cursorWidth, cursorHeight float64
+	CursorWidth, CursorHeight float64
 	IsShowCursor              bool
 	MaxRows, displayRows      int //rows might be 30 but only 5 maxRows are displayed at once
 	displayStart              int //index at which we start displaying menu, e.g. out of 30 max 5 are visible from index 6
@@ -56,8 +56,8 @@ func SelectionMenuCreate(spacingY, spacingX, xWidth float64, data interface{}, s
 	}
 	m.textBase = text.New(position, BasicAtlas12)
 	m.cursor = pixel.NewSprite(CursorPng, CursorPng.Bounds())
-	m.cursorWidth = CursorPng.Bounds().W()
-	m.cursorHeight = CursorPng.Bounds().H()
+	m.CursorWidth = CursorPng.Bounds().W()
+	m.CursorHeight = CursorPng.Bounds().H()
 
 	if renderFunc != nil {
 		m.RenderFunction = renderFunc
@@ -143,7 +143,7 @@ func (m SelectionMenu) calcTotalWidth() float64 {
 				break
 			}
 		}
-		return maxEntryWidth + m.cursorWidth
+		return maxEntryWidth + m.CursorWidth
 	}
 	return m.SpacingX * float64(m.Columns)
 }
@@ -177,9 +177,9 @@ func (m SelectionMenu) Render(renderer *pixelgl.Window) {
 	displayStart := m.displayStart
 	displayEnd := displayStart + m.displayRows
 
-	cursorWidth := m.cursorWidth * m.Scale
+	cursorWidth := m.CursorWidth * m.Scale
 	cursorHalfWidth := cursorWidth / 2
-	cursorHalfHeight := m.cursorHeight / 2
+	cursorHalfHeight := m.CursorHeight / 2
 	spacingX := m.SpacingX * m.Scale
 	rowHeight := m.SpacingY * m.Scale
 

@@ -156,4 +156,18 @@ var CharacterDefinitions map[string]CharacterDefinition = map[string]CharacterDe
 			csHurt: {0, 1},
 		},
 	},
+	"ogre": {
+		Id:                 "ogre",
+		FacingDirection:    CharacterFacingDirection[2],
+		EntityDef:          Entities["ogre"],
+		DefaultState:       "wait",
+		DefaultCombatState: csStandby,
+	},
+	"dragon": {
+		Id:                 "dragon",
+		FacingDirection:    CharacterFacingDirection[2],
+		EntityDef:          Entities["dragon"],
+		DefaultState:       "wait",
+		DefaultCombatState: csStandby,
+	},
 }

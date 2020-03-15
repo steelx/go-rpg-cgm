@@ -31,7 +31,13 @@ func CEFleeCreate(scene *CombatState, owner *combat.Actor, fleeParams CSMovePara
 	c.Character.Controller.Change(csRunanim, csProne, false)
 	var storyboardEvents []interface{}
 
-	c.CanFlee = Formula.CanFlee(scene, owner)
+	//Scene CanFlee override
+	if c.Scene.CanFlee {
+		c.CanFlee = Formula.CanFlee(scene, owner)
+	} else {
+		c.CanFlee = false
+	}
+
 	if c.CanFlee {
 		storyboardEvents = []interface{}{
 			//stateMachine, stateID, ...animID, additionalParams

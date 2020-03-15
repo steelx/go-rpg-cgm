@@ -8,6 +8,8 @@ const (
 	combatMagePng  = "../resources/combat_mage.png"
 	combatThiefPng = "../resources/combat_thief.png"
 	goblinPng      = "../resources/goblin.png"
+	ogrePng        = "../resources/ogre.png"
+	greenDragonPng = "../resources/green_dragon.png"
 	combatSlashPng = "../resources/combat_slash.png"
 	combatClawPng  = "../resources/combat_claw.png"
 	fxRestoreHpPng = "../resources/fx_restore_hp.png"
@@ -63,6 +65,16 @@ var Entities = map[string]EntityDefinition{
 	"goblin": {
 		Texture: goblinPng,
 		Width:   32, Height: 32,
+		StartFrame: 0,
+	},
+	"ogre": {
+		Texture: ogrePng,
+		Width:   64, Height: 64,
+		StartFrame: 0,
+	},
+	"dragon": {
+		Texture: greenDragonPng,
+		Width:   128, Height: 64,
 		StartFrame: 0,
 	},
 	"sleeper": {

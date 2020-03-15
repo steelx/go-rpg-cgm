@@ -18,9 +18,10 @@ type StackInterface interface {
 //top of the stack and is rendered last.
 //aka Last in First out
 type StateStack struct {
-	States  []StackInterface
-	Win     *pixelgl.Window
-	Globals map[string]interface{}
+	States    []StackInterface
+	Win       *pixelgl.Window
+	Globals   map[string]interface{}
+	DeltaTime float64
 }
 
 func StateStackCreate(win *pixelgl.Window) *StateStack {
@@ -39,11 +40,11 @@ func (ss *StateStack) Push(state StackInterface) {
 	ss.States = append(ss.States, state)
 	state.Enter()
 }
-func (ss *StateStack) Pop() *StackInterface {
+func (ss *StateStack) Pop() StackInterface {
 	top := ss.States[ss.GetLastIndex()]
 	ss.States = ss.States[:len(ss.States)-1] //remove
 	top.Exit()
-	return &top
+	return top
 }
 
 func (ss *StateStack) Update(dt float64) {
@@ -53,7 +54,11 @@ func (ss *StateStack) Update(dt float64) {
 	//The most important state is at the top and it needs updating first.
 	//Each state can return a value, stored in the OK variable. If OK is false
 	//then the loop breaks and no subsequent states are updated.
-	ss.States[ss.GetLastIndex()].Update(dt)
+	lastIndex := ss.GetLastIndex()
+	if lastIndex == -1 {
+		return
+	}
+	ss.States[lastIndex].Update(dt)
 
 	//this duplicate is needed, after user interaction,
 	//user does Pop() hence empty check
@@ -75,6 +80,10 @@ func (ss StateStack) GetLastIndex() int {
 	}
 
 	return len(ss.States) - 1
+}
+
+func (ss *StateStack) RemoveStateAtIndex(i int) {
+	ss.States = append(ss.States[:i], ss.States[i+1:]...)
 }
 
 //Render only last item in array

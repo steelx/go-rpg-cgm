@@ -8,6 +8,8 @@ type ActorDef struct {
 	Id               string //must match entityDef
 	Stats            world.BaseStats
 	StatGrowth       map[string]func() int
+	Level            int
+	ActionGrowth     map[int]map[string][]string //Level -> {Action : [special, special]}
 	Portrait         string
 	Name             string
 	Actions          []string
@@ -36,6 +38,7 @@ type LevelUp struct {
 	XP        float64
 	Level     int
 	BaseStats map[string]float64
+	Actions   map[string][]string
 }
 
 //Must match to ItemsDB ID
