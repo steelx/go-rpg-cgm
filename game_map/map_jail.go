@@ -161,41 +161,41 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 	jailBreakCutsceneEvents := []interface{}{
 		Wait(0),
 		FadeOutCharacter("handin", "hero", 2),
-		//Wait(1),
-		//
-		//MoveCamToTile("handin", 32, 15, 16, 31, 2),
-		//RunActionAddNPC("handin", "guard", 16, 31, 0),
-		//MoveNPC("prisoner", "handin", []string{
-		//	"up", "up", "up", "up",
-		//	"left", "left", "left", "left", "left",
-		//	"down", "down", "down", "down", "down", "down",
-		//}),
-		//Wait(0),
-		//MoveNPC("guard", "handin", []string{
-		//	"right", "right", "right", "right", "right",
-		//	"up",
-		//}),
-		//WriteTile("handin", 21, 30, false), //at jail door
-		//PlaySound("../sound/unlock.mp3", 1),
-		//SetHiddenTileVisible("handin", 21, 29), //jail door
-		//SetHiddenTileVisible("handin", 21, 28), //jail door
-		//MoveNPC("guard", "handin", []string{
-		//	"up", "up", "up", "up", "up", "up",
-		//}),
-		//Say("handin", "guard", "Has the other prisoner gone?", 2),
-		//Say("handin", "prisoner", "Yeah.", 1),
-		//Wait(1),
-		//Say("handin", "guard", "Hmm", 1),
-		//Say("handin", "guard", "Dhananand wants to see you in the Tower", 2),
-		//Wait(1),
-		//FadeOutMap("handin", 2),
-		//BlackScreen("blackscreen"),
-		//Wait(1),
-		//KillState("blackscreen"),
+		Wait(1),
 
-		ReplaceScene("handin", "map_sewer", 3, 5, false, gStack.Win),
+		MoveCamToTile("handin", 32, 15, 16, 31, 2),
+		RunActionAddNPC("handin", "guard", 16, 31, 0),
+		MoveNPC("prisoner", "handin", []string{
+			"up", "up", "up", "up",
+			"left", "left", "left", "left", "left",
+			"down", "down", "down", "down", "down", "down",
+		}),
+		Wait(0),
+		MoveNPC("guard", "handin", []string{
+			"right", "right", "right", "right", "right",
+			"up",
+		}),
+		WriteTile("handin", 21, 30, false), //at jail door
+		PlaySound("../sound/unlock.mp3", 1),
+		SetHiddenTileVisible("handin", 21, 29), //jail door
+		SetHiddenTileVisible("handin", 21, 28), //jail door
+		MoveNPC("guard", "handin", []string{
+			"up", "up", "up", "up", "up", "up",
+		}),
+		Say("handin", "guard", "Has the other prisoner gone?", 2),
+		Say("handin", "prisoner", "Yeah.", 1),
+		Wait(1),
+		Say("handin", "guard", "Hmm", 1),
+		Say("handin", "guard", "Dhananand wants to see you in the Tower", 2),
+		Wait(1),
+		FadeOutMap("handin", 2),
+		BlackScreen("blackscreen"),
+		Wait(1),
+		KillState("blackscreen"),
+		//TODO: uncomment above
+		ReplaceScene("handin", "map_arena", 9, 7, false, gStack.Win),
 		PlayBGSound("../sound/reveal.mp3"),
-		HandOffToMainStack("map_sewer"),
+		HandOffToMainStack("map_arena"),
 	}
 	grillOnEnter := func(gameMap *GameMap, entity *Entity, tileX, tileY float64) {
 		x, y := gameMap.GetTileIndex(tileX, tileY)
