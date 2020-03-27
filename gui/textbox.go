@@ -7,7 +7,6 @@ import (
 	"github.com/faiface/pixel/text"
 	"github.com/steelx/go-rpg-cgm/animation"
 	"github.com/steelx/go-rpg-cgm/utilz"
-	"golang.org/x/image/font/basicfont"
 	"math"
 	"strings"
 )
@@ -24,7 +23,7 @@ var (
 	ContinueCaretPng pixel.Picture
 	CursorPng        pixel.Picture
 	BasicAtlas12     *text.Atlas
-	BasicAtlasAscii  = text.NewAtlas(basicfont.Face7x13, text.ASCII)
+	BasicAtlasAscii  *text.Atlas
 )
 
 func init() {
@@ -37,6 +36,9 @@ func init() {
 	fontFace12, err := utilz.LoadTTF("../resources/font/joystix.ttf", 12)
 	utilz.PanicIfErr(err)
 	BasicAtlas12 = text.NewAtlas(fontFace12, text.ASCII)
+
+	fontFace14, err := utilz.LoadTTF("../resources/font/LcdSolid-VPzB.ttf", 14)
+	BasicAtlasAscii = text.NewAtlas(fontFace14, text.ASCII)
 }
 
 type Textbox struct {
@@ -180,7 +182,7 @@ func TextboxCreateFixed(stack *StateStack, txt string, panelPos pixel.Vec, panel
 func TextboxCreateFitted(stack *StateStack, txt string, panelPos pixel.Vec, hasMenu bool) Textbox {
 	const padding = 20.0
 
-	tBox := TextboxNew(stack, txt, 13, BasicAtlasAscii, "", nil)
+	tBox := TextboxNew(stack, txt, 14, BasicAtlasAscii, "", nil)
 	tBox.AppearTween = animation.TweenCreate(0.9, 1, 0.3)
 	tBox.textBase = text.New(panelPos, tBox.textAtlas)
 	tBox.textBase.LineHeight = padding
