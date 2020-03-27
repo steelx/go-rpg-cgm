@@ -5,7 +5,6 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel/text"
-	"golang.org/x/image/font/basicfont"
 )
 
 type CaptionScreen struct {
@@ -16,12 +15,12 @@ type CaptionScreen struct {
 }
 
 func CaptionScreenCreate(txt string, position pixel.Vec, scale float64) CaptionScreen {
-	basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
+
 	return CaptionScreen{
 		text:     txt,
 		scale:    scale,
 		Position: position,
-		textBase: text.New(position, basicAtlas),
+		textBase: text.New(position, BasicAtlasAscii),
 	}
 }
 
