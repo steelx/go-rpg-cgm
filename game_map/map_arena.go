@@ -103,47 +103,41 @@ func mapArena(gStack *gui.StateStack) MapInfo {
 		gStack.PushSelectionMenu(x, y, 300, 70, "You found a treasure chest", choices, onSelection, true)
 	}
 
-	enterFight := func(gameMap *GameMap, entity *Entity, tileX, tileY float64) {
+	enterTown := func(gameMap *GameMap, entity *Entity, tileX, tileY float64) {
 		x, y := gameMap.GetTileIndex(tileX, tileY)
-		enemyDef := combat.GoblinDef
-		enemy1 := combat.ActorCreate(enemyDef, "1")
-		enemy2 := combat.ActorCreate(enemyDef, "2")
-		enemy3 := combat.ActorCreate(enemyDef, "3")
 
-		readyForFight := func() {
+		loadTownMap := func() {
 			gStack.Pop() //remove selection menu
-
-			combatState := CombatStateCreate(gStack, gStack.Win, CombatDef{
-				Background: "../resources/arena_background.png",
-				Actors: Actors{
-					Party:   worldI.Party.ToArray(),
-					Enemies: []*combat.Actor{&enemy1, &enemy2, &enemy3},
-				},
-				CanFlee: true,
-			})
 
 			storyboardEvents := []interface{}{
 				Wait(0),
+				FadeOutCharacter("handin", "hero", 1),
+
 				BlackScreen("blackscreen"),
 				Wait(1),
 				KillState("blackscreen"),
-				ReplaceState(gStack.States[len(gStack.States)-1], combatState),
+
+				FadeOutMap("handin", 1),
+
+				ReplaceScene("handin", "map_town", 1, 106, false, gStack.Win),
+				PlayBGSound("../sound/reveal.mp3"),
+				HandOffToMainStack("map_town"),
 			}
-			storyboard := StoryboardCreate(gStack, gStack.Win, storyboardEvents, false)
+			storyboard := StoryboardCreate(gStack, gStack.Win, storyboardEvents, true)
 			gStack.Push(storyboard)
 		}
 
 		choices := []string{
-			"Ready for fight",
-			"Get back, prepare team",
+			"Go to Town",
+			"Stay at Arena",
 		}
 		onSelection := func(index int, c interface{}) {
 			if index == 0 {
-				readyForFight()
+				loadTownMap()
 			}
 		}
 
-		gStack.PushSelectionMenu(x, y, 400, 70, "You get spotted by Goblins", choices, onSelection, true)
+		gStack.PushSelectionMenu(x, y, 400, 70, "You can go to Town map", choices, onSelection, true)
 	}
 
 	enterArena := func(gameMap *GameMap, entity *Entity, tileX, tileY float64) {
@@ -176,9 +170,9 @@ func mapArena(gStack *gui.StateStack) MapInfo {
 				Id:     "RunScript",
 				Script: addChest,
 			},
-			"enter_fight": {
+			"enter_town": {
 				Id:     "RunScript",
-				Script: enterFight,
+				Script: enterTown,
 			},
 			"enter_arena": {
 				Id:     "RunScript",
@@ -192,8 +186,8 @@ func mapArena(gStack *gui.StateStack) MapInfo {
 			"add_chest_1": {
 				OnUse: "add_chest",
 			},
-			"enter_fight_at_gate": {
-				OnEnter: "enter_fight",
+			"enter_town_at_gate": {
+				OnEnter: "enter_town",
 			},
 			"enter_arena_at_door": {
 				OnUse: "enter_arena",
@@ -203,9 +197,9 @@ func mapArena(gStack *gui.StateStack) MapInfo {
 			{Id: "talk_recruit_at_alley", X: 26, Y: 14},
 			{Id: "talk_recruit_at_alley", X: 27, Y: 14},
 			{Id: "add_chest_1", X: 17, Y: 14},
-			{Id: "enter_fight_at_gate", X: 22, Y: 42},
-			{Id: "enter_fight_at_gate", X: 23, Y: 42},
-			{Id: "enter_fight_at_gate", X: 24, Y: 42},
+			{Id: "enter_town_at_gate", X: 22, Y: 42},
+			{Id: "enter_town_at_gate", X: 23, Y: 42},
+			{Id: "enter_town_at_gate", X: 24, Y: 42},
 			{Id: "enter_arena_at_door", X: 22, Y: 13},
 			{Id: "enter_arena_at_door", X: 23, Y: 13},
 			{Id: "enter_arena_at_door", X: 24, Y: 13},

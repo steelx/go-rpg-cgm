@@ -13,7 +13,7 @@ func init() {
 	MapsDB["map_player_house"] = mapPlayerHouse
 	MapsDB["small_room"] = smallRoomMap
 	MapsDB["map_jail"] = mapJail
-	MapsDB["map_sewer"] = mapSewer
+	MapsDB["map_town"] = mapTown
 	MapsDB["map_arena"] = mapArena
 }
 

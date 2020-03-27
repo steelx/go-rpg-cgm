@@ -192,7 +192,7 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 		BlackScreen("blackscreen"),
 		Wait(1),
 		KillState("blackscreen"),
-		//TODO: uncomment above
+
 		ReplaceScene("handin", "map_arena", 9, 7, false, gStack.Win),
 		PlayBGSound("../sound/reveal.mp3"),
 		HandOffToMainStack("map_arena"),

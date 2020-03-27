@@ -50,7 +50,7 @@ func (s *Storyboard) PushState(identifier string, state gui.StackInterface) {
 		//found already
 		return
 	}
-	logrus.Info("Adding InternalStack", identifier)
+	logrus.Info("Adding InternalStack: ", identifier)
 	s.States[identifier] = state
 	s.InternalStack.Push(state)
 }
