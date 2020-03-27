@@ -137,7 +137,7 @@ func mapArena(gStack *gui.StateStack) MapInfo {
 			}
 		}
 
-		gStack.PushSelectionMenu(x, y, 400, 70, "You get spotted by Goblins", choices, onSelection, true)
+		gStack.PushSelectionMenu(x, y, 400, 70, "You can go to Town map", choices, onSelection, true)
 	}
 
 	enterArena := func(gameMap *GameMap, entity *Entity, tileX, tileY float64) {
