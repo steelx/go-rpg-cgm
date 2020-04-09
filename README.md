@@ -2,8 +2,9 @@
 GoLang 2D RPG Game - Chandragupta Maurya (CGM)
 
 Please feel free to contribute, by making PULL Requests.
-If need any help contact me below, or twitter.com/ajinkyax
-Telegram me **@ajinkyax** [LINK](http://tg//msg?text=Hello&to=@ajinkyax)
+If need any help contact me below;
+- [twitter.com/ajinkyax](https://twitter.com/ajinkyax)
+- Telegram me **@ajinkyax** [LINK](http://tg//msg?text=Hello&to=@ajinkyax)
 
 ## Setup (Install)
 `go get -v ...`
