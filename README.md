@@ -1,8 +1,7 @@
 # go-rpg-cgm
 GoLang 2D RPG Game - Chandragupta Maurya (CGM)
 
-Please feel free to contribute, by making PULL Requests.
-If need any help contact me below;
+Please feel free to connect;
 - [twitter.com/ajinkyax](https://twitter.com/ajinkyax)
 - Telegram me **@ajinkyax** [LINK](http://tg//msg?text=Hello&to=@ajinkyax)
 
