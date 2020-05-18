@@ -16,7 +16,7 @@ var IntroScene = []interface{}{
 	MoveNPC("guard", "map_player_house", []string{
 		"up", "up", "up", "left", "left", "left",
 	}),
-	Say("map_player_house", "guard", "You'r coming with me!!", 3),
+	Say("map_player_house", "guard", "You are coming with me", 3),
 	StopBGSound(),
 	PlaySound("../sound/wagon.mp3", 4),
 	BlackScreen("blackscreen"),

@@ -106,7 +106,7 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 
 		if prisoner.Entity.TileX == 25 && prisoner.Entity.TileY == 22 {
 			speech := []string{
-				"You're another black blood aren't you?",
+				"You're another rogue aren't you! Who spoke against Dhananad?",
 				"Tomorrow morning, they'll kill you, just like the others.",
 				"If I was you, I'd try and escape. Pry the drain open, with that big bone you're holding.",
 			}
@@ -131,7 +131,7 @@ func mapJail(gStack *gui.StateStack) MapInfo {
 		x, y := gameMap.GetTileIndex(tileX, tileY)
 		grillOpen := func(gMap *GameMap) {
 			gStack.Pop()
-			gStack.PushFitted(x, y, "The grill opened, and leads a way inside the sewers")
+			gStack.PushFitted(x, y, "The drain opened, and leads a way inside the sewers")
 			playUnlock()
 
 			gMap.RemoveTrigger(32, 15)
