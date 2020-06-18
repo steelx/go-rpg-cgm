@@ -12,3 +12,13 @@ OR
 
 ## DEMO
 [![Go RPG](https://img.youtube.com/vi/XBQ6jMGGk_Y/0.jpg)](https://www.youtube.com/watch?v=XBQ6jMGGk_Y)
+
+# Pending Tasks
+
+## 1. Working on Town map - (difficult)
+   - Town map inn NPC (e.g. enter house inside map see devlog video 03)
+   - cave map quest
+   - random encounters in town
+  - persisting game state
+## 2. Bug - At Menu screen XP box is going out of screen (easy)
+## 3. replace Storyboard reflect type with Enum Match (medium)
