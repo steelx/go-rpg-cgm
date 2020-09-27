@@ -3,7 +3,7 @@ GoLang 2D RPG Game - Chandragupta Maurya (CGM)
 
 Please feel free to connect;
 - [twitter.com/ajinkyax](https://twitter.com/ajinkyax)
-- Telegram me **@ajinkyax** [LINK](http://tg//msg?text=Hello&to=@ajinkyax)
+- Discord me **steelx#4050**
 
 ## Setup (Install)
 `go get -v ...`
