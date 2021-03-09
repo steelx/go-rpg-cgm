@@ -1,13 +1,8 @@
 # go-rpg-cgm
 GoLang 2D RPG Game - Chandragupta Maurya (CGM)
 
-If you really felt happy reading this code, you can make a small [contribute](https://opencollective.com/ajinkyax) here
+If you found this code useful or you love it, you can follow me on [Twitter](https://twitter.com/ajinkyax) or Subscribe on [Youtube](https://www.youtube.com/channel/UCuB4FSBjofpagXnBlHQUocA)
 
-[![Patreon](https://img.shields.io/badge/$opencollective-ajinkyax-f96854?style=for-the-badge&logo=opencollective&logoColor=green)](https://opencollective.com/ajinkyax)
-
-Please feel free to connect;
-- [twitter.com/ajinkyax](https://twitter.com/ajinkyax)
-- Discord me **steelx#4050**
 
 ## Setup (Install)
 `go get -v ...`
