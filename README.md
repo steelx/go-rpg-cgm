@@ -1,6 +1,7 @@
 # go-rpg-cgm
 GoLang 2D RPG Game - Chandragupta Maurya (CGM)
 
+NOTICE: you cannot use these assets commercially, only for hobby projects with credits.
 If you found this code useful or you love it, you can follow me on [Twitter](https://twitter.com/ajinkyax) or Subscribe on [Youtube](https://www.youtube.com/channel/UCuB4FSBjofpagXnBlHQUocA)
 
 
